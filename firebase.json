@@ -14,8 +14,8 @@
     ],
     "rewrites": [
       {
-        "source": "/api/v1/**",
-        "destination": "webApi"
+        "source": "/user/**",
+        "destination": "user"
       }
     ]
   }

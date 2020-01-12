@@ -9,16 +9,19 @@ const db = admin.firestore();
 const app = express();
 const cors = require('cors');
 const main = express();
-main.use('/api/v1', app);
+
+main.use(app);
 main.use(bodyParser.json());
 main.use(bodyParser.urlencoded({ extended: false }));
 
+const firestoreTools = require('./firestoreTools');
 
-// webApi is your functions name, and you will pass main as 
+// user is your functions name, and you will pass main as 
 // a parameter
-export const webApi = functions.https.onRequest(main);
+export const user = functions.https.onRequest(main);
 
-const houses = 'House';
+//const houses = 'House';
+const users = 'Users'
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
@@ -26,29 +29,66 @@ const houses = 'House';
 
 
 app.use(cors({origin:true}));
+app.use(firestoreTools.validateFirebaseIdToken);
 
-app.get('/hello',(req,res) => {
+app.get('/bye',(req,res) => {
 	res.send('Hello PurdueHCR');
 })
 
 //View houses
-app.get('/houses',cors({origin:true}), (req,res) => {
+/*
+app.get('/houses', (req,res) => {
 	db.collection(houses).get()
 	.then(snapshot => {
-		var data = "{\n\t\"houses\": [\n\t  ";
+		let data = "[";
 		snapshot.forEach(doc => {
-			if(data.length > 20){
+			if(data.length > 10){
 				data = data+",";
 			}
 			data = data + 
-			"{\n"+
-			"\t\t\"HouseName\": \""+doc.id+"\",\n"+
-			"\t\t\"TotalPoints\": "+doc.data().TotalPoints+",\n"+
-			"\t\t\"Color\": \""+doc.data().Color+"\"\n"+
-			"\t  }"; 
+			"\n\t{\n"+
+			"\t\t\"Id\": \""+doc.id+"\",\n"+
+			"\t\t\"Color\": \""+doc.data().Color+"\",\n"+
+			"\t\t\"NumberOfResidents\": "+doc.data().NumberOfResidents+",\n"+
+			"\t\t\"TotalPoints\": "+doc.data().TotalPoints+"\n"+
+			"\t}"; 
 		});
-		res.status(200).send(data+"\n\t]\n}");
+		res.status(200).send(data+"\n]");
 	})
 	.catch(err => res.status(500).send(res));
+})
+*/
+
+app.get('/rank',  (req,res) => {
+	//Get user id. Check the house. Get the rank of the user
+	const userId = req.header('User-Auth')
+	if(userId === "" || userId === undefined){
+		res.status(401).send("Missing Authorization");
+	}
+	db.collection(users).doc(userId!).get()
+	.then(userDocument => {
+		if(userDocument.exists ){
+			const houseName = userDocument.data()!.House;
+			db.collection(users)
+			.where('House', '==', houseName)
+				.get()
+				.then(snapshot => {
+					snapshot.docs.sort((u1,u2) => u2.data()!.TotalPoints - u1.data()!.TotalPoints)
+					let i = 1;
+					while(i <= snapshot.docs.length && snapshot.docs[i-1].data().TotalPoints !== userDocument.data()!.TotalPoints){
+						i ++;
+					}
+					res.status(200).send(""+i);
+				}
+			).catch(err => {
+				res.status(400).send(res);
+			})
+		}
+		else{
+			res.status(400).send("Could not find the user with Id: "+userId);
+		}
+	})
+	.catch(err => res.send(500).send(res));
+	
 })
 
