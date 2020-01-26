@@ -1,0 +1,142 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "PurdueHCR API",
+    "contact" : {
+      "email" : "purduehcr@gmail.com"
+    },
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "https://us-central1-purdue-hcr-test.cloudfunctions.net",
+    "description" : "Sandbox server (uses test data)"
+  }, {
+    "url" : "https://us-central1-hcr-points.cloudfunctions.net",
+    "description" : "Production server (uses live data)"
+  } ],
+  "paths" : {
+    "/user/rank" : {
+      "get" : {
+        "summary" : "Returns the user's overall house rank and semester rank.",
+        "parameters" : [ {
+          "name" : "User-Auth",
+          "in" : "header",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "A JSON object with the user's house rank and semester rank",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/inline_response_200"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Document Does Not Exist"
+          },
+          "401" : {
+            "description" : "Not Authorized"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/point/submit" : {
+      "post" : {
+        "summary" : "Submit a point log for a user",
+        "parameters" : [ {
+          "name" : "User-Auth",
+          "in" : "header",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "point-type-id",
+          "in" : "query",
+          "description" : "The ID of the Point Type that this was submitted under.",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer"
+          }
+        }, {
+          "name" : "description",
+          "in" : "query",
+          "description" : "User reported description of what they did for this subission.",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "date-occurred",
+          "in" : "query",
+          "description" : "User reported date that they did this activity",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "documentId",
+          "in" : "query",
+          "description" : "ID for the point log document to have. Used for single use QR codes",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "The Point Log was successfully submitted for the resident and an approval request was sent to an RHP."
+          },
+          "202" : {
+            "description" : "The Point Log was successfully submitted and was automatically approved."
+          },
+          "401" : {
+            "description" : "Not Authorized"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "inline_response_200" : {
+        "type" : "object",
+        "properties" : {
+          "house-rank" : {
+            "type" : "integer",
+            "example" : 2
+          },
+          "semester-rank" : {
+            "type" : "integer",
+            "example" : 10
+          }
+        }
+      }
+    }
+  }
+}

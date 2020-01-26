@@ -1,3 +1,5 @@
+
+
 const admin = require('firebase-admin');
 // Express middleware that validates Firebase ID Tokens passed in the Authorization HTTP header.
 // The Firebase ID token needs to be passed as a Bearer token in the Authorization HTTP header like this:
@@ -6,10 +8,15 @@ const admin = require('firebase-admin');
 const validateFirebaseIdToken = async (req, res , next) => {
 
 	
-	//if(req.path === '/houses'){
-    	//next();
-  	//	return;
-	 // }
+	if(req.path === '/secret-semester-points-set'){
+    	next();
+  		return;
+	}
+
+	if(req.path === '/secret-reset-house-competition'){
+    	next();
+  		return;
+	}
 	  
 	if(req.path === '/rank'){
     		next();
@@ -23,7 +30,7 @@ const validateFirebaseIdToken = async (req, res , next) => {
         	'Make sure you authorize your request by providing the following HTTP header:',
         	'Authorization: Bearer <Firebase ID Token>',
         	'or by passing a "__session" cookie.');
-    	res.status(403).send('Unauthorized');
+    	res.status(401).send('Unauthorized: Confirm the token is valid.');
     	return;
   	}
 
@@ -38,7 +45,7 @@ const validateFirebaseIdToken = async (req, res , next) => {
     	idToken = req.cookies.__session;
   	} else {
     	// No cookie
-    	res.status(403).send('Unauthorized');
+    	res.status(401).send('Unauthorized: Confirm the token is valid.');
     	return;
   	}
 
@@ -50,7 +57,7 @@ const validateFirebaseIdToken = async (req, res , next) => {
     	return;
   	} catch (error) {
     	console.error('Error while verifying Firebase ID token:', error);
-    	res.status(403).send('Unauthorized');
+    	res.status(401).send('Unauthorized: Confirm the token is valid.');
     	return;
   	}
 };

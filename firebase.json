@@ -13,10 +13,26 @@
       "**/node_modules/**"
     ],
     "rewrites": [
-      {
-        "source": "/user/**",
-        "destination": "user"
-      }
+     	{
+	        "source": "/user/**",
+        	"destination": "user"
+      	},
+	{
+		"source": "/competition/**",
+		"destination": "competition"
+	},
+	{
+		"source":"/swagger-ui/**",
+		"headers": [{
+			"key" : "Cache-Control",
+			"value" : "max-age=0"
+			}],
+		"dynamicLinks" : true
+	},
+	{
+		"source":"**",
+		"destination":"/index.html"
+	}
     ]
   }
 }

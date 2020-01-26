@@ -18,6 +18,7 @@
     "firebase-functions": "^3.2.0",
     "firebase-functions-helper": "^0.6.5",
     "glob": "^7.1.4",
+    "nodemailer": "^6.4.2",
     "raw-body": "^2.4.1"
   },
   "devDependencies": {
