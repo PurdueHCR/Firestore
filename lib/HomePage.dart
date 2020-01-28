@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:purduehcr_web/SignInCard.dart';
 
 
 class HomePage extends StatelessWidget {
@@ -7,7 +8,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text("Welcome to PurdueHCR"),
+      body: SignInCard(),
     );
   }
 }
