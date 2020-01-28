@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:purduehcr_web/SubmissionPage.dart';
+import 'package:purduehcr_web/HomePage.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: SubmissionPage()
+        home: HomePage()
     );
   }
 }
