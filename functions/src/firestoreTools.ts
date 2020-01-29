@@ -17,6 +17,11 @@ const validateFirebaseIdToken = async (req, res , next) => {
     	next();
   		return;
 	}
+
+	if(req.path === '/json_backup'){
+		next();
+		return;
+	}
 	  
 	if(req.path === '/rank'){
     		next();
