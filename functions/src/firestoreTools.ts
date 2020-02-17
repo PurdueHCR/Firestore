@@ -7,6 +7,10 @@ const admin = require('firebase-admin');
 // when decoded successfully, the ID Token content will be added as `req.user`.
 const validateFirebaseIdToken = async (req, res , next) => {
 
+	if(req.path === '/getPointTypes'){
+		next()
+		return;
+	}
 	
 	if(req.path === '/secret-semester-points-set'){
     	next();
@@ -16,11 +20,6 @@ const validateFirebaseIdToken = async (req, res , next) => {
 	if(req.path === '/secret-reset-house-competition'){
     	next();
   		return;
-	}
-
-	if(req.path === '/json_backup'){
-		next();
-		return;
 	}
 	  
 	if(req.path === '/rank'){

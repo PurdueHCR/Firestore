@@ -5,7 +5,7 @@
     "contact" : {
       "email" : "purduehcr@gmail.com"
     },
-    "version" : "1.0.0"
+    "version" : "1.0.0-oas3"
   },
   "servers" : [ {
     "url" : "https://us-central1-purdue-hcr-test.cloudfunctions.net",
@@ -14,19 +14,29 @@
     "url" : "https://us-central1-hcr-points.cloudfunctions.net",
     "description" : "Production server (uses live data)"
   } ],
+  "tags" : [ {
+    "name" : "user"
+  }, {
+    "name" : "competition"
+  }, {
+    "name" : "point"
+  } ],
   "paths" : {
-    "/user/rank" : {
+    "/user/auth-rank" : {
       "get" : {
+        "tags" : [ "user" ],
         "summary" : "Returns the user's overall house rank and semester rank.",
         "parameters" : [ {
-          "name" : "User-Auth",
+          "name" : "Authorization",
           "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
           "required" : true,
           "style" : "simple",
           "explode" : false,
           "schema" : {
             "type" : "string"
-          }
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
         } ],
         "responses" : {
           "200" : {
@@ -39,11 +49,92 @@
               }
             }
           },
+          "401" : {
+            "description" : "Not Authorized On Firebase: Could not verify user account with given Firebase ID Token"
+          },
+          "409" : {
+            "description" : "Conflict: Bad User Data"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/user/create" : {
+      "post" : {
+        "tags" : [ "user" ],
+        "summary" : "After a FirebaseUser account has been created, this will create the user model in the database",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        }, {
+          "name" : "first",
+          "in" : "query",
+          "description" : "The users preferred first name",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "John"
+        }, {
+          "name" : "last",
+          "in" : "query",
+          "description" : "The users preferred last name",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Purdue"
+        }, {
+          "name" : "code",
+          "in" : "query",
+          "description" : "The user provided house code that will connect a user with a house",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "4N1234"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "User was successfully created",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/User"
+                }
+              }
+            }
+          },
           "400" : {
-            "description" : "Document Does Not Exist"
+            "description" : "Firestore failed with error:"
           },
           "401" : {
-            "description" : "Not Authorized"
+            "description" : "Not Authorized On Firebase: Could not verify account with given Firebase ID Token"
+          },
+          "409" : {
+            "description" : "House Code Does Not Exist"
+          },
+          "421" : {
+            "description" : "User already exists"
+          },
+          "422" : {
+            "description" : "Missing required parameters"
           },
           "500" : {
             "description" : "Internal Server Error"
@@ -53,6 +144,7 @@
     },
     "/point/submit" : {
       "post" : {
+        "tags" : [ "point" ],
         "summary" : "Submit a point log for a user",
         "parameters" : [ {
           "name" : "User-Auth",
@@ -118,12 +210,120 @@
           "500" : {
             "description" : "Internal Server Error"
           }
+        },
+        "deprecated" : true
+      }
+    },
+    "/competition/save-semester-points" : {
+      "post" : {
+        "tags" : [ "competition" ],
+        "summary" : "Request a confirmation email sent to the user's account that contains information on how to save the current points total for all users. This can only be performed by an REA/REC.",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Confirmation sent"
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid."
+          },
+          "409" : {
+            "description" : "User does not have sufficient permissions to perform this action."
+          },
+          "410" : {
+            "description" : "Undefined User Role"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/competition/reset-house-competition" : {
+      "post" : {
+        "tags" : [ "competition" ],
+        "summary" : "Request a confirmation email sent to the user's account that contains information on how to reset the house competition. This will delete all submitted points, delete all QR codes, delete all users, and reset house scores. This can only be performed by an REA/REC.",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Confirmation sent"
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid."
+          },
+          "409" : {
+            "description" : "User does not have sufficient permissions to perform this action."
+          },
+          "410" : {
+            "description" : "Undefined User Role"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
         }
       }
     }
   },
   "components" : {
     "schemas" : {
+      "User" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "example" : "23p9vd123iohfds09aserh"
+          },
+          "firstName" : {
+            "type" : "string",
+            "example" : "Mitch"
+          },
+          "lastName" : {
+            "type" : "string",
+            "example" : "Daniels"
+          },
+          "floorId" : {
+            "type" : "string",
+            "example" : "4N"
+          },
+          "house" : {
+            "type" : "string",
+            "example" : "Platinum"
+          },
+          "lastSemesterPoints" : {
+            "type" : "integer",
+            "example" : 200
+          },
+          "totalPoints" : {
+            "type" : "integer",
+            "example" : 325
+          },
+          "permissionLevel" : {
+            "type" : "integer",
+            "example" : 0
+          }
+        }
+      },
       "inline_response_200" : {
         "type" : "object",
         "properties" : {

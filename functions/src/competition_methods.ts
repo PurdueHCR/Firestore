@@ -4,6 +4,23 @@ import * as express from 'express';
 import * as bodyParser from "body-parser";
 import {createSaveSemesterPointsEmail} from "./email_functions/SaveSemesterPointsEmail";
 import {createResetHouseCompetitionEmail} from "./email_functions/ResetHouseCompetitionEmail";
+import { PointType } from './models/PointType';
+import { HouseCompetition } from './models/HouseCompetition';
+import { PointLog } from './models/PointLog';
+import { UserPointsFromDate } from './administration';
+import { House } from './models/House';
+import { User } from './models/User';
+
+
+class UsersAndErrorWrapper{
+	err: any
+	userByUserId: Map<string, UserPointsFromDate>
+
+	constructor(err: any, users: Map<string, UserPointsFromDate>){
+		this.err = err;
+		this.userByUserId = users
+	}
+}
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
@@ -101,49 +118,94 @@ comp_app.post('/save-semester-points', (req, res) => {
  * Get request; This will be called from an email sent to the rec with the one time use code
  */
 comp_app.get('/secret-semester-points-set', (req, res) => {
+
+	if(req.query.date === null || req.query.date === ""){
+		res.status(400).send("Include a date in the query")
+	}
+
 	//Get user id. Check the house. Get the rank of the user
 	db.collection("SystemPreferences").doc("Preferences").get()
-				.then(preferenceDocument =>{
-					const usersRef =  db.collection(USERS_KEY);
+	.then(preferenceDocument =>{
+	//Check that the house is enabled and that the codes match
+	if(preferenceDocument.data()!.isHouseEnabled){
+		res.status(412).send("House Competition must be disabled before this is run.");
+	}
+	else if(preferenceDocument.data()!.OneTimeCode !== req.query.code){
+		res.status(400).send("Invalid Code");
+	}
+	else{
+		
+		//Get the Point Types
+		db.collection(HouseCompetition.POINT_TYPES_KEY).get()
+		.then(async pointTypeDocuments =>{
+			const pts: PointType[] = []
+			for( const pt of pointTypeDocuments.docs){
+				pts.push(new PointType(pt))
+			}
 
-					//Check that the house is enabled and that the codes match
-					if(preferenceDocument.data()!.isHouseEnabled){
-						res.status(412).send("House Competition must be disabled before this is run.");
-					}
-					else if(preferenceDocument.data()!.OneTimeCode !== req.query.code){
-						res.status(400).send("Invalid Code");
+			const date = new Date(Date.parse(req.query.date))
+			
+			//Get all the houses
+			db.collection(HouseCompetition.HOUSE_KEY).get().then(async houseCollectionSnapshot => {
+				const houses: House[] = []
+				const usersByHouse: Map<string, Map<string, UserPointsFromDate>> = new Map()
+				for( const house of houseCollectionSnapshot.docs){
+					const hs = House.houseFromFirebaseDoc(house);
+					const uaew = await getUserPointsFromDate(hs.id, pts, date)
+					if(uaew.err !== null){
+						res.status(400).send("Failed "+ uaew.err.message.toString())
+						return
 					}
 					else{
-						//Iterate through the residents in batches 
-						usersRef.get().then(async listOfUserSnapshots =>{
-							//Get the number of users
-							const count = listOfUserSnapshots.docs.length;
-							let i = 0;
-
-							//create a batch job
-							let batch = db.batch();
-							while( i < count){
-
-								//add an update to the user for the batch job
-								const ref = db.collection(USERS_KEY).doc(listOfUserSnapshots.docs[i].id)
-								batch.update(ref, {LastSemesterPoints: listOfUserSnapshots.docs[i].data().TotalPoints})
-								i ++;
-
-								//A batch job can only update 500 objects at a time, so at 499 commit the batch, and create a new one
-								if(i === 499){
-									await batch.commit()
-									batch = db.batch();
-								}
-							}
-							//Reset the OneTimeCode on the server
-							batch.update(db.collection(SYSPREF_KEY).doc("Preferences"),{OneTimeCode: randomString(50)});
-							await batch.commit()
-							//Post completion html/ message
-							res.status(200).send("Complete");
-						}).catch(err => { res.status(500).send("Failed to get Users: "+res)})
+						usersByHouse[hs.id] = uaew.userByUserId
+						houses.push(hs)
 					}
-				})
-				.catch( err => res.send(500).send("Failed to retrieve system preferences with error: "+res));
+					
+				}
+				const usersRef =  db.collection(USERS_KEY);
+
+				//Iterate through the residents in batches 
+				usersRef.get().then(async listOfUserSnapshots =>{
+					//Get the number of users
+					const count = listOfUserSnapshots.docs.length;
+					let i = 0;
+
+					//create a batch job
+					let batch = db.batch();
+					while( i < count){
+
+						//add an update to the user for the batch job
+						const ref = db.collection(USERS_KEY).doc(listOfUserSnapshots.docs[i].id)
+						const user = User.fromDocument(listOfUserSnapshots.docs[i])
+						let userNewPointsSinceDate:number = 0
+						if(user.house != null && user.house !== "" && usersByHouse[user.house.toString()] != null && usersByHouse[user.house.toString()][user.id.toString()] != null){
+							userNewPointsSinceDate = usersByHouse[user.house.toString()][user.id.toString()].points
+						}
+						batch.update(ref, {LastSemesterPoints: user.totalPoints - userNewPointsSinceDate})
+						i ++;
+
+						//A batch job can only update 500 objects at a time, so at 499 commit the batch, and create a new one
+						if(i === 499){
+							await batch.commit()
+							batch = db.batch();
+						}
+					}
+					//Reset the OneTimeCode on the server
+					batch.update(db.collection(SYSPREF_KEY).doc("Preferences"),{OneTimeCode: randomString(50)});
+					await batch.commit()
+					//Post completion html/ message
+					res.status(200).send("Complete");
+				}).catch(err => { res.status(500).send("Failed to get Users: "+res)})
+
+			}).catch(err => { res.status(500).send("Failed to get houses: "+res)})
+		})
+		.catch( err => res.status(500).send("Failed to get Point Types: "+res));
+				
+	}
+	})
+	.catch(err => {
+		res.status(500).send("Failed to get System Preferences"+ err);
+	})
 })
 
 /**
@@ -202,10 +264,22 @@ comp_app.get('/secret-reset-house-competition', (req,res) => {
 					}
 					else{
 						//TODO Complete actual deletion
-						res.status(200).send("Complete");
+						res.status(200).send("UNIMPLEMENTED");
 					}
 				})
 				.catch( err => res.send(500).send("Failed to retrieve system preferences with error: "+res));
+})
+
+comp_app.get('/getPointTypes', (req, res) => {
+	db.collection("PointTypes").get().then(pointTypeListSnapshot => {
+		const pointTypeList: PointType[] = []
+		for ( const pointTypeDocument of pointTypeListSnapshot.docs){
+			pointTypeList.push(new PointType(pointTypeDocument));
+		}
+		res.status(200).send(JSON.stringify(pointTypeList))
+	}).catch(err =>{
+		res.status(400).send(""+err.message);
+	})
 })
 
 
@@ -220,3 +294,70 @@ function randomString(length) {
     for (let i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
     return result;
 }
+
+
+/**
+ * Get the points that each user has scored after a date
+ * 
+ * @param house 
+ * @param pts 
+ * @param date 
+ */
+function getUserPointsFromDate(house:string, pts:PointType[], date:Date){
+	const userPointsPromise = new Promise<UsersAndErrorWrapper>((resolve, reject) => {
+		
+		//Get 
+	db.collection(HouseCompetition.HOUSE_KEY).doc(house).collection('Points').where('DateSubmitted', '>', date).get()
+	.then(async pointLogDocuments =>{
+
+		const usersFromUserID: Map<string, UserPointsFromDate> = new Map()
+		//Create new list of users
+		//iterate through all of the pointlog documents
+		for(const plIterator of pointLogDocuments.docs ){
+
+			//create the point log
+			const pl = new PointLog(plIterator)
+
+			//If the point log has been approved
+			if(pl.pointTypeId > 0){
+				//console.log("We got a point log from (" +pl.residentId+") " + pl.residentFirstName + " "+pl.residentLastName+ " With value: "+pl.pointTypeId)
+				//Iterate through the point types
+				for( const ptIterator of pts ){
+					//If the point types is found
+					if(ptIterator.id === pl.pointTypeId.toString()){
+
+						//Assigned means it hasnt been used
+						let assigned = false
+
+
+						if(usersFromUserID[pl.residentId.toString()] != null){
+							//console.log("WE GOT ONE!!!!!: "+pl.residentFirstName + " "+pl.residentLastName)
+							assigned = true
+							usersFromUserID[pl.residentId.toString()].addLog(pl, ptIterator.value)
+						}
+
+						//If no user was found, add the user
+						if(!assigned){
+							//console.log("And a new user!!! with the name of : "+pl.residentFirstName + " "+pl.residentLastName)
+							const user = new UserPointsFromDate(pl.residentId, pl.residentFirstName, pl.residentLastName)
+							user.addLog(pl, ptIterator.value)
+							usersFromUserID[pl.residentId.toString()] =  user
+						}
+						//point type was found and given to user, so we can break out of the point type loop
+						break
+					}
+				}
+			}
+		}
+		//Resturn json object with the users
+		const uaew: UsersAndErrorWrapper = new UsersAndErrorWrapper(null, usersFromUserID)
+		resolve(uaew)
+	})
+	.catch(err => {
+		const uaew: UsersAndErrorWrapper = new UsersAndErrorWrapper(err, new Map())
+		resolve(uaew) 
+	});
+	})
+	return userPointsPromise
+}
+
