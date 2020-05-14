@@ -19,28 +19,40 @@ export class House {
         this.id = id
     }
 
-    static houseFromFirebaseDoc(document: FirebaseFirestore.QueryDocumentSnapshot){
+    static fromDocumentSnapshot(document: FirebaseFirestore.DocumentSnapshot): House{
+        return this.fromData(document.data()!)
+    }
+
+    static fromQuerySnapshot(snapshot: FirebaseFirestore.QuerySnapshot): House[]{
+        const houses: House[] = []
+        for(const document of snapshot.docs){
+            houses.push(this.fromData(document.data()))
+        }
+        return houses
+    }
+
+    private static fromData(document: FirebaseFirestore.DocumentData): House{
         let color: string
         let numberOfResidents: number
         let totalPoints: number
         const id = document.id
 
-        if( House.COLOR in document.data()){
-            color = document.data()[House.COLOR];
+        if( House.COLOR in document){
+            color = document[House.COLOR];
         }
         else{
             color = "";
         }
         
-        if( House.NUMBER_OF_RESIDENTS in document.data()){
-            numberOfResidents = document.data()[House.NUMBER_OF_RESIDENTS];
+        if( House.NUMBER_OF_RESIDENTS in document){
+            numberOfResidents = document[House.NUMBER_OF_RESIDENTS];
         }
         else{
             numberOfResidents = -1;
         }
 
-        if( House.TOTAL_POINTS in document.data()){
-            totalPoints = document.data()[House.TOTAL_POINTS];
+        if( House.TOTAL_POINTS in document){
+            totalPoints = document[House.TOTAL_POINTS];
         }
         else{
             totalPoints = -1;
@@ -48,6 +60,11 @@ export class House {
         return new House(color, numberOfResidents, totalPoints, id)
     }
 
+    toPointUpdateJson() {
+        const data = {}
+        data[House.TOTAL_POINTS] = this.totalPoints
+        return data
+    }
 }
 
 export class HouseWithUser extends House {

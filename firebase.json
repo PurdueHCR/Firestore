@@ -3,7 +3,8 @@
     "predeploy": [
       "npm --prefix \"$RESOURCE_DIR\" run lint",
       "npm --prefix \"$RESOURCE_DIR\" run build"
-    ]
+    ],
+    "source": "functions"
   },
   "hosting": {
     "public": "public",
@@ -11,32 +12,24 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-    ],
-    "rewrites": [
-     	{
-	        "source": "/user/**",
-        	"destination": "user"
-      	},
-        {
-            "source": "/administration/**",
-            "destination": "administration"
-        },
-        {
-            "source": "/competition/**",
-            "destination": "competition"
-        },
-        {
-            "source":"/swagger-ui/**",
-            "headers": [{
-                "key" : "Cache-Control",
-                "value" : "max-age=0"
-                }],
-            "dynamicLinks" : true
-        },
-        {
-            "source":"**",
-            "destination":"/index.html"
-        }
     ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "hosting": {
+      "port": 5000
+    }
+  },
+  "storage": {
+    "rules": "storage.rules"
   }
 }

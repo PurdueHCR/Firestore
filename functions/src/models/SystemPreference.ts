@@ -15,60 +15,68 @@ export class SystemPreference {
     isHouseEnabled: Boolean
     suggestedPointIds: String
 
-    constructor(){
-        this.id = ""
-        this.androidVersion = ""
-        this.oneTimeCode = ""
-        this.houseEnabledMessage = ""
-        this.iosVersion = ""
-        this.isHouseEnabled = false
-        this.suggestedPointIds = ""
+    constructor(id:String, androidVersion: String, oneTimeCode: String, houseEnabledMessage: String, iosVersion: String, isHouseEnabled: Boolean, suggestedPointIds: String){
+        this.id = id
+        this.androidVersion = androidVersion
+        this.oneTimeCode = oneTimeCode
+        this.houseEnabledMessage = houseEnabledMessage
+        this.iosVersion = iosVersion
+        this.isHouseEnabled = isHouseEnabled
+        this.suggestedPointIds = suggestedPointIds
     }
 
-    set(document: FirebaseFirestore.QueryDocumentSnapshot){
-        this.id = document.id;
+    static fromDocument(document: FirebaseFirestore.DocumentSnapshot): SystemPreference{
+        let id: String
+        let androidVersion: String
+        let oneTimeCode: String
+        let houseEnabledMessage: String
+        let iosVersion: String
+        let isHouseEnabled: Boolean
+        let suggestedPointIds: String
+        id = document.id;
 
-        if( SystemPreference.ANDROID_VERSION in document.data()){
-            this.androidVersion = document.data()[SystemPreference.ANDROID_VERSION];
+        if( SystemPreference.ANDROID_VERSION in document.data()!){
+            androidVersion = document.data()![SystemPreference.ANDROID_VERSION];
         }
         else{
-            this.androidVersion = ""
+            androidVersion = ""
         }
 
-        if( SystemPreference.ONE_TIME_CODE in document.data()){
-            this.oneTimeCode = document.data()[SystemPreference.ONE_TIME_CODE];
+        if( SystemPreference.ONE_TIME_CODE in document.data()!){
+            oneTimeCode = document.data()![SystemPreference.ONE_TIME_CODE];
         }
         else{
-            this.oneTimeCode = ""
+            oneTimeCode = ""
         }
 
-        if( SystemPreference.HOUSE_ENABLED_MESSAGE in document.data()){
-            this.houseEnabledMessage = document.data()[SystemPreference.HOUSE_ENABLED_MESSAGE];
+        if( SystemPreference.HOUSE_ENABLED_MESSAGE in document.data()!){
+            houseEnabledMessage = document.data()![SystemPreference.HOUSE_ENABLED_MESSAGE];
         }
         else{
-            this.houseEnabledMessage = ""
+            houseEnabledMessage = ""
         }
 
-        if( SystemPreference.IOS_VERSION in document.data()){
-            this.iosVersion = document.data()[SystemPreference.IOS_VERSION];
+        if( SystemPreference.IOS_VERSION in document.data()!){
+            iosVersion = document.data()![SystemPreference.IOS_VERSION];
         }
         else{
-            this.iosVersion = ""
+            iosVersion = ""
         }
 
-        if( SystemPreference.IS_HOUSE_ENABLED in document.data()){
-            this.isHouseEnabled = document.data()[SystemPreference.IS_HOUSE_ENABLED];
+        if( SystemPreference.IS_HOUSE_ENABLED in document.data()!){
+            isHouseEnabled = document.data()![SystemPreference.IS_HOUSE_ENABLED];
         }
         else{
-            this.isHouseEnabled = false
+            isHouseEnabled = false
         }
 
-        if( SystemPreference.SUGGESTED_POINT_IDS in document.data()){
-            this.suggestedPointIds = document.data()[SystemPreference.SUGGESTED_POINT_IDS];
+        if( SystemPreference.SUGGESTED_POINT_IDS in document.data()!){
+            suggestedPointIds = document.data()![SystemPreference.SUGGESTED_POINT_IDS];
         }
         else{
-            this.suggestedPointIds = "";
+            suggestedPointIds = "";
         }
+        return new SystemPreference(id, androidVersion, oneTimeCode, houseEnabledMessage, iosVersion, isHouseEnabled, suggestedPointIds);
     }
 
 

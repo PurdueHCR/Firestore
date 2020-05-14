@@ -7,9 +7,12 @@
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "test": "zsh .test_script.zsh",
+    "unit": "zsh .test_script.zsh -t unit",
+    "integration": "zsh .test_script.zsh -t integration"
   },
-  "main": "lib/index.js",
+  "main": "lib/endpoint_paths/index.js",
   "dependencies": {
     "@firebase/app": "^0.5.4",
     "@types/node": "^13.7.1",
@@ -20,13 +23,27 @@
     "firebase-functions": "^3.3.0",
     "firebase-functions-helper": "^0.6.5",
     "glob": "^7.1.6",
+    "minimist": "^1.2.5",
     "nodemailer": "^6.4.2",
     "raw-body": "^2.4.1"
   },
   "devDependencies": {
-    "firebase-admin": "^8.9.2",
+    "@firebase/testing": "0.11.4",
+    "@grpc/grpc-js": "^1.0.3",
+    "@grpc/proto-loader": "^0.5.4",
+    "@types/jest": "^25.2.1",
+    "@types/supertest": "^2.0.9",
+    "firebase": "^7.14.3",
+    "firebase-admin": "8.2.0",
+    "firebase-functions-test": "^0.2.1",
+    "grpc": "^1.24.2",
+    "jest": "^25.4.0",
+    "nyc": "^15.0.1",
+    "supertest": "^4.0.2",
+    "ts-jest": "^25.4.0",
+    "ts-node": "^8.10.1",
     "tslint": "^5.20.1",
-    "typescript": "^3.7.5"
+    "typescript": "^3.8.3"
   },
   "private": true,
   "engines": {

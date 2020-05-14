@@ -1,0 +1,33 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "Points",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "FloorID",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "PointTypeID",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Points",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ResidentId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ResidentNotifications",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

@@ -1,3 +1,4 @@
+import { UserPermissionLevel } from "./UserPermissionLevel"
 
 export class HouseCode {
 
@@ -7,50 +8,46 @@ export class HouseCode {
     static HOUSE = "House"
     static PERMISSION_LEVEL = "PermissionLevel"
 
-    code: String
-    codeName: String
-    floorId: String
-    house: String
-    permissionLevel: number
-    id:String
+    id:string
+    code: string
+    codeName: string
+    floorId: string
+    house: string
+    permissionLevel: UserPermissionLevel
+    
 
-    constructor(document: FirebaseFirestore.QueryDocumentSnapshot){
-        this.id = document.id;
-        
-        if( HouseCode.CODE in document.data()) {
-            this.code = document.data()[HouseCode.CODE];
-        }
-        else {
-            this.code = "";
-        }
+    constructor(id:string, code: string, codeName: string, floorId: string, house: string, permissionLevel: UserPermissionLevel){
+        this.id = id
+        this.code = code
+        this.codeName = codeName
+        this.floorId = floorId
+        this.house = house
+        this.permissionLevel = permissionLevel
+    }
 
-        if( HouseCode.CODE_NAME in document.data()) {
-            this.codeName = document.data()[HouseCode.CODE_NAME];
-        }
-        else {
-            this.codeName = "";
-        }
+    static fromDocument(document: FirebaseFirestore.DocumentSnapshot): HouseCode {
+        return this.fromData(document.id, document.data()!)
+    }
 
-        if( HouseCode.FLOOR_ID in document.data()) {
-            this.floorId = document.data()[HouseCode.FLOOR_ID];
-        }
-        else {
-            this.floorId = "";
-        }
+    static fromDocumentSnapshot(document: FirebaseFirestore.QueryDocumentSnapshot): HouseCode {
+        return this.fromData(document.id, document.data())
+    }
 
-        if( HouseCode.HOUSE in document.data()) {
-            this.house = document.data()[HouseCode.HOUSE];
-        }
-        else {
-            this.house = "";
-        }
+    private static fromData(doc_id: string, document: FirebaseFirestore.DocumentData):  HouseCode {
+        let code: string
+        let codeName: string
+        let floorId: string
+        let house: string
+        let permissionLevel: UserPermissionLevel
+        let id:string
 
-        if( HouseCode.PERMISSION_LEVEL in document.data()) {
-            this.permissionLevel = document.data()[HouseCode.PERMISSION_LEVEL];
-        }
-        else {
-            this.permissionLevel = -1;
-        }
+        id = doc_id
+        code = document[HouseCode.CODE]
+        codeName = document[HouseCode.CODE_NAME]
+        floorId = document[HouseCode.FLOOR_ID]
+        house = document[HouseCode.HOUSE]
+        permissionLevel =  document[HouseCode.PERMISSION_LEVEL]
 
+        return new HouseCode(id, code, codeName, floorId, house, permissionLevel)
     }
 }
