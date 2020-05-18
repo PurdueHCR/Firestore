@@ -2,8 +2,7 @@ import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as express from 'express'
 import { APIResponse } from '../models/APIResponse'
-import { getAllRewards } from '../src/GetAllRewards'
-import { getRewardById } from '../src/GetRewardById'
+import { getAllRewards, getRewardById } from '../src/GetReward'
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
@@ -40,11 +39,11 @@ reward_app.get('/get', async (req, res) =>{
     try{
         if(req.query.id && req.query.id !== ""){
             const reward = await getRewardById(req.query.id as string)
-            res.status(APIResponse.SUCCESS_CODE).send(reward.toJson())
+            res.status(APIResponse.SUCCESS_CODE).send(reward)
         }
         else {
             const rewards = await getAllRewards()
-            res.status(APIResponse.SUCCESS_CODE).send(JSON.stringify(rewards))
+            res.status(APIResponse.SUCCESS_CODE).send(rewards)
         }
     }
     catch (error){

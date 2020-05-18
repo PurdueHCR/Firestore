@@ -40,7 +40,10 @@ export class User {
         return this.firstName + " " + this.lastName
     }
 
-    canSubmitPoints(): Boolean {
+    /**
+     * Returns true if the user is Resident, RHP, or Priv_res. So, people who can submit points and have rank
+     */
+    isParticipantInCompetition(): Boolean {
         return this.permissionLevel === UserPermissionLevel.RESIDENT || 
             this.permissionLevel === UserPermissionLevel.RHP || 
             this.permissionLevel === UserPermissionLevel.PRIVILEGED_RESIDENT

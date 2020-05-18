@@ -78,18 +78,18 @@ export class PointLog {
     }
 
     static fromDocumentSnapshot( document: admin.firestore.DocumentSnapshot): PointLog {
-        return this.fromData(document.data()!);
+        return this.fromData(document.data()!, document.id);
     }
 
     static fromQuerySnapshot( snapshot: admin.firestore.QuerySnapshot): PointLog[] {
         const pointLogs: PointLog[] = []
         for( const document of snapshot.docs){
-            pointLogs.push(this.fromData(document.data()))
+            pointLogs.push(this.fromData(document.data(), document.id))
         }
         return pointLogs;
     }
 
-    private static fromData(document: admin.firestore.DocumentData): PointLog {
+    private static fromData(document: admin.firestore.DocumentData, doc_id: string): PointLog {
         let approvedBy: string | null
         let approvedOn: Date | null
         let dateOccurred: Date
@@ -104,7 +104,7 @@ export class PointLog {
         let residentNotifications: number
         let id: string
 
-        id = document.id
+        id = doc_id
 
         if(PointLog.APPROVED_BY in document){
             approvedBy = document[PointLog.APPROVED_BY]

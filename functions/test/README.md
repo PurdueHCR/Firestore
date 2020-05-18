@@ -62,3 +62,7 @@ users_app.use(express.urlencoded({ extended: true }))
 -Question: When running integration test, all tests are returning 401 errors.
 
 Double check that your integration test mocks firebase-admin in the beforeAll part of the test and make sure that you define the function you are testing underneath your mocking of the firebase-admin. If you import you function from index.ts before you mock the fb-admin your test will not handle token validation correctly. Alternativley add print statements in firestoreTools.ts to see what the tokens are when you run your tests
+
+- Question: My Integration test keep timing out after 5000ms.
+
+This solution will work if you have a response object of type request.Test and you are calling response.end(async function(err,res) {...}). Make sure that every path in the end's async function calls done(). If you dont call done(), then the test will timeout as it doesnt know to end

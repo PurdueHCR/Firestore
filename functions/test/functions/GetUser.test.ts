@@ -4,15 +4,18 @@ import * as MockDataFactory from '../MockDataFactory'
 const GetUser = require('../../src/src/GetUser')
 
 //Sample data object to return
-const user:{} = {
-    FirstName: "First name",
-    FloorID: "4N",
-    House: "Platinum",
-    lastName: "Last Name",
-    LastSemesterPoints: 20,
-    "Permission Level": 0,
-    TotalPoints: 20,
-    UserID: "Test-User-ID"
+const user:MockDataFactory.DocumentData = {
+    id: "Test-User-ID",
+    data: {
+        FirstName: "First name",
+        FloorID: "4N",
+        House: "Platinum",
+        LastName: "Last Name",
+        SemesterPoints: 20,
+        "Permission Level": 0,
+        TotalPoints: 20,
+        UserID: "Test-User-ID"
+    }
 }
 
 
@@ -47,7 +50,7 @@ jest.mock('firebase-admin', () => ({
                 if(doc_id === "Test-User-ID"){
                     return {
                         //db.collection("").doc("Test-User-ID").get()
-                        get: MockDataFactory.mockFirebaseDocumentRequest("Test-User-ID", user)
+                        get: MockDataFactory.mockFirebaseDocumentRequest(user)
                     }
                 }
                 else if(doc_id === "Server-Error"){
@@ -72,9 +75,16 @@ describe('GetUser', () =>{
 
     //Test GetUserSuccess. Ensure a user is correctly returned
     test('TestGetUserSuccess', async() => {
-        const id =  "Test-User-ID";
-        let result = await GetUser.getUser(id);
-        expect(result.firstName).toBe("First name")
+        let result = await GetUser.getUser(user.id);
+        expect(result.id).toBe(user.id)
+        expect(result.firstName).toBe(user.data.FirstName)
+        expect(result.lastName).toBe(user.data.LastName)
+        expect(result.floorId).toBe(user.data.FloorID)
+        expect(result.house).toBe(user.data.House)
+        expect(result.semesterPoints).toBe(user.data.SemesterPoints)
+        expect(result.totalPoints).toBe(user.data.TotalPoints)
+        expect(result.permissionLevel).toBe(user.data["Permission Level"])
+
     })
 
     //Test that a server error is correctly handled

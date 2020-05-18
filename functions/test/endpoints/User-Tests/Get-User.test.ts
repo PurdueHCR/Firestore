@@ -5,13 +5,14 @@ import {FirestoreDataFactory} from '../FirestoreDataFactory'
 
 let user_func
 const RESIDENT_ID = "RESIDENT"
+let db:firebase.firestore.Firestore
 
 //Test Suite GetUser
 describe('user/get', () =>{
 
     beforeAll(async () => {
         IntegrationMockFactory.mockFirebaseAdmin()
-        const db = IntegrationMockFactory.getDb()
+        db = IntegrationMockFactory.getDb()
 
         user_func = require('../../../src/endpoint_paths/index.ts').user
 

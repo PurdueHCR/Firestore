@@ -5,15 +5,48 @@
  * @param id Id for the mocked document
  * @param data {} for the mocked object.
  */
-export function mockFirebaseDocumentRequest(id:String, data:{}): Function {
+export function mockFirebaseDocumentRequest(data: DocumentData): Function {
     const mockDocumentRequest = jest.fn()
-    mockDocumentRequest.mockResolvedValue(Promise.resolve({
-        exists: true,
-        id: id,
-        data: () => (data)
-    }))
+    mockDocumentRequest.mockResolvedValue(Promise.resolve(mockDocument(data)))
     return mockDocumentRequest
 }
+
+export type DocumentData = {
+    id: String,
+    data: any
+}
+
+function mockDocument(data:DocumentData){
+    return {
+        exists: true,
+        id: data.id,
+        data: () => (data.data)
+    }
+}
+
+function mockDocuments(documents:DocumentData[]){
+    let data:any[] = []
+    for(const doc of documents){
+        data.push(mockDocument(doc))
+    }
+    return data
+}
+
+/**
+ * Mock function that returns a Promise that resolves a 
+ * FirebaseQueryRequest
+ * 
+ * @param id Id for the mocked document
+ * @param data {} for the mocked object.
+ */
+export function mockFirebaseQueryRequest(documents: DocumentData[]): Function {
+    const mockQueryRequest = jest.fn()
+    mockQueryRequest.mockResolvedValue(Promise.resolve({
+        docs: mockDocuments(documents)
+    }))
+    return mockQueryRequest
+}
+
 
 /**
  * Mock function which returns a Promise with a resolved object 

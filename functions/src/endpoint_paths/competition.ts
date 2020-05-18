@@ -9,6 +9,8 @@ import { PointLog } from '../models/PointLog'
 import { UserPointsFromDate } from './administration'
 import { House } from '../models/House'
 import { User } from '../models/User'
+import { APIResponse } from '../models/APIResponse'
+import { getResidentProfile } from '../src/GetUserProfiles'
 
 
 class UsersAndErrorWrapper{
@@ -272,15 +274,21 @@ comp_app.get('/getPointTypes', (req, res) => {
 /**
  * Return the system preferences
  */
-comp_app.get('/getSystemPreferences', (req, res) => {
-	//TODO 
-	/*
-		2. Get the system preferences from the database
-		3. Cast the returned document into a System Preference Model
-		4. Send the json version of the model in the response
-		5. return 400 error if could not find the system preferences
-		6. Return 500 error if firebase error
-	*/
+comp_app.get('/residentProfile', async (req, res) => {
+	try{
+		const resident_profile = await getResidentProfile(req["user"]["user_id"])
+		res.status(APIResponse.SUCCESS_CODE).send(resident_profile)
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.log("Unknown Error: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
 })
 
 /**

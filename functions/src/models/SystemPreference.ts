@@ -5,6 +5,7 @@ export class SystemPreference {
     static HOUSE_ENABLED_MESSAGE = "houseEnabledMessage"
     static IOS_VERSION = "iOS_Version"
     static IS_HOUSE_ENABLED = "isHouseEnabled"
+    static IS_COMPETITION_VISIBLE = "isCompetitionVisible"
     static SUGGESTED_POINT_IDS = "suggestedPointIDs"
 
     id: String
@@ -14,8 +15,9 @@ export class SystemPreference {
     iosVersion: String
     isHouseEnabled: Boolean
     suggestedPointIds: String
+    isCompetitionVisible: Boolean
 
-    constructor(id:String, androidVersion: String, oneTimeCode: String, houseEnabledMessage: String, iosVersion: String, isHouseEnabled: Boolean, suggestedPointIds: String){
+    constructor(id:String, androidVersion: String, oneTimeCode: String, houseEnabledMessage: String, iosVersion: String, isHouseEnabled: Boolean, suggestedPointIds: String, isCompetitionVisible: Boolean){
         this.id = id
         this.androidVersion = androidVersion
         this.oneTimeCode = oneTimeCode
@@ -23,6 +25,7 @@ export class SystemPreference {
         this.iosVersion = iosVersion
         this.isHouseEnabled = isHouseEnabled
         this.suggestedPointIds = suggestedPointIds
+        this.isCompetitionVisible = isCompetitionVisible
     }
 
     static fromDocument(document: FirebaseFirestore.DocumentSnapshot): SystemPreference{
@@ -33,6 +36,7 @@ export class SystemPreference {
         let iosVersion: String
         let isHouseEnabled: Boolean
         let suggestedPointIds: String
+        let isCompetitionVisible: Boolean
         id = document.id;
 
         if( SystemPreference.ANDROID_VERSION in document.data()!){
@@ -70,13 +74,20 @@ export class SystemPreference {
             isHouseEnabled = false
         }
 
+        if( SystemPreference.IS_COMPETITION_VISIBLE in document.data()!){
+            isCompetitionVisible = document.data()![SystemPreference.IS_COMPETITION_VISIBLE];
+        }
+        else{
+            isCompetitionVisible = false
+        }
+
         if( SystemPreference.SUGGESTED_POINT_IDS in document.data()!){
             suggestedPointIds = document.data()![SystemPreference.SUGGESTED_POINT_IDS];
         }
         else{
             suggestedPointIds = "";
         }
-        return new SystemPreference(id, androidVersion, oneTimeCode, houseEnabledMessage, iosVersion, isHouseEnabled, suggestedPointIds);
+        return new SystemPreference(id, androidVersion, oneTimeCode, houseEnabledMessage, iosVersion, isHouseEnabled, suggestedPointIds, isCompetitionVisible);
     }
 
 

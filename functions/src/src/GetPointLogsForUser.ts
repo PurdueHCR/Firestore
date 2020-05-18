@@ -3,23 +3,30 @@ import { APIResponse } from "../models/APIResponse"
 import { PointLog } from '../models/PointLog'
 import { HouseCompetition } from "../models/HouseCompetition"
 
-/**
- * Get PointLogs for a user from their id
- * 
- * @param userID The id of the user whose PointLogs we want to retrieve
- * 
- * @throws
- * 
- */
 
-export async function getPointLogsForUser(userID: string, house: string) : Promise<PointLog[]> {
+/**
+ * Get point logs belonging to the user orderd by the date they were submitted
+ * @param userID - Id of user to get point logs for
+ * @param house - name of house that user belongs to
+ * @param limit - Optional number of point logs to retrieve
+ * @throws 500 - ServerError
+ */
+export async function getPointLogsForUser(userID: string, house: string, limit: number = -1) : Promise<PointLog[]> {
     try {
         const db = admin.firestore()
-        const pointLogQuerySnapshot = await db.collection(HouseCompetition.HOUSE_KEY).doc(house).collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).where(PointLog.RESIDENT_ID, '==', userID).get()
-        return Promise.resolve(PointLog.fromQuerySnapshot(pointLogQuerySnapshot))
+        let reference = db.collection(HouseCompetition.HOUSE_KEY).doc(house).collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).where(PointLog.RESIDENT_ID, '==', userID)
+        const pointLogQuerySnapshot = await reference.get()
+        let logs = PointLog.fromQuerySnapshot(pointLogQuerySnapshot)
+        logs.sort((a:PointLog, b:PointLog) => {
+            return (b.dateOccurred < a.dateOccurred)? -1: 1
+        })
+        if(limit > 0){
+            logs = logs.slice(0,limit)
+        }
+        return Promise.resolve(logs)
     }
     catch (err) {
-        console.log("GET PointLogs error: " + err)
+        console.error("GET PointLogs error: " + err)
         return Promise.reject(APIResponse.ServerError())
     }
 }
