@@ -31,10 +31,7 @@ class RouteGenerator {
                 child: Text("Initializing"),
               );
             } else {
-              return LogInPage(
-                userRepository:
-                    BlocProvider.of<AuthenticationBloc>(context).userRepository,
-              );
+              return LogInPage();
             }
           });
     });

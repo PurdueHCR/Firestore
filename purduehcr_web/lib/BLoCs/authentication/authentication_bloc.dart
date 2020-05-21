@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
-import 'package:purduehcr_web/Models/ApiError.dart';
+import 'package:purduehcr_web/Config.dart';
 import 'package:purduehcr_web/User_Login_Creation/user_login_creation_bloc/ulc_repository.dart';
 import 'package:purduehcr_web/Utilities/FirebaseUtility.dart';
 import 'authentication.dart';
@@ -12,10 +11,15 @@ import 'authentication.dart';
 
 class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
-  final UserRepository userRepository;
+  final Config config;
+  UserRepository _userRepository;
+  FirebaseUtility _firebaseUtility;
 
-  AuthenticationBloc({@required this.userRepository})
-      : assert(userRepository != null);
+  AuthenticationBloc({@required this.config})
+      : assert(config != null){
+    _userRepository = UserRepository(config);
+    _firebaseUtility = FirebaseUtility(config);
+  }
 
   @override
   AuthenticationState get initialState => AuthUninitialized();
@@ -24,8 +28,8 @@ class AuthenticationBloc
   Stream<AuthenticationState> mapEventToState(AuthenticationEvent event) async* {
     if (event is AppStarted) {
       try{
-        await FirebaseUtility.initializeFirebase(event.context);
-        final user = await userRepository.getUser();
+        await _firebaseUtility.initializeFirebase();
+        final user = await _userRepository.getUser();
         yield Authenticated(user);
       }
       catch(error){
@@ -37,7 +41,7 @@ class AuthenticationBloc
     }
     else if (event is LoggedOut) {
       yield AuthLoading();
-      await userRepository.logout();
+      await _userRepository.logout();
       yield Unauthenticated();
     }
   }

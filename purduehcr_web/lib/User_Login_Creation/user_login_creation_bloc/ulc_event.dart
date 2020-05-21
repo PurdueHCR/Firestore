@@ -7,8 +7,7 @@ abstract class ULCEvent extends Equatable {
 }
 
 class ULCInitialize extends ULCEvent {
-  final BuildContext context;
-  const ULCInitialize(this.context);
+  const ULCInitialize();
   @override
   List<Object> get props => [];
 }

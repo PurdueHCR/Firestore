@@ -10,11 +10,11 @@ abstract class AuthenticationEvent extends Equatable {
 }
 
 class AppStarted extends AuthenticationEvent {
-  final BuildContext context;
-  const AppStarted(this.context);
+
+  const AppStarted();
 
   @override
-  List<Object> get props => [context];
+  List<Object> get props => [];
 }
 
 class LoggedIn extends AuthenticationEvent {

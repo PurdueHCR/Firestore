@@ -1,10 +1,19 @@
 import 'package:flutter/cupertino.dart';
+import 'package:purduehcr_web/Config.dart';
 import 'package:purduehcr_web/Models/User.dart';
 import 'package:purduehcr_web/Utilities/CloudFunctionUtility.dart';
 import 'package:purduehcr_web/Utilities/FirebaseUtility.dart';
 
 
 class UserRepository {
+
+  final Config config;
+  FirebaseUtility _firebaseUtility;
+
+  UserRepository(this.config){
+    _firebaseUtility = new FirebaseUtility(config);
+  }
+
 
   Future<String> createUser(String first, String last, String code) {
     // TODO: implement createUser
@@ -16,8 +25,8 @@ class UserRepository {
     throw UnimplementedError();
   }
 
-  Future loginUser(BuildContext context, String email, String password) {
-    return FirebaseUtility.signIn(context, email, password);
+  Future loginUser(String email, String password) {
+    return _firebaseUtility.signIn(email, password);
   }
 
   Future<void> logout(){
@@ -25,7 +34,7 @@ class UserRepository {
   }
 
   Future<User> getUser() async {
-    Map<String, dynamic> userMap = await callCloudFunction(Method.GET, "user/get");
+    Map<String, dynamic> userMap = await callCloudFunction(config, Method.GET, "user/get");
     return User.fromJson(userMap);
   }
 

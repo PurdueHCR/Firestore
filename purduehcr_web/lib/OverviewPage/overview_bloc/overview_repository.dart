@@ -1,3 +1,4 @@
+import 'package:purduehcr_web/Config.dart';
 import 'package:purduehcr_web/Models/House.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
 import 'package:purduehcr_web/Models/Reward.dart';
@@ -5,12 +6,17 @@ import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/Models/UserRank.dart';
 import 'package:purduehcr_web/Utilities/CloudFunctionUtility.dart';
 
-import '../../Utilities/HttpUtility.dart';
 import 'overview.dart';
 
 class OverviewRepository {
 
-  Future<OverviewState> getUserOverview(UserPermissionLevel permissionLevel){
+  final Config config;
+
+  OverviewRepository(this.config);
+
+
+
+  Future<OverviewState> getUserOverview( UserPermissionLevel permissionLevel){
     switch(permissionLevel){
       case UserPermissionLevel.RESIDENT:
         return _getResidentOverview();
@@ -26,7 +32,7 @@ class OverviewRepository {
 
   ///Call the api to get the information for the resident overview
   Future<ResidentOverviewLoaded> _getResidentOverview() async {
-    Map<String,dynamic> residentOverview = await callCloudFunction(Method.GET, "competition/residentProfile");
+    Map<String,dynamic> residentOverview = await callCloudFunction(config, Method.GET, "competition/residentProfile");
     UserRank rank = UserRank.fromJson(residentOverview["user_rank"]);
     Reward nextReward = Reward.fromJson(residentOverview["next_reward"]);
 

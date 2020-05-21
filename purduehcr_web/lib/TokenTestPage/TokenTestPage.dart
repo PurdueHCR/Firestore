@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:purduehcr_web/BasePage.dart';
+import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/Utilities/FirebaseUtility.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 
@@ -17,7 +18,11 @@ class TokenTestPage extends BasePage {
 
 class TokenTestPageState extends BasePageState {
 
-  TokenTestPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
+  FirebaseUtility _firebaseUtility;
+
+  TokenTestPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel){
+    _firebaseUtility = FirebaseUtility(ConfigWrapper.of(context));
+  }
 
   @override
   Widget buildDesktopBody() {
@@ -33,7 +38,7 @@ class TokenTestPageState extends BasePageState {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: FutureBuilder(
-        future: FirebaseUtility.getToken(context),
+        future: _firebaseUtility.getToken(context),
         builder: (context, snapshot) {
           if(snapshot.connectionState != ConnectionState.done){
             return _buildLoading();

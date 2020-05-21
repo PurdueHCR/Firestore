@@ -1,19 +1,21 @@
-import 'dart:convert';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:purduehcr_web/Models/ApiError.dart';
 
+import '../Config.dart';
 
-callCloudFunction(Method method, String path, {Map<String, dynamic> params, Map<String, dynamic> body}) async {
-  HttpsCallableResult result = await CloudFunctions.instance
-      .useFunctionsEmulator(origin: "http://localhost:5001")
-      .getHttpsCallable(functionName: path+_serializeParams(params))
-      .call({
+
+callCloudFunction(Config config, Method method, String path, {Map<String, dynamic> params, Map<String, dynamic> body}) async {
+  CloudFunctions target = CloudFunctions.instance;
+  if(config.env == "DEV"){
+    target = target.useFunctionsEmulator(origin: "http://localhost:5001");
+  }
+  String completePath = path + _serializeParams(params);
+  HttpsCallableResult result = await target.getHttpsCallable(functionName: completePath).call({
     "method":method.toString().split('.').last,
     "payload": body
   });
-  print(result.data);
   if(result.data["message"] != null){
-    print("GOT API ERROR");
+    print("GOT API ERROR: "+result.data["message"]);
     String errorString = result.data["message"];
     throw new ApiError(int.parse(errorString.split(": ")[0]), errorString.split(": ")[1]);
   }
