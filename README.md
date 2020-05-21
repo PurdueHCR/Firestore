@@ -1,66 +1,44 @@
-# PurdueHCR-CloudFunctions
+# PurdueHCR Firestore
 
-# How to run and test Cloud Functions on your computer!
+PurdueHCR Firestore is the repository for the PurdueHCR web app and the PurdueHCR API.
 
-0. Make sure that you export your Google Cloud Credentials
-	- ```export GOOGLE_APPLICATION_CREDENTIALS='PATH TO DEV_key.json'```
-1. cd into your functions folder
-2. run ```npm run build ```
-3. Fix any errors then run ```firebase emulators:start --only functions```
-4. Now open the PurdueHCR Webapp and naivgate to the [token page](https://purdue-hcr-test.firebaseapp.com/#/token). Log in, and copy the token.
-	- If you are not taken to a page with a token, make sure you are logged in and the url ends in /token.
-5. Open ARC and type into the following fields:
-	- Request URL: http://localhost:5001/purdue-hcr-test/us-central1/user/get
-		- or optionally 
-			- Host: http://localhost:5001
-			- Path: /purdue-hcr-test/us-central1/user/get
-	- Parameters
-		- Headers
-			- Header Name: Authorization
-			- Header Value: (Paste the token)
-6. Hit send, and if you scroll to the bottom, you should see the response from the server. 200 Success and a json object with your user's infromation.
-7. Congratulations! You are now able to host an emulator with the development API!
-	- Go to our [API Documentation](https://purdue-hcr-test.firebaseapp.com/swagger-ui/) to see a list of available endpoints
+## Installation
 
-
-
-# How to setup PurdueHCR Cloud Functions on your computer!
-
-0. Make sure you have a bash termial installed. 
-	- [Git Bash](https://git-scm.com/download/win) (Windows)
-	- Terminal (MacOs)
-1. Open the bash terminal and make sure npm is installed.
-	- run ```npm -v```. If the command is not found, install Node
-		- Windows go to [Node.js](http://nodejs.org) to install
-		- Mac run ```brew install node```
-			- If brew is not installed, go to [Homebrew](https://brew.sh/) and install it.
-2. Talk to an exec member to download the Google Firebase Key, DEV_key.json, and save the path to this file as the environmental variable $GOOGLE_APPLICATION_CREDENTIALS.
-	- ```export GOOGLE_APPLICATION_CREDENTIALS='PATH TO DEV_key.json'```
-	- Note you have to give it an absolute path. using shortcuts like '..' may not work
-3. Cd into the directory where you want the Cloud Functions to be saved and run the foloowing commands:
+To install, open a bash terminal, navigate to the directory where you want to download this repository, and run 
 ```
-git clone https://github.com/PurdueHCR/PurdueHCR-CloudFunctions.git
-git checkout dev
-cd functions/
-npm install -g firebase-tools
-npm install firebase-functions@latest firebase-admin@latest --save
-firebase login
-npm install
-npm run build
-firebase emulators:start --only functions
+git clone https://github.com/PurdueHCR/Firestore.git
+cd Firestore
+./purduehcr install    
 ```
-4. Open Google and search for [Advanced REST Client (ARC)](https://chrome.google.com/webstore/detail/advanced-rest-client/hgmloofddffdnphfgcellkdfbfbjeloo?hl=en-US) and install it.
-5. Now open the PurdueHCR Webapp and naivgate to the [token page](https://purdue-hcr-test.firebaseapp.com/#/token). Log in, and copy the token.
-	- If you are not taken to a page with a token, make sure you are logged in and the url ends in /token.
-6. Open ARC and type into the following fields:
-	- Request URL: http://localhost:5001/purdue-hcr-test/us-central1/user/get
-		- or optionally 
-			- Host: http://localhost:5001
-			- Path: /purdue-hcr-test/us-central1/user/get
-	- Parameters
-		- Headers
-			- Header Name: Authorization
-			- Header Value: (Paste the token)
-7. Hit send, and if you scroll to the bottom, you should see the response from the server. 200 Success and a json object with your user's infromation.
-8. Congratulations! You are now able to host an emulator with the development API!
-	- Go to our [API Documentation](https://purdue-hcr-test.firebaseapp.com/swagger-ui/) to see a list of available endpoints
+
+## Usage
+Before you build and run the web app or functions, contact the PurdueHCR team to get the required configuration files. You will need:
+- dev.json
+- test.json
+- Purdue_HCR_TEST.json
+
+To build the web page and the functions for a specific environment run `./purduehcr build <env>` where env is replaced with dev, test, or prod.
+
+To run the app locally, make sure you build first, then run ```firebase emulators:start``` This will create emulators on your computer for hosting, functions, and firestore. 
+
+By default, your functions emulator will look at your local firestore instance for its data, so to tell your emulator to look at the TEST environment, you need to export the environment variable GOOGLE\_APPLICATION\_CREDENTIALS with the path to the Purdue\_HCR\_TEST.json file.
+```
+export GOOGLE_APPLICATION_CREDENTIALS=<PATH_TO_FILE>/Purdue_HCR_TEST.json
+```
+
+For more information on how to run the web page or the cloud functions, refer to the [Web](https://github.com/PurdueHCR/Firestore/blob/master/purduehcr_web/README.md) or [Functions](https://github.com/PurdueHCR/Firestore/tree/master/functions/README.md) README files.
+
+## Testing 
+To run UI, Integration, and Unit tests, run the command 
+```
+./purduehcr test
+```
+
+
+## Contributing
+Pull requests are always welcome, however please coordinate with the PurdueHCR Development Team.
+
+Please make sure to update tests as appropriate.
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)

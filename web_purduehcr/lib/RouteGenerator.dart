@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/OverviewPage/OverviewPage.dart';
 import 'package:purduehcr_web/User_Login_Creation/LogInPage.dart';
 import 'package:purduehcr_web/TokenTestPage/TokenTestPage.dart';
@@ -19,7 +20,14 @@ class RouteGenerator {
                 case '/':
                   return HomePage();
                 case '/token':
-                  return TokenTestPage();
+                  //If the user is on dev or test they can access TokenTestPage
+                  if(ConfigWrapper.of(context).env != "PROD"){
+                    return TokenTestPage();
+                  }
+                  else{
+                    return HomePage();
+                  }
+                  break;
                 default:
                   return _errorRoute();
               }

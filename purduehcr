@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+
+if [ "$1" = "build" ]; then
+    echo "Building Web App"
+    cd web_purduehcr
+    if [ "$2" = "dev" ]; then
+        flutter build web -t lib/main_dev.dart
+    elif [ "$2" = "test" ]; then
+        flutter build web -t lib/main_test.dart
+    elif [ "$2" = "prod" ]; then
+        flutter build web -t lib/main_prod.dart
+    else
+        echo "Invalid use. ./purduehcr build <dev,test,prod>"
+        exit
+    fi
+    cd ../public
+    rm -r assets icons index.html main.dart.js main.dart.js.map manifest.json flutter_service_worker.js
+    cd ..
+    mv web_purduehcr/build/web/* public/
+    echo "Building function"
+    cd functions
+    npm run build
+    echo "done"
+elif [ "$1" = "install" ]; then
+    echo "Checking required tools"
+    if ! type "flutter" > /dev/null; then
+        echo "Please install Flutter first and make sure it is added to the PATH.\nhttps://flutter.dev/docs/get-started/install"
+        exit
+    elif ! type "npm" > /dev/null; then
+        echo "Please install node/npm first and make sure it is added to the PATH.\nhttps://nodejs.org/en/"
+        exit
+    elif ! type "firebase" > /dev/null; then 
+        echo "Installing Firebase CLI tools"
+        npm install -g firebase-tools
+        echo "Log into firebase"
+        firebase login
+    fi
+    echo "All tools available. Running install"
+    cd web_purduehcr
+    echo "Installing Flutter dependencies"
+    flutter pub get
+    cd ../functions
+    echo "Installing Cloud Function dependencies"
+    npm install
+    echo "Installation complete"
+    
+else 
+    echo "Unknown command"
+fi
