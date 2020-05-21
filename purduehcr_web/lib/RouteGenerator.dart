@@ -14,7 +14,7 @@ class RouteGenerator {
       return BlocBuilder<AuthenticationBloc, AuthenticationState>(
           bloc: BlocProvider.of<AuthenticationBloc>(context),
           builder: (BuildContext context, AuthenticationState state) {
-            if (state is AuthenticationAuthenticated) {
+            if (state is Authenticated) {
               switch (settings.name) {
                 case '/':
                   return HomePage();
@@ -23,9 +23,10 @@ class RouteGenerator {
                 default:
                   return _errorRoute();
               }
-            } else if (state is AuthenticationLoading) {
+            } else if (state is AuthLoading) {
+              
               return CircularProgressIndicator();
-            } else if (state is AuthenticationUninitialized) {
+            } else if (state is AuthUninitialized) {
               return Center(
                 child: Text("Initializing"),
               );

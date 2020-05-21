@@ -26,7 +26,6 @@ class PurdueHCR extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return PurdueHCRState();
   }
 }
@@ -37,8 +36,7 @@ class PurdueHCRState extends State<PurdueHCR>{
 
   @override
   void initState() {
-    _authenticationBloc = AuthenticationBloc(userRepository: UserRepository());
-    _authenticationBloc.add(AppStarted());
+    _authenticationBloc.add(AppStarted(context));
     super.initState();
   }
 
@@ -59,7 +57,6 @@ class PurdueHCRState extends State<PurdueHCR>{
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _authenticationBloc.close();
   }

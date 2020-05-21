@@ -6,14 +6,13 @@ abstract class AuthenticationState extends Equatable {
   List<Object> get props => [];
 }
 
-class AuthenticationUninitialized extends AuthenticationState {}
+class AuthUninitialized extends AuthenticationState {}
 
-class AuthenticationAuthenticated extends AuthenticationState {
+class Authenticated extends AuthenticationState {
   final User user;
-  final String token;
-  AuthenticationAuthenticated(this.token, this.user);
+  Authenticated(this.user);
 }
 
-class AuthenticationUnauthenticated extends AuthenticationState {}
+class Unauthenticated extends AuthenticationState {}
 
-class AuthenticationLoading extends AuthenticationState {}
+class AuthLoading extends AuthenticationState {}

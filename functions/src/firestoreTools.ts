@@ -70,4 +70,24 @@ const validateFirebaseIdToken = async (req, res , next) => {
   	}
 }
 
+const flutterReformat = async (req, res , next) => {
+	if(req.route !== undefined && req.route.path === '*'){
+		const _temp_send = res.send
+		const _temp_status = res.status
+		res.send = function (body?: any):any{
+			const data = {data:body}
+			return _temp_send.apply(this, [JSON.stringify(data)])
+		}
+		res.status = function (): any {
+			return _temp_status.apply(this,[200])
+		}
+
+		req.route.path = req.path
+		req.method = req.body.data.method
+		req.body = req.body.data.payload
+	}
+	next()
+}
+
 module.exports.validateFirebaseIdToken = validateFirebaseIdToken
+module.exports.flutterReformat = flutterReformat

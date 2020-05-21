@@ -17,10 +17,9 @@ class ULCLoading extends ULCState {
 }
 
 class LoginSuccess extends ULCState {
-  final String firebaseToken;
-  const LoginSuccess(this.firebaseToken);
+  const LoginSuccess();
   @override
-  List<Object> get props => [firebaseToken];
+  List<Object> get props => [];
 }
 
 class ULCError extends ULCState {

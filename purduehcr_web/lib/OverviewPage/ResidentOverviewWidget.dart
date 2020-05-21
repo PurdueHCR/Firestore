@@ -14,7 +14,7 @@ class ResidentOverview extends StatefulWidget {
 }
 
 class _ResidentOverviewState extends State<ResidentOverview> {
-  AuthenticationAuthenticated authState;
+  Authenticated authState;
   ResidentOverviewLoaded residentData;
   User user;
   @override

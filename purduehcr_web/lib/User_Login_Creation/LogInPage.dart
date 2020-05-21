@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
@@ -36,6 +38,8 @@ class LogInPageState extends State<LogInPage> {
       network: _userRepository,
       authenticationBloc: _authenticationBloc,
     );
+    _loginBloc.add(ULCInitialize(context));
+    window.console.log("Init State");
     super.initState();
   }
 

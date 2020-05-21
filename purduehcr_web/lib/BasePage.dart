@@ -11,7 +11,7 @@ abstract class BasePage extends StatefulWidget {
 }
 
 abstract class BasePageState extends State<BasePage> {
-  AuthenticationAuthenticated auth;
+  Authenticated auth;
   final String drawerLabel;
 
   BasePageState({@required this.drawerLabel}):assert(drawerLabel != null);

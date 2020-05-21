@@ -25,7 +25,7 @@ class PhcrDrawer extends Drawer {
   @override
   Widget build(BuildContext context) {
     List<_DrawerOptions> selectedList = RESIDENT_LIST;
-    User user = (BlocProvider.of<AuthenticationBloc>(context).state as AuthenticationAuthenticated).user;
+    User user = (BlocProvider.of<AuthenticationBloc>(context).state as Authenticated).user;
     switch(user.permissionLevel){
 
       case UserPermissionLevel.RESIDENT:

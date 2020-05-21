@@ -4,7 +4,6 @@ import 'package:firebase/firebase.dart' as fb;
 import 'package:firebase/firebase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:purduehcr_web/Models/User.dart' as  PHCRUser;
 
 
 class FirebaseUtility{
@@ -42,16 +41,10 @@ class FirebaseUtility{
   }
 
   ///Signs in the user and returns the token in the future
-  static Future<String> signIn(BuildContext context, String email, String password){
+  static Future<void> signIn(BuildContext context, String email, String password){
     return initializeFirebase(context).then((_) async {
       try{
-        final user = await FirebaseAuth.instance.signInWithEmailAndPassword(email:email, password: password);
-        if(user != null){
-          return _getToken(context);
-        }
-        else{
-          return Future.error("Account Does Not Exist");
-        }
+        await FirebaseAuth.instance.signInWithEmailAndPassword(email:email, password: password);
       }
       catch(error){
         String errorMessage;
@@ -82,7 +75,8 @@ class FirebaseUtility{
     });
   }
 
-  static Future<String> _getToken(BuildContext context){
+
+  static Future<String> getToken(BuildContext context){
     return initializeFirebase(context).then((_){
       return FirebaseAuth.instance.currentUser().then((user) {
         return user.getIdToken(refresh: false).then((value) {
@@ -92,20 +86,6 @@ class FirebaseUtility{
     });
   }
 
-  ///
-  static Future<void> getCurrentUser(BuildContext context){
-    return initializeFirebase(context).then((_){
-      return FirebaseAuth.instance.currentUser().then((user){
-        if(user == null){
-          debugPrint("SINGLE CHECK NOT SIGNED IN: Return to login please");
-          return Future.error("User not signed in");
-        }
-        else{
-          return _getToken(context);
-        }
-      });
-    });
-  }
 
   static Future<void> logout(){
     return FirebaseAuth.instance.signOut();

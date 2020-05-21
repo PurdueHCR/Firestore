@@ -56,6 +56,7 @@ const transporter = nodemailer.createTransport({
 //setup Cors for cross site requests
 comp_app.use(cors({origin:true}))
 //Setup firestoreTools to validate user has been 
+comp_app.use(firestoreTools.flutterReformat)
 comp_app.use(firestoreTools.validateFirebaseIdToken)
 
 

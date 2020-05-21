@@ -14,7 +14,7 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState>{
     if(event is OverviewLaunchedEvent){
       yield OverviewLoading();
       try{
-        yield await overviewRepository.getUserOverview(event.permissionLevel, event.token);
+        yield await overviewRepository.getUserOverview(event.permissionLevel);
       }
       catch(error){
         yield OverviewError(error: error);
