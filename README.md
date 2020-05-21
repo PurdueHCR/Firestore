@@ -26,7 +26,7 @@ By default, your functions emulator will look at your local firestore instance f
 export GOOGLE_APPLICATION_CREDENTIALS=<PATH_TO_FILE>/Purdue_HCR_TEST.json
 ```
 
-For more information on how to run the web page or the cloud functions, refer to the [Web](/purduehcr_web/README.md) or [Functions](/functions/README.md) README files.
+For more information on how to run the web page or the cloud functions, refer to the [Web](/web_purduehcr/README.md) or [Functions](/functions/README.md) README files.
 
 ## Testing 
 To run UI, Integration, and Unit tests, run the command 
