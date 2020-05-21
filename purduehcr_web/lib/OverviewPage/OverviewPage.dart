@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/BasePage.dart';
+import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/OverviewPage/ResidentOverviewWidget.dart';
+import 'package:purduehcr_web/Utilities/CloudFunctionUtility.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 
 import 'overview_bloc/overview.dart';
@@ -25,8 +27,8 @@ class HomePageState extends BasePageState {
   @override
   void initState() {
     super.initState();
-    _overviewBloc = new OverviewBloc();
-    _overviewBloc.add(OverviewLaunchedEvent(permissionLevel: auth.user.permissionLevel, token: auth.token));
+    _overviewBloc = new OverviewBloc(ConfigWrapper.of(context));
+    _overviewBloc.add(OverviewLaunchedEvent(permissionLevel: auth.user.permissionLevel));
   }
 
   @override

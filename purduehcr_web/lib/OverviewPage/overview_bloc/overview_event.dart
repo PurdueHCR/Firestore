@@ -8,10 +8,9 @@ abstract class OverviewEvent extends Equatable {
 
 class OverviewLaunchedEvent extends OverviewEvent {
   final UserPermissionLevel permissionLevel;
-  final String token;
-  OverviewLaunchedEvent({@required this.permissionLevel, @required this.token});
+  OverviewLaunchedEvent({@required this.permissionLevel});
 
   @override
-  List<Object> get props => [permissionLevel, token];
+  List<Object> get props => [permissionLevel];
 
 }

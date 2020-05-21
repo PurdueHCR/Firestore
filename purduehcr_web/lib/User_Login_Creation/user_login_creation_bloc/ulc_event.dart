@@ -6,6 +6,12 @@ abstract class ULCEvent extends Equatable {
   const ULCEvent();
 }
 
+class ULCInitialize extends ULCEvent {
+  const ULCInitialize();
+  @override
+  List<Object> get props => [];
+}
+
 class Login extends ULCEvent {
 
   final String email;

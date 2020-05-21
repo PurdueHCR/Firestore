@@ -31,6 +31,7 @@ export const pts_main = functions.https.onRequest(pt_main)
 //setup Cors for cross site requests
 pt_app.use(cors({origin:true}))
 //Setup firestoreTools to validate user has been 
+pt_app.use(firestoreTools.flutterReformat)
 pt_app.use(firestoreTools.validateFirebaseIdToken)
 
 

@@ -1,10 +1,19 @@
 import 'package:flutter/cupertino.dart';
+import 'package:purduehcr_web/Config.dart';
 import 'package:purduehcr_web/Models/User.dart';
+import 'package:purduehcr_web/Utilities/CloudFunctionUtility.dart';
 import 'package:purduehcr_web/Utilities/FirebaseUtility.dart';
 
-import '../../Utilities/HttpUtility.dart';
 
 class UserRepository {
+
+  final Config config;
+  FirebaseUtility _firebaseUtility;
+
+  UserRepository(this.config){
+    _firebaseUtility = new FirebaseUtility(config);
+  }
+
 
   Future<String> createUser(String first, String last, String code) {
     // TODO: implement createUser
@@ -16,43 +25,17 @@ class UserRepository {
     throw UnimplementedError();
   }
 
-  Future<String> loginUser(BuildContext context, String email, String password) {
-    return FirebaseUtility.signIn(context, email, password);
-  }
-
-  Future<void> persistToken(String token) async {
-    //TODO IMPLEMENT TOKEN CACHING
-    /// write to keystore/keychain
-    await Future.delayed(Duration(seconds: 1));
-    return;
-  }
-
-  Future<bool> hasToken() async {
-    //TODO IMPLEMENT TOKEN CACHING
-    /// read from keystore/keychain
-    await Future.delayed(Duration(seconds: 1));
-    return false;
-  }
-
-  Future<String> getCachedToken() async {
-    //TODO IMPLEMENT TOKEN CACHING
-    return "FAKE TOKEN";
+  Future loginUser(String email, String password) {
+    return _firebaseUtility.signIn(email, password);
   }
 
   Future<void> logout(){
-    return FirebaseUtility.logout().then((_) => _deleteToken());
+    return FirebaseUtility.logout();
   }
 
-  Future<void> _deleteToken() {
-    //TODO IMPLEMENT TOKEN CACHING
-    return Future.delayed(Duration(seconds: 1));
-  }
-
-  Future<User> getUser(String token){
-    return Network.get("user/get", token).then((userMap){
-      return Future.value(User.fromJson(userMap));
-    });
-
+  Future<User> getUser() async {
+    Map<String, dynamic> userMap = await callCloudFunction(config, Method.GET, "user/get");
+    return User.fromJson(userMap);
   }
 
 }

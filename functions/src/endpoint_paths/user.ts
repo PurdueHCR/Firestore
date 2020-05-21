@@ -27,7 +27,10 @@ const firestoreTools = require('../firestoreTools')
 
 
 users_app.use(cors({origin:true}))
+users_app.use(firestoreTools.flutterReformat)
 users_app.use(firestoreTools.validateFirebaseIdToken)
+
+
 
 
 /**
@@ -96,6 +99,14 @@ users_app.post('/create', async (req, res) => {
  * @throws 	500 - ServerError 
  */
 users_app.get('/get', async (req, res) => {
+	console.log("Running /get")
+	console.log(req.originalUrl)
+	console.log(req.hostname)
+	console.log(req.path)
+	console.log(req.route)
+	console.log(req.body)
+	console.log(req.method)
+
 	try{
 		const user = await getUser(req["user"]["user_id"])
 		res.status(APIResponse.SUCCESS_CODE).send(user.toJson())
@@ -216,5 +227,16 @@ users_app.get('/points', async (req, res) => {
 
 })
 
+users_app.use(function(req,res){
+	console.log("GOT FUNCTION")
+	console.log(req.originalUrl)
+	console.log(req.hostname)
+	console.log(req.path)
+	console.log(req.route)
+	console.log(req.body)
+	console.log(req.query)
+	console.log(req.method)
+	res.status(200).send({message: "Hello world"})
+})
 
 export const user_main = functions.https.onRequest(users_main)

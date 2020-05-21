@@ -3,52 +3,46 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
+import 'package:purduehcr_web/Config.dart';
 import 'package:purduehcr_web/User_Login_Creation/user_login_creation_bloc/ulc_repository.dart';
+import 'package:purduehcr_web/Utilities/FirebaseUtility.dart';
 import 'authentication.dart';
 
 
 class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
-  final UserRepository userRepository;
+  final Config config;
+  UserRepository _userRepository;
+  FirebaseUtility _firebaseUtility;
 
-  AuthenticationBloc({@required this.userRepository})
-      : assert(userRepository != null);
+  AuthenticationBloc({@required this.config})
+      : assert(config != null){
+    _userRepository = UserRepository(config);
+    _firebaseUtility = FirebaseUtility(config);
+  }
 
   @override
-  AuthenticationState get initialState => AuthenticationUninitialized();
+  AuthenticationState get initialState => AuthUninitialized();
 
   @override
-  Stream<AuthenticationState> mapEventToState(
-      AuthenticationEvent event,
-      ) async* {
+  Stream<AuthenticationState> mapEventToState(AuthenticationEvent event) async* {
     if (event is AppStarted) {
-      final bool hasToken = await userRepository.hasToken();
-
-      if (hasToken) {
-        try{
-          final token = await userRepository.getCachedToken();
-          final user = await userRepository.getUser(token);
-          yield AuthenticationAuthenticated(token, user);
-        }
-        catch(error){
-          debugPrint("ERROR: "+error);
-          yield AuthenticationUnauthenticated();
-        }
-      } else {
-        yield AuthenticationUnauthenticated();
+      try{
+        await _firebaseUtility.initializeFirebase();
+        final user = await _userRepository.getUser();
+        yield Authenticated(user);
+      }
+      catch(error){
+        yield Unauthenticated();
       }
     }
-
-    if (event is LoggedIn) {
-      yield AuthenticationLoading();
-      final user = await userRepository.getUser(event.token);
-      yield AuthenticationAuthenticated(event.token, user);
+    else if (event is LoggedIn) {
+      yield Authenticated(event.user);
     }
-
-    if (event is LoggedOut) {
-      yield AuthenticationLoading();
-      await userRepository.logout();
-      yield AuthenticationUnauthenticated();
+    else if (event is LoggedOut) {
+      yield AuthLoading();
+      await _userRepository.logout();
+      yield Unauthenticated();
     }
   }
 }

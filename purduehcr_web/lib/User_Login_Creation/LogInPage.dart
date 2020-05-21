@@ -1,5 +1,8 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/BLoCs/authentication/authentication.dart';
 import 'user_login_creation_bloc/ulc.dart';
@@ -8,10 +11,7 @@ import 'user_login_creation_bloc/ulc.dart';
 
 class LogInPage extends StatefulWidget {
 
-  final UserRepository userRepository;
-  LogInPage({Key key, @required this.userRepository})
-      : assert(userRepository != null),
-        super(key: key);
+  LogInPage({Key key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -26,16 +26,17 @@ class LogInPageState extends State<LogInPage> {
   // ignore: close_sinks
   AuthenticationBloc _authenticationBloc;
 
-  UserRepository get _userRepository => widget.userRepository;
+  UserRepository  _userRepository;
 
   @override
   void initState() {
     _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     _loginBloc = ULCBloc(
-      context: context,
-      network: _userRepository,
+      config: ConfigWrapper.of(context),
       authenticationBloc: _authenticationBloc,
     );
+    _loginBloc.add(ULCInitialize());
+    window.console.log("Init State");
     super.initState();
   }
 

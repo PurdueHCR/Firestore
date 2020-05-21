@@ -3,14 +3,14 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-import 'package:purduehcr_web/Models/HTTPError.dart';
+import 'package:purduehcr_web/Models/ApiError.dart';
 
 import '../Models/User.dart';
 
 class Network {
 
-  //static String domain = "https://us-central1-purdue-hcr-test.cloudfunctions.net/";
-  static String domain = "http://localhost:5001/purdue-hcr-test/us-central1/";
+  static String domain = "https://us-central1-purdue-hcr-test.cloudfunctions.net/";
+//  static String domain = "http://localhost:5001/purdue-hcr-test/us-central1/";
 
   static Future<dynamic> get(String path, String token, {Map<String, dynamic> params}) async {
     path = path + _serializeParams(params);
@@ -19,7 +19,7 @@ class Network {
     if(response.statusCode == 200 ){
       return Future.value(json.decode(response.body));
     }else{
-      return Future.error( HttpError(response.statusCode, response.body) );
+      return Future.error( ApiError(response.statusCode, response.body) );
     }
   }
 
@@ -32,7 +32,7 @@ class Network {
       return Future.value(json.decode(response.body));
     }else{
       print("GOT ERROR: "+response.statusCode.toString() +": "+response.body.toString());
-      return Future.error( HttpError(response.statusCode, json.decode(response.body)) );
+      return Future.error( ApiError(response.statusCode, json.decode(response.body)) );
     }
   }
 
@@ -42,7 +42,7 @@ class Network {
     if(isSuccessCode(response.statusCode)){
       return Future.value( json.decode(response.body) );
     }else{
-      return Future.error( HttpError(response.statusCode, response.body) );
+      return Future.error( ApiError(response.statusCode, response.body) );
     }
   }
 
@@ -52,7 +52,7 @@ class Network {
     if(isSuccessCode(response.statusCode)){
       return Future.value(json.decode(response.body));
     }else{
-      return Future.error( HttpError(response.statusCode, response.body) );
+      return Future.error( ApiError(response.statusCode, response.body) );
     }
   }
 

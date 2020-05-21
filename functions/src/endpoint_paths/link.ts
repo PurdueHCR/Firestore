@@ -24,6 +24,7 @@ const firestoreTools = require('../firestoreTools');
 export const link_main = functions.https.onRequest(links_main);
 
 links_app.use(cors({origin:true}));
+links_app.use(firestoreTools.flutterReformat)
 links_app.use(firestoreTools.validateFirebaseIdToken);
 
 /**

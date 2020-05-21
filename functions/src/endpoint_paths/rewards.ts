@@ -25,6 +25,7 @@ export const rewards_main = functions.https.onRequest(reward_main)
 //setup Cors for cross site requests
 reward_app.use(cors({origin:true}))
 //Setup firestoreTools to validate user has been 
+reward_app.use(firestoreTools.flutterReformat)
 reward_app.use(firestoreTools.validateFirebaseIdToken)
 
 
