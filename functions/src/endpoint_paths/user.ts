@@ -30,9 +30,6 @@ users_app.use(cors({origin:true}))
 users_app.use(firestoreTools.flutterReformat)
 users_app.use(firestoreTools.validateFirebaseIdToken)
 
-
-
-
 /**
  * Get the houseRank and semesterRank for the requesting user
  * @returns UserRank
@@ -225,18 +222,6 @@ users_app.get('/points', async (req, res) => {
 		}
 	}
 
-})
-
-users_app.use(function(req,res){
-	console.log("GOT FUNCTION")
-	console.log(req.originalUrl)
-	console.log(req.hostname)
-	console.log(req.path)
-	console.log(req.route)
-	console.log(req.body)
-	console.log(req.query)
-	console.log(req.method)
-	res.status(200).send({message: "Hello world"})
 })
 
 export const user_main = functions.https.onRequest(users_main)
