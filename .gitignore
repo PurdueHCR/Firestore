@@ -44,7 +44,7 @@ bower_components
 build/Release
 
 # Dependency directories
-node_modules/
+**/node_modules/
 
 # Optional npm cache directory
 .npm
@@ -101,3 +101,14 @@ assets/flutter-firebase-config.json
 
 # Exceptions to above rules.
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+
+#Ignore flutter env json files
+**/env/*.json
+
+#ignore build files
+**/purduehcr_web/build/
+
+#ignore most of public directory
+public/*
+!public/404.html
+!public/api/

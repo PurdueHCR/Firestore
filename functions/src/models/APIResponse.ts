@@ -12,12 +12,12 @@ export class APIResponse{
 
     toJson(){
         const data = {}
-        data["message"] = this.message  
+        data["message"] = this.toString() 
         return data;
     }
 
     toString(): string {
-        return "Code: "+this.code+" - "+this.toJson()
+        return this.code+": "+this.message
     }
 
     static Success(): APIResponse {

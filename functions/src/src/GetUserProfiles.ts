@@ -14,14 +14,14 @@ export async function getResidentProfile(user_id:string): Promise<ResidentProfil
 			return Promise.reject(APIResponse.InvalidPermissionLevel())
 		}
 		else{
-			let data:any = {}
+			const data:any = {}
 			const systemPreferences = await getSystemPreferences()
 			if(systemPreferences.isCompetitionVisible){
 				
 				const houses = await getAllHouses()
 				let user_house: House = houses[0]
 				for(const house of houses){
-					if(house.id == user.house){
+					if(house.id === user.house){
 						user_house = house
 						break
 					}

@@ -33,7 +33,7 @@ export async function getRank(user:User): Promise<UserRank> {
         return Promise.reject(APIResponse.InvalidPermissionLevel())
     const houseUsers = await getUsersFromHouse(user.house)
 
-    let houseResidents:User[] = []
+    const houseResidents:User[] = []
 
     for (const usr of houseUsers){
         if(usr.isParticipantInCompetition()){

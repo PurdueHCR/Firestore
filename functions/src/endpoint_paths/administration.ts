@@ -32,6 +32,7 @@ admin_app.use(express.urlencoded({ extended: false }));
 //setup Cors for cross site requests
 admin_app.use(cors({origin:true}));
 //Setup firestoreTools to validate user has been 
+admin_app.use(firestoreTools.flutterReformat)
 admin_app.use(firestoreTools.validateFirebaseIdToken);
 
 export class UserPointsFromDate {

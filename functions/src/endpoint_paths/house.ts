@@ -21,6 +21,7 @@ export const house_main = functions.https.onRequest(houses_main)
 
 
 houses_app.use(cors({origin:true}))
+houses_app.use(firestoreTools.flutterReformat)
 houses_app.use(firestoreTools.validateFirebaseIdToken)
 
 

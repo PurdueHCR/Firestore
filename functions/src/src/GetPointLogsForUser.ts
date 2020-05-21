@@ -14,7 +14,7 @@ import { HouseCompetition } from "../models/HouseCompetition"
 export async function getPointLogsForUser(userID: string, house: string, limit: number = -1) : Promise<PointLog[]> {
     try {
         const db = admin.firestore()
-        let reference = db.collection(HouseCompetition.HOUSE_KEY).doc(house).collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).where(PointLog.RESIDENT_ID, '==', userID)
+        const reference = db.collection(HouseCompetition.HOUSE_KEY).doc(house).collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).where(PointLog.RESIDENT_ID, '==', userID)
         const pointLogQuerySnapshot = await reference.get()
         let logs = PointLog.fromQuerySnapshot(pointLogQuerySnapshot)
         logs.sort((a:PointLog, b:PointLog) => {
