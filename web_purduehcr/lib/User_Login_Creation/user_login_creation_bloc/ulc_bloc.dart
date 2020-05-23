@@ -14,12 +14,10 @@ class ULCBloc extends Bloc<ULCEvent, ULCState>{
   UserRepository _userRepository;
   final Config config;
   final AuthenticationBloc authenticationBloc;
-  FirebaseUtility _firebaseUtility;
 
   ULCBloc({ @required this.config,@required this.authenticationBloc})  :
         assert(authenticationBloc != null){
     this._userRepository = new UserRepository(config);
-    this._firebaseUtility = new FirebaseUtility(config);
   }
 
   @override
@@ -29,7 +27,7 @@ class ULCBloc extends Bloc<ULCEvent, ULCState>{
   Stream<ULCState> mapEventToState( ULCEvent event) async* {
     if(event is ULCInitialize){
       try {
-        await _firebaseUtility.initializeFirebase();
+        await FirebaseUtility.initializeFirebase(config);
         User user = await _userRepository.getUser();
         authenticationBloc.add(LoggedIn(user: user));
         print("Log in success");
@@ -51,11 +49,11 @@ class ULCBloc extends Bloc<ULCEvent, ULCState>{
       }
       on ApiError catch(apiError){
         print("GOT API ERROR: "+apiError.toString());
-        yield ULCError(apiError.toString());
+        yield ULCError(message: apiError.toString());
       }
       catch (error) {
-        print("GOT LOGIN ERROR: "+error.toString());
-        yield ULCError(error);
+        print("GOT LOGIN ERROR in BLOC: "+error.toString());
+        yield ULCError(message: "Unknown Database Error");
       }
     }
   }

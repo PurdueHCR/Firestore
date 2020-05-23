@@ -27,16 +27,14 @@ class PurdueHCR extends StatefulWidget {
 }
 
 class PurdueHCRState extends State<PurdueHCR>{
-
   AuthenticationBloc _authenticationBloc;
 
   @override
-  void initState() {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _authenticationBloc = AuthenticationBloc(config: ConfigWrapper.of(context));
     _authenticationBloc.add(AppStarted());
-    super.initState();
   }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider<AuthenticationBloc>(

@@ -24,7 +24,7 @@ class LoginSuccess extends ULCState {
 
 class ULCError extends ULCState {
   final String message;
-  const ULCError(this.message);
+  const ULCError({this.message = ""});
   @override
   List<Object> get props => [message];
 }

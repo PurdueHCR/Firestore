@@ -8,11 +8,8 @@ import 'package:purduehcr_web/Utilities/FirebaseUtility.dart';
 class UserRepository {
 
   final Config config;
-  FirebaseUtility _firebaseUtility;
 
-  UserRepository(this.config){
-    _firebaseUtility = new FirebaseUtility(config);
-  }
+  UserRepository(this.config);
 
 
   Future<String> createUser(String first, String last, String code) {
@@ -26,7 +23,7 @@ class UserRepository {
   }
 
   Future loginUser(String email, String password) {
-    return _firebaseUtility.signIn(email, password);
+    return FirebaseUtility.signIn(config, email, password);
   }
 
   Future<void> logout(){

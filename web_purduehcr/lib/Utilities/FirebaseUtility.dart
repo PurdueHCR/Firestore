@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:firebase/firebase.dart' as fb;
 import 'package:firebase/firebase.dart';
@@ -8,15 +7,12 @@ import 'package:purduehcr_web/Config.dart';
 
 
 class FirebaseUtility{
-
-  final Config config;
   static App app;
-  bool connectedToDatabase = false;
+  static bool connectedToDatabase = false;
 
-  FirebaseUtility(this.config);
 
-  Future<void> initializeFirebase(){
-    if(fb.apps.isEmpty && app == null){
+  static Future<void> initializeFirebase(Config config){
+    if(fb.apps.isEmpty ){
       debugPrint("No App, so initialize Firebase");
       try {
         app = fb.initializeApp(
@@ -37,8 +33,8 @@ class FirebaseUtility{
   }
 
   ///Signs in the user and returns the token in the future
-  Future<void> signIn(String email, String password){
-    return initializeFirebase().then((_) async {
+  static Future<void> signIn(Config config, String email, String password){
+    return initializeFirebase(config).then((_) async {
       try{
         await FirebaseAuth.instance.signInWithEmailAndPassword(email:email, password: password);
       }
@@ -72,12 +68,10 @@ class FirebaseUtility{
   }
 
 
-  Future<String> getToken(BuildContext context){
-    return initializeFirebase().then((_){
-      return FirebaseAuth.instance.currentUser().then((user) {
-        return user.getIdToken(refresh: false).then((value) {
-          return Future.value(value.token);
-        });
+  static Future<String> getToken(){
+    return FirebaseAuth.instance.currentUser().then((user) {
+      return user.getIdToken(refresh: false).then((value) {
+        return Future.value(value.token);
       });
     });
   }

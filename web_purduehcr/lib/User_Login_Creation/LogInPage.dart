@@ -26,18 +26,22 @@ class LogInPageState extends State<LogInPage> {
   // ignore: close_sinks
   AuthenticationBloc _authenticationBloc;
 
-  UserRepository  _userRepository;
 
   @override
   void initState() {
     _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
+    window.console.log("Init State");
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _loginBloc = ULCBloc(
       config: ConfigWrapper.of(context),
       authenticationBloc: _authenticationBloc,
     );
     _loginBloc.add(ULCInitialize());
-    window.console.log("Init State");
-    super.initState();
   }
 
   @override

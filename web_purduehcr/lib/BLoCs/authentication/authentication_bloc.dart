@@ -13,12 +13,10 @@ class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
   final Config config;
   UserRepository _userRepository;
-  FirebaseUtility _firebaseUtility;
 
   AuthenticationBloc({@required this.config})
       : assert(config != null){
     _userRepository = UserRepository(config);
-    _firebaseUtility = FirebaseUtility(config);
   }
 
   @override
@@ -28,7 +26,7 @@ class AuthenticationBloc
   Stream<AuthenticationState> mapEventToState(AuthenticationEvent event) async* {
     if (event is AppStarted) {
       try{
-        await _firebaseUtility.initializeFirebase();
+        await FirebaseUtility.initializeFirebase(config);
         final user = await _userRepository.getUser();
         yield Authenticated(user);
       }

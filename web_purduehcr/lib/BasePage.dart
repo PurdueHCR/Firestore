@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
@@ -24,9 +26,11 @@ abstract class BasePageState extends State<BasePage> {
 
   @override
   Widget build(BuildContext context) {
+    window.console.log("INNER BUILD");
     final bool isDesktop = isDisplayDesktop(context);
 
     if(isDesktop) {
+      window.console.log("INNER BUILD is desktop");
       return Scaffold(
           body: Row(
             children: [
@@ -49,6 +53,7 @@ abstract class BasePageState extends State<BasePage> {
       );
     }
     else{
+      window.console.log("INNER BUILD is not");
       return Scaffold(
           appBar: AppBar(
             title: Text("Purdue HCR"),
