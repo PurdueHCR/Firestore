@@ -21,13 +21,7 @@ class RouteGenerator {
                   return HomePage();
                 case '/token':
                   //If the user is on dev or test they can access TokenTestPage
-                  if(ConfigWrapper.of(context).env != "PROD"){
-                    return TokenTestPage();
-                  }
-                  else{
-                    return HomePage();
-                  }
-                  break;
+                  return TokenTestPage();
                 default:
                   return _errorRoute();
               }

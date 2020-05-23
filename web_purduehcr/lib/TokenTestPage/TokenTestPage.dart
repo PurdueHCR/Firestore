@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:purduehcr_web/BasePage.dart';
@@ -7,7 +9,10 @@ import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 
 
 class TokenTestPage extends BasePage {
-  TokenTestPage({Key key}) : super(key: key);
+  TokenTestPage({Key key}) : super(key: key){
+    window.console.log("TOKEN");
+
+  }
 
   @override
   State<StatefulWidget> createState() {
@@ -21,24 +26,29 @@ class TokenTestPageState extends BasePageState {
   FirebaseUtility _firebaseUtility;
 
   TokenTestPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel){
-    _firebaseUtility = FirebaseUtility(ConfigWrapper.of(context));
+    window.console.log("TOKEN STATE init");
+    //_firebaseUtility = FirebaseUtility(config:ConfigWrapper.of(context));
+    window.console.log("SETUP UTILITY");
   }
 
   @override
   Widget buildDesktopBody() {
+    window.console.log("BUILD TOKEN desktop");
     return _buildBody();
   }
 
   @override
   Widget buildMobileBody() {
+    window.console.log("BUILD TOKEN mobile");
     return _buildBody();
   }
 
   Widget _buildBody() {
+    window.console.log("BUILD TOKEN BODY");
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: FutureBuilder(
-        future: _firebaseUtility.getToken(context),
+        future: FirebaseUtility.getToken(),
         builder: (context, snapshot) {
           if(snapshot.connectionState != ConnectionState.done){
             return _buildLoading();
@@ -55,6 +65,7 @@ class TokenTestPageState extends BasePageState {
   }
 
   Widget _buildToken(String token){
+    window.console.log("IN BUILD TOKEN");
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
