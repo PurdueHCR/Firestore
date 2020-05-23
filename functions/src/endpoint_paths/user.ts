@@ -224,8 +224,4 @@ users_app.get('/points', async (req, res) => {
 
 })
 
-users_app.post('/get', async (req,res) => {
-	res.status(200).send("This is here");
-})
-
 export const user_main = functions.https.onRequest(users_main)

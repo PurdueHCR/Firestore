@@ -71,22 +71,8 @@ const validateFirebaseIdToken = async (req, res , next) => {
 }
 
 const flutterReformat = async function(req, res , next){
-	// const data = {
-	// 	originalUrl: req.originalUrl,
-	// 	hostname: req.hostname,
-	// 	path: req.path,
-	// 	rout: req.route,
-	// 	body: req.body,
-	// 	method: req.method,
-	// }
-	// console.log(req.originalUrl)
-	// console.log(req.hostname)
-	// console.log(req.path)
-	// console.log(req.route)
-	// console.log(req.body)
-	// console.log(req.method)
-	// res.status(200).send({data:data})
-	if(req.route !== undefined || req.route.path === "*" || req.route.path === "/*"){
+	if(req.body !== undefined && req.body.data !== undefined 
+		&& req.body.data.method !== undefined && req.body.data.payload !== undefined){
 		const _temp_send = res.send
 		const _temp_status = res.status
 		res.send = function (body?: any):any{
