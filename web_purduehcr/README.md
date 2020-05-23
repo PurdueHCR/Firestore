@@ -6,7 +6,7 @@ Flutter Web App for PurdueHCR
 
 Once you have the code base downloaded, open web_purduehcr in Android Studio. On the left side of Android Studio you will see a Project Manager which lists all of the folders and files. On the top bar, you will see a dropdown that says 'no device selected' and a button that says Add Configuration.
 
-![project_explorer](/readme_images/project_explorer.png)
+![project_explorer](readme_images/project_explorer.png)
 
 To add a run configuration, you will first need to contact a PurdueHCR exec member. They will have files for you to download and place in the folder lib/env/.
 
@@ -15,7 +15,7 @@ To add a run configuration, you will first need to contact a PurdueHCR exec memb
 Once you have those downloaded, you will have to create a new run configuration for each of those files. To create the configuration for test, click the Add Configuration button. 
 
 In the popup window, click the plus button at the top left, and choose Flutter. In the name field, type "test". In Dart entrypoint, click the folder icon and navigate to the file lib/main_test.dart. In additional arguments type '--release'. Click Apply and repeat for the other files you were given.
-![config](/readme_images/config.png)
+![config](readme_images/config.png)
 
 ### Flutter Configuration
 
@@ -31,7 +31,7 @@ The command `flutter devices` will print out the list of available devices you c
 
 If you go back to Android Studio and click on the device selection dropdown, Chrome should now be an option.
 
-![finished_toolbar](/readme_images/finished_toolbar.png)
+![finished_toolbar](readme_images/finished_toolbar.png)
 
 Click the green play button, and the web app will launch.
 

@@ -106,7 +106,7 @@ assets/flutter-firebase-config.json
 **/env/*.json
 
 #ignore build files
-**/purduehcr_web/build/*
+**/web_purduehcr/build/*
 
 #ignore most of public directory
 public/*
