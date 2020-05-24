@@ -23,7 +23,6 @@ callCloudFunction(Config config, Method method, String path, {Map<String, dynami
     String errorString = result.data["message"];
     throw new ApiError(int.parse(errorString.split(": ")[0]), errorString.split(": ")[1]);
   }
-  window.console.log("GOT RESPONSE: "+result.data.toString());
   return result.data;
 }
 
