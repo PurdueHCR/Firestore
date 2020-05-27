@@ -1,4 +1,6 @@
 
+import 'dart:html';
+
 import 'package:firebase/firebase.dart' as fb;
 import 'package:firebase/firebase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -39,6 +41,7 @@ class FirebaseUtility{
         await FirebaseAuth.instance.signInWithEmailAndPassword(email:email, password: password);
       }
       catch(error){
+        window.console.log("Sign in error code: ${error.code}");
         String errorMessage;
         switch (error.code) {
           case "auth/invalid-email":
@@ -63,6 +66,18 @@ class FirebaseUtility{
             errorMessage = error.toString();
         }
         return Future.error(errorMessage);
+      }
+    });
+  }
+
+  static Future createAccount(Config config, String email, String password){
+    return initializeFirebase(config).then((value) async {
+      try{
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+      }
+      catch(error){
+        //TODO Handle all create Account errors
+        return Future.error(error.code);
       }
     });
   }
