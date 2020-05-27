@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:purduehcr_web/BLoCs/authentication/authentication.dart';
+import 'package:purduehcr_web/authentication/authentication.dart';
 import 'package:purduehcr_web/Models/User.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 

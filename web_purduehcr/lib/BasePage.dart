@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/Utility_Views/PhcrDrawer.dart';
-import 'BLoCs/authentication/authentication.dart';
+import 'package:purduehcr_web/authentication/authentication.dart';
+
 
 
 abstract class BasePage extends StatefulWidget {
