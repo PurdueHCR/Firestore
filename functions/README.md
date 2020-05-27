@@ -55,3 +55,8 @@ firebase emulators:start --only functions
 7. Hit send, and if you scroll to the bottom, you should see the response from the server. 200 Success and a json object with your user's infromation.
 8. Congratulations! You are now able to host an emulator with the development API!
 	- Go to our [API Documentation](https://purdue-hcr-test.firebaseapp.com/swagger-ui/) to see a list of available endpoints
+	
+
+
+## Problem Avoidance
+1. If you try to run the firebase emulator and it gives you a TypeError in functionsEmulatorsRuntime.js run `npm install -g firebase-tools@8.2.0`
