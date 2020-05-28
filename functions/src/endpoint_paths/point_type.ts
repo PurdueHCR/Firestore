@@ -46,11 +46,11 @@ pt_app.use(firestoreTools.validateFirebaseIdToken)
  * @throws 500 - ServerError
  */
 
-pt_app.get('/get', async (req, res) => { 
+pt_app.get('/', async (req, res) => { 
 	try{
 		const user = await getUser(req["user"]["user_id"])
 		const user_pts = await getUserPointTypes(user)
-		res.status(APIResponse.SUCCESS_CODE).send(JSON.stringify(user_pts))
+		res.status(APIResponse.SUCCESS_CODE).send(user_pts)
 	}
 	catch(error){
 		if(error instanceof APIResponse){
