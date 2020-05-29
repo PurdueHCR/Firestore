@@ -7,10 +7,8 @@ import '../Config.dart';
 
 
 callCloudFunction(Config config, Method method, String path, {Map<String, dynamic> params, Map<String, dynamic> body}) async {
-  window.console.log(config.toString());
   CloudFunctions target = CloudFunctions.instance;
   if(config.env == "DEV"){
-    window.console.log("DOING DEV");
     target = target.useFunctionsEmulator(origin: "http://localhost:5001");
   }
   String completePath = path + _serializeParams(params);
@@ -18,12 +16,12 @@ callCloudFunction(Config config, Method method, String path, {Map<String, dynami
     "method":method.toString().split('.').last,
     "payload": body
   });
+
   if(result.data["message"] != null){
     print("GOT API ERROR: "+result.data["message"]);
     String errorString = result.data["message"];
     throw new ApiError(int.parse(errorString.split(": ")[0]), errorString.split(": ")[1]);
   }
-  window.console.log("GOT RESPONSE: "+result.data.toString());
   return result.data;
 }
 

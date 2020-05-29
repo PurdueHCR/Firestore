@@ -5,7 +5,7 @@ import 'package:purduehcr_web/Utility_Views/SearchBar.dart';
 
 class PointTypeList extends StatefulWidget{
   final List<PointType> pointTypes;
-  final Function(PointType) onPressed;
+  final Function(BuildContext, PointType) onPressed;
   final bool searchable;
 
   const PointTypeList({Key key, @required this.pointTypes, @required this.onPressed, this.searchable = true}):
@@ -78,7 +78,7 @@ class _PointTypeListState extends State<PointTypeList>{
 
 class PointTypeListTile extends StatelessWidget{
   final PointType pointType;
-  final Function(PointType pointType) onTap;
+  final Function(BuildContext context, PointType pointType) onTap;
 
   const PointTypeListTile({Key key, @required this.pointType, @required this.onTap}):
         assert(pointType != null), assert(onTap != null), super(key: key);
@@ -86,7 +86,7 @@ class PointTypeListTile extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: () => onTap(pointType),
+      onTap: () => onTap(context, pointType),
       title: Text(pointType.name),
       subtitle: Text(pointType.description),
     );
