@@ -1,4 +1,5 @@
 import { UserPermissionLevel } from "./UserPermissionLevel"
+import {LinkCreatablePermissionLevel} from "./LinkCreatablePermissionLevel"
 
 export class PointType{
 
@@ -13,11 +14,11 @@ export class PointType{
     description: String
     enabled: Boolean
     name: String
-    permissionLevel: number
+    permissionLevel: LinkCreatablePermissionLevel
     residentCanSubmit: Boolean
     value: number
 
-    constructor(id: String, description: String, enabled: Boolean, name: String, permissionLevel: number,
+    constructor(id: String, description: String, enabled: Boolean, name: String, permissionLevel: LinkCreatablePermissionLevel,
          residentsCanSubmit: Boolean, value: number){
             this.id = id;
             this.description = description;
@@ -98,18 +99,21 @@ export class PointType{
         return new PointType(id,description,enabled,name,permissionLevel,residentCanSubmit,value);
     }
     
-    userCanGenerateQRCodes(userPermissionLevel: UserPermissionLevel){
+    canUserGenerateLinks(userPermissionLevel: UserPermissionLevel){
         if(userPermissionLevel === UserPermissionLevel.RHP){
-            return this.permissionLevel > 1
+            return this.permissionLevel >= LinkCreatablePermissionLevel.RESIDENTIAL_STAFF_ONLY
         }
         else if (userPermissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
             return true
         }
         else if(userPermissionLevel === UserPermissionLevel.FACULTY){
-            return this.permissionLevel > 2
+            return this.permissionLevel === LinkCreatablePermissionLevel.ALL_LINK_CREATORS
         }
         else if (userPermissionLevel === UserPermissionLevel.PRIVILEGED_RESIDENT){
-            return this.permissionLevel > 2
+            return this.permissionLevel === LinkCreatablePermissionLevel.ALL_LINK_CREATORS
+        }
+        else if (userPermissionLevel === UserPermissionLevel.EXTERNAL_ADVISOR){
+            return this.permissionLevel === LinkCreatablePermissionLevel.ALL_LINK_CREATORS
         }
         else {
             return false;
