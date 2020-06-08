@@ -19,11 +19,12 @@ class ProfileCardState extends State<ProfileCard>{
   @override
   Widget build(BuildContext context) {
     return Card(
+      margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Column(
                 children: <Widget>[
@@ -51,19 +52,22 @@ class ProfileCardState extends State<ProfileCard>{
                   Text("Platinum - 4N")
                 ],
               ),
-              Expanded(
+              Container(
+                width: 100,
+                height: 100,
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Text(widget.user.firstName +" "+widget.user.lastName),
                     Text(widget.user.totalPoints.toString() + " Points")
                   ],
                 ),
-              )
+              ),
             ],
           ),
           Text("#"+widget.userRank.houseRank.toString()+" Overall      #"+ widget.userRank.semesterRank.toString()+" Semester")
         ],
-      ),
+      )
     );
   }
 }

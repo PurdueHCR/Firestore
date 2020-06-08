@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/OverviewPage/OverviewPage.dart';
 import 'package:purduehcr_web/Account_Login_Creation/LogInPage.dart';
+import 'package:purduehcr_web/SubmitPointsPage/SubmitPointsPage.dart';
 import 'package:purduehcr_web/TokenTestPage/TokenTestPage.dart';
 
 import 'package:purduehcr_web/authentication/authentication.dart';
@@ -21,6 +22,8 @@ class RouteGenerator {
                 case '/token':
                   //If the user is on dev or test they can access TokenTestPage
                   return TokenTestPage();
+                case '/submit_points':
+                  return SubmitPointsPage();
                 default:
                   return _errorRoute();
               }
