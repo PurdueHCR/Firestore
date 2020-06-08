@@ -85,3 +85,22 @@ export function mockPointType(id:number, description: String, enabled: boolean, 
         }
     }
 }
+
+
+export function mockPointLog(resident_id:string, log_id:string, date_occurred:Date):MockDataFactory.DocumentData{
+    return {
+        id: log_id,
+        data: {
+            "DateOccurred":date_occurred,
+            "DateSubmitted":Date.now(),
+            "Description":"EMPTY description",
+            "FloorID":"",
+            "PointTypeID":0,
+            "RHPNotifications":0,
+            "ResidentFirstName":"",
+            "ResidentId":resident_id,
+            "ResidentLastName":"",
+            "ResidentNotifications":0
+        }
+    }
+}

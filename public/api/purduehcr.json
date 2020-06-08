@@ -423,9 +423,14 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/PointLog"
+                  "type" : "object",
+                  "properties": {
+                    "points": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointLog"
+                      }
+                    }
                   }
                 }
               }
@@ -763,9 +768,14 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/PointType"
+                  "type" : "object",
+                  "properties": {
+                    "point_types": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointType"
+                      }
+                    }
                   }
                 }
               }
@@ -836,9 +846,14 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/PointType"
+                  "type" : "object",
+                  "properties": {
+                    "point_types": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointType"
+                      }
+                    }
                   }
                 }
               }
@@ -899,9 +914,14 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/PointType"
+                  "type" : "object",
+                  "properties": {
+                    "point_types": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointType"
+                      }
+                    }
                   }
                 }
               }

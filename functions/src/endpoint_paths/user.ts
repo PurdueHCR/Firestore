@@ -10,6 +10,7 @@ import { createUser } from '../src/CreateUser'
 import { isInDateRange } from '../src/IsInDateRange'
 import { getUserRank } from '../src/GetUserRank'
 import { getPointLogsForUser } from '../src/GetPointLogsForUser'
+import { UserPermissionLevel } from '../models/UserPermissionLevel'
 
 if(admin.apps.length === 0){
 	admin.initializeApp(functions.config().firebase)
@@ -199,7 +200,6 @@ users_app.post('/submitPoint', async (req, res) => {
  * Returns a list of point logs submitted by a user
  * 
  * @param query.limit	Optional query parameter. If provided, only return the <limit> most recently submitted points. Else return all submitted points
- * @param query.handledOnly Optional query parameter. If provided, only return point logs that follow this parameter
  * @param query.id	Optional query parameter. If provided, only return the point log with the given id
  * @throws 401 - Unauthorized
  * Any other errors you find while making this code
@@ -208,8 +208,22 @@ users_app.post('/submitPoint', async (req, res) => {
 users_app.get('/points', async (req, res) => {
 	try {
 		const user = await getUser(req["user"]["user_id"])
-		const pointLogs = await getPointLogsForUser(user.id, user.house)
-		res.status(APIResponse.SUCCESS_CODE).send(JSON.stringify(pointLogs))
+		if(user.permissionLevel == UserPermissionLevel.RESIDENT || user.permissionLevel == UserPermissionLevel.RHP
+			|| user.permissionLevel == UserPermissionLevel.PRIVILEGED_RESIDENT
+			){
+				let pointLogs
+				if(req.query.limit !== undefined){
+					pointLogs = await getPointLogsForUser(user.id, user.house, parseInt(req.query.limit! as string))
+				}
+				else{
+					pointLogs = await getPointLogsForUser(user.id, user.house)
+				}
+				res.status(APIResponse.SUCCESS_CODE).send({points:pointLogs})
+		}
+		else {
+			throw APIResponse.InvalidPermissionLevel()
+		}
+		
 	}
 	catch(error) {
 		if (error instanceof APIResponse) {
@@ -223,5 +237,7 @@ users_app.get('/points', async (req, res) => {
 	}
 
 })
+
+
 
 export const user_main = functions.https.onRequest(users_main)
