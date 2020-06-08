@@ -8,7 +8,7 @@ class SubmitPointRepository {
   SubmitPointRepository(this.config);
 
   Future<List<PointType>> getPointTypes() async {
-    Map<String,dynamic> pointTypeList = await callCloudFunction(config, Method.GET, "point_type/");
+    Map<String,dynamic> pointTypeList = await callCloudFunction(config, Method.GET, "point_type/submittable");
     Set<Map<String, dynamic>> pointTypes = Set.from(pointTypeList["point_types"]);
     List<PointType> pts = new List();
     pointTypes.forEach((element) {
