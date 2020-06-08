@@ -7,7 +7,7 @@ import '../Config.dart';
 
 
 callCloudFunction(Config config, Method method, String path, {Map<String, dynamic> params, Map<String, dynamic> body}) async {
-  CloudFunctions target = CloudFunctions.instance;
+  CloudFunctions target = CloudFunctions(region: 'us-central1');
   if(config.env == "DEV"){
     target = target.useFunctionsEmulator(origin: "http://localhost:5001");
   }
