@@ -305,6 +305,16 @@
               }
             }
           },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
           "401" : {
             "description" : "Unauthorized: Confirm The Token Is Valid.",
             "content" : {
@@ -381,6 +391,82 @@
         }
       }
     },
+    "/user/points" : {
+      "get" : {
+        "tags" : [ "user" ],
+        "summary" : "Get submitted point logs for the user",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        },
+        {
+          "name" : "limit",
+          "in" : "query",
+          "required": false,
+          "style": "form",
+          "explode": false,
+          "schema" : {
+            "type": "integer"
+          }
+        }
+        ],
+      
+        "responses" : {
+          "200" : {
+            "description" : "Retrieved Point Logs",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PointLog"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level. Only Residents, RHPs, and Privileged Residents can get points",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
     "/competition/save-semester-points" : {
       "post" : {
         "tags" : [ "competition" ],
@@ -435,6 +521,16 @@
         "responses" : {
           "200" : {
             "description" : "Confirmation sent"
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
           },
           "401" : {
             "description" : "Unauthorized: Confirm the token is valid."
