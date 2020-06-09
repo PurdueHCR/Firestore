@@ -70,3 +70,18 @@ export function mockServerError(): Function {
     mockServerErrorRequest.mockRejectedValue("Firebase Error")
     return mockServerErrorRequest
 }
+
+export function mockPointType(id:number, description: String, enabled: boolean, name: String,
+    permissionLevel: number, residentsCanSubmit: boolean, value:number) : DocumentData {
+    return {
+        id:id.toString(),
+        data: {
+            Description:description,
+            Enabled:enabled,
+            Name:name,
+            PermissionLevel:permissionLevel,
+            ResidentsCanSubmit:residentsCanSubmit,
+            Value:value
+        }
+    }
+}

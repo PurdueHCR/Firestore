@@ -3,10 +3,13 @@ import * as admin from 'firebase-admin'
 import * as express from 'express'
 import { getUser } from '../src/GetUser'
 import { APIResponse } from '../models/APIResponse'
-import { getUserPointTypes } from '../src/getUserPointTypes'
+import { getSubmittablePointTypes } from '../src/GetSubmittablePointTypes'
+import { getLinkablePointTypes } from '../src/GetLinkablePointTypes'
 import { updatePointType } from '../src/UpdatePointType'
 import { PointType } from '../models/PointType'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
+import { getPointTypes } from '../src/GetPointTypes'
+import { getSystemPreferences } from '../src/GetSystemPreferences'
 
 
 //Make sure that the app is only initialized one time 
@@ -39,18 +42,26 @@ pt_app.use(firestoreTools.validateFirebaseIdToken)
 
 
 /**
- * competition/getPointTypes => retrieves the list of point types available to the user and sends them back
+ * point_Type/ => returns all the point types. Only professional staff can use this endpoint
  *
  * @throws 400 - NonexistantUser
  * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permission
  * @throws 500 - ServerError
  */
 
-pt_app.get('/get', async (req, res) => { 
+pt_app.get('/', async (req, res) => { 
 	try{
 		const user = await getUser(req["user"]["user_id"])
-		const user_pts = await getUserPointTypes(user)
-		res.status(APIResponse.SUCCESS_CODE).send(JSON.stringify(user_pts))
+		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+			const user_pts = await getPointTypes()
+			res.status(APIResponse.SUCCESS_CODE).send({point_types:user_pts})
+		}
+		else{
+			const apiResponse = APIResponse.InvalidPermissionLevel()
+			res.status(apiResponse.code).send(apiResponse.toJson())
+		}
+		
 	}
 	catch(error){
 		if(error instanceof APIResponse){
@@ -63,7 +74,67 @@ pt_app.get('/get', async (req, res) => {
 		}
 	}
 })
-// Put code for /getPointTypes above
+
+
+/**
+ * point_type/submittable => returns all the point types which the user can use to create a point submission
+ *
+ * @throws 400 - NonexistantUser
+ * @throws 401 - Unauthorized
+ * @throws 500 - ServerError
+ */
+
+pt_app.get('/submittable', async (req, res) => { 
+	try{
+		const system_preferences = await getSystemPreferences()
+		if(system_preferences.isHouseEnabled){
+			const user = await getUser(req["user"]["user_id"])
+			const user_pts = await getSubmittablePointTypes(user)
+			res.status(APIResponse.SUCCESS_CODE).send({point_types:user_pts})
+		}
+		else{
+			const apiResponse = APIResponse.CompetitionDisabled()
+			res.status(apiResponse.code).send(apiResponse.toJson())
+		}
+		
+	}
+	catch(error){
+		if(error instanceof APIResponse){
+			res.status(error.code).send(error.toJson())
+		}
+		else{
+			console.log("FAILED WITH DB FROM user ERROR: "+ error)
+			const apiResponse = APIResponse.ServerError()
+			res.status(apiResponse.code).send(apiResponse.toJson())
+		}
+	}
+})
+
+/**
+ * point_type/linkable => returns all the point types which the user can use to create a link or qr code
+ *
+ * @throws 400 - NonexistantUser
+ * @throws 401 - Unauthorized
+ * @throws 500 - ServerError
+ */
+
+pt_app.get('/linkable', async (req, res) => { 
+	try{
+		const user = await getUser(req["user"]["user_id"])
+		const user_pts = await getLinkablePointTypes(user)
+		res.status(APIResponse.SUCCESS_CODE).send({point_types:user_pts})
+	}
+	catch(error){
+		if(error instanceof APIResponse){
+			res.status(error.code).send(error.toJson())
+		}
+		else{
+			console.log("FAILED WITH DB FROM user ERROR: "+ error)
+			const apiResponse = APIResponse.ServerError()
+			res.status(apiResponse.code).send(apiResponse.toJson())
+		}
+	}
+})
 
 
 /**

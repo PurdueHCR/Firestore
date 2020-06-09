@@ -20,6 +20,7 @@ let SUBMIT_POINTS_PATH = "/submitPoint"
 describe('user/submitpoint', () =>{
 
     beforeAll(async () => {
+        firebase.apps().map(app => app.delete())
         
         //Mock firebase-admin so that all calls in the code to db will return the test Firestore database
         IntegrationMockFactory.mockFirebaseAdmin()
