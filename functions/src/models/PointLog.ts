@@ -138,7 +138,7 @@ export class PointLog {
     }
 
     toFirebaseJSON() {
-        const data = {}
+        var data = {}
         if(this.approvedBy){
             data[PointLog.APPROVED_BY] = this.approvedBy
             data[PointLog.APPROVED_ON] = this.approvedOn
@@ -153,6 +153,7 @@ export class PointLog {
         data[PointLog.RESIDENT_ID] = this.residentId
         data[PointLog.RESIDENT_LAST_NAME] = this.residentLastName
         data[PointLog.RESIDENT_NOTIFICATIONS]  = this.residentNotifications
+        console.log(data)
         return data
     }
 
