@@ -53,6 +53,17 @@ export class FirestoreDataFactory{
         })
     }
 
+    static setHouseCode(db: firebase.firestore.Firestore, id: string, cOpts:HouseCodeOptions = HOUSE_CODE_DEFAULTS): Promise<void> {
+        console.log("SETTING HOUSE CODE:", (cOpts.code !== undefined)? cOpts.code: HOUSE_CODE_DEFAULTS.code)
+        return db.collection("HouseCodes").doc(id).set({
+            "Code":(cOpts.code !== undefined)? cOpts.code: HOUSE_CODE_DEFAULTS.code,
+            "CodeName":(cOpts.code_name !== undefined)? cOpts.code: HOUSE_CODE_DEFAULTS.code_name,
+            "FloorId":(cOpts.floor_id !== undefined)? cOpts.code: HOUSE_CODE_DEFAULTS.floor_id,
+            "House":(cOpts.house !== undefined)? cOpts.house: HOUSE_CODE_DEFAULTS.house,
+            "PermissionLevel":(cOpts.permission_level !== undefined)? cOpts.permission_level: HOUSE_CODE_DEFAULTS.permission_level
+        })
+    }
+
     /**
      * Create ell 5 houses in the competition. Default data will be used if none is provided in houseOpts
      * @param db - Test App Firestore instance (Usually from authedApp())
@@ -252,6 +263,17 @@ export declare type AllHousesOptions = {
 }
 
 /**
+ * Type declaration for optional params for House Code Options. Undefined fields will be defaulted.
+ */
+export declare type HouseCodeOptions = {
+    code?: string,
+    code_name?: string,
+    floor_id?: string,
+    house?: string,
+    permission_level?: number
+}
+
+/**
  * Type declaration for optional params for User Options. Undefined fields will be defaulted.
  */
 export declare type UserOptions = {
@@ -351,6 +373,17 @@ export const HOUSE_DEFAULTS:HouseOptions = {
     color: "#5AC0C7",
     total_points: 20,
     num_residents: 200
+}
+
+/**
+ * Default field for house code
+ */
+export const HOUSE_CODE_DEFAULTS:HouseCodeOptions = {
+    code: "4N1234",
+    code_name: "4N Resident",
+    floor_id: "4N",
+    house: "Platinum",
+    permission_level: 0
 }
 
 /**
