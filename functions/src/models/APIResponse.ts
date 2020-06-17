@@ -81,6 +81,14 @@ export class APIResponse{
     }
 
     /**
+     * 413 - Unknown PointLog
+     * The requested point cannot be found
+     */
+    static UnknownPointLog(): APIResponse {
+        return new APIResponse(413, "Unkown PointLog")
+    }
+
+    /**
      * 417 - Unknown Point Type
      * Supplied Point Type Id does not exist in the database. This may occur if the point type is negative
      */
@@ -113,7 +121,7 @@ export class APIResponse{
     }
 
     /**
-     * 412 - User Already Exists
+     * 421 - User Already Exists
      * User with that ID already exists in the database
      */
     static UserAlreadyExists(): APIResponse {
