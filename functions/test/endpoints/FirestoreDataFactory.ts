@@ -164,7 +164,7 @@ export class FirestoreDataFactory{
             "ResidentLastName":(ptOpts.resident_last_name !== undefined)?ptOpts.resident_last_name:POINT_LOG_DEFAULTS.resident_last_name,
             "ResidentNotifications":(ptOpts.resident_notifications !== undefined)?ptOpts.resident_notifications:POINT_LOG_DEFAULTS.resident_notifications
         }
-        if(approved){
+        if(!approved){
             data["ApprovedBy"] = (ptOpts.approved_by !== undefined)?ptOpts.approved_by:POINT_LOG_DEFAULTS.approved_by
             data["ApprovedOn"] = (ptOpts.approved_on !== undefined)?ptOpts.approved_on:POINT_LOG_DEFAULTS.approved_on
             data["PointTypeID"] = data["PointTypeID"] * -1

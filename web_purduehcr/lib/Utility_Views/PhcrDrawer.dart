@@ -6,10 +6,11 @@ import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 
 const _DrawerOptions OVERVIEW = _DrawerOptions("Overview","/",Icon(Icons.account_circle));
 const _DrawerOptions SUBMIT_POINTS = _DrawerOptions("Submit Points","/submit_points",Icon(Icons.add));
+const _DrawerOptions HANDLE_POINTS = _DrawerOptions("Handle Points","/handle_points",Icon(Icons.message));
 const _DrawerOptions TOKEN = _DrawerOptions("Token","/token",Icon(Icons.add));
 
 const List<_DrawerOptions> RESIDENT_LIST = [OVERVIEW,SUBMIT_POINTS,TOKEN];
-const List<_DrawerOptions> RHP_LIST = [OVERVIEW,SUBMIT_POINTS];
+const List<_DrawerOptions> RHP_LIST = [OVERVIEW,SUBMIT_POINTS, HANDLE_POINTS];
 const List<_DrawerOptions> PROFESSIONAL_STAFF_LIST = [OVERVIEW];
 const List<_DrawerOptions> FHP_LIST = [OVERVIEW];
 const List<_DrawerOptions> PRIVILEGED_USER_LIST = [OVERVIEW,SUBMIT_POINTS];

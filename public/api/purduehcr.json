@@ -574,9 +574,14 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/PointLog"
+                  "type" : "object",
+                  "properties": {
+                    "point_logs": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointLog"
+                      }
+                    }
                   }
                 }
               }
