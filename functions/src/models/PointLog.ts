@@ -1,5 +1,6 @@
 import * as admin from "firebase-admin"
 import { UserWithPoints, User } from "./User"
+import { PointType } from "./PointType"
 
 export class PointLog {
     static APPROVED_BY = "ApprovedBy"
@@ -9,6 +10,8 @@ export class PointLog {
     static DESCRIPTION = "Description"
     static FLOOR_ID = "FloorID"
     static POINT_TYPE_ID = "PointTypeID"
+    static POINT_TYPE_NAME = "PointTypeName"
+    static POINT_TYPE_DESCRIPTION = "PointTypeDescription"
     static RHP_NOTIFICATIONS = "RHPNotifications"
     static RESIDENT_FIRST_NAME = "ResidentFirstName"
     static RESIDENT_ID = "ResidentId"
@@ -25,7 +28,9 @@ export class PointLog {
     dateSubmitted: Date
     description: string
     floorId: string
+    pointTypeDescription: string
     pointTypeId: number
+    pointTypeName: string
     rhpNotifications: number
     residentFirstName: string
     residentId: string
@@ -34,7 +39,7 @@ export class PointLog {
     id: string
 
     constructor(id:string, approvedBy: string | null, approvedOn: Date | null, dateOccurred: Date,
-        dateSubmitted: Date, description: string, floorId: string, pointTypeId: number,
+        dateSubmitted: Date, description: string, floorId: string, pointTypeDescription:string, pointTypeId: number, pointTypeName:string,
         rhpNotifications: number, residentFirstName: string, residentId: string, residentLastName: string,
         residentNotifications: number) {
         this.id = id
@@ -44,7 +49,9 @@ export class PointLog {
         this.dateSubmitted = dateSubmitted
         this.description = description
         this.floorId = floorId
+        this.pointTypeDescription = pointTypeDescription
         this.pointTypeId = pointTypeId
+        this.pointTypeName = pointTypeName
         this.rhpNotifications = rhpNotifications
         this.residentFirstName = residentFirstName
         this.residentId = residentId
@@ -57,6 +64,11 @@ export class PointLog {
         this.residentFirstName = user.firstName.toString()
         this.residentLastName = user.lastName.toString()
         this.residentId = user.id.toString()
+    }
+
+    updateFieldsWithPointType(type:PointType) {
+        this.pointTypeName = type.name.toString()
+        this.pointTypeDescription = type.description.toString()
     }
 
     /**
@@ -96,7 +108,9 @@ export class PointLog {
         let dateSubmitted: Date
         let description: string
         let floorId: string
+        let pointTypeDescription: string
         let pointTypeId: number
+        let pointTypeName: string
         let rhpNotifications: number
         let residentFirstName: string
         let residentId: string
@@ -125,14 +139,16 @@ export class PointLog {
         dateSubmitted = document[PointLog.DATE_SUBMITTED]
         description = document[PointLog.DESCRIPTION]
         floorId = document[PointLog.FLOOR_ID]
+        pointTypeDescription = document[PointLog.POINT_TYPE_DESCRIPTION]
         pointTypeId = document[PointLog.POINT_TYPE_ID]
+        pointTypeName = document[PointLog.POINT_TYPE_NAME]
         rhpNotifications = document[PointLog.RHP_NOTIFICATIONS]
         residentFirstName = document[PointLog.RESIDENT_FIRST_NAME]
         residentId = document[PointLog.RESIDENT_ID]
         residentLastName = document[PointLog.RESIDENT_LAST_NAME]
         residentNotifications = document[PointLog.RESIDENT_NOTIFICATIONS]
 
-        return new PointLog(id, approvedBy, approvedOn, dateOccurred, dateSubmitted, description, floorId, pointTypeId, 
+        return new PointLog(id, approvedBy, approvedOn, dateOccurred, dateSubmitted, description, floorId, pointTypeDescription, pointTypeId, pointTypeName,
             rhpNotifications, residentFirstName, residentId, residentLastName, residentNotifications)
 
     }
@@ -147,7 +163,9 @@ export class PointLog {
         data[PointLog.DATE_SUBMITTED] = this.dateSubmitted
         data[PointLog.DESCRIPTION] = this.description
         data[PointLog.FLOOR_ID] = this.floorId
+        data[PointLog.POINT_TYPE_DESCRIPTION] = this.pointTypeDescription
         data[PointLog.POINT_TYPE_ID] = this.pointTypeId
+        data[PointLog.POINT_TYPE_NAME] = this.pointTypeName
         data[PointLog.RHP_NOTIFICATIONS] = this.rhpNotifications
         data[PointLog.RESIDENT_FIRST_NAME]  = this.residentFirstName
         data[PointLog.RESIDENT_ID] = this.residentId

@@ -37,6 +37,7 @@ export async function submitPoint(userId: string, log: UnsubmittedPointLog, isGu
 			const user = await getUser(userId)
 			if(user.isParticipantInCompetition()){
 				log.updateFieldsWithUser(user)
+				log.updateFieldsWithPointType(pointType)
 				if(isGuaranteedApproval || user.permissionLevel === UserPermissionLevel.RHP){
 					//If the log is approved
 					log.approveLog()
