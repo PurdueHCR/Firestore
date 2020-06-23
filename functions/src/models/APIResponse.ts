@@ -89,6 +89,14 @@ export class APIResponse{
     }
 
     /**
+     * 416 - PointLog Already Handled
+     * The PointLog is already in the requested approved/rejected state
+     */
+    static PointLogAlreadyHandled(): APIResponse {
+        return new APIResponse(416, "PointLog Already Handled")
+    }
+
+    /**
      * 417 - Unknown Point Type
      * Supplied Point Type Id does not exist in the database. This may occur if the point type is negative
      */

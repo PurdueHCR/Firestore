@@ -75,6 +75,8 @@ export class PointLog {
 
         //Ensure that the point type id is positive. Negative implies the log is not approved yet
         this.pointTypeId = Math.abs(this.pointTypeId)
+
+        this.residentNotifications++
     }
 
     static fromDocumentSnapshot( document: admin.firestore.DocumentSnapshot): PointLog {

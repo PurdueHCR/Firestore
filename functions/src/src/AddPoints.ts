@@ -20,7 +20,7 @@ export async function addPoints(points: number, house_name: string, user_id?: st
     
     const db = admin.firestore()
 
-	//Ensure points is an integer
+	// Ensure points is an integer
 	const rounded_points = Math.floor(points)
 
 	try {
