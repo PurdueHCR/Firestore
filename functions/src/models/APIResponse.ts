@@ -161,6 +161,14 @@ export class APIResponse{
     }
 
     /**
+     * 427 - Can Not Post Message
+     * The user can not post a message to this point log
+     */
+    static CanNotPostMessage(): APIResponse {
+        return new APIResponse(427, "You are not allowed to post a message to this submission.")
+    }
+
+    /**
      * 500 - Server Error
      * Unknown Firebase Firestore error
      */

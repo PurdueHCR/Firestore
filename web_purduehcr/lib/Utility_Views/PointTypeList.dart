@@ -38,7 +38,7 @@ class _PointTypeListState extends State<PointTypeList>{
       mainContent = ListView.builder(
         itemCount: visibleTypes.length,
         itemBuilder: (BuildContext context, int index){
-          return PointTypeListTile(pointType: visibleTypes[index], onTap: widget.onPressed);
+          return Card(child: PointTypeListTile(pointType: visibleTypes[index], onTap: widget.onPressed));
         },
       );
     }

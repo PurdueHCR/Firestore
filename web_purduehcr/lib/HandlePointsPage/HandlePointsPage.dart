@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
+import 'package:purduehcr_web/HandlePointsPage/PointLogChat.dart';
 import 'package:purduehcr_web/HandlePointsPage/handle_points_bloc/handle_points.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
+import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/Utility_Views/PointLogList.dart';
 
 import '../BasePage.dart';
@@ -17,6 +20,7 @@ class HandlePointsPage extends BasePage {
 class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePointEvent, HandlePointsState>{
 
   HandlePointsBloc _handlePointsBloc;
+  PointLog _selectedPointLog;
 
   _HandlePointsPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
 
@@ -30,9 +34,22 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
 
   @override
   Widget buildLargeDesktopBody({BuildContext context, HandlePointsState state}) {
-    return PointLogList(
-        pointLogs: _handlePointsBloc.state.pointLogs,
-        onPressed: _onPressed
+    return Row(
+      children: [
+        Flexible(
+          child: PointLogList(
+              pointLogs: _handlePointsBloc.state.pointLogs,
+              onPressed: _onPressed
+          ),
+        ),
+        VerticalDivider(),
+        Flexible(
+            child: PointLogChat(
+              key: new ObjectKey(_selectedPointLog),
+              pointLog: _selectedPointLog,
+            )
+        )
+      ],
     );
   }
 
@@ -63,27 +80,28 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
   }
 
   _onPressed(BuildContext context, PointLog pointLog){
-//      if(displayTypeOf(context) == DisplayType.desktop_large){
-//        setState(() {
-//          _selectedPointType = pointType;
-//        });
-//      }
-//      else{
-//        showDialog(
-//            context: context,
-//            builder: (BuildContext context){
-//              return SimpleDialog(
-//                title: Text("Submission Form"),
-//                children: [
+      if(displayTypeOf(context) == DisplayType.desktop_large){
+        setState(() {
+          _selectedPointLog = pointLog;
+        });
+      }
+      else{
+        showDialog(
+            context: context,
+            builder: (BuildContext context){
+              return SimpleDialog(
+                title: Text("Submission Form"),
+                children: [
 //                  PointSubmissionForm(
 //                    key: new ObjectKey(_selectedPointType),
 //                    pointType: pointType,
 //                    onSubmit: _onSubmit,
 //                  )
-//                ],
-//              );
-//            }
-//        );
+                  Text("Nope")
+                ],
+              );
+            }
+        );
 
   }
 

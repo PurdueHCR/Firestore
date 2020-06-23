@@ -24,6 +24,8 @@
     "name" : "reward"
   }, {
     "name" : "point_type"
+  }, {
+    "name" : "point_log"
   } ],
   "paths" : {
     "/user/auth-rank" : {
@@ -1190,6 +1192,157 @@
           }
         }
       }
+    },
+    "/point_log/messages" : {
+      "post" : {
+        "tags" : [ "point_log" ],
+        "summary" : "Post a new message to the point log",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+          }
+        ],
+        "requestBody" : {
+          "description" : "Required parameters to post a message",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties": {
+                  "id" : {
+                    "type": "string",
+                    "example": "329opc8dahl3fh"
+                  },
+                  "message" : {
+                    "type": "string",
+                    "example": "Good Job on the submission"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Message Successfully Saved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "427" : {
+            "description" : "Can Not Post Message -  The user can not post a message to this point log",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CanNotPostMessage"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get" : {
+        "tags" : [ "point_log" ],
+        "summary" : "Get all messages for a point log",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+          },{
+            "name" : "id",
+            "in" : "query",
+            "description" : "Id  for the point log",
+            "required" : true,
+            "style" : "form",
+            "explode" : true,
+            "schema" : {
+              "type" : "string"
+            },
+            "example" : "aljk3p890dchjvo2"
+          } 
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "Message Successfully Saved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "427" : {
+            "description" : "Can Not Post Message -  The user can not post a message to this point log",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CanNotPostMessage"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
@@ -1629,6 +1782,15 @@
           "message" : {
             "type" : "string",
             "example" : "Data provided is in the incorrect format."
+          }
+        }
+      },
+      "CanNotPostMessage" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "You can not post a message to this submission"
           }
         }
       },
