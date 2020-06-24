@@ -13,16 +13,16 @@ const REJECTED_STRING = "DENIED: "
 
 /**
  * 
- * @param user_id       ID of user updating the point
+ * @param approver_id       ID of user updating the point
  * @param document_id   ID of PointLog to approve/reject
  * @param approve       Boolean to approve/reject the PointLog   
  * 
  * @throws  403 - InvalidPermissionLevel
  * @throws  413 - UnknownPointLog
  */
-export async function updatePointLogStatus(user_id: string, document_id: string, approve: boolean): Promise<void> {
+export async function updatePointLogStatus(approve: boolean, approver_id: string, document_id: string): Promise<Boolean> {
     
-    const user = await getUser(user_id)
+    const user = await getUser(approver_id)
     if (user.permissionLevel != UserPermissionLevel.RHP) {
         return Promise.reject(APIResponse.InvalidPermissionLevel)
     }

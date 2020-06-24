@@ -10,25 +10,65 @@ import { createUser } from '../src/CreateUser'
 import { isInDateRange } from '../src/IsInDateRange'
 import { getUserRank } from '../src/GetUserRank'
 import { getPointLogsForUser } from '../src/GetPointLogsForUser'
+import { updatePointLogStatus } from '../src/UpdatePointLogStatus'
 
 if(admin.apps.length === 0){
 	admin.initializeApp(functions.config().firebase)
 }
 
-const users_app = express()
+const db = admin.firestore()
+const log_app = express()
 const cors = require('cors')
-const users_main = express()
-
-users_main.use(users_app)
-users_app.use(express.json())
-users_app.use(express.urlencoded({ extended: true }))
-
+const log_main = express()
 const firestoreTools = require('../firestoreTools')
 
+log_app.use(firestoreTools.validateFirebaseIdToken)
 
-users_app.use(cors({origin:true}))
-users_app.use(firestoreTools.flutterReformat)
-users_app.use(firestoreTools.validateFirebaseIdToken)
+/**
+ * Handle a PointLog
+ */
+log_app.post('/handle', async (req, res) => {
+	if (!req.body.approve || req.body.approve === "" || !req.body.approver_id || req.body.approver_id === ""
+			|| !req.body.point_log_id || req.body.point_log_id === "") {
+		if (!req.body) {
+			console.error("Missing Body")
+		}
+		else if (!req.body.approve || req.body.approve === "") {
+			console.error("Missing approve")
+		}
+		else if (!req.body.approver_id || req.body.approver_id === "") {
+			console.error("Missing approver_id")
+		}
+		else if (!req.body.point_log_id || req.body.point_log_id === "") {
+			console.error("Missing point_log_id")
+		} else {
+			console.error("Unknown missing parameter")
+		}
+
+		const error = APIResponse.MissingRequiredParameters()
+		res.status(error.code).send(error.toJson())
+	}
+	else if (req.body.approve != "false" && req.body.approve != "true") {
+		console.error("Invalid approve")
+		const error = APIResponse.IncorrectFormat()
+		res.status(error.code).send(error.toJson())
+	} else {
+		try {
+			const didUpdate = await updatePointLogStatus(req.body.approve, req.body.approver_id, req.body.point_log_id)
+			if (didUpdate) {
+				res.status(201).send(APIResponse.Success().toJson())
+			}
+		} catch (error) {
+			console.log("FAILED WITH ERROR: "+ error.toString())
+			if (error instanceof APIResponse){
+				res.status(error.code).send(error.toJson())
+			} else {
+				const apiResponse = APIResponse.ServerError()
+				res.status(apiResponse.code).send(apiResponse.toJson())
+			}
+		}
+	}
+})
 
 /**
  * Get the houseRank and semesterRank for the requesting user
@@ -138,7 +178,7 @@ users_app.post('/submitPoint', async (req, res) => {
 		if(!req.body){
 			console.error("Missing Body")
 		}
-		else if(!req.body.point_type_id || req.body.point_type_id === "" ){
+		else if(!req.body.point_type_id ||  req.body.point_type_id === "" ){
 			console.error("Missing point_type_id")
 		}
 		else if(!req.body.description || req.body.description === ""){
