@@ -705,6 +705,46 @@
               }
             }
           },
+          "403" : {
+            "description" : "Invalid Permissions. Residents can't create Links.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "417" : {
+            "description" : "Unknown Point Type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDoesNotExist"
+                }
+              }
+            }
+          },
+          "418" : {
+            "description" : "Point Type Disabled.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDisabled"
+                }
+              }
+            }
+          },
+          "430" : {
+            "description" : "User does not have high enough permissions to use this point type to create a link.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InsufficientPointTypePermissionForLink"
+                }
+              }
+            }
+          },
           "500" : {
             "description" : "Server Error.",
             "content" : {
@@ -1581,6 +1621,15 @@
           "message" : {
             "type" : "string",
             "example" : "Data provided is in the incorrect format."
+          }
+        }
+      },
+      "InsufficientPointTypePermissionForLink" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "User does not have sufficient permissions to use that Point Type in a Link."
           }
         }
       },

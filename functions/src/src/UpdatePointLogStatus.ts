@@ -50,8 +50,8 @@ export async function updatePointLogStatus(user_id: string, document_id: string,
             // Warning: this may not be the correct value
             console.log("Point value is:", point_value)
 
-            var message_end = " the point request."
-            var message_beginning = user.firstName + " " + user.lastName
+            // var message_end = " the point request."
+            // var message_beginning = user.firstName + " " + user.lastName
 
             // WARNING: I'M NOT CONVINCED THIS WILL ACTUALLY UPDATE THE LOG DESCRIPTION
 
@@ -67,7 +67,7 @@ export async function updatePointLogStatus(user_id: string, document_id: string,
                         // Log has previously been approved so it is safe to subtract points
                         await addPoints(-1*point_value, user.house, resident_id)
                     }
-                    message_beginning += " rejected" + message_end
+                    // message_beginning += " rejected" + message_end
                     let messageObj = new PointLogMessage(new Date(), "", MessageType.APPROVE, "first_name", "last_name", UserPermissionLevel.EXTERNAL_ADVISOR)
                     await submitPointLogMessage(user.house, log, messageObj)
                 }
@@ -81,7 +81,7 @@ export async function updatePointLogStatus(user_id: string, document_id: string,
                     log.approveLog(user)
                     await addPoints(point_value, user.house, resident_id)
                     // Add message of approval/rejection
-                    message_beginning += " approved" + message_end
+                    // message_beginning += " approved" + message_end
                     let messageObj = new PointLogMessage(new Date(), "", MessageType.APPROVE, "first_name", "last_name", UserPermissionLevel.EXTERNAL_ADVISOR)
                     await submitPointLogMessage(user.house, log, messageObj)
                 } else {
