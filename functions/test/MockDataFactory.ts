@@ -85,3 +85,108 @@ export function mockPointType(id:number, description: String, enabled: boolean, 
         }
     }
 }
+
+/**
+ * Create or set teh value for a user with the ID and permission level
+ * @param db - Test App Firestore instance (Usually from authedApp())
+ * @param id - Id for the user
+ * @param permission_level - int that represents the permission level
+ * @param uOpts - Optional parameters for the user. Will be set to default if field isn't provided
+ */
+export function mockUser(id: string, permission_level: number, uOpts:UserOptions = USER_DEFAULTS): DocumentData {
+    let data = {
+        id: id,
+        data: {}
+    }
+    switch(permission_level){
+        case 0:
+            //Resident
+            data.data = {
+                "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first, 
+                "FloorID":(uOpts.floor_id !== undefined)? uOpts.floor_id:USER_DEFAULTS.floor_id,
+                "House":(uOpts.house_name !== undefined)? uOpts.house_name:USER_DEFAULTS.house_name,
+                "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
+                "SemesterPoints":(uOpts.semester_points !== undefined)? uOpts.semester_points: USER_DEFAULTS.semester_points,
+                "Permission Level":0, 
+                "TotalPoints":(uOpts.total_points !== undefined)? uOpts.total_points: USER_DEFAULTS.total_points
+            }
+        case 1:
+            //RHP
+            data.data = {
+                "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first, 
+                "FloorID":(uOpts.floor_id !== undefined)? uOpts.floor_id:USER_DEFAULTS.floor_id,
+                "House":(uOpts.house_name !== undefined)? uOpts.house_name:USER_DEFAULTS.house_name,
+                "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
+                "SemesterPoints":(uOpts.semester_points !== undefined)? uOpts.semester_points: USER_DEFAULTS.semester_points,
+                "Permission Level":1, 
+                "TotalPoints":(uOpts.total_points !== undefined)? uOpts.total_points: USER_DEFAULTS.total_points
+            }
+        case 2:
+            //REC
+            data.data = {
+                "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first,
+                "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
+                "Permission Level":2
+            }
+        case 3:
+            //FHP
+            data.data = {
+                "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first, 
+                "House":(uOpts.house_name !== undefined)? uOpts.house_name:USER_DEFAULTS.house_name,
+                "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
+                "Permission Level":3
+            }
+        case 4:
+            //Privileged Resident
+            data.data = {
+                "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first, 
+                "FloorID":(uOpts.floor_id !== undefined)? uOpts.floor_id:USER_DEFAULTS.floor_id,
+                "House":(uOpts.house_name !== undefined)? uOpts.house_name:USER_DEFAULTS.house_name,
+                "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
+                "SemesterPoints":(uOpts.semester_points !== undefined)? uOpts.semester_points: USER_DEFAULTS.semester_points,
+                "Permission Level":4, 
+                "TotalPoints":(uOpts.total_points !== undefined)? uOpts.total_points: USER_DEFAULTS.total_points
+            }
+        case 5:
+            //Non-Honors Affiliated Staff
+            data.data = {
+                "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first,
+                "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
+                "Permission Level":2
+            }
+        default:
+            data.data = {
+                "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first, 
+                "FloorID":(uOpts.floor_id !== undefined)? uOpts.floor_id:USER_DEFAULTS.floor_id,
+                "House":(uOpts.house_name !== undefined)? uOpts.house_name:USER_DEFAULTS.house_name,
+                "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
+                "SemesterPoints":(uOpts.semester_points !== undefined)? uOpts.semester_points: USER_DEFAULTS.semester_points,
+                "Permission Level":0, 
+                "TotalPoints":(uOpts.total_points !== undefined)? uOpts.total_points: USER_DEFAULTS.total_points
+            }
+    }
+    return data
+}
+
+/**
+ * Type declaration for optional params for User Options. Undefined fields will be defaulted.
+ */
+export declare type UserOptions = {
+    first?:string, 
+    floor_id?:string,
+    house_name?:string,
+    last?:string,
+    semester_points?:number,
+    total_points?:number
+}
+/**
+ * Default fields for user
+ */
+export const USER_DEFAULTS:UserOptions = {
+    first: "TEST_FIRST",
+    last: "TEST_LAST",
+    total_points: 0,
+    semester_points: 0,
+    house_name: "Platinum",
+    floor_id: "4N"
+}

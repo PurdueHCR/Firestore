@@ -59,7 +59,17 @@ links_main.get('/getLink', (req, res) => {
 })
 
 /**
- * 
+ * Creates a link model in the database
+ * @body single_use - Bool for link being single scan
+ * @body point_id - number that represents id of the Point Type
+ * @body description - string the description for the link
+ * @throws 400 - User not found
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permissions
+ * @throws 417 - Unkown Point type
+ * @throws 418 - Point Type Disabled
+ * @throws 430 - Insufficent Permissions for Point Type
+ * @throws 500 - Server Error
  */
 links_main.post('/create' ,async (req, res) => {
 
@@ -85,7 +95,7 @@ links_main.post('/create' ,async (req, res) => {
                 res.status(suberror.code).send(suberror.toJson())
             }
             else {
-                console.log("FAILED WITH DB FROM user ERROR: "+ suberror)
+                console.log("FAILED WITH DB FROM link create ERROR: "+ suberror)
                 const apiResponse = APIResponse.ServerError()
                 res.status(apiResponse.code).send(apiResponse.toJson())
             }

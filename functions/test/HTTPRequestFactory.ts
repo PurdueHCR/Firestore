@@ -21,9 +21,18 @@ export function post(func: functions.HttpsFunction, path: string, body:any, toke
  * @param path path after the function. For example if you try to call "/user/get" the path should be "/get"
  * @param token The token for the user. If you use the IntegrationMockFactory to mock firebase-admin, then the token should be the id of the user
  */
-export function get(func: functions.HttpsFunction, path: string, token: string): request.Test{
-    const httpRequest = request(func).get(path);
+export function get(func: functions.HttpsFunction, path: string, token: string, params: any = {}): request.Test{
+    const httpRequest = request(func).get(path+convertQueryParams(params));
     httpRequest.set("Authorization", "Bearer "+token)
     httpRequest.set('Content-Type', 'application/x-www-form-urlencoded')
     return httpRequest;
   }
+
+function convertQueryParams(params: any): string{
+  let queryParams  = "?"
+  for(let key in params){
+    queryParams += key+"="+params[key]+"&"
+  }
+
+  return queryParams.slice(0,-1)
+}

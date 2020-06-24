@@ -139,7 +139,7 @@ export class FirestoreDataFactory{
                 return db.collection("Users").doc(id).set({
                     "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first,
                     "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
-                    "Permission Level":2
+                    "Permission Level":5
                 })
             default:
                 return db.collection("Users").doc(id).set({

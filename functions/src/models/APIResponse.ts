@@ -177,6 +177,14 @@ export class APIResponse{
     }
 
     /**
+     * 430 - Insufficient Permission Level For Create a Link with that Point Type
+     * The point type  
+     */
+    static InsufficientPointTypePermissionForLink(): APIResponse {
+        return new APIResponse(430, "User does not have sufficient permissions to use that Point Type in a Link.")
+    }
+
+    /**
      * 500 - Server Error
      * Unknown Firebase Firestore error
      */
