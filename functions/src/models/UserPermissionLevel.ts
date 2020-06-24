@@ -1,4 +1,4 @@
-export const enum UserPermissionLevel {
+export enum UserPermissionLevel {
     RESIDENT = 0,
     RHP = 1, //RAs
     PROFESSIONAL_STAFF = 2, //REA - REC
