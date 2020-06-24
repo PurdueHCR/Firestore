@@ -5,6 +5,11 @@ import {Link} from '../models/Link';
 import { HouseCompetition } from '../models/HouseCompetition';
 import { PointType } from '../models/PointType';
 import { User } from '../models/User';
+import { APIResponse } from '../models/APIResponse';
+import { getUser } from '../src/GetUser';
+import { createLink } from '../src/CreateLink';
+import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission';
+import { UserPermissionLevel } from '../models/UserPermissionLevel';
 
 
 if(admin.apps.length === 0){
@@ -51,72 +56,40 @@ links_main.get('/getLink', (req, res) => {
         })
     }
 
-    //TODO
-    /*
-        1. Ensure that the query parameter exists
-        2. Using the value in the query parameter, get the link model in the database
-        3. Cast the document into the API Link Model
-        4. Send the document in the response
-        5. On unable to find, send 400
-        6. On server error, send 500
-    */
-
-
 })
 
 /**
  * 
  */
-links_main.post('/create' ,(req, res) => {
+links_main.post('/create' ,async (req, res) => {
 
     if(req.body["single_use"] === undefined || req.body["point_id"] === undefined || req.body["description"] === undefined){
-		res.status(422).send("{\"message\": \"Missing required parameters.\"}")
+		const error = APIResponse.MissingRequiredParameters()
+		res.status(error.code).send(error.toJson())
     }
     else{
-        const blank_id = "";
-        const is_enabled = false;
-        const is_archived = false;
-        const user_id = req["user"]["user_id"];
-        const description = req.body["description"];
-        const point_id = parseInt(req.body["point_id"]);
-        const is_single_use = req.body["single_use"];
+        try{
+            const user_id = req["user"]["user_id"];
+            const description = req.body["description"];
+            const point_id = parseInt(req.body["point_id"]);
+            const is_single_use = req.body["single_use"];
 
-        db.collection(HouseCompetition.USERS_KEY).doc(req["user"]["user_id"]).get().then(userDoc => {
-            const user = User.fromDocumentSnapshot(userDoc);
-            db.collection(HouseCompetition.POINT_TYPES_KEY).doc(point_id.toString()).get().then(pointDoc => {
-                if(pointDoc.exists){
-                    const pointType = PointType.fromDocumentSnapshot(pointDoc);
-                    if(pointType.canUserGenerateLinks(user.permissionLevel)){
-                        const link = new Link(blank_id,is_archived,user_id, description, is_enabled, point_id, is_single_use);
-                        db.collection(HouseCompetition.LINKS_KEY).add(link.toFirebaseJson()).then(ref => {
-                            res.status(200).send("{\"message\": \"Success\"}");
-                        })
-                        .catch( err => {
-                            console.log("Could not create link: "+err)
-                            res.status(500).send("{\"message\": \"Unknown Server Error\"}");
-                        })
-                    }
-                    else{
-                        console.log("Invalid permissions. Point Type: "+pointType.name+", pt_permission: "+pointType.permissionLevel+", usr_permission: "+user.permissionLevel)
-                        res.status(412).send("{\"message\": \"Invalid Permission.\"}");
-                    }
-                }
-                else{
-                    console.log("Could not find Point Type Id")
-                    res.status(417).send("{\"message\": \"Could not find Point Type Id.\"}");
-                }
-                
-            })
-            .catch( err => {
-                console.log("Could not get point type: "+err)
-                res.status(500).send("{\"message\": \"Unknown Server Error\"}");
-            })
-        })
-        .catch( err => {
-            console.log("Could not get user: "+err)
-            res.status(500).send("{\"message\": \"Unknown Server Error\"}");
-        })
-
+            const user = await getUser(user_id)
+            const permissions = [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.FACULTY, UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.EXTERNAL_ADVISOR]
+            verifyUserHasCorrectPermission(user, permissions)
+            const link = await createLink(user,point_id, is_single_use, description)
+            res.status(APIResponse.SUCCESS_CODE).send(link)
+        }
+        catch(suberror){
+            if (suberror instanceof APIResponse){
+                res.status(suberror.code).send(suberror.toJson())
+            }
+            else {
+                console.log("FAILED WITH DB FROM user ERROR: "+ suberror)
+                const apiResponse = APIResponse.ServerError()
+                res.status(apiResponse.code).send(apiResponse.toJson())
+            }
+        }
         
     }
 })

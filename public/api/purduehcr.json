@@ -383,7 +383,7 @@
     },
     "/user/links": {
       "get" : {
-        "tags": [ "link"],
+        "tags": [ "user"],
         "summary": "Get all links created by the given user",
         "parameters" : [ {
           "name" : "Authorization",
@@ -1241,19 +1241,19 @@
       "Link" : {
         "type" : "object",
         "properties" : {
-          "link_id" : {
+          "id" : {
             "type" : "integer",
             "example" : 1
           },
-          "is_enabled" : {
+          "enabled" : {
             "type" : "boolean",
             "example" : false
           },
-          "is_archived" : {
+          "archived" : {
             "type" : "boolean",
             "example" : false
           },
-          "creator_id" : {
+          "creatorId" : {
             "type" : "string",
             "example" : "124rfdsq23fas"
           },
@@ -1261,11 +1261,11 @@
             "type" : "string",
             "example" : "House event on 2/26/2020"
           },
-          "point_id" : {
+          "pointId" : {
             "type" : "integer",
             "example" : 1
           },
-          "single_use" : {
+          "singleUse" : {
             "type" : "boolean",
             "example" : false
           }

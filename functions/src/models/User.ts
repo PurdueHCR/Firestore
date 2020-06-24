@@ -171,6 +171,10 @@ export class User {
         return data
     }
 
+    toString() : string {
+        return `${this.firstName} ${this.lastName} has permission of ${this.permissionLevel}`
+    }
+
 }
 
 export class UserWithPoints extends User {
