@@ -28,8 +28,9 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
     }
     const db = admin.firestore()
     try {
-        const doc = await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house.toString())
-                        .collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).doc(document_id).get()
+        const doc_ref = db.collection(HouseCompetition.HOUSE_KEY).doc(user.house.toString())
+        .collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).doc(document_id)
+        const doc = await doc_ref.get()
         if (!doc.exists) {
             // PointLog could not be found
             return Promise.reject(APIResponse.UnknownPointLog)
@@ -45,15 +46,14 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                 log.pointTypeId *= -1
             }
             const point_type_doc = await db.collection(HouseCompetition.POINT_TYPES_KEY)
-                                    .doc(PointLog.POINT_TYPE_ID).get()
-            const point_value = point_type_doc["Value"]
+                                    .doc(log.pointTypeId.toString()).get()
+            console.log(point_type_doc)
+            const point_value = point_type_doc.data["Value"]
             // Warning: this may not be the correct value
             console.log("Point value is:", point_value)
 
-            var message_end = " the point request."
-            var message_beginning = user.firstName + " " + user.lastName
-
-            // WARNING: I'M NOT CONVINCED THIS WILL ACTUALLY UPDATE THE LOG DESCRIPTION
+            let message_end = " the point request."
+            let message_beginning = user.firstName + " " + user.lastName
 
             // If reject check to know if need to subtract points
             if (!approve) {
@@ -63,12 +63,13 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                 } else {
                     log.description = REJECTED_STRING + log.description
                     log.approveLog(user)
+                    await doc_ref.set(log.toFirebaseJSON())
                     if (already_handled) {
                         // Log has previously been approved so it is safe to subtract points
-                        await addPoints(-1*point_value, user.house, resident_id)
+                        await addPoints(-1*(parseInt(point_value)), user.house, resident_id)
                     }
                     message_beginning += " rejected" + message_end
-                    let messageObj = new PointLogMessage(new Date(), "", MessageType.APPROVE, "first_name", "last_name", UserPermissionLevel.EXTERNAL_ADVISOR)
+                    let messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.REJECT, user.firstName, user.lastName, UserPermissionLevel.RHP)
                     await submitPointLogMessage(user.house, log, messageObj)
                 }
             } else {
@@ -79,10 +80,12 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                         log.description.slice(0, REJECTED_STRING.length)                    
                     }
                     log.approveLog(user)
-                    await addPoints(point_value, user.house, resident_id)
+                    await doc_ref.set(log.toFirebaseJSON())
+                    //await addPoints(parseInt(point_value), user.house, resident_id)
+                    await addPoints(5, user.house, resident_id)
                     // Add message of approval/rejection
                     message_beginning += " approved" + message_end
-                    let messageObj = new PointLogMessage(new Date(), "", MessageType.APPROVE, "first_name", "last_name", UserPermissionLevel.EXTERNAL_ADVISOR)
+                    let messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.APPROVE, user.firstName, user.lastName, UserPermissionLevel.RHP)
                     await submitPointLogMessage(user.house, log, messageObj)
                 } else {
                     // Log has already been approved so points should not be added
@@ -90,7 +93,7 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                     return Promise.reject(response)
                 }
             }
-            return Promise.resolve()
+            return Promise.resolve(true)
         }
     }
     catch (error) {
