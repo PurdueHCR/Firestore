@@ -657,6 +657,77 @@
         }
       }
     },
+    "/link/" : {
+      "get" : {
+        "tags" : [ "link" ],
+        "summary" : "Get a specific Link",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        },{
+          "name" : "id",
+          "in" : "query",
+          "description" : "Id  for the link",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "ed3rodsaw34fnbjdla"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Link"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "408" : {
+            "description" : "Link Doesnt Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LinkDoesntExist"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/link/create" : {
       "post" : {
         "tags" : [ "link" ],
@@ -691,6 +762,16 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Doesn't exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
                 }
               }
             }
@@ -731,6 +812,16 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/PointTypeDisabled"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing Required Parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
                 }
               }
             }
@@ -779,7 +870,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/Link"
+                "$ref" : "#/components/schemas/LinkUpdate"
               }
             }
           },
@@ -802,6 +893,36 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "407" : {
+            "description" : "Link Doesn't Belong to User",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LinkDoesntBelongToUser"
+                }
+              }
+            }
+          },
+          "408" : {
+            "description" : "Link Doesn't Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LinkDoesntExist"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing required parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
                 }
               }
             }
@@ -1311,6 +1432,31 @@
           }
         }
       },
+      "LinkUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "link_id" : {
+            "type" : "integer",
+            "example" : 1
+          },
+          "enabled" : {
+            "type" : "boolean",
+            "example" : false
+          },
+          "archived" : {
+            "type" : "boolean",
+            "example" : false
+          },
+          "description" : {
+            "type" : "string",
+            "example" : "House event on 2/26/2020"
+          },
+          "singleUse" : {
+            "type" : "boolean",
+            "example" : false
+          }
+        }
+      },
       "Reward" : {
         "type" : "object",
         "properties" : {
@@ -1504,6 +1650,24 @@
           "message" : {
             "type" : "string",
             "example" : "This User does not have the correct permission levels."
+          }
+        }
+      },
+      "LinkDoesntBelongToUser" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "This Link doesnt belong to the user"
+          }
+        }
+      },
+      "LinkDoesntExist" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "This Link doesnt exist"
           }
         }
       },

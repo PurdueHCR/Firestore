@@ -189,6 +189,18 @@ export class FirestoreDataFactory{
         
     }
 
+    static setLink(db: firebase.firestore.Firestore, link_id: string, creator_id: string, point_type_id: number, linkOpts: LinkOptions = LINK_DEFAULTS){
+        let data = {
+            Archived:linkOpts.archived,
+            CreatorID:creator_id,
+            Description:linkOpts.description,
+            Enabled: linkOpts.enabled,
+            PointID: point_type_id,
+            SingleUse: linkOpts.single_use
+        }
+        return db.collection("Links").doc(link_id).set(data)
+    }
+
     /**
      * Create multiple pointlogs for the given user
      * @param db  - Test App Firestore instance (Usually from authedApp())
@@ -311,6 +323,23 @@ export declare type RewardOptions = {
     id?: string
     required_ppr?: number,
     required_value?: number
+}
+
+/**
+ * Type Declaration for fields to add to Link. Undefined fields will be defaulted
+ */
+export declare type LinkOptions = {
+    archived?: boolean,
+    description?: string,
+    enabled?: boolean,
+    single_use?: boolean
+}
+
+export const LINK_DEFAULTS:LinkOptions = {
+    archived: false,
+    description: "Basic description",
+    enabled: true,
+    single_use: true
 }
 
 /**

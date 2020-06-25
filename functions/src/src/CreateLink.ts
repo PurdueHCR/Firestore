@@ -17,7 +17,6 @@ import { HouseCompetition } from '../models/HouseCompetition';
  * @throws 500 - Server Error
  */
 export async function createLink(user:User, point_type_id: number, is_single_use: boolean, description: string) : Promise<Link>{
-    console.log("Creating Link")
     const blank_id = "";
     const is_enabled = false;
     const is_archived = false;
