@@ -79,30 +79,29 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
     return currentState is HandlePointsPageLoading;
   }
 
-  _onPressed(BuildContext context, PointLog pointLog){
-      if(displayTypeOf(context) == DisplayType.desktop_large){
-        setState(() {
-          _selectedPointLog = pointLog;
-        });
-      }
-      else{
-        showDialog(
-            context: context,
-            builder: (BuildContext context){
-              return SimpleDialog(
-                title: Text("Submission Form"),
-                children: [
+  _onPressed(BuildContext context, PointLog pointLog) {
+    if (displayTypeOf(context) == DisplayType.desktop_large) {
+      setState(() {
+        _selectedPointLog = pointLog;
+      });
+    }
+    else {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return SimpleDialog(
+              title: Text("Submission Form"),
+              children: [
 //                  PointSubmissionForm(
 //                    key: new ObjectKey(_selectedPointType),
 //                    pointType: pointType,
 //                    onSubmit: _onSubmit,
 //                  )
-                  Text("Nope")
-                ],
-              );
-            }
-        );
-
+                Text("Nope")
+              ],
+            );
+          }
+      );
+    }
   }
-
 }
