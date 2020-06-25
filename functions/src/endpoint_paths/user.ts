@@ -237,4 +237,11 @@ users_app.get('/points', async (req, res) => {
 
 })
 
+/**
+ * Gets all links that a user created
+ */
+users_app.get('/links', async (req,res) => {
+
+})
+
 export const user_main = functions.https.onRequest(users_main)
