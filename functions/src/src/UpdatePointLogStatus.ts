@@ -74,10 +74,8 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                     // Either log was previously rejected and points must be added back
                     // or log has never been added and points need to be added
                     if (log.description.includes(REJECTED_STRING)) {
-                        console.log("includes rejected string")
                         log.description = log.description.slice(REJECTED_STRING.length)                    
                     }
-                    console.log("new descriaption is ", log.description)
                     log.approveLog(user)
                     await doc_ref.set(log.toFirebaseJSON())
                     await addPoints(parseInt(point_value), user.house, resident_id)
