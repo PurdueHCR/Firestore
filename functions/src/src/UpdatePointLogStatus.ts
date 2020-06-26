@@ -47,10 +47,7 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
             }
             const point_type_doc = await db.collection(HouseCompetition.POINT_TYPES_KEY)
                                     .doc(log.pointTypeId.toString()).get()
-            console.log(point_type_doc)
-            const point_value = point_type_doc.data["Value"]
-            // Warning: this may not be the correct value
-            console.log("Point value is:", point_value)
+            const point_value = point_type_doc.get("Value")
 
             let message_end = " the point request."
             let message_beginning = user.firstName + " " + user.lastName
@@ -77,12 +74,14 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                     // Either log was previously rejected and points must be added back
                     // or log has never been added and points need to be added
                     if (log.description.includes(REJECTED_STRING)) {
-                        log.description.slice(0, REJECTED_STRING.length)                    
+                        console.log("includes rejected string")
+                        log.description = log.description.slice(REJECTED_STRING.length)                    
                     }
+                    console.log("new descriaption is ", log.description)
                     log.approveLog(user)
                     await doc_ref.set(log.toFirebaseJSON())
-                    //await addPoints(parseInt(point_value), user.house, resident_id)
-                    await addPoints(5, user.house, resident_id)
+                    await addPoints(parseInt(point_value), user.house, resident_id)
+                    //await addPoints(5, user.house, resident_id)
                     // Add message of approval/rejection
                     message_beginning += " approved" + message_end
                     let messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.APPROVE, user.firstName, user.lastName, UserPermissionLevel.RHP)

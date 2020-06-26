@@ -54,7 +54,8 @@ log_app.post('/handle', async (req, res) => {
 		res.status(error.code).send(error.toJson())
 	} else {
 		try {
-			const didUpdate = await updatePointLogStatus(req.body.approve, req.body.approver_id, req.body.point_log_id)
+			var should_approve = (req.body.approve == 'true');
+			const didUpdate = await updatePointLogStatus(should_approve, req.body.approver_id, req.body.point_log_id)
 			if (didUpdate) {
 				res.status(201).send(APIResponse.Success().toJson())
 			}
