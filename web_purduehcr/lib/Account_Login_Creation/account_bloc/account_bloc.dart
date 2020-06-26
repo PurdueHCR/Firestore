@@ -28,7 +28,37 @@ class AccountBloc extends Bloc<AccountEvent, AccountState>{
     if(event is AccountInitialize){
       yield AccountInitial();
     }
-    if(event is Login) {
+    else if(event is CreateAccountInitialize){
+      yield CreateAccountInitial();
+    }
+    else if(event is CreateAccount){
+      yield AccountLoading();
+      try {
+        RegExp regExp = new RegExp(
+          r".*@purdue\.edu",
+        );
+        if(!regExp.hasMatch(event.email)){
+          yield CreateAccountError(message: "Invalid email. Please use your @purdue.edu email address");
+        }
+        else if(event.verifyPassword == event.password){
+          await _accountRepository.createAccount(event.email, event.password);
+          authenticationBloc.add(LoggedIn());
+        }
+        else{
+          yield CreateAccountError(message: "Please make sure your passwords match");
+        }
+
+      }
+      on ApiError catch(apiError){
+        print("GOT API ERROR: "+apiError.toString());
+        yield CreateAccountError(message: apiError.toString());
+      }
+      catch (error) {
+        print("GOT Create Account ERROR in BLOC: $error");
+        yield CreateAccountError(message: error);
+      }
+    }
+    else if(event is Login) {
       yield AccountLoading();
       try {
         await _accountRepository.loginUser(event.email, event.password);

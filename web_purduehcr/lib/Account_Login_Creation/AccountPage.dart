@@ -2,11 +2,13 @@ import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purduehcr_web/Account_Login_Creation/CreateAccountCard.dart';
 import 'package:purduehcr_web/Account_Login_Creation/LoginCard.dart';
 import 'package:purduehcr_web/Account_Login_Creation/account_bloc/account.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/authentication/authentication.dart';
+
 
 
 
@@ -70,7 +72,7 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
-  Widget _createDesktop(AccountState state){
+  Widget _createDesktop( AccountState state){
     return Scaffold(
         body: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -98,6 +100,21 @@ class _AccountPageState extends State<AccountPage> {
           _loginBloc.add(event);
         },
         error: state.message
+      );
+    }
+    else if(state is CreateAccountError){
+      child = CreateAccountCard(
+          handleEvent: (AccountEvent event){
+            _loginBloc.add(event);
+          },
+          error: state.message
+      );
+    }
+    else if(state is CreateAccountInitial){
+      child = CreateAccountCard(
+        handleEvent: (AccountEvent event){
+          _loginBloc.add(event);
+        },
       );
     }
     else {

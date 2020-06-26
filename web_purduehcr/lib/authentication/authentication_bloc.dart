@@ -43,13 +43,7 @@ class AuthenticationBloc
       }
       on ApiError catch(apiError){
         window.console.log("Failed to get User model with API Error. $apiError");
-        // TODO Handle No user.
-        // Right now if there is no user model, authBLoC will yield unauthenticated
-        // . However, because the previous state was Unauthenticated (thus
-        // showing the login page), the app will not actually change states, so
-        // the current login page will continue to be displayed
-        // which is currently being told to show the loading widget.
-        yield Unauthenticated();
+        yield AuthenticatedButNoUser();
       }
       catch(error){
         window.console.log("Failed to get User model. $error");
