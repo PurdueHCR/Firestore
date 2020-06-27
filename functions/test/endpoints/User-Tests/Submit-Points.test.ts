@@ -53,7 +53,7 @@ describe('user/submitpoint', () =>{
 
     //Test if no body is provided
     it('Missing Body', async(done) => {
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, {},RESIDENT_ID)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, {}, RESIDENT_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -188,9 +188,7 @@ describe('user/submitpoint', () =>{
         })
     })
 
-    /**
-     * Test competition disabled
-     */
+    // Test competition disabled
     it('Competition Disabled',  async(done) => {
         await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled: false})
         const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,"test",( new Date()).toString(),false), RESIDENT_ID)
@@ -219,7 +217,7 @@ describe('user/submitpoint', () =>{
         })
     })
 
-    //Test resident success
+    // Test resident success
     it('Resident Submission Success', async(done) =>{
         const date = new Date()
         const descr = "Resident Submission Success test"
@@ -239,7 +237,7 @@ describe('user/submitpoint', () =>{
                 expect(documents.docs[0].data().Description).toEqual(descr)
                 expect(documents.docs[0].data().FloorID).toEqual("4N")
                 expect(documents.docs[0].data().PointTypeID).toEqual(-1)
-                expect(documents.docs[0].data().RHPNotifications).toEqual(0)
+                expect(documents.docs[0].data().RHPNotifications).toEqual(1)
                 expect(documents.docs[0].data().ResidentFirstName).toEqual("TEST_FIRST")
                 expect(documents.docs[0].data().ResidentId).toEqual(RESIDENT_ID)
                 expect(documents.docs[0].data().ResidentLastName).toEqual("TEST_LAST")
@@ -249,7 +247,7 @@ describe('user/submitpoint', () =>{
         })
     })
 
-    //Test RHP success
+    // Test RHP success
     it('RHP Submission Success', async(done) =>{
         const date = new Date()
         const descr = "RHP Submission Success test"
@@ -265,7 +263,7 @@ describe('user/submitpoint', () =>{
                 done(err)
             }
             else{
-                expect(res.status).toBe(202)
+                expect(res.status).toBe(201)
 
                 let documents = await db.collection("House").doc(HOUSE_NAME).collection("Points").where("Description","==",descr).limit(1).get()
                 expect(documents.docs[0].data().ApprovedOn).toBeTruthy()
@@ -279,7 +277,7 @@ describe('user/submitpoint', () =>{
                 expect(documents.docs[0].data().ResidentFirstName).toEqual("TEST_FIRST")
                 expect(documents.docs[0].data().ResidentId).toEqual(RHP_ID)
                 expect(documents.docs[0].data().ResidentLastName).toEqual("TEST_LAST")
-                expect(documents.docs[0].data().ResidentNotifications).toEqual(0)
+                expect(documents.docs[0].data().ResidentNotifications).toEqual(1)
 
                 let houseDoc = await db.collection("House").doc(HOUSE_NAME).get()
                 expect(houseDoc.data()!.TotalPoints).toBe(prevScore + 1)
@@ -300,7 +298,7 @@ describe('user/submitpoint', () =>{
         })
     })
 
-    //Test priv resident success
+    // Test priv resident success
     it('Privileged Resident Submission Success', async(done) =>{
         const date = new Date()
         const descr = "Privileged resident Submission Success test"
@@ -320,7 +318,7 @@ describe('user/submitpoint', () =>{
                 expect(documents.docs[0].data().Description).toEqual(descr)
                 expect(documents.docs[0].data().FloorID).toEqual("4N")
                 expect(documents.docs[0].data().PointTypeID).toEqual(-1)
-                expect(documents.docs[0].data().RHPNotifications).toEqual(0)
+                expect(documents.docs[0].data().RHPNotifications).toEqual(1)
                 expect(documents.docs[0].data().ResidentFirstName).toEqual("TEST_FIRST")
                 expect(documents.docs[0].data().ResidentId).toEqual(PRIV_RES)
                 expect(documents.docs[0].data().ResidentLastName).toEqual("TEST_LAST")
@@ -330,7 +328,7 @@ describe('user/submitpoint', () =>{
         })
     })
 
-    //Test priv resident success with documentID provided
+    // Test priv resident success with documentID provided
     it('Privileged Resident Submission Success with documentID Provided', async(done) => {
         const date = new Date()
         const descr = "Privileged resident Submission Success test"
@@ -351,7 +349,7 @@ describe('user/submitpoint', () =>{
                 expect(documents.docs[0].data().Description).toEqual(descr)
                 expect(documents.docs[0].data().FloorID).toEqual("4N")
                 expect(documents.docs[0].data().PointTypeID).toEqual(-1)
-                expect(documents.docs[0].data().RHPNotifications).toEqual(0)
+                expect(documents.docs[0].data().RHPNotifications).toEqual(1)
                 expect(documents.docs[0].data().ResidentFirstName).toEqual("TEST_FIRST")
                 expect(documents.docs[0].data().ResidentId).toEqual(PRIV_RES)
                 expect(documents.docs[0].data().ResidentLastName).toEqual("TEST_LAST")
@@ -361,7 +359,7 @@ describe('user/submitpoint', () =>{
         })
     })
 
-    //Test FHP failure since FHPs should not be able to submit points
+    // Test FHP failure since FHPs should not be able to submit points
     it('FHP Submission Failure', async(done) =>{
         const date = new Date()
         const descr = "FHP Submission Failure test"
@@ -378,7 +376,7 @@ describe('user/submitpoint', () =>{
         })
     })
 
-    //Test External Advisor failure since they should not be able to submit points
+    // Test External Advisor failure since they should not be able to submit points
     it('EA Submission Failure', async(done) =>{
         const date = new Date()
         const descr = "EA Submission Failure test"
@@ -395,7 +393,7 @@ describe('user/submitpoint', () =>{
         })
     })
 
-    //After all of the tests are done, make sure to delete the test firestore app
+    // After all of the tests are done, make sure to delete the test firestore app
     afterAll(()=>{
         Promise.all(firebase.apps().map(app => app.delete()))
     })
