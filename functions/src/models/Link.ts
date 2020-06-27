@@ -60,16 +60,20 @@ export class Link {
     }
     
 
-    public static fromQuerySnapshotDocument(document: FirebaseFirestore.QueryDocumentSnapshot) {
-        return this.fromDocumentData(document.id, document.data())
+    public static fromQuerySnapshot(snapshot: FirebaseFirestore.QuerySnapshot): Link[] {
+        const links: Link[] = []
+        for( const document of snapshot.docs){
+            links.push(this.fromDocumentData( document.id, document.data()))
+        }
+        return links;
     }
 
-    public static fromSnapshotDocument(document: FirebaseFirestore.DocumentSnapshot) {
+    public static fromSnapshotDocument(document: FirebaseFirestore.DocumentSnapshot): Link {
         
         return this.fromDocumentData(document.id, document.data()!)
     }
 
-    private static fromDocumentData(docId: string, document: FirebaseFirestore.DocumentData){
+    private static fromDocumentData(docId: string, document: FirebaseFirestore.DocumentData) : Link{
         let id: String
         let archived: Boolean
         let creatorId: String
