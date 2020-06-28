@@ -80,23 +80,22 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
   FloatingActionButton buildFloatingActionButton(BuildContext context){
     return FloatingActionButton(
       child: Icon(Icons.add),
-      onPressed: _createLinkButton(context),
+      onPressed: () => _createLinkButton(context),
     );
   }
 
   _createLinkButton(BuildContext context){
-//    showDialog(
-//        context: context,
-//        builder: (BuildContext context){
-//          return SimpleDialog(
-//            title: Text("Create New Link"),
-//            children: [
-//              Text("Link Creation form that is unimplemented")
-//            ],
-//          );
-//        }
-//    );
-    print("CREATIE LINK");
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return SimpleDialog(
+            title: Text("Create New Link"),
+            children: [
+              Text("Link Creation form that is unimplemented")
+            ],
+          );
+        }
+    );
   }
 
   _onPressed(BuildContext context, Link link){

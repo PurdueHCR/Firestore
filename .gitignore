@@ -116,3 +116,6 @@ public/api/.*
 
 #unignore the jest config
 !functions/jest.config.json
+
+#VS Code workspaces
+*.code-workspace
