@@ -76,6 +76,29 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
     return currentState is LinkLoading;
   }
 
+  @override
+  FloatingActionButton buildFloatingActionButton(BuildContext context){
+    return FloatingActionButton(
+      child: Icon(Icons.add),
+      onPressed: _createLinkButton(context),
+    );
+  }
+
+  _createLinkButton(BuildContext context){
+//    showDialog(
+//        context: context,
+//        builder: (BuildContext context){
+//          return SimpleDialog(
+//            title: Text("Create New Link"),
+//            children: [
+//              Text("Link Creation form that is unimplemented")
+//            ],
+//          );
+//        }
+//    );
+    print("CREATIE LINK");
+  }
+
   _onPressed(BuildContext context, Link link){
     if(displayTypeOf(context) == DisplayType.desktop_large){
       setState(() {
