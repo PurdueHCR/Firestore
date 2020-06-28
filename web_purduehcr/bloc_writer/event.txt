@@ -1,0 +1,13 @@
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+
+abstract class $Event extends Equatable {
+  const $Event();
+}
+
+class $Initialize extends $Event {
+  const $Initialize();
+  @override
+  List<Object> get props => [];
+}
+

@@ -39,6 +39,16 @@ If you have problems with the installation, check out Google's Flutter Web Insta
 
 If you have updates to these instructions, feel free to open a pull request with changes.
 
+## Create a new page for the App
+
+All pages that are not about user or account creation need to extend the BasePage class to have access to the side bar menu.
+
+To create a BLOC for a page, look at the Random Project Notes below to see a shortcut for creating them.
+
+To add a page to the navigation menu, you have to go to the PhcrDrawer class, add a const variable for the page and add it to the lists of permissions for user types.
+
+Then, go to RouteGenerator and add the logic to the if statements to handle that route
+
 ## Flutter Resources 
 
 If this is your first time working on a Flutter Project, checkout the resources below.
@@ -54,3 +64,8 @@ samples, guidance on mobile development, and a full API reference.
 
 ## Random Project Notes
 To build the .g files for json_serialize, run `flutter packages pub run build_runner build --delete-conflicting-outputs`
+
+I included a tool to build the templates for a BLOC. Navigate into web_purduehcr/bloc_writer and run `python bloc_writer.py` You will have to move the folder into the correct directory afterwards
+
+
+
