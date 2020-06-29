@@ -39,7 +39,7 @@ class _LinkListState extends State<LinkList>{
       mainContent = ListView.builder(
         itemCount: visibleLinks.length,
         itemBuilder: (BuildContext context, int index){
-          return LinkListTile(link: visibleLinks[index], onTap: widget.onPressed);
+          return Card(child: LinkListTile(link: visibleLinks[index], onTap: widget.onPressed));
         },
       );
     }

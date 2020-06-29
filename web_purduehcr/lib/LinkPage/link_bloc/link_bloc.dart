@@ -2,6 +2,9 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/Config.dart';
+import 'package:purduehcr_web/Models/ApiError.dart';
+import 'package:purduehcr_web/Models/Link.dart';
+import 'package:purduehcr_web/Models/PointType.dart';
 import 'link.dart';
 
 
@@ -15,17 +18,48 @@ class LinkBloc extends Bloc<LinkEvent, LinkState>{
   }
 
   @override
-  LinkState get initialState => LinkInitial([]);
+  LinkState get initialState => LinkLoading();
 
   @override
   Stream<LinkState> mapEventToState( LinkEvent event) async* {
     if(event is LinkInitialize){
-      yield LinkInitial([]);
+      yield LinkLoading();
+      var links = await _linkRepository.getLinks();
+      yield LinkPageLoaded(links);
+    }
+    else if(event is CreateLink){
+      try{
+        Link link = await _linkRepository.createLink(event.description, event.enabled, event.singleUse, event.pointTypeId);
+        state.links.add(link);
+        print("SUCCESS: create link success");
+        yield CreateLinkSuccess(links: state.links, shouldDismissDialog: event.shouldDismissDialog);
+      }
+      on ApiError catch(apiError){
+        if(apiError.errorCode == 200 || apiError.errorCode == 201){
+          print("SUCCESS: create link success");
+          yield CreateLinkSuccess(links: state.links, shouldDismissDialog: event.shouldDismissDialog);
+        }
+        else{
+          print("Failed. There was an error... ");
+          yield CreateLinkError(state.links, message: apiError.message, shouldDismissDialog: event.shouldDismissDialog);
+        }
+      }
+      catch(error){
+        print("There was an error loading the point types: "+error.toString());
+        yield CreateLinkError(state.links, message: error.toString(), shouldDismissDialog: event.shouldDismissDialog);
+      }
+    }
+    else if(event is LinkDisplayedMessage){
+      yield LinkPageLoaded(state.links);
     }
   }
 
   @override
   void onError(Object error, StackTrace stacktrace) {
     super.onError(error, stacktrace);
+  }
+
+  Future<List<PointType>> getPointTypes(){
+    return _linkRepository.getPointTypes();
   }
 }

@@ -3,6 +3,8 @@ import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/BasePage.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
+import 'package:purduehcr_web/LinkPage/LinkCreationForm.dart';
+import 'package:purduehcr_web/LinkPage/LinkEditForm.dart';
 import 'package:purduehcr_web/LinkPage/link_bloc/link.dart';
 import 'package:purduehcr_web/Models/Link.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
@@ -53,6 +55,10 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
               onPressed: _onPressed
           ),
         ),
+        VerticalDivider(),
+        Flexible(
+          child: LinkEditForm(),
+        )
       ],
     );
   }
@@ -90,12 +96,29 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
         builder: (BuildContext context){
           return SimpleDialog(
             title: Text("Create New Link"),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10.0))
+            ),
             children: [
-              Text("Link Creation form that is unimplemented")
+              SizedBox(
+                width: 100,
+                height: 450,
+                child: LinkCreationForm(_linkBloc, _onCreate)
+              )
             ],
           );
         }
     );
+  }
+
+  _onCreate(String description,bool enabled, bool singleuse, int pointTypeId){
+    print("Create Link: $description, singleUse: ${singleuse.toString()}, ptid:${pointTypeId.toString()}, enabled: ${enabled.toString()}");
+    _linkBloc.add(CreateLink(
+        description: description,
+        enabled: enabled,
+        singleUse: singleuse,
+        pointTypeId: pointTypeId,
+        shouldDismissDialog: true));
   }
 
   _onPressed(BuildContext context, Link link){
@@ -121,33 +144,34 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
 
 
   _onChangeState(BuildContext context, LinkState state){
-//    if(state is SubmissionSuccess){
-//      window.console.log("On change state success");
-//      if(state.shouldDismissDialog){
-//        Navigator.pop(context);
-//      }
-//      final snackBar = SnackBar(
-//        backgroundColor: Colors.green,
-//        content: Text('Submission Recorded'),
-//      );
-//      Scaffold.of(context).showSnackBar(snackBar);
-//      _linkBloc.add(LinkDisplayedMessage());
-//      _selectedPointType = null;
-//    }
-//    else if(state is SubmissionError){
-//      window.console.log("On change state error");
-//      if(state.shouldDismissDialog){
-//        Navigator.pop(context);
-//      }
-//      final snackBar = SnackBar(
-//        backgroundColor: Colors.red,
-//        content: Text('Could not record submission'),
-//      );
-//      Scaffold.of(context).showSnackBar(snackBar);
-//      _linkBloc.add(LinkDisplayedMessage());
-//      _selectedPointType = null;
-//
-//    }
+    if(state is CreateLinkSuccess){
+      window.console.log("On change state success");
+      print("Should dismiss ${state.shouldDismissDialog}");
+      if(state.shouldDismissDialog){
+        Navigator.pop(context);
+      }
+      final snackBar = SnackBar(
+        backgroundColor: Colors.green,
+        content: Text('Link Created'),
+      );
+      Scaffold.of(context).showSnackBar(snackBar);
+      _linkBloc.add(LinkDisplayedMessage());
+      _selectedLink = null;
+    }
+    else if(state is CreateLinkError){
+      window.console.log("On change state error");
+      if(state.shouldDismissDialog){
+        Navigator.pop(context);
+      }
+      final snackBar = SnackBar(
+        backgroundColor: Colors.red,
+        content: Text('Could not create lnk'),
+      );
+      Scaffold.of(context).showSnackBar(snackBar);
+      _linkBloc.add(LinkDisplayedMessage());
+      _selectedLink = null;
+
+    }
   }
 
 }
