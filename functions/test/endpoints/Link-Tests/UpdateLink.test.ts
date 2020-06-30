@@ -35,7 +35,7 @@ describe('link/create', () =>{
 
 
     test('Link doesnt exist -> error', async (done) => {
-        const res = factory.put(link_function, "/update", {link_id: "Unknown Link", single_use: false}, RHP_ID)
+        const res = factory.put(link_function, "/update", {link_id: "Unknown Link", singleUse: false}, RHP_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -49,7 +49,7 @@ describe('link/create', () =>{
 
 
     test('Link doesnt belong to user -> error', async (done) => {
-        const res = factory.put(link_function, "/update", {link_id: "Link 1", single_use: false}, RHP_ID)
+        const res = factory.put(link_function, "/update", {link_id: "Link 1", singleUse: false}, RHP_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -62,7 +62,7 @@ describe('link/create', () =>{
     })
 
     test('Request doesnt include link id -> error', async (done) => {
-        const res = factory.put(link_function, "/update", { single_use: false}, RHP_ID)
+        const res = factory.put(link_function, "/update", { singleUse: false}, RHP_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -88,7 +88,7 @@ describe('link/create', () =>{
     })
 
     test('Link Update Success', async (done) => {
-        const res = factory.put(link_function, "/update", { link_id: "Link 2", archived:true, enabled: true, single_use: false, description: "Brand new description"}, RHP_ID)
+        const res = factory.put(link_function, "/update", { link_id: "Link 2", archived:true, enabled: true, singleUse: false, description: "Brand new description"}, RHP_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)

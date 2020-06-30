@@ -139,7 +139,7 @@ users_app.post('/submitPoint', async (req, res) => {
 		if(!req.body){
 			console.error("Missing Body")
 		}
-		else if(!req.body.point_type_id ||  req.body.point_type_id === "" ){
+		else if(!req.body.point_type_id || req.body.point_type_id === "" ){
 			console.error("Missing point_type_id")
 		}
 		else if(!req.body.description || req.body.description === ""){
