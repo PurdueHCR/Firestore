@@ -850,7 +850,7 @@
       }
     },
     "/link/update" : {
-      "post" : {
+      "put" : {
         "tags" : [ "link" ],
         "summary" : "Update a Link",
         "parameters" : [ {
@@ -923,6 +923,16 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "Description Can not be empty",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
                 }
               }
             }

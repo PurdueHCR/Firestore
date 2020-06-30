@@ -130,19 +130,29 @@ links_main.put('/update' ,async (req, res) => {
         let hasData = false
         const data:LinkUpdateOptions = {}
         if(req.body["archived"] !== undefined ){
+            console.log("Updating archived");
             data.Archived = req.body["archived"]
             hasData = true
         }
         if(req.body["enabled"] !== undefined ){
+            console.log("Updating enabled");
             data.Enabled = req.body["enabled"]
             hasData = true
         }
         if(req.body["description"] !== undefined ){
-            data.Description = req.body["description"]
-            hasData = true
+            if(req.body["description"] === ""){
+                const error = APIResponse.IncorrectFormat()
+                res.status(error.code).send(error.toJson())
+            }
+            else{
+                console.log("Updating description");
+                data.Description = req.body["description"]
+                hasData = true
+            }
         }
-        if(req.body["single_use"] !== undefined ){
-            data.SingleUse = req.body["single_use"]
+        if(req.body["singleUse"] !== undefined ){
+            console.log("Updating single_use");
+            data.SingleUse = req.body["singleUse"]
             hasData = true
         }
         if(hasData){
@@ -154,7 +164,7 @@ links_main.put('/update' ,async (req, res) => {
                 }
                 else{
                     await updateLink(req.body["link_id"] as string, data)
-                    res.status(APIResponse.SUCCESS_CODE).send(APIResponse.Success())
+                    res.status(APIResponse.SUCCESS_CODE).send(APIResponse.Success().toJson())
                 }
             }
             catch(suberror){

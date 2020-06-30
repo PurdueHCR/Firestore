@@ -104,6 +104,7 @@ class _LinkCreationFormState extends State<LinkCreationForm>{
                           decoration:
                           InputDecoration(labelText: 'Enter a description for this Link.'),
                           maxLines: null,
+                          maxLength: 250,
                           controller: _descriptionController,
                           validator: (value) {
                             if (value.isEmpty) {

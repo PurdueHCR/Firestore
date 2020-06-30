@@ -27,19 +27,20 @@ class LinkPageLoaded extends LinkState {
   List<Object> get props => [];
 }
 
-class CreateLinkError extends LinkState {
+class LinkError extends LinkState {
   final String message;
   final bool shouldDismissDialog;
-  const CreateLinkError(List<Link> links, {this.message = "", this.shouldDismissDialog = false,}): super(links);
+  const LinkError(List<Link> links, {this.message = "", this.shouldDismissDialog = false,}): super(links);
   @override
   List<Object> get props => [message];
 }
 
-class CreateLinkSuccess extends LinkState {
+class LinkSuccess extends LinkState {
   final bool shouldDismissDialog;
-  const CreateLinkSuccess({@required List<Link> links, this.shouldDismissDialog = false}):super(links);
+  final String message;
+  const LinkSuccess({@required List<Link> links, this.message, this.shouldDismissDialog = false}):super(links);
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [message, shouldDismissDialog];
 
 }

@@ -10,6 +10,7 @@ import { APIResponse } from '../models/APIResponse'
 export async function updateLink(id:string, options:LinkUpdateOptions) : Promise<void>{
     const db = admin.firestore()
     try{
+        console.log("Trying update with: {"+options.Archived +", "+options.Description+", "+options.Enabled+", "+options.SingleUse+"}")
         await db.collection("Links").doc(id).update(options)
         return Promise.resolve()
     }

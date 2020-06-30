@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:purduehcr_web/Models/Link.dart';
 
 abstract class LinkEvent extends Equatable {
   const LinkEvent();
@@ -24,6 +25,14 @@ class CreateLink extends LinkEvent {
   List<Object> get props => [description, enabled, singleUse, pointTypeId];
 
 
+}
+
+class UpdateLink extends LinkEvent {
+  final Link link;
+  final bool shouldDismissDialog;
+  const UpdateLink({this.link, this.shouldDismissDialog});
+  @override
+  List<Object> get props => [link, shouldDismissDialog];
 }
 
 class LinkDisplayedMessage extends LinkEvent {

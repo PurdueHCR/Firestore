@@ -32,25 +32,46 @@ class LinkBloc extends Bloc<LinkEvent, LinkState>{
         Link link = await _linkRepository.createLink(event.description, event.enabled, event.singleUse, event.pointTypeId);
         state.links.add(link);
         print("SUCCESS: create link success");
-        yield CreateLinkSuccess(links: state.links, shouldDismissDialog: event.shouldDismissDialog);
+        yield LinkSuccess(links: state.links, shouldDismissDialog: event.shouldDismissDialog, message: "Link Created");
       }
       on ApiError catch(apiError){
         if(apiError.errorCode == 200 || apiError.errorCode == 201){
           print("SUCCESS: create link success");
-          yield CreateLinkSuccess(links: state.links, shouldDismissDialog: event.shouldDismissDialog);
+          yield LinkSuccess(links: state.links, shouldDismissDialog: event.shouldDismissDialog, message: "Link Created");
         }
         else{
           print("Failed. There was an error... ");
-          yield CreateLinkError(state.links, message: apiError.message, shouldDismissDialog: event.shouldDismissDialog);
+          yield LinkError(state.links, message: apiError.message, shouldDismissDialog: event.shouldDismissDialog);
         }
       }
       catch(error){
         print("There was an error loading the point types: "+error.toString());
-        yield CreateLinkError(state.links, message: error.toString(), shouldDismissDialog: event.shouldDismissDialog);
+        yield LinkError(state.links, message: error.toString(), shouldDismissDialog: event.shouldDismissDialog);
       }
     }
     else if(event is LinkDisplayedMessage){
       yield LinkPageLoaded(state.links);
+    }
+    else if(event is UpdateLink){
+      try{
+        await _linkRepository.updateLink(event.link);
+        print("SUCCESS: update link success");
+        yield LinkSuccess(links: state.links, shouldDismissDialog: event.shouldDismissDialog, message: "Link Updated");
+      }
+      on ApiError catch(apiError){
+        if(apiError.errorCode == 200 || apiError.errorCode == 201){
+          print("SUCCESS: update link success");
+          yield LinkSuccess(links: state.links, shouldDismissDialog: event.shouldDismissDialog, message: "Link Updated");
+        }
+        else{
+          print("Failed. There was an error... "+apiError.message);
+          yield LinkError(state.links, message: apiError.message, shouldDismissDialog: event.shouldDismissDialog);
+        }
+      }
+      catch(error){
+        print("There was an error updating the link: "+error.toString());
+        yield LinkError(state.links, message: error.toString(), shouldDismissDialog: event.shouldDismissDialog);
+      }
     }
   }
 

@@ -89,7 +89,7 @@ class LinkListTile extends StatelessWidget{
     return ListTile(
       onTap: () => onTap(context, link),
       title: Text(link.description),
-      subtitle: Text("Point Type id: ${link.pointTypeId}"),
+      subtitle: Text("${link.pointTypeName}"),
     );
   }
 

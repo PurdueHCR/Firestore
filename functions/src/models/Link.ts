@@ -8,6 +8,8 @@ export class Link {
     static POINT_ID = "PointID";
     static SINGLE_USE = "SingleUse"
     static POINT_TYPE_NAME = "PointTypeName";
+    static POINT_TYPE_DESCRIPTION = "PointTypeDescription"
+    static POINT_TYPE_VALUE = "PointTypeValue"
 
     id: String
     archived: Boolean
@@ -16,10 +18,12 @@ export class Link {
     enabled: Boolean
     pointId: number
     pointTypeName: String
+    pointTypeDescription: String
+    pointTypeValue: number
     singleUse: Boolean
 
     constructor(id: String, archived: Boolean, creatorId: String, description: String, 
-        enabled: Boolean, pointId: number, pointTypeName: String, singleUse: Boolean){
+        enabled: Boolean, pointId: number, pointTypeName: String, pointTypeDescription: String, pointTypeValue: number, singleUse: Boolean){
         this.id = id
         this.archived = archived
         this.creatorId = creatorId
@@ -28,6 +32,8 @@ export class Link {
         this.pointId = pointId
         this.singleUse = singleUse
         this.pointTypeName = pointTypeName
+        this.pointTypeDescription = pointTypeDescription
+        this.pointTypeValue = pointTypeValue
     }
 
     public toFirebaseJson(){
@@ -39,29 +45,10 @@ export class Link {
         map[Link.POINT_ID] = this.pointId;
         map[Link.SINGLE_USE] = this.singleUse;
         map[Link.POINT_TYPE_NAME] = this.pointTypeName;
+        map[Link.POINT_TYPE_DESCRIPTION] = this.pointTypeDescription
+        map[Link.POINT_TYPE_VALUE] = this.pointTypeValue
         return map;
     }
-
-    // public updateLinkFromData(data: any){
-    //     if("is_archived" in data){
-    //         this.archived = data["is_archived"]
-    //     }
-    //     if("is_enabled" in data){
-    //         this.enabled = data["is_enabled"]
-    //     }
-    //     if("creator_id" in data){
-    //         this.creatorId = data["creator_id"]
-    //     }
-    //     if("description" in data){
-    //         this.description = data["description"]
-    //     }
-    //     if("point_id" in data){
-    //         this.pointId = data["point_id"]
-    //     }
-    //     if("single_use" in data){
-    //         this.singleUse = data["single_use"]
-    //     }
-    // }
     
 
     public static fromQuerySnapshot(snapshot: FirebaseFirestore.QuerySnapshot): Link[] {
@@ -85,6 +72,8 @@ export class Link {
         let enabled: Boolean
         let pointId: number
         let pointTypeName: String
+        let pointTypeDescription: String
+        let pointTypeValue: number
         let singleUse: Boolean
 
         id = docId;
@@ -137,6 +126,20 @@ export class Link {
             pointTypeName = "Undefined"
         }
 
-        return new Link(id, archived, creatorId, description, enabled, pointId, pointTypeName, singleUse);
+        if(Link.POINT_TYPE_DESCRIPTION in document) {
+            pointTypeDescription = document[Link.POINT_TYPE_DESCRIPTION]
+        }
+        else{
+            pointTypeDescription = "Undefined"
+        }
+
+        if(Link.POINT_TYPE_VALUE in document) {
+            pointTypeValue = document[Link.POINT_TYPE_VALUE]
+        }
+        else{
+            pointTypeValue = -1
+        }
+
+        return new Link(id, archived, creatorId, description, enabled, pointId, pointTypeName, pointTypeDescription, pointTypeValue, singleUse);
     }
 }

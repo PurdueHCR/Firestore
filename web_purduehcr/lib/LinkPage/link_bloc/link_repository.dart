@@ -36,4 +36,8 @@ class LinkRepository {
     return Link.fromJson(linkDocument);
   }
 
+  Future updateLink(Link link) async {
+    await callCloudFunction(config, Method.PUT, "link/update", body: link.getUpdateJson());
+  }
+  
 }

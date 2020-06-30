@@ -52,12 +52,20 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
         Flexible(
           child: LinkList(
               links: _linkBloc.state.links,
-              onPressed: _onPressed
+              onPressed: (BuildContext context, Link link){
+                setState(() {
+                  _selectedLink = link;
+                });
+              }
           ),
         ),
         VerticalDivider(),
         Flexible(
-          child: LinkEditForm(),
+          child: LinkEditForm(
+            key: UniqueKey(),
+              link: _selectedLink,
+              onUpdate: _onUpdate
+          ),
         )
       ],
     );
@@ -121,6 +129,12 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
         shouldDismissDialog: true));
   }
 
+  _onUpdate(Link link){
+    print("Updating Link!");
+    _linkBloc.add(UpdateLink(link: link, shouldDismissDialog: displayTypeOf(context) != DisplayType.desktop_large));
+
+  }
+
   _onPressed(BuildContext context, Link link){
     if(displayTypeOf(context) == DisplayType.desktop_large){
       setState(() {
@@ -134,7 +148,11 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
             return SimpleDialog(
               title: Text("Link Details"),
               children: [
-                Text("Link Details form that is unimplemented")
+                LinkEditForm(
+                    key: UniqueKey(),
+                    link: link,
+                    onUpdate: _onUpdate
+                ),
               ],
             );
           }
@@ -144,7 +162,7 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
 
 
   _onChangeState(BuildContext context, LinkState state){
-    if(state is CreateLinkSuccess){
+    if(state is LinkSuccess){
       window.console.log("On change state success");
       print("Should dismiss ${state.shouldDismissDialog}");
       if(state.shouldDismissDialog){
@@ -152,13 +170,13 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
       }
       final snackBar = SnackBar(
         backgroundColor: Colors.green,
-        content: Text('Link Created'),
+        content: Text(state.message),
       );
       Scaffold.of(context).showSnackBar(snackBar);
       _linkBloc.add(LinkDisplayedMessage());
       _selectedLink = null;
     }
-    else if(state is CreateLinkError){
+    else if(state is LinkError){
       window.console.log("On change state error");
       if(state.shouldDismissDialog){
         Navigator.pop(context);
