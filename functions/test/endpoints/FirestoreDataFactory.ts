@@ -139,7 +139,7 @@ export class FirestoreDataFactory{
                 return db.collection("Users").doc(id).set({
                     "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first,
                     "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
-                    "Permission Level":2
+                    "Permission Level":5
                 })
             default:
                 return db.collection("Users").doc(id).set({
@@ -187,6 +187,18 @@ export class FirestoreDataFactory{
             return db.collection("House").doc(house).collection("Points").add(data)
         }
         
+    }
+
+    static setLink(db: firebase.firestore.Firestore, link_id: string, creator_id: string, point_type_id: number, linkOpts: LinkOptions = LINK_DEFAULTS){
+        let data = {
+            Archived:linkOpts.archived,
+            CreatorID:creator_id,
+            Description:linkOpts.description,
+            Enabled: linkOpts.enabled,
+            PointID: point_type_id,
+            SingleUse: linkOpts.single_use
+        }
+        return db.collection("Links").doc(link_id).set(data)
     }
 
     /**
@@ -311,6 +323,23 @@ export declare type RewardOptions = {
     id?: string
     required_ppr?: number,
     required_value?: number
+}
+
+/**
+ * Type Declaration for fields to add to Link. Undefined fields will be defaulted
+ */
+export declare type LinkOptions = {
+    archived?: boolean,
+    description?: string,
+    enabled?: boolean,
+    single_use?: boolean
+}
+
+export const LINK_DEFAULTS:LinkOptions = {
+    archived: false,
+    description: "Basic description",
+    enabled: true,
+    single_use: true
 }
 
 /**

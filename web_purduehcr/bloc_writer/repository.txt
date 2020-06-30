@@ -1,0 +1,13 @@
+import 'package:flutter/cupertino.dart';
+import 'package:purduehcr_web/Config.dart';
+import 'package:purduehcr_web/Utilities/CloudFunctionUtility.dart';
+import 'package:purduehcr_web/Utilities/FirebaseUtility.dart';
+
+
+class $Repository {
+
+  final Config config;
+
+  $Repository(this.config);
+
+}

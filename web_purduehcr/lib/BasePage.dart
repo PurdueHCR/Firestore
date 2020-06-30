@@ -76,6 +76,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
           );
         }
         return Scaffold(
+            floatingActionButton: buildFloatingActionButton(context),
             body: Row(
               children: [
                 PhcrDrawer(this.drawerLabel),
@@ -115,6 +116,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
           );
         }
         return Scaffold(
+            floatingActionButton: buildFloatingActionButton(context),
             body: Row(
               children: [
                 PhcrDrawer(this.drawerLabel),
@@ -158,7 +160,8 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
               title: Text("Purdue HCR"),
             ),
             drawer: PhcrDrawer(this.drawerLabel),
-            body: child
+            body: child,
+            floatingActionButton: buildFloatingActionButton(context),
         );
         break;
     }
@@ -169,6 +172,11 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
   Widget buildSmallDesktopBody({BuildContext context, S state});
   Widget buildMobileBody({BuildContext context, S state});
   bool isLoadingState(S currentState);
+
+  FloatingActionButton buildFloatingActionButton(BuildContext context){
+    return null;
+  }
+
 
 }
 

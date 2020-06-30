@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purduehcr_web/LinkPage/LinkPage.dart';
 import 'package:purduehcr_web/Account_Login_Creation/CreateAccountPage.dart';
 import 'package:purduehcr_web/Account_Login_Creation/JoinHousePage.dart';
 import 'package:purduehcr_web/OverviewPage/OverviewPage.dart';
@@ -26,6 +27,8 @@ class RouteGenerator {
                   return TokenTestPage();
                 case '/submit_points':
                   return SubmitPointsPage();
+                case '/links':
+                  return LinkPage();
                 default:
                   return _errorRoute();
               }

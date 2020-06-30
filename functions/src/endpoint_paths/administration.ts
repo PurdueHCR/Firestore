@@ -77,11 +77,7 @@ admin_app.get('/json_backup', (req, res) => {
             }
             db.collection(HouseCompetition.LINKS_KEY).get()
             .then(async linkDocuments =>{
-                let lIterator = 0;
-                while(lIterator < linkDocuments.docs.length){
-                    houseCompetition.links.push(Link.fromQuerySnapshotDocument((linkDocuments.docs[lIterator])));
-                    lIterator++;
-                }
+                houseCompetition.links = Link.fromQuerySnapshot(linkDocuments)
                 db.collection(HouseCompetition.POINT_TYPES_KEY).get()
                 .then(async pointTypeSnapshot =>{
                     houseCompetition.pointTypes = PointType.fromQuerySnapshot(pointTypeSnapshot)

@@ -10,6 +10,7 @@ import { createUser } from '../src/CreateUser'
 import { isInDateRange } from '../src/IsInDateRange'
 import { getUserRank } from '../src/GetUserRank'
 import { getPointLogsForUser } from '../src/GetPointLogsForUser'
+import { getUserLinks } from '../src/GetUserLinks'
 
 if(admin.apps.length === 0){
 	admin.initializeApp(functions.config().firebase)
@@ -235,6 +236,28 @@ users_app.get('/points', async (req, res) => {
 		}
 	}
 
+})
+
+/**
+ * Gets all links that a user created
+ * @throws 
+ */
+users_app.get('/links', async (req,res) => {
+	try {
+		const user = await getUser(req["user"]["user_id"])
+		const links = await getUserLinks(user.id)
+		res.status(APIResponse.SUCCESS_CODE).send({links:links})
+	}
+	catch(error) {
+		if (error instanceof APIResponse) {
+			res.status(error.code).send(error.toJson())
+		}
+		else {
+			console.log("FAILED WITH DB FROM user ERROR: " + error)
+			const apiResponse = APIResponse.ServerError()
+			res.status(apiResponse.code).send(apiResponse.toJson())
+		}
+	}
 })
 
 export const user_main = functions.https.onRequest(users_main)

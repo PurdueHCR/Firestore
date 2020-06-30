@@ -381,6 +381,79 @@
         }
       }
     },
+    "/user/links": {
+      "get" : {
+        "tags": [ "user"],
+        "summary": "Get all links created by the given user",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "responses": {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PointType"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  This user does not have the ability to create Links.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/competition/save-semester-points" : {
       "post" : {
         "tags" : [ "competition" ],
@@ -584,6 +657,77 @@
         }
       }
     },
+    "/link/" : {
+      "get" : {
+        "tags" : [ "link" ],
+        "summary" : "Get a specific Link",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        },{
+          "name" : "id",
+          "in" : "query",
+          "description" : "Id  for the link",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "ed3rodsaw34fnbjdla"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Link"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "408" : {
+            "description" : "Link Doesnt Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LinkDoesntExist"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/link/create" : {
       "post" : {
         "tags" : [ "link" ],
@@ -622,12 +766,173 @@
               }
             }
           },
+          "400" : {
+            "description" : "User Doesn't exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
           "401" : {
             "description" : "Unauthorized: Confirm the token is valid.",
             "content" : {
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permissions. Residents can't create Links.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "417" : {
+            "description" : "Unknown Point Type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDoesNotExist"
+                }
+              }
+            }
+          },
+          "418" : {
+            "description" : "Point Type Disabled.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDisabled"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing Required Parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "430" : {
+            "description" : "User does not have high enough permissions to use this point type to create a link.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InsufficientPointTypePermissionForLink"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/link/update" : {
+      "put" : {
+        "tags" : [ "link" ],
+        "summary" : "Update a Link",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "requestBody" : {
+          "description" : "Body sent to update the link. Only id is required. The other parameters are optional.",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LinkUpdate"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "407" : {
+            "description" : "Link Doesn't Belong to User",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LinkDoesntBelongToUser"
+                }
+              }
+            }
+          },
+          "408" : {
+            "description" : "Link Doesn't Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LinkDoesntExist"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing required parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "Description Can not be empty",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
                 }
               }
             }
@@ -935,67 +1240,6 @@
         }
       }
     },
-    "/link/update" : {
-      "post" : {
-        "tags" : [ "link" ],
-        "summary" : "Update a Link",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "requestBody" : {
-          "description" : "Body sent to update the link. Only id is required. The other parameters are optional.",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/Link"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Success"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/reward/get" : {
       "get" : {
         "tags" : [ "reward" ],
@@ -1168,19 +1412,19 @@
       "Link" : {
         "type" : "object",
         "properties" : {
-          "link_id" : {
+          "id" : {
             "type" : "integer",
             "example" : 1
           },
-          "is_enabled" : {
+          "enabled" : {
             "type" : "boolean",
             "example" : false
           },
-          "is_archived" : {
+          "archived" : {
             "type" : "boolean",
             "example" : false
           },
-          "creator_id" : {
+          "creatorId" : {
             "type" : "string",
             "example" : "124rfdsq23fas"
           },
@@ -1188,11 +1432,36 @@
             "type" : "string",
             "example" : "House event on 2/26/2020"
           },
-          "point_id" : {
+          "pointId" : {
             "type" : "integer",
             "example" : 1
           },
-          "single_use" : {
+          "singleUse" : {
+            "type" : "boolean",
+            "example" : false
+          }
+        }
+      },
+      "LinkUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "link_id" : {
+            "type" : "integer",
+            "example" : 1
+          },
+          "enabled" : {
+            "type" : "boolean",
+            "example" : false
+          },
+          "archived" : {
+            "type" : "boolean",
+            "example" : false
+          },
+          "description" : {
+            "type" : "string",
+            "example" : "House event on 2/26/2020"
+          },
+          "singleUse" : {
             "type" : "boolean",
             "example" : false
           }
@@ -1394,6 +1663,24 @@
           }
         }
       },
+      "LinkDoesntBelongToUser" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "This Link doesnt belong to the user"
+          }
+        }
+      },
+      "LinkDoesntExist" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "This Link doesnt exist"
+          }
+        }
+      },
       "LinkAlreadySubmitted" : {
         "type" : "object",
         "properties" : {
@@ -1508,6 +1795,15 @@
           "message" : {
             "type" : "string",
             "example" : "Data provided is in the incorrect format."
+          }
+        }
+      },
+      "InsufficientPointTypePermissionForLink" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "User does not have sufficient permissions to use that Point Type in a Link."
           }
         }
       },
