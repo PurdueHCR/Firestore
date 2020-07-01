@@ -251,7 +251,7 @@ describe('user/submitpoint', () =>{
                 expect(documents.docs[0].data().ResidentFirstName).toEqual("TEST_FIRST")
                 expect(documents.docs[0].data().ResidentId).toEqual(RHP_ID)
                 expect(documents.docs[0].data().ResidentLastName).toEqual("TEST_LAST")
-                expect(documents.docs[0].data().ResidentNotifications).toEqual(0)
+                expect(documents.docs[0].data().ResidentNotifications).toEqual(1)
 
                 let houseDoc = await db.collection("House").doc(HOUSE_NAME).get()
                 expect(houseDoc.data()!.TotalPoints).toBe(prevScore + 1)
