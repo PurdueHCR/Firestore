@@ -27,7 +27,7 @@ import { PointLogMessage } from '../models/PointLogMessage'
  * @throws 419 - Users Can Not Self Submit This Point Type
  * @throws 500 - Server Error
  */
-export async function submitPoint(userId: string, log: UnsubmittedPointLog, isGuaranteedApproval: boolean, documentId?: string | null): Promise<Boolean>{
+export async function submitPoint(userId: string, log: UnsubmittedPointLog, documentId?: string | null): Promise<Boolean>{
 
 	const db = admin.firestore()
 	const systemPreferences = await getSystemPreferences()
@@ -37,27 +37,33 @@ export async function submitPoint(userId: string, log: UnsubmittedPointLog, isGu
 			const user = await getUser(userId)
 			if(user.isParticipantInCompetition()){
 				log.updateFieldsWithUser(user)
-				if(isGuaranteedApproval || user.permissionLevel === UserPermissionLevel.RHP){
+
+				var was_approved = false
+				if(user.permissionLevel === UserPermissionLevel.RHP){
 					//If the log is approved
 					log.approveLog()
+					was_approved = true
 				}
 				else {
 					//If the point log is not immediately approved, set the pointtypeID to negative
 					log.pointTypeId *= -1
 				}
-				try{
-					if(documentId && documentId !== ""){
+				try {
+					if (documentId && documentId !== "") {
 						//If a document ID is provided, check if the id exists, and if not, set in database
 						const doc = await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house.toString())
 													.collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).doc(documentId).get()
-						if(doc.exists){
+						if (doc.exists) {
 							return Promise.reject(APIResponse.LinkAlreadySubmitted())
 						}
-						else{
+						else {
 							await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house.toString())
 								.collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).doc(documentId).set(log.toFirebaseJSON())
 						}
+						// If the PointLog has a pre-determined documentId then it means it is a single-use code and should be approved
+						log.approveLog()
 						log.id = documentId
+						was_approved = true
 					}
 					else {
 						//No document id, so create new document in database
@@ -76,7 +82,7 @@ export async function submitPoint(userId: string, log: UnsubmittedPointLog, isGu
 				}
 
 				//If the log is automatically approved, add points to the user and the house
-				if(isGuaranteedApproval || user.permissionLevel === UserPermissionLevel.RHP){
+				if(was_approved){
 					await submitPointLogMessage(user.house, log, PointLogMessage.getPreaprovedMessage())
 					await addPoints(pointType.value, user.house, user.id)
 					return Promise.resolve(true)

@@ -130,12 +130,11 @@ users_app.get('/get', async (req, res) => {
  * @throws  418 - Point Type Is Disabled
  * @throws  419 - Users Can Not Self Submit This Point Type
  * @throws 	422 - Missing Required Parameters
- * @throws  426 - Incorrect Format
  * @throws  500 - Server Error
  */
 users_app.post('/submitPoint', async (req, res) => {
 	if(!req.body || !req.body.point_type_id ||  req.body.point_type_id === "" || !req.body.description ||
-	 req.body.description === "" || !req.body.date_occurred || req.body.date_occurred === "" || !req.body.is_guaranteed_approval || req.body.is_guaranteed_approval === ""){
+	 req.body.description === "" || !req.body.date_occurred || req.body.date_occurred === ""){
 		if(!req.body){
 			console.error("Missing Body")
 		}
@@ -148,9 +147,6 @@ users_app.post('/submitPoint', async (req, res) => {
 		else if(!req.body.date_occurred || req.body.date_occurred === ""){
 			console.error("Missing date_occurred")
 		}
-		else if(!req.body.is_guaranteed_approval || req.body.is_guaranteed_approval === "") {
-			console.error("Missing is_guaranteed_approval")
-		}
 		else{
 			console.error("Unkown missing parameter??? This shouldnt be called")
 		}
@@ -158,13 +154,7 @@ users_app.post('/submitPoint', async (req, res) => {
 		const error = APIResponse.MissingRequiredParameters()
 		res.status(error.code).send(error.toJson())
 	}
-	else if (req.body.is_guaranteed_approval != "false" && req.body.is_guaranteed_approval != "true") {
-		console.error("Invalid is_guaranteed_approval")
-		const error = APIResponse.IncorrectFormat()
-		res.status(error.code).send(error.toJson())
-	}
 	else{
-		var isGuaranteedApproval = (req.body.is_guaranteed_approval === 'true');
 		try{
 			const date_occurred = new Date(req.body.date_occurred)
 			if (isInDateRange(date_occurred)) {
@@ -173,7 +163,7 @@ users_app.post('/submitPoint', async (req, res) => {
 				if (req.body.document_id) {
 					docID = req.body.document_id
 				}
-				const didAddPoints = await submitPoint(req["user"]["user_id"], log, isGuaranteedApproval, docID)
+				const didAddPoints = await submitPoint(req["user"]["user_id"], log, docID)
 				const success = APIResponse.Success()
 				if(didAddPoints){
 					res.status(202).send(success.toJson())
