@@ -165,11 +165,11 @@ users_app.post('/submitPoint', async (req, res) => {
 				}
 				const didAddPoints = await submitPoint(req["user"]["user_id"], log, docID)
 				const success = APIResponse.Success()
-				if (didAddPoints) {
-					res.status(202).send(success.toJson())
+				if(didAddPoints){
+					res.status(201).send(success.toJson())
 				}
 				else {
-					res.status(201).send(success.toJson())
+					res.status(202).send(success.toJson())
 				}
 				
 			}

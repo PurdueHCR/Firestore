@@ -40,7 +40,7 @@ export async function submitPoint(userId: string, log: UnsubmittedPointLog, docu
 				if(user.isParticipantInCompetition()){
 					log.updateFieldsWithUser(user)
 
-					var was_approved = false
+					let was_approved = false
 					if(user.permissionLevel === UserPermissionLevel.RHP){
 						//If the log is approved
 						log.approveLog()
@@ -69,6 +69,9 @@ export async function submitPoint(userId: string, log: UnsubmittedPointLog, docu
 						}
 						else {
 							//No document id, so create new document in database
+							if (was_approved === false) {
+								log.rhpNotifications++
+							}
 							const document = await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house.toString())
 														.collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).add(log.toFirebaseJSON())
 							log.id = document.id
@@ -85,7 +88,11 @@ export async function submitPoint(userId: string, log: UnsubmittedPointLog, docu
 
 					//If the log is automatically approved, add points to the user and the house
 					if(was_approved){
-						await submitPointLogMessage(user.house, log, PointLogMessage.getPreaprovedMessage())
+						if (user.permissionLevel === UserPermissionLevel.RHP) {
+							await submitPointLogMessage(user.house, log, PointLogMessage.getPreaprovedMessage(), false)
+						} else {
+							await submitPointLogMessage(user.house, log, PointLogMessage.getPreaprovedMessage(), true)
+						}
 						await addPoints(pointType.value, user.house, user.id)
 						return Promise.resolve(true)
 					}

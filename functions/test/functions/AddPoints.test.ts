@@ -5,6 +5,8 @@ const AddPoints = require('../../src/src/AddPoints')
 var house_points = 0
 var user_points = 0
 
+// WARNING: THIS WAS NEVER FULLY IMPLEMENTED AND IS NOT CORRECT
+
 //Mock the dependency firebase-admin
 //This example mocks the following
 //admin.initializeApp()
