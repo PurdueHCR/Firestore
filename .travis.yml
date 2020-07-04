@@ -10,8 +10,9 @@ addons:
     packages:
     - build-essential
 notifications:
-  if: branch = dev
-    slack: purduehcr:m186O0Sy1WQNMWeSOoj36urC
+  slack: purduehcr:m186O0Sy1WQNMWeSOoj36urC
+    if: branch = dev
+  email: false
 
 before_install:
 - npm update
