@@ -9,6 +9,10 @@ addons:
   apt:
     packages:
     - build-essential
+notifications:
+  slack:
+    if: branch = dev
+      slack: purduehcr:m186O0Sy1WQNMWeSOoj36urC
 
 before_install:
 - npm update
