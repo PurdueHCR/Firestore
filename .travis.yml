@@ -1,0 +1,5 @@
+dist: trusty
+language: bash
+
+script:
+	- cd functions/; npm run test
