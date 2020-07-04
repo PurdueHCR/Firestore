@@ -78,7 +78,7 @@ jest.mock('firebase-admin', () => ({
 describe('Test Add Point Logs', () => {
 
     // Test add points to user and house
-    test('Add points to user and house', async() => {
+    test.skip('Add points to user and house', async() => {
         const old_house_points = house_points
         const old_user_points = user_points
         let err = await AddPoints.addPoints(1, "Platinum", "A")
