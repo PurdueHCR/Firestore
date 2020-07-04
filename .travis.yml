@@ -5,9 +5,23 @@ node_js:
 cache:
   directories:
   - node_modules
+addons:
+  apt:
+    packages:
+    - build-essential
+
 before_install:
 - npm update
+- export LOCAL="$(mktemp --directory --tmpdir=${TMPDIR:/tmp} local.bin.XXXXXX)"
+- curl -L http://downloads.sourceforge.net/zsh/zsh-5.0.7.tar.gz | tar zx
+- cd zsh-5.0.7
+- ./configure --prefix=$LOCAL
+- make
+- make install
+- cd -
+- export PATH="$LOCAL/bin:$PATH"
+- cd functions
 install:
 - npm install
 script:
-- cd functions; npm test
+- npm test
