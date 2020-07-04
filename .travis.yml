@@ -5,7 +5,7 @@ node_js:
 cache:
 	directories:
 	- node_modules
-before_inbstall:
+before_install:
 - npm update
 install:
 - npm install
