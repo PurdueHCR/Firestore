@@ -11,7 +11,6 @@ addons:
     - build-essential
 notifications:
   slack: purduehcr:m186O0Sy1WQNMWeSOoj36urC
-    if: branch = dev
   email: false
 
 before_install:
