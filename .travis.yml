@@ -21,6 +21,8 @@ before_install:
 - cd -
 - export PATH="$LOCAL/bin:$PATH"
 - cd functions
+- curl -sL https://firebase.tools | bash
+- firebase setup:emulators:firestore
 install:
 - npm install
 script:
