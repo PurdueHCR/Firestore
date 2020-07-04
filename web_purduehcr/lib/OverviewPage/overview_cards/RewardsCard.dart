@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/Models/House.dart';
 import 'package:purduehcr_web/Models/Reward.dart';
+import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 
 class RewardsCard extends StatefulWidget{
   final Reward reward;
@@ -19,7 +20,23 @@ class RewardsCardState extends State<RewardsCard>{
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Text("Rewards"),
+      child: Row(
+        children: [
+          FutureBuilder(
+            future: widget.reward.getDownloadURL(),
+            builder: (context, snapshot){
+              if(snapshot.connectionState == ConnectionState.done){
+                return Image(
+                  image: NetworkImage(snapshot.data.toString()),
+                );
+              }
+              else{
+                return LoadingWidget();
+              }
+            },
+          )
+        ],
+      ),
     );
   }
 }

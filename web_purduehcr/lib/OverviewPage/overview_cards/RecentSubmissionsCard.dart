@@ -17,7 +17,7 @@ class RecentSubmissionsCardState extends State<RecentSubmissionsCard>{
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Text("Recent Submissions"),
+      child: Text("Recent Submissions. Waiting for handle/points to be unblocked so user_point_logs branch can be merged"),
     );
   }
 }

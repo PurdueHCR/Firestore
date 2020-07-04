@@ -11,6 +11,7 @@ import 'package:purduehcr_web/OverviewPage/overview_cards/HouseCompetitionCard.d
 import 'package:purduehcr_web/OverviewPage/overview_cards/ProfileCard.dart';
 import 'package:purduehcr_web/OverviewPage/overview_cards/RecentSubmissionsCard.dart';
 import 'package:purduehcr_web/OverviewPage/overview_cards/RewardsCard.dart';
+import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 
 import '../Config.dart';
 import '../ConfigWrapper.dart';
@@ -41,7 +42,34 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
 
   @override
   Widget buildLargeDesktopBody({BuildContext context, OverviewState state}) {
-    return _buildBody();
+    ResidentOverviewLoaded residentData = _overviewBloc.state;
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          ProfileCard(
+              user:user,
+              userRank:residentData.rank
+          ),
+          Row(
+            children: [
+              SizedBox(
+                  width: getActiveAreaWidth(context) * 0.475,
+                  height: getActiveAreaWidth(context) * 0.475 * 0.5,
+                  child:HouseCompetitionCard(
+                    houses: residentData.houses,
+                  ),
+              ),
+              SizedBox(
+                width: getActiveAreaWidth(context) * 0.475,
+                height: getActiveAreaWidth(context) * 0.475 * 0.5,
+                child:RewardsCard(reward: residentData.reward, house: getUserHouse(user, residentData.houses),)
+              ),
+            ],
+          ),
+          RecentSubmissionsCard()
+        ],
+      ),
+    );
   }
 
   @override
@@ -95,7 +123,6 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
 
   @override
   OverviewBloc getBloc() {
-    window.console.log("Request bloc");
     return _overviewBloc;
   }
 
