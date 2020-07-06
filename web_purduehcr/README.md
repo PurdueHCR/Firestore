@@ -65,7 +65,7 @@ samples, guidance on mobile development, and a full API reference.
 ## Random Project Notes
 To build the .g files for json_serialize, run `flutter packages pub run build_runner build --delete-conflicting-outputs`
 
-I included a tool to build the templates for a BLOC. Navigate into web_purduehcr/bloc_writer and run `python bloc_writer.py` You will have to move the folder into the correct directory afterwards
+I included a tool to build the templates for a BLOC. Navigate into web_purduehcr/bloc_writer and run `python3 bloc_writer.py` You will have to move the folder into the correct directory afterwards
 
 
 
