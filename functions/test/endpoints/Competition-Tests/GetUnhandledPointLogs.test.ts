@@ -4,12 +4,12 @@ import * as IntegrationMockFactory from '../IntegrationMockFactory'
 import {FirestoreDataFactory} from '../FirestoreDataFactory'
 
 let comp_func
-const RESIDENT_ID = "RESIDENT"
-const RHP_ID = "RHP"
-const PROF_ID = "Proffesional Staff"
-const FHP_ID = "FHP"
-const PRIV_RES = "PRIV_RES"
-const EA = "External Advisor"
+const RESIDENT_ID = "RESIDENT_GetUnhandledPointLogs"
+const RHP_ID = "RHP_GetUnhandledPointLogs"
+const PROF_ID = "Proffesional Staff_GetUnhandledPointLogs"
+const FHP_ID = "FHP_GetUnhandledPointLogs"
+const PRIV_RES = "PRIV_RES_GetUnhandledPointLogs"
+const EA = "External Advisor_GetUnhandledPointLogs"
 let db:firebase.firestore.Firestore
 
 //Test Suite GetUser
