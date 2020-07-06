@@ -71,7 +71,7 @@ jest.mock('firebase-admin', () => ({
     })
 }))
 
-//Test Suite GetHouse
+//Test Suite Get Point Logs
 describe('Test Get Point Logs For User', () =>{
 
     //

@@ -11,6 +11,7 @@ import { isInDateRange } from '../src/IsInDateRange'
 import { getUserRank } from '../src/GetUserRank'
 import { getPointLogsForUser } from '../src/GetPointLogsForUser'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
+import { getUserLinks } from '../src/GetUserLinks'
 
 if(admin.apps.length === 0){
 	admin.initializeApp(functions.config().firebase)
@@ -129,44 +130,47 @@ users_app.get('/get', async (req, res) => {
  * @throws  412 - House Competition Is Disabled
  * @throws  418 - Point Type Is Disabled
  * @throws  419 - Users Can Not Self Submit This Point Type
- * @throws 	422 - MissingRequiredParameters
+ * @throws 	422 - Missing Required Parameters
  * @throws  500 - Server Error
  */
 users_app.post('/submitPoint', async (req, res) => {
 	if(!req.body || !req.body.point_type_id ||  req.body.point_type_id === "" || !req.body.description ||
 	 req.body.description === "" || !req.body.date_occurred || req.body.date_occurred === ""){
-		 if(!req.body){
+		if(!req.body){
 			console.error("Missing Body")
-		 }
-		 else if(!req.body.point_type_id ||  req.body.point_type_id === "" ){
+		}
+		else if(!req.body.point_type_id || req.body.point_type_id === "" ){
 			console.error("Missing point_type_id")
-		 }
-		 else if(!req.body.description || req.body.description === ""){
+		}
+		else if(!req.body.description || req.body.description === ""){
 			console.error("Missing description")
-		 }
-		 else if(!req.body.date_occurred || req.body.date_occurred === ""){
+		}
+		else if(!req.body.date_occurred || req.body.date_occurred === ""){
 			console.error("Missing date_occurred")
-		 }
-		 else{
-			 console.error("Unkown missing parameter??? This shouldnt be called")
-		 }
+		}
+		else{
+			console.error("Unkown missing parameter??? This shouldnt be called")
+		}
 
 		const error = APIResponse.MissingRequiredParameters()
 		res.status(error.code).send(error.toJson())
 	}
 	else{
-
 		try{
 			const date_occurred = new Date(req.body.date_occurred)
-			if(isInDateRange(date_occurred)){
+			if (isInDateRange(date_occurred)) {
 				const log = new UnsubmittedPointLog(date_occurred, req.body.description, parseInt(req.body.point_type_id))
-				const didAddPoints = await submitPoint(req["user"]["user_id"], log, false)
+				let docID = null
+				if (req.body.document_id) {
+					docID = req.body.document_id
+				}
+				const didAddPoints = await submitPoint(req["user"]["user_id"], log, docID)
 				const success = APIResponse.Success()
 				if(didAddPoints){
-					res.status(202).send(success.toJson())
+					res.status(201).send(success.toJson())
 				}
 				else {
-					res.status(201).send(success.toJson())
+					res.status(202).send(success.toJson())
 				}
 				
 			}
@@ -238,6 +242,26 @@ users_app.get('/points', async (req, res) => {
 
 })
 
-
+/**
+ * Gets all links that a user created
+ * @throws 
+ */
+users_app.get('/links', async (req,res) => {
+	try {
+		const user = await getUser(req["user"]["user_id"])
+		const links = await getUserLinks(user.id)
+		res.status(APIResponse.SUCCESS_CODE).send({links:links})
+	}
+	catch(error) {
+		if (error instanceof APIResponse) {
+			res.status(error.code).send(error.toJson())
+		}
+		else {
+			console.log("FAILED WITH DB FROM user ERROR: " + error)
+			const apiResponse = APIResponse.ServerError()
+			res.status(apiResponse.code).send(apiResponse.toJson())
+		}
+	}
+})
 
 export const user_main = functions.https.onRequest(users_main)

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/HandlePointsPage/HandlePointsPage.dart';
+import 'package:purduehcr_web/LinkPage/LinkPage.dart';
+import 'package:purduehcr_web/Account_Login_Creation/CreateAccountPage.dart';
+import 'package:purduehcr_web/Account_Login_Creation/JoinHousePage.dart';
 import 'package:purduehcr_web/OverviewPage/OverviewPage.dart';
 import 'package:purduehcr_web/Account_Login_Creation/LogInPage.dart';
 import 'package:purduehcr_web/SubmitPointsPage/SubmitPointsPage.dart';
@@ -27,18 +30,29 @@ class RouteGenerator {
                   return SubmitPointsPage();
                 case '/handle_points':
                   return HandlePointsPage();
+                case '/links':
+                  return LinkPage();
                 default:
                   return _errorRoute();
               }
-            } else if (state is AuthLoading) {
-              
+            }
+            else if (state is AuthLoading) {
               return CircularProgressIndicator();
-            } else if (state is AuthUninitialized) {
+            }
+            else if (state is AuthUninitialized) {
               return Center(
                 child: Text("Initializing"),
               );
-            } else {
-              return LogInPage();
+            }
+            else {
+              switch (settings.name){
+                case '/create_account':
+                  return CreateAccountPage();
+                case '/create_user':
+                  return JoinHousePage();
+                default:
+                  return LogInPage();
+              }
             }
           });
     });

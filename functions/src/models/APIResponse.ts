@@ -57,8 +57,24 @@ export class APIResponse{
     }
 
     /**
+     * 407 - Link Does not belong to current user
+     * The Link/QR code does not belong to the current user so it can not be edited
+     */
+    static LinkDoesntBelongToUser(): APIResponse {
+        return new APIResponse(407, "The Link does not belong to the current user")
+    }
+
+    /**
+     * 408 - The Link does not exist
+     * The Link/QR-code id does not exist
+     */
+    static LinkDoesntExist(): APIResponse {
+        return new APIResponse(408, "The Link Could not be found")
+    }
+
+    /**
      * 409 - This Link Has Already Been Submitted
-     * The Link/QR code which was scanned is a single use code and this user has already scanned it
+     * The Link/QR-code which was scanned is a single use code and this user has already scanned it
      */
     static LinkAlreadySubmitted(): APIResponse {
         return new APIResponse(409, "This Link Has Already Been Submitted")
@@ -78,6 +94,22 @@ export class APIResponse{
      */
     static CompetitionDisabled(): APIResponse {
         return new APIResponse(412, "House Competition Is Disabled")
+    }
+
+    /**
+     * 413 - Unknown PointLog
+     * The requested point cannot be found
+     */
+    static UnknownPointLog(): APIResponse {
+        return new APIResponse(413, "Unkown PointLog")
+    }
+
+    /**
+     * 416 - PointLog Already Handled
+     * The PointLog is already in the requested approved/rejected state
+     */
+    static PointLogAlreadyHandled(): APIResponse {
+        return new APIResponse(416, "PointLog Already Handled")
     }
 
     /**
@@ -113,7 +145,7 @@ export class APIResponse{
     }
 
     /**
-     * 412 - User Already Exists
+     * 421 - User Already Exists
      * User with that ID already exists in the database
      */
     static UserAlreadyExists(): APIResponse {
@@ -166,6 +198,14 @@ export class APIResponse{
      */
     static CanNotPostMessage(): APIResponse {
         return new APIResponse(427, "You are not allowed to post a message to this submission.")
+    }
+    
+    /**
+     * 430 - Insufficient Permission Level For Create a Link with that Point Type
+     * The point type  
+     */
+    static InsufficientPointTypePermissionForLink(): APIResponse {
+        return new APIResponse(430, "User does not have sufficient permissions to use that Point Type in a Link.")
     }
 
     /**

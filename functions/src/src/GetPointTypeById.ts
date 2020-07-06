@@ -7,6 +7,8 @@ import { APIResponse } from "../models/APIResponse"
  * Get a Point Type from its Id
  * 
  * @param id The id of the PointType to retrieve
+ * @throws 417 - Unknown Point Type
+ * @throws 500 - Server Error
  */
 export async function getPointTypeById(id: number) : Promise<PointType> {
 	try {

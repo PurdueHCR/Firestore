@@ -13,6 +13,5 @@ export function isInDateRange(date:Date): boolean {
     }
 
     const date_min = new Date(min_year, 7)
-    console.log("Dates: "+date_min.toDateString()+" - "+date_max.toDateString())
     return date <= date_max && date >= date_min
 }
