@@ -32,14 +32,16 @@ class RouteGenerator {
                 default:
                   return _errorRoute();
               }
-            } else if (state is AuthLoading) {
-              
+            }
+            else if (state is AuthLoading) {
               return CircularProgressIndicator();
-            } else if (state is AuthUninitialized) {
+            }
+            else if (state is AuthUninitialized) {
               return Center(
                 child: Text("Initializing"),
               );
-            } else {
+            }
+            else {
               switch (settings.name){
                 case '/create_account':
                   return CreateAccountPage();
