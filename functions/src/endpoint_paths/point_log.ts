@@ -13,22 +13,26 @@ if(admin.apps.length === 0){
 const log_app = express()
 const cors = require('cors')
 const logs_main = express()
-const firestoreTools = require('../firestoreTools')
 
 logs_main.use(log_app)
 logs_main.use(bodyParser.json())
 logs_main.use(bodyParser.urlencoded({ extended: false }))
 
+const firestoreTools = require('../firestoreTools')
 export const log_main = functions.https.onRequest(logs_main)
 
 log_app.use(cors({origin:true}))
+log_app.use(firestoreTools.flutterReformat)
 log_app.use(firestoreTools.validateFirebaseIdToken)
 
 /**
  * Handle a PointLog
+ * 
+ *  @throws  422 - MissingRequiredParameters
+ *  @throws  426 - IncorrectFormat
  */
 log_app.post('/handle', async (req, res) => {
-	if (!req.body.approve || req.body.approve === "" || !req.body.approver_id || req.body.approver_id === ""
+	if ( !req.body.approve || req.body.approve === ""
 			|| !req.body.point_log_id || req.body.point_log_id === "") {
 		if (!req.body) {
 			console.error("Missing Body")
@@ -36,15 +40,11 @@ log_app.post('/handle', async (req, res) => {
 		else if (!req.body.approve || req.body.approve === "") {
 			console.error("Missing approve")
 		}
-		else if (!req.body.approver_id || req.body.approver_id === "") {
-			console.error("Missing approver_id")
-		}
 		else if (!req.body.point_log_id || req.body.point_log_id === "") {
 			console.error("Missing point_log_id")
 		} else {
 			console.error("Unknown missing parameter")
 		}
-
 		const error = APIResponse.MissingRequiredParameters()
 		res.status(error.code).send(error.toJson())
 	}
@@ -55,7 +55,7 @@ log_app.post('/handle', async (req, res) => {
 	} else {
 		try {
 			var should_approve = (req.body.approve == 'true');
-			const didUpdate = await updatePointLogStatus(should_approve, req.body.approver_id, req.body.point_log_id)
+			const didUpdate = await updatePointLogStatus(should_approve, req["user"]["user_id"], req.body.point_log_id)
 			if (didUpdate) {
 				res.status(201).send(APIResponse.Success().toJson())
 			}

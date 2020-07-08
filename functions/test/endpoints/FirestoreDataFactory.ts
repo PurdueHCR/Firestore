@@ -162,7 +162,7 @@ export class FirestoreDataFactory{
      * @param approved - boolean for if the pointlog was already approved. (used to set the approved fields and sign of point type ID)
      * @param ptOpts - Optional parameters to modifu the point log
      */
-    static setPointLog(db: firebase.firestore.Firestore, house:string, resident_id:string, approved: boolean, ptOpts:PointLogOptions = POINT_LOG_DEFAULTS): Promise<firebase.firestore.DocumentReference| void>{
+    static setPointLog(db: firebase.firestore.Firestore, house:string, resident_id:string, approved: boolean, ptOpts:PointLogOptions = POINT_LOG_DEFAULTS): Promise<void> | Promise<firebase.firestore.DocumentReference>{
         let data = {
             "DateOccurred":(ptOpts.date_occurred !== undefined)?ptOpts.date_occurred:POINT_LOG_DEFAULTS.date_occurred,
             "DateSubmitted":(ptOpts.date_submitted !== undefined)?ptOpts.date_submitted:POINT_LOG_DEFAULTS.date_submitted,
