@@ -1460,7 +1460,7 @@
             "application/json" : {
               "schema" : {
                 "properties": {
-                  "id" : {
+                  "log_id" : {
                     "type": "string",
                     "example": "329opc8dahl3fh"
                   },
@@ -1519,7 +1519,7 @@
       },
       "get" : {
         "tags" : [ "point_log" ],
-        "summary" : "Get all messages for a point log",
+        "summary" : "Get all messages for a point log in chronological order",
         "parameters" : [ {
           "name" : "Authorization",
           "in" : "header",
@@ -1532,7 +1532,7 @@
           },
           "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
           },{
-            "name" : "id",
+            "name" : "log_id",
             "in" : "query",
             "description" : "Id  for the point log",
             "required" : true,
@@ -1565,12 +1565,32 @@
               }
             }
           },
-          "427" : {
-            "description" : "Can Not Post Message -  The user can not post a message to this point log",
+          "403" : {
+            "description" : "This user can not view or edit Point log messages.",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/CanNotPostMessage"
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "413" : {
+            "description" : "Could not find the point log",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownPointLog"
+                }
+              }
+            }
+          },
+          "431" : {
+            "description" : "The User does not have permission to modify or view this point log.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CanNotAccessPointLog"
                 }
               }
             }
@@ -1982,6 +2002,15 @@
           }
         }
       },
+      "UnknownPointLog" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "Could not find Point Log"
+          }
+        }
+      },
       "PointTypeDoesNotExist" : {
         "type" : "object",
         "properties" : {
@@ -2072,15 +2101,6 @@
           }
         }
       },
-      "InsufficientPointTypePermissionForLink" : {
-        "type" : "object",
-        "properties" : {
-          "message" : {
-            "type" : "string",
-            "example" : "User does not have sufficient permissions to use that Point Type in a Link."
-          }
-        }
-      },
       "CanNotPostMessage" : {
         "type" : "object",
         "properties" : {
@@ -2090,6 +2110,25 @@
           }
         }
       },
+      "InsufficientPointTypePermissionForLink" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "User does not have sufficient permissions to use that Point Type in a Link."
+          }
+        }
+      },
+      "CanNotAccessPointLog" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "This user does not have the corrent ownership or permission to access this point log."
+          }
+        }
+      },
+      
       "ServerError" : {
         "type" : "object",
         "properties" : {

@@ -151,11 +151,11 @@ users_app.post('/submitPoint', async (req, res) => {
 		else{
 			console.error("Unkown missing parameter??? This shouldnt be called")
 		}
-
 		const error = APIResponse.MissingRequiredParameters()
 		res.status(error.code).send(error.toJson())
 	}
 	else{
+		console.log("DESCRIPTION: "+req.body.description)
 		try{
 			const date_occurred = new Date(req.body.date_occurred)
 			if (isInDateRange(date_occurred)) {

@@ -209,6 +209,14 @@ export class APIResponse{
     }
 
     /**
+     * 431 - Can Not Access Point Log
+     * This user does not have the corrent ownership or permission to access this point log
+     */
+    static CanNotAccessPointLog(): APIResponse {
+        return new APIResponse(431, "This user does not have the corrent ownership or permission to access this point log.")
+    }
+
+    /**
      * 500 - Server Error
      * Unknown Firebase Firestore error
      */

@@ -2,6 +2,7 @@ import * as firebase from "@firebase/testing"
 
 export class FirestoreDataFactory{
 
+
     /**
      * Sets the system preferences in the test database
      * 
@@ -166,7 +167,7 @@ export class FirestoreDataFactory{
         let data = {
             "DateOccurred":(ptOpts.date_occurred !== undefined)?ptOpts.date_occurred:POINT_LOG_DEFAULTS.date_occurred,
             "DateSubmitted":(ptOpts.date_submitted !== undefined)?ptOpts.date_submitted:POINT_LOG_DEFAULTS.date_submitted,
-            "Description":(ptOpts.date_submitted !== undefined)?ptOpts.description:POINT_LOG_DEFAULTS.date_submitted,
+            "Description":(ptOpts.date_submitted !== undefined)?ptOpts.description:POINT_LOG_DEFAULTS.description,
             "FloorID":(ptOpts.floor_id !== undefined)?ptOpts.floor_id:POINT_LOG_DEFAULTS.floor_id,
             "PointTypeID":(ptOpts.point_type_id !== undefined)?ptOpts.point_type_id:POINT_LOG_DEFAULTS.point_type_id! * -1,
             "RHPNotifications":(ptOpts.rhp_notifications !== undefined)?ptOpts.rhp_notifications:POINT_LOG_DEFAULTS.rhp_notifications,
@@ -201,6 +202,18 @@ export class FirestoreDataFactory{
         return db.collection("Links").doc(link_id).set(data)
     }
 
+    static setPointLogMessage(db: firebase.firestore.Firestore, house_id: string, log_id: string, messageOpts: PointLogMessageOptions = MESSAGE_DEFAULTS){
+        let data = {
+            CreationDate:(messageOpts.creation_date !== undefined)?messageOpts.creation_date:MESSAGE_DEFAULTS.creation_date,
+            Message:(messageOpts.message !== undefined)?messageOpts.message:MESSAGE_DEFAULTS.message,
+            MessageType:(messageOpts.message_type !== undefined)? messageOpts.message_type:MESSAGE_DEFAULTS.message_type,
+            SenderFirstName:(messageOpts.sender_first_name !== undefined)? messageOpts.sender_first_name: MESSAGE_DEFAULTS.sender_first_name,
+            SenderLastName:(messageOpts.sender_last_name !== undefined)? messageOpts.sender_last_name: MESSAGE_DEFAULTS.sender_last_name,
+            SenderPermissionLevel:(messageOpts.sender_permission_level !== undefined)? messageOpts.sender_permission_level:MESSAGE_DEFAULTS.sender_permission_level
+        }
+        return db.collection("House").doc(house_id).collection("Points").doc(log_id).collection("Messages").add(data)
+    }
+
     /**
      * Create multiple pointlogs for the given user
      * @param db  - Test App Firestore instance (Usually from authedApp())
@@ -226,6 +239,54 @@ export class FirestoreDataFactory{
             RequiredValue:(rOpts.required_value !== undefined)?rOpts.required_value:REWARD_DEFAULTS.required_value
         })
     }
+
+    /**
+     * Delete a collection
+     * @param db Test App Firestore instance
+     * @param collectionPath Path to collection
+     * @param batchSize max number to delete in batch
+     */
+    static async deleteCollection(db, collectionPath, batchSize) {
+        const collectionRef = db.collection(collectionPath);
+        const query = collectionRef.orderBy('__name__').limit(batchSize);
+      
+        return new Promise((resolve, reject) => {
+          FirestoreDataFactory.deleteQueryBatch(db, query, resolve).catch(reject);
+        });
+      }
+      
+    private static async deleteQueryBatch(db, query, resolve) {
+        const snapshot = await query.get();
+      
+        const batchSize = snapshot.size;
+        if (batchSize === 0) {
+          // When there are no documents left, we are done
+          resolve();
+          return;
+        }
+      
+        // Delete documents in a batch
+        const batch = db.batch();
+        snapshot.docs.forEach((doc) => {
+          batch.delete(doc.ref);
+        });
+        await batch.commit();
+      
+        // Recurse on the next process tick, to avoid
+        // exploding the stack.
+        process.nextTick(() => {
+          FirestoreDataFactory.deleteQueryBatch(db, query, resolve);
+        });
+      }
+}
+
+export declare type PointLogMessageOptions = {
+    creation_date?: Date
+    message?: string
+    message_type?: string
+    sender_first_name?: string
+    sender_last_name?: string
+    sender_permission_level?: number
 }
 
 /**
@@ -425,4 +486,16 @@ export const USER_DEFAULTS:UserOptions = {
     semester_points: 0,
     house_name: "Platinum",
     floor_id: "4N"
+}
+
+/**
+ * Default PointLogMessage Options
+ */
+export const MESSAGE_DEFAULTS:PointLogMessageOptions = {
+    creation_date: new Date(Date.now()),
+    message: "Empty Message",
+    message_type: "comment",
+    sender_first_name: "First",
+    sender_last_name: "Last",
+    sender_permission_level: 0
 }

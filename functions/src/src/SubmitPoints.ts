@@ -53,13 +53,13 @@ export async function submitPoint(userId: string, log: UnsubmittedPointLog, docu
 					try {
 						if (documentId && documentId !== "") {
 							//If a document ID is provided, check if the id exists, and if not, set in database
-							const doc = await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house.toString())
+							const doc = await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house)
 														.collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).doc(documentId).get()
 							if (doc.exists) {
 								return Promise.reject(APIResponse.LinkAlreadySubmitted())
 							}
 							else {
-								await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house.toString())
+								await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house)
 									.collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).doc(documentId).set(log.toFirebaseJSON())
 							}
 							// If the PointLog has a pre-determined documentId then it means it is a single-use code and should be approved
@@ -72,7 +72,9 @@ export async function submitPoint(userId: string, log: UnsubmittedPointLog, docu
 							if (was_approved === false) {
 								log.rhpNotifications++
 							}
-							const document = await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house.toString())
+							console.log("Create new point log that was approved")
+							console.log("house: "+user.house)
+							const document = await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house)
 														.collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).add(log.toFirebaseJSON())
 							log.id = document.id
 						}

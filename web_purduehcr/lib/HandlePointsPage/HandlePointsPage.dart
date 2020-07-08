@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/HandlePointsPage/PointLogChat.dart';
 import 'package:purduehcr_web/HandlePointsPage/handle_points_bloc/handle_points.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
+import 'package:purduehcr_web/SubmitPointsPage/submit_points_bloc/submit_point_bloc.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/Utility_Views/PointLogList.dart';
 
@@ -44,10 +46,12 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
         ),
         VerticalDivider(),
         Flexible(
+          child: BlocProvider<HandlePointsBloc>(
+            builder: (BuildContext context) => _handlePointsBloc,
             child: PointLogChat(
-              key: new ObjectKey(_selectedPointLog),
-              pointLog: _selectedPointLog,
+                pointLog: _selectedPointLog
             )
+          )
         )
       ],
     );
@@ -89,16 +93,16 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
       showDialog(
           context: context,
           builder: (BuildContext context) {
-            return SimpleDialog(
-              title: Text("Submission Form"),
-              children: [
-//                  PointSubmissionForm(
-//                    key: new ObjectKey(_selectedPointType),
-//                    pointType: pointType,
-//                    onSubmit: _onSubmit,
-//                  )
-                Text("Nope")
-              ],
+            return BlocProvider<HandlePointsBloc>(
+              builder: (BuildContext context) => _handlePointsBloc,
+              child: SimpleDialog(
+                title: Text("Chat"),
+                children: [
+                  PointLogChat(
+                      pointLog: pointLog
+                  )
+                ],
+              ),
             );
           }
       );
