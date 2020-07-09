@@ -11,7 +11,7 @@ class PointLog{
   static const String DESCRIPTION = "description";
   static const String FLOOR_ID = "floorID";
   static const String POINT_TYPE_DESCRIPTION = "pointTypeDescription";
-  static const String POINT_TYPE_ID = "pointTypeID";
+  static const String POINT_TYPE_ID = "pointTypeId";
   static const String POINT_TYPE_NAME = "pointTypeName";
   static const String RHP_NOTIFICATION = "rhpNotification";
   static const String RESIDENT_FIRST_NAME = "residentFirstName";

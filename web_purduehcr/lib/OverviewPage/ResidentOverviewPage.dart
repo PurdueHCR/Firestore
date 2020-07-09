@@ -11,6 +11,7 @@ import 'package:purduehcr_web/OverviewPage/overview_cards/HouseCompetitionCard.d
 import 'package:purduehcr_web/OverviewPage/overview_cards/ProfileCard.dart';
 import 'package:purduehcr_web/OverviewPage/overview_cards/RecentSubmissionsCard.dart';
 import 'package:purduehcr_web/OverviewPage/overview_cards/RewardsCard.dart';
+import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 
 import '../Config.dart';
 import '../ConfigWrapper.dart';
@@ -31,8 +32,8 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
   _ResidentOverviewPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     user = authState.user;
     Config config = ConfigWrapper.of(context);
     _overviewBloc = new OverviewBloc(config);
@@ -41,50 +42,80 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
 
   @override
   Widget buildLargeDesktopBody({BuildContext context, OverviewState state}) {
-    return _buildBody();
+    ResidentOverviewLoaded residentData = state;
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          SizedBox(
+            width: getActiveAreaWidth(context),
+            height: getActiveAreaWidth(context) * 0.3,
+            child:HouseCompetitionCard(
+              houses: residentData.houses,
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              SizedBox(
+                width: getActiveAreaWidth(context) * 0.475,
+                height: getActiveAreaWidth(context) * 0.475 * 0.4,
+                child: ProfileCard(
+                    user:user,
+                    userRank:residentData.rank
+                ),
+              ),
+              SizedBox(
+                  width: getActiveAreaWidth(context) * 0.475,
+                  height: getActiveAreaWidth(context) * 0.475 * 0.4,
+                  child:RewardsCard(reward: residentData.reward, house: getUserHouse(user, residentData.houses),)
+              ),
+            ],
+          ),
+          RecentSubmissionsCard(submissions: residentData.logs,)
+        ],
+      ),
+    );
   }
 
   @override
   Widget buildSmallDesktopBody({BuildContext context, OverviewState state}) {
-    return _buildBody();
+    return _buildBody(state);
   }
 
   @override
   Widget buildMobileBody({BuildContext context, OverviewState state}) {
-    return _buildBody();
+    return _buildBody(state);
   }
 
-  Widget _buildBody(){
-    ResidentOverviewLoaded residentData = _overviewBloc.state;
-    return Wrap(
-      children: [
-        SizedBox(
-          width: 500,
-          child: ProfileCard(
-              user:user,
-              userRank:residentData.rank
+  Widget _buildBody(OverviewState state){
+    ResidentOverviewLoaded residentData = state;
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          SizedBox(
+            width: getActiveAreaWidth(context),
+            height: getActiveAreaWidth(context) * 0.3,
+            child:HouseCompetitionCard(
+              houses: residentData.houses,
+            ),
           ),
-        ),
-        SizedBox(
-          width: 500,
-          child: RewardsCard(
-            reward: residentData.reward,
-            house: getUserHouse(user,residentData.houses),
+          SizedBox(
+            width: getActiveAreaWidth(context),
+            height: getActiveAreaWidth(context) * 0.475 * 0.8,
+            child: ProfileCard(
+                user:user,
+                userRank:residentData.rank
+            ),
           ),
-        ),
-        SizedBox(
-          width: 500,
-          child: RecentSubmissionsCard(
-            submissions: residentData.logs,
+          SizedBox(
+              width: getActiveAreaWidth(context),
+              height: getActiveAreaWidth(context) * 0.475 * 0.8,
+              child:RewardsCard(reward: residentData.reward, house: getUserHouse(user, residentData.houses),)
           ),
-        ),
-        SizedBox(
-          width: 500,
-          child: HouseCompetitionCard(
-            houses: residentData.houses,
-          ),
-        )
-      ],
+          RecentSubmissionsCard(submissions: residentData.logs,)
+        ],
+      ),
     );
   }
 
@@ -95,7 +126,6 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
 
   @override
   OverviewBloc getBloc() {
-    window.console.log("Request bloc");
     return _overviewBloc;
   }
 

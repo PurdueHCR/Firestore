@@ -15,7 +15,7 @@ export async function getUnhandledPointLogs( user_id: string,limit: number = -1)
     try {
         const db = admin.firestore()
         const user = await getUser(user_id)
-        if(user.permissionLevel == UserPermissionLevel.RHP){
+        if(user.permissionLevel === UserPermissionLevel.RHP){
             const reference = db.collection(HouseCompetition.HOUSE_KEY).doc(user.house).collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).where(PointLog.POINT_TYPE_ID, '<=', 0)
             const pointLogQuerySnapshot = await reference.get()
             let logs = PointLog.fromQuerySnapshot(pointLogQuerySnapshot)

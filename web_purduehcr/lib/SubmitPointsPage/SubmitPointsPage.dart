@@ -26,9 +26,11 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
 
   _SubmitPointsPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
 
+
+
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     Config config = ConfigWrapper.of(context);
     _submitPointBloc = new SubmitPointBloc(config);
     _submitPointBloc.add(SubmitPointInitialize());

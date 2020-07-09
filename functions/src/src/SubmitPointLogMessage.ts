@@ -18,7 +18,7 @@ export async function submitPointLogMessage(house: string, pointLog: PointLog, m
     const db = admin.firestore()
 
     try {
-        let log_reference = db.collection(HouseCompetition.HOUSE_KEY).doc(house).collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY)
+        const log_reference = db.collection(HouseCompetition.HOUSE_KEY).doc(house).collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY)
         .doc(pointLog.id)
         await log_reference.collection(HouseCompetition.HOUSE_COLLECTION_POINTS_COLLECTION_MESSAGES_KEY).add(message.toJson())
         if (send_to_resident) {

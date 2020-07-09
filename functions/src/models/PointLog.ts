@@ -156,7 +156,7 @@ export class PointLog {
     }
 
     toFirebaseJSON() {
-        var data = {}
+        const data = {}
         if(this.approvedBy){
             data[PointLog.APPROVED_BY] = this.approvedBy
             data[PointLog.APPROVED_ON] = this.approvedOn

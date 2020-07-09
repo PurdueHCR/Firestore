@@ -28,8 +28,8 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
   _LinkPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     Config config = ConfigWrapper.of(context);
     _linkBloc = new LinkBloc(config: config);
     _linkBloc.add(LinkInitialize());

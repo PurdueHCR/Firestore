@@ -11,11 +11,19 @@ class Reward{
   String name;
   String fileName;
   double requiredPPR;
+  Uri rewardDownloadURL;
 
-  Reward({@required this.name,@required this.requiredPPR, @required this.fileName});
+  Reward({@required this.name,@required this.requiredPPR, @required this.fileName}){
+    fb.storage().ref(this.fileName).getDownloadURL().then((value) => rewardDownloadURL = value);
+  }
 
   Future<Uri> getDownloadURL(){
-    return fb.storage().ref(this.fileName).getDownloadURL();
+    if(this.rewardDownloadURL == null){
+      return Future.delayed(Duration(milliseconds: 100)).then((val)=> getDownloadURL());
+    }
+    else{
+      return Future.value(rewardDownloadURL);
+    }
   }
 
   factory Reward.fromJson(Map<String,dynamic> json) {

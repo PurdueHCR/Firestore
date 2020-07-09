@@ -212,12 +212,12 @@ users_app.post('/submitPoint', async (req, res) => {
 users_app.get('/points', async (req, res) => {
 	try {
 		const user = await getUser(req["user"]["user_id"])
-		if(user.permissionLevel == UserPermissionLevel.RESIDENT || user.permissionLevel == UserPermissionLevel.RHP
-			|| user.permissionLevel == UserPermissionLevel.PRIVILEGED_RESIDENT
+		if(user.permissionLevel === UserPermissionLevel.RESIDENT || user.permissionLevel === UserPermissionLevel.RHP
+			|| user.permissionLevel === UserPermissionLevel.PRIVILEGED_RESIDENT
 			){
 				let pointLogs
 				if(req.query.limit !== undefined){
-					pointLogs = await getPointLogsForUser(user.id, user.house, parseInt(req.query.limit! as string))
+					pointLogs = await getPointLogsForUser(user.id, user.house, parseInt(req.query.limit as string))
 				}
 				else{
 					pointLogs = await getPointLogsForUser(user.id, user.house)

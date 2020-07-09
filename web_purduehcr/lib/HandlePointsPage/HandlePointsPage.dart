@@ -27,8 +27,8 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
   _HandlePointsPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     Config config = ConfigWrapper.of(context);
     _handlePointsBloc = new HandlePointsBloc(config);
     _handlePointsBloc.add(HandlePointEventInitialize());
@@ -37,6 +37,7 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
   @override
   Widget buildLargeDesktopBody({BuildContext context, HandlePointsState state}) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Flexible(
           child: PointLogList(
