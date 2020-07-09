@@ -5,6 +5,8 @@ const AddPoints = require('../../src/src/AddPoints')
 var house_points = 0
 var user_points = 0
 
+// WARNING: THIS WAS NEVER FULLY IMPLEMENTED AND IS NOT CORRECT
+
 //Mock the dependency firebase-admin
 //This example mocks the following
 //admin.initializeApp()
@@ -76,7 +78,7 @@ jest.mock('firebase-admin', () => ({
 describe('Test Add Point Logs', () => {
 
     // Test add points to user and house
-    test('Add points to user and house', async() => {
+    test.skip('Add points to user and house', async() => {
         const old_house_points = house_points
         const old_user_points = user_points
         let err = await AddPoints.addPoints(1, "Platinum", "A")

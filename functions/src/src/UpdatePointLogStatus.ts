@@ -20,7 +20,7 @@ const REJECTED_STRING = "DENIED: "
  * @throws  403 - InvalidPermissionLevel
  * @throws  413 - UnknownPointLog
  */
-export async function updatePointLogStatus(approve: boolean, approver_id: string, document_id: string): Promise<Boolean> {
+export async function updatePointLogStatus(approve: boolean, approver_id: string, document_id: string): Promise<boolean> {
     
     const user = await getUser(approver_id)
     if (user.permissionLevel != UserPermissionLevel.RHP) {
@@ -67,7 +67,7 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                     }
                     message_beginning += " rejected" + message_end
                     let messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.REJECT, user.firstName, user.lastName, UserPermissionLevel.RHP)
-                    await submitPointLogMessage(user.house, log, messageObj)
+                    await submitPointLogMessage(user.house, log, messageObj, true)
                 }
             } else {
                 if (log.description.includes(REJECTED_STRING) || !already_handled) {
@@ -83,7 +83,7 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                     // Add message of approval/rejection
                     message_beginning += " approved" + message_end
                     let messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.APPROVE, user.firstName, user.lastName, UserPermissionLevel.RHP)
-                    await submitPointLogMessage(user.house, log, messageObj)
+                    await submitPointLogMessage(user.house, log, messageObj, true)
                 } else {
                     // Log has already been approved so points should not be added
                     let response = APIResponse.PointLogAlreadyHandled()

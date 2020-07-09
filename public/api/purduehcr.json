@@ -24,6 +24,8 @@
     "name" : "reward"
   }, {
     "name" : "point_type"
+  }, {
+    "name" : "point_log"
   } ],
   "paths" : {
     "/user/auth-rank" : {
@@ -305,6 +307,16 @@
               }
             }
           },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
           "401" : {
             "description" : "Unauthorized: Confirm The Token Is Valid.",
             "content" : {
@@ -454,6 +466,87 @@
         }
       }
     },
+    "/user/points" : {
+      "get" : {
+        "tags" : [ "user" ],
+        "summary" : "Get submitted point logs for the user",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        },
+        {
+          "name" : "limit",
+          "in" : "query",
+          "required": false,
+          "style": "form",
+          "explode": false,
+          "schema" : {
+            "type": "integer"
+          }
+        }
+        ],
+      
+        "responses" : {
+          "200" : {
+            "description" : "Retrieved Point Logs",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties": {
+                    "points": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointLog"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level. Only Residents, RHPs, and Privileged Residents can get points",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
     "/competition/save-semester-points" : {
       "post" : {
         "tags" : [ "competition" ],
@@ -509,6 +602,16 @@
           "200" : {
             "description" : "Confirmation sent"
           },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
           "401" : {
             "description" : "Unauthorized: Confirm the token is valid."
           },
@@ -546,9 +649,14 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/PointLog"
+                  "type" : "object",
+                  "properties": {
+                    "point_logs": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointLog"
+                      }
+                    }
                   }
                 }
               }
@@ -972,9 +1080,14 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/PointType"
+                  "type" : "object",
+                  "properties": {
+                    "point_types": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointType"
+                      }
+                    }
                   }
                 }
               }
@@ -1045,9 +1158,14 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/PointType"
+                  "type" : "object",
+                  "properties": {
+                    "point_types": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointType"
+                      }
+                    }
                   }
                 }
               }
@@ -1108,9 +1226,14 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/PointType"
+                  "type" : "object",
+                  "properties": {
+                    "point_types": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointType"
+                      }
+                    }
                   }
                 }
               }
@@ -1303,6 +1426,177 @@
           },
           "500" : {
             "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/point_log/messages" : {
+      "post" : {
+        "tags" : [ "point_log" ],
+        "summary" : "Post a new message to the point log",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+          }
+        ],
+        "requestBody" : {
+          "description" : "Required parameters to post a message",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties": {
+                  "log_id" : {
+                    "type": "string",
+                    "example": "329opc8dahl3fh"
+                  },
+                  "message" : {
+                    "type": "string",
+                    "example": "Good Job on the submission"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Message Successfully Saved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "427" : {
+            "description" : "Can Not Post Message -  The user can not post a message to this point log",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CanNotPostMessage"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get" : {
+        "tags" : [ "point_log" ],
+        "summary" : "Get all messages for a point log in chronological order",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+          },{
+            "name" : "log_id",
+            "in" : "query",
+            "description" : "Id  for the point log",
+            "required" : true,
+            "style" : "form",
+            "explode" : true,
+            "schema" : {
+              "type" : "string"
+            },
+            "example" : "aljk3p890dchjvo2"
+          } 
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "Message Successfully Saved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This user can not view or edit Point log messages.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "413" : {
+            "description" : "Could not find the point log",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownPointLog"
+                }
+              }
+            }
+          },
+          "431" : {
+            "description" : "The User does not have permission to modify or view this point log.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CanNotAccessPointLog"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -1708,6 +2002,15 @@
           }
         }
       },
+      "UnknownPointLog" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "Could not find Point Log"
+          }
+        }
+      },
       "PointTypeDoesNotExist" : {
         "type" : "object",
         "properties" : {
@@ -1798,6 +2101,15 @@
           }
         }
       },
+      "CanNotPostMessage" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "You can not post a message to this submission"
+          }
+        }
+      },
       "InsufficientPointTypePermissionForLink" : {
         "type" : "object",
         "properties" : {
@@ -1807,6 +2119,16 @@
           }
         }
       },
+      "CanNotAccessPointLog" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "This user does not have the corrent ownership or permission to access this point log."
+          }
+        }
+      },
+      
       "ServerError" : {
         "type" : "object",
         "properties" : {

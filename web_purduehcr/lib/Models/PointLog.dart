@@ -2,13 +2,17 @@ import 'package:meta/meta.dart';
 
 class PointLog{
 
+  static const String REJECTED_STRING = "DENIED: ";
+
   static const String APPROVED_BY = "approvedBy";
   static const String APPROVED_ON = "approvedOn";
   static const String DATE_OCCURRED = "dateOccurred";
   static const String DATE_SUBMITTED = "dateSubmitted";
   static const String DESCRIPTION = "description";
   static const String FLOOR_ID = "floorID";
+  static const String POINT_TYPE_DESCRIPTION = "pointTypeDescription";
   static const String POINT_TYPE_ID = "pointTypeID";
+  static const String POINT_TYPE_NAME = "pointTypeName";
   static const String RHP_NOTIFICATION = "rhpNotification";
   static const String RESIDENT_FIRST_NAME = "residentFirstName";
   static const String RESIDENT_ID = "residentId";
@@ -22,7 +26,9 @@ class PointLog{
   DateTime dateSubmitted;
   String description;
   String floorId;
+  String pointTypeDescription;
   int pointTypeId;
+  String pointTypeName;
   int rhpNotifications;
   String residentFirstName;
   String residentId;
@@ -35,7 +41,9 @@ class PointLog{
       @required this.dateSubmitted,
       @required this.description,
       @required this.floorId,
+      @required this.pointTypeDescription,
       @required this.pointTypeId,
+      @required this.pointTypeName,
       @required this.rhpNotifications,
       @required this.residentFirstName,
       @required this.residentId,
@@ -52,7 +60,9 @@ class PointLog{
       dateSubmitted: DateTime.fromMicrosecondsSinceEpoch((json[DATE_SUBMITTED]["_seconds"] as int) * 1000),
       description: json[DESCRIPTION],
       floorId: json[FLOOR_ID],
+      pointTypeDescription: json[POINT_TYPE_DESCRIPTION],
       pointTypeId: json[POINT_TYPE_ID],
+      pointTypeName: json[POINT_TYPE_NAME],
       rhpNotifications: json[RHP_NOTIFICATION],
       residentFirstName: json[RESIDENT_FIRST_NAME],
       residentId: json[RESIDENT_ID],
@@ -62,5 +72,29 @@ class PointLog{
       approvedBy: json[APPROVED_BY],
       approvedOn: (json[APPROVED_ON] != null)?DateTime.fromMicrosecondsSinceEpoch((json[APPROVED_ON]["_seconds"] as int) * 1000): null
     );
+  }
+
+  bool wasHandled(){
+    return pointTypeId > 0;
+  }
+
+  void approve(){
+    if(wasHandled()){
+      description.replaceAll(REJECTED_STRING, "");
+    }
+    else{
+      pointTypeId *= -1;
+    }
+  }
+
+  void reject(){
+    if(!wasHandled()){
+      pointTypeId *= -1;
+    }
+    description = REJECTED_STRING + description;
+  }
+
+  bool wasApproved(){
+    return description.contains(REJECTED_STRING);
   }
 }
