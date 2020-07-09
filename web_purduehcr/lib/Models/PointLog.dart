@@ -78,6 +78,22 @@ class PointLog{
     return pointTypeId > 0;
   }
 
+  void approve(){
+    if(wasHandled()){
+      description.replaceAll(REJECTED_STRING, "");
+    }
+    else{
+      pointTypeId *= -1;
+    }
+  }
+
+  void reject(){
+    if(!wasHandled()){
+      pointTypeId *= -1;
+    }
+    description = REJECTED_STRING + description;
+  }
+
   bool wasApproved(){
     return description.contains(REJECTED_STRING);
   }
