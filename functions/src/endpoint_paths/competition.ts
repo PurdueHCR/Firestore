@@ -268,7 +268,7 @@ comp_app.get('/getUnhandledPoints', async (req, res) => {
 	try{
 		let logs
 		if(req.query.limit !== undefined){
-			logs = await getUnhandledPointLogs(req["user"]["user_id"], parseInt(req.query.limit! as string))
+			logs = await getUnhandledPointLogs(req["user"]["user_id"], parseInt(req.query.limit as string))
 		}
 		else{
 			logs = await getUnhandledPointLogs(req["user"]["user_id"])
