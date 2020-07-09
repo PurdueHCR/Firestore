@@ -22,23 +22,15 @@ export async function submitPointLogMessage(house: string, pointLog: PointLog, m
         .doc(pointLog.id)
         await log_reference.collection(HouseCompetition.HOUSE_COLLECTION_POINTS_COLLECTION_MESSAGES_KEY).add(message.toJson())
         if (send_to_resident) {
-            await log_reference.update({ResidentNotifications:1})
+            console.log("Update resident notifications")
+            await log_reference.update({"ResidentNotifications":1})
         } else {
-            await log_reference.update({RHPNotifications:1})
+            console.log("UPdate rhp notificaitons")
+            await log_reference.update({"RHPNotifications":1})
         }
         return Promise.resolve()
     } catch (error) {
-        console.log("Error getting System Preferences. " + error)
+        console.log("Error submitting point log message. " + error)
         return Promise.reject(new APIResponse(500, "Server Error"))
     }
-
-    // return db.collection(HouseCompetition.HOUSE_KEY).doc(house).collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY)
-    // .doc(pointLog.id).collection(HouseCompetition.HOUSE_COLLECTION_POINTS_COLLECTION_MESSAGES_KEY).add(message.toJson()).then( _ => {
-    //     return Promise.resolve()
-    // })
-    // .catch((error) =>{
-    //     console.log("Error getting System Preferences. " + error)
-    //     return Promise.reject(new APIResponse(500, "Server Error"))
-    // })
-
 }

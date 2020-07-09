@@ -227,7 +227,7 @@ describe('user/submitpoint', () =>{
         const prevUserPoints = 14
         const semPoints = 4;
         await FirestoreDataFactory.setHouse(db, HOUSE_NAME, {total_points: prevScore})
-        await FirestoreDataFactory.setUser(db, "RHP", 1, {total_points: prevUserPoints, semester_points: semPoints})
+        await FirestoreDataFactory.setUser(db, RHP_ID, 1, {total_points: prevUserPoints, semester_points: semPoints, house_name: HOUSE_NAME})
 
         const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,descr,date.toString()), RHP_ID)
         res.end(async function (err, res) {
@@ -237,7 +237,8 @@ describe('user/submitpoint', () =>{
             else{
                 expect(res.status).toBe(201)
 
-                let documents = await db.collection("House").doc(HOUSE_NAME).collection("Points").where("Description","==",descr).limit(1).get()
+                let documents = await db.collection("House").doc(HOUSE_NAME).collection("Points").where('Description','==',descr).limit(1).get()
+                expect(documents.docs).toHaveLength(1)
                 expect(documents.docs[0].data().ApprovedOn).toBeTruthy()
                 expect(documents.docs[0].data().ApprovedBy).toEqual("Preapproved")
                 expect(new Date(documents.docs[0].data().DateOccurred.seconds)).toBeTruthy()
@@ -366,7 +367,12 @@ describe('user/submitpoint', () =>{
     })
 
     // After all of the tests are done, make sure to delete the test firestore app
-    afterAll(()=>{
+    afterAll(async ()=>{
+        await FirestoreDataFactory.deleteCollection(db, "House/Platinum/Points",100)
+        await FirestoreDataFactory.deleteCollection(db, "House",100)
+        await FirestoreDataFactory.deleteCollection(db, "PointTypes",100)
+        await FirestoreDataFactory.deleteCollection(db, "Users",100)
+        await FirestoreDataFactory.deleteCollection(db, "HouseCodes",100)
         Promise.all(firebase.apps().map(app => app.delete()))
     })
 

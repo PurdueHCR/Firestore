@@ -193,11 +193,27 @@ export class APIResponse{
     }
 
     /**
+     * 427 - Can Not Post Message
+     * The user can not post a message to this point log
+     */
+    static CanNotPostMessage(): APIResponse {
+        return new APIResponse(427, "You are not allowed to post a message to this submission.")
+    }
+    
+    /**
      * 430 - Insufficient Permission Level For Create a Link with that Point Type
      * The point type  
      */
     static InsufficientPointTypePermissionForLink(): APIResponse {
         return new APIResponse(430, "User does not have sufficient permissions to use that Point Type in a Link.")
+    }
+
+    /**
+     * 431 - Can Not Access Point Log
+     * This user does not have the corrent ownership or permission to access this point log
+     */
+    static CanNotAccessPointLog(): APIResponse {
+        return new APIResponse(431, "This user does not have the corrent ownership or permission to access this point log.")
     }
 
     /**

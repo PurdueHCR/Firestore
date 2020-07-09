@@ -36,6 +36,7 @@ export function put(func: functions.HttpsFunction, path: string, body:any, token
  * @param token The token for the user. If you use the IntegrationMockFactory to mock firebase-admin, then the token should be the id of the user
  */
 export function get(func: functions.HttpsFunction, path: string, token: string, params: any = {}): request.Test{
+  console.log("Checking "+path+convertQueryParams(params))
     const httpRequest = request(func).get(path+convertQueryParams(params));
     httpRequest.set("Authorization", "Bearer "+token)
     httpRequest.set('Content-Type', 'application/x-www-form-urlencoded')

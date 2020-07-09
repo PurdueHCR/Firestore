@@ -20,20 +20,22 @@ callCloudFunction(Config config, Method method, String path, {Map<String, dynami
     String errorString = result.data["message"];
     throw new ApiError(int.parse(errorString.split(": ")[0]), errorString.split(": ")[1]);
   }
-
+  print("GOT response: "+result.data.toString());
   return result.data;
 }
 
 String _serializeParams(Map<String, dynamic> params) {
+  print("serialize params: "+params.toString());
   if (params == null || params.isEmpty) {
     return "";
   }
   else {
     String queryString = "?";
     for (String key in params.keys) {
-      queryString += key + "+" + params[key].toString() + "&";
+      queryString += key + "=" + params[key].toString() + "&";
     }
-    return queryString.substring(0, queryString.length - 2);
+    print("DID WORK : "+queryString.substring(0, queryString.length - 1));
+    return queryString.substring(0, queryString.length - 1);
   }
 }
 

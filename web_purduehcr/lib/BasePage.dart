@@ -86,6 +86,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
                       AppBar(
                         title: Text("Purdue HCR"),
                         automaticallyImplyLeading: false,
+                        leading: buildLeadingButton(DisplayType.desktop_large),
                       ),
                       Expanded(
                           child: child
@@ -126,6 +127,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
                       AppBar(
                         title: Text("Purdue HCR"),
                         automaticallyImplyLeading: false,
+                        leading: buildLeadingButton(DisplayType.desktop_small),
                       ),
                       Expanded(
                           child: child
@@ -158,6 +160,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
         return Scaffold(
             appBar: AppBar(
               title: Text("Purdue HCR"),
+              leading: buildLeadingButton(DisplayType.mobile),
             ),
             drawer: PhcrDrawer(this.drawerLabel),
             body: child,
@@ -174,6 +177,10 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
   bool isLoadingState(S currentState);
 
   FloatingActionButton buildFloatingActionButton(BuildContext context){
+    return null;
+  }
+
+  Widget buildLeadingButton(DisplayType displayType){
     return null;
   }
 
