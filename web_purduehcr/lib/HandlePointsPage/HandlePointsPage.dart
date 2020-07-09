@@ -39,7 +39,7 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Flexible(g
+        Flexible(
           child: PointLogList(
               pointLogs: _handlePointsBloc.state.pointLogs,
               onPressed: _onPressed
