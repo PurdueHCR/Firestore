@@ -35,19 +35,16 @@ class _PointLogChatState extends State<PointLogChat>{
   AuthenticationBloc authenticationBloc;
   Authenticated authState;
 
+
+
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     Config config = ConfigWrapper.of(context);
     _pointLogChatBloc = new PointLogChatBloc(config: config );
 
     authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     authState = authenticationBloc.state;
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
     _pointLogChatBloc.add(PointLogChatInitialize(pointLog: widget.pointLog));
 
   }
