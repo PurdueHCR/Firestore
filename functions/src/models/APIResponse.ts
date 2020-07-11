@@ -57,8 +57,24 @@ export class APIResponse{
     }
 
     /**
+     * 407 - Link Does not belong to current user
+     * The Link/QR code does not belong to the current user so it can not be edited
+     */
+    static LinkDoesntBelongToUser(): APIResponse {
+        return new APIResponse(407, "The Link does not belong to the current user")
+    }
+
+    /**
+     * 408 - The Link does not exist
+     * The Link/QR-code id does not exist
+     */
+    static LinkDoesntExist(): APIResponse {
+        return new APIResponse(408, "The Link Could not be found")
+    }
+
+    /**
      * 409 - This Link Has Already Been Submitted
-     * The Link/QR code which was scanned is a single use code and this user has already scanned it
+     * The Link/QR-code which was scanned is a single use code and this user has already scanned it
      */
     static LinkAlreadySubmitted(): APIResponse {
         return new APIResponse(409, "This Link Has Already Been Submitted")
@@ -174,6 +190,30 @@ export class APIResponse{
      */
     static IncorrectFormat(): APIResponse {
         return new APIResponse(426, "Data provided is in the incorrect format.")
+    }
+
+    /**
+     * 427 - Can Not Post Message
+     * The user can not post a message to this point log
+     */
+    static CanNotPostMessage(): APIResponse {
+        return new APIResponse(427, "You are not allowed to post a message to this submission.")
+    }
+    
+    /**
+     * 430 - Insufficient Permission Level For Create a Link with that Point Type
+     * The point type  
+     */
+    static InsufficientPointTypePermissionForLink(): APIResponse {
+        return new APIResponse(430, "User does not have sufficient permissions to use that Point Type in a Link.")
+    }
+
+    /**
+     * 431 - Can Not Access Point Log
+     * This user does not have the corrent ownership or permission to access this point log
+     */
+    static CanNotAccessPointLog(): APIResponse {
+        return new APIResponse(431, "This user does not have the corrent ownership or permission to access this point log.")
     }
 
     /**

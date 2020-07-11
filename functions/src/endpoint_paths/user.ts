@@ -10,6 +10,8 @@ import { createUser } from '../src/CreateUser'
 import { isInDateRange } from '../src/IsInDateRange'
 import { getUserRank } from '../src/GetUserRank'
 import { getPointLogsForUser } from '../src/GetPointLogsForUser'
+import { UserPermissionLevel } from '../models/UserPermissionLevel'
+import { getUserLinks } from '../src/GetUserLinks'
 
 if(admin.apps.length === 0){
 	admin.initializeApp(functions.config().firebase)
@@ -128,12 +130,11 @@ users_app.get('/get', async (req, res) => {
  * @throws  418 - Point Type Is Disabled
  * @throws  419 - Users Can Not Self Submit This Point Type
  * @throws 	422 - Missing Required Parameters
- * @throws  426 - Incorrect Format
  * @throws  500 - Server Error
  */
 users_app.post('/submitPoint', async (req, res) => {
 	if(!req.body || !req.body.point_type_id ||  req.body.point_type_id === "" || !req.body.description ||
-	 req.body.description === "" || !req.body.date_occurred || req.body.date_occurred === "" || !req.body.is_guaranteed_approval || req.body.is_guaranteed_approval === ""){
+	 req.body.description === "" || !req.body.date_occurred || req.body.date_occurred === ""){
 		if(!req.body){
 			console.error("Missing Body")
 		}
@@ -146,23 +147,14 @@ users_app.post('/submitPoint', async (req, res) => {
 		else if(!req.body.date_occurred || req.body.date_occurred === ""){
 			console.error("Missing date_occurred")
 		}
-		else if(!req.body.is_guaranteed_approval || req.body.is_guaranteed_approval === "") {
-			console.error("Missing is_guaranteed_approval")
-		}
 		else{
 			console.error("Unkown missing parameter??? This shouldnt be called")
 		}
-
 		const error = APIResponse.MissingRequiredParameters()
 		res.status(error.code).send(error.toJson())
 	}
-	else if (req.body.is_guaranteed_approval != "false" && req.body.is_guaranteed_approval != "true") {
-		console.error("Invalid is_guaranteed_approval")
-		const error = APIResponse.IncorrectFormat()
-		res.status(error.code).send(error.toJson())
-	}
 	else{
-		var isGuaranteedApproval = (req.body.is_guaranteed_approval === 'true');
+		console.log("DESCRIPTION: "+req.body.description)
 		try{
 			const date_occurred = new Date(req.body.date_occurred)
 			if (isInDateRange(date_occurred)) {
@@ -171,7 +163,7 @@ users_app.post('/submitPoint', async (req, res) => {
 				if (req.body.document_id) {
 					docID = req.body.document_id
 				}
-				const didAddPoints = await submitPoint(req["user"]["user_id"], log, isGuaranteedApproval, docID)
+				const didAddPoints = await submitPoint(req["user"]["user_id"], log, docID)
 				const success = APIResponse.Success()
 				if(didAddPoints){
 					res.status(201).send(success.toJson())
@@ -211,7 +203,6 @@ users_app.post('/submitPoint', async (req, res) => {
  * Returns a list of point logs submitted by a user
  * 
  * @param query.limit	Optional query parameter. If provided, only return the <limit> most recently submitted points. Else return all submitted points
- * @param query.handledOnly Optional query parameter. If provided, only return point logs that follow this parameter
  * @param query.id	Optional query parameter. If provided, only return the point log with the given id
  * @throws 401 - Unauthorized
  * Any other errors you find while making this code
@@ -220,8 +211,22 @@ users_app.post('/submitPoint', async (req, res) => {
 users_app.get('/points', async (req, res) => {
 	try {
 		const user = await getUser(req["user"]["user_id"])
-		const pointLogs = await getPointLogsForUser(user.id, user.house)
-		res.status(APIResponse.SUCCESS_CODE).send(JSON.stringify(pointLogs))
+		if(user.permissionLevel == UserPermissionLevel.RESIDENT || user.permissionLevel == UserPermissionLevel.RHP
+			|| user.permissionLevel == UserPermissionLevel.PRIVILEGED_RESIDENT
+			){
+				let pointLogs
+				if(req.query.limit !== undefined){
+					pointLogs = await getPointLogsForUser(user.id, user.house, parseInt(req.query.limit! as string))
+				}
+				else{
+					pointLogs = await getPointLogsForUser(user.id, user.house)
+				}
+				res.status(APIResponse.SUCCESS_CODE).send({points:pointLogs})
+		}
+		else {
+			throw APIResponse.InvalidPermissionLevel()
+		}
+		
 	}
 	catch(error) {
 		if (error instanceof APIResponse) {
@@ -234,6 +239,28 @@ users_app.get('/points', async (req, res) => {
 		}
 	}
 
+})
+
+/**
+ * Gets all links that a user created
+ * @throws 
+ */
+users_app.get('/links', async (req,res) => {
+	try {
+		const user = await getUser(req["user"]["user_id"])
+		const links = await getUserLinks(user.id)
+		res.status(APIResponse.SUCCESS_CODE).send({links:links})
+	}
+	catch(error) {
+		if (error instanceof APIResponse) {
+			res.status(error.code).send(error.toJson())
+		}
+		else {
+			console.log("FAILED WITH DB FROM user ERROR: " + error)
+			const apiResponse = APIResponse.ServerError()
+			res.status(apiResponse.code).send(apiResponse.toJson())
+		}
+	}
 })
 
 export const user_main = functions.https.onRequest(users_main)

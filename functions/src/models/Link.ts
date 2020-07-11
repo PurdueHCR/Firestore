@@ -7,6 +7,9 @@ export class Link {
     static ENABLED = "Enabled";
     static POINT_ID = "PointID";
     static SINGLE_USE = "SingleUse"
+    static POINT_TYPE_NAME = "PointTypeName";
+    static POINT_TYPE_DESCRIPTION = "PointTypeDescription"
+    static POINT_TYPE_VALUE = "PointTypeValue"
 
     id: String
     archived: Boolean
@@ -14,10 +17,13 @@ export class Link {
     description: String
     enabled: Boolean
     pointId: number
+    pointTypeName: String
+    pointTypeDescription: String
+    pointTypeValue: number
     singleUse: Boolean
 
     constructor(id: String, archived: Boolean, creatorId: String, description: String, 
-        enabled: Boolean, pointId: number, singleUse: Boolean){
+        enabled: Boolean, pointId: number, pointTypeName: String, pointTypeDescription: String, pointTypeValue: number, singleUse: Boolean){
         this.id = id
         this.archived = archived
         this.creatorId = creatorId
@@ -25,6 +31,9 @@ export class Link {
         this.enabled = enabled
         this.pointId = pointId
         this.singleUse = singleUse
+        this.pointTypeName = pointTypeName
+        this.pointTypeDescription = pointTypeDescription
+        this.pointTypeValue = pointTypeValue
     }
 
     public toFirebaseJson(){
@@ -35,47 +44,36 @@ export class Link {
         map[Link.ENABLED] = this.enabled;
         map[Link.POINT_ID] = this.pointId;
         map[Link.SINGLE_USE] = this.singleUse;
+        map[Link.POINT_TYPE_NAME] = this.pointTypeName;
+        map[Link.POINT_TYPE_DESCRIPTION] = this.pointTypeDescription
+        map[Link.POINT_TYPE_VALUE] = this.pointTypeValue
         return map;
-    }
-
-    public updateLinkFromData(data: any){
-        if("is_archived" in data){
-            this.archived = data["is_archived"]
-        }
-        if("is_enabled" in data){
-            this.enabled = data["is_enabled"]
-        }
-        if("creator_id" in data){
-            this.creatorId = data["creator_id"]
-        }
-        if("description" in data){
-            this.description = data["description"]
-        }
-        if("point_id" in data){
-            this.pointId = data["point_id"]
-        }
-        if("single_use" in data){
-            this.singleUse = data["single_use"]
-        }
     }
     
 
-    public static fromQuerySnapshotDocument(document: FirebaseFirestore.QueryDocumentSnapshot) {
-        return this.fromDocumentData(document.id, document.data())
+    public static fromQuerySnapshot(snapshot: FirebaseFirestore.QuerySnapshot): Link[] {
+        const links: Link[] = []
+        for( const document of snapshot.docs){
+            links.push(this.fromDocumentData( document.id, document.data()))
+        }
+        return links;
     }
 
-    public static fromSnapshotDocument(document: FirebaseFirestore.DocumentSnapshot) {
+    public static fromSnapshotDocument(document: FirebaseFirestore.DocumentSnapshot): Link {
         
         return this.fromDocumentData(document.id, document.data()!)
     }
 
-    private static fromDocumentData(docId: string, document: FirebaseFirestore.DocumentData){
+    private static fromDocumentData(docId: String, document: FirebaseFirestore.DocumentData) : Link{
         let id: String
         let archived: Boolean
         let creatorId: String
         let description: String
         let enabled: Boolean
         let pointId: number
+        let pointTypeName: String
+        let pointTypeDescription: String
+        let pointTypeValue: number
         let singleUse: Boolean
 
         id = docId;
@@ -120,6 +118,28 @@ export class Link {
         else {
             singleUse = false;
         }
-        return new Link(id, archived, creatorId, description, enabled, pointId, singleUse);
+
+        if(Link.POINT_TYPE_NAME in document) {
+            pointTypeName = document[Link.POINT_TYPE_NAME]
+        }
+        else{
+            pointTypeName = "Undefined"
+        }
+
+        if(Link.POINT_TYPE_DESCRIPTION in document) {
+            pointTypeDescription = document[Link.POINT_TYPE_DESCRIPTION]
+        }
+        else{
+            pointTypeDescription = "Undefined"
+        }
+
+        if(Link.POINT_TYPE_VALUE in document) {
+            pointTypeValue = document[Link.POINT_TYPE_VALUE]
+        }
+        else{
+            pointTypeValue = -1
+        }
+
+        return new Link(id, archived, creatorId, description, enabled, pointId, pointTypeName, pointTypeDescription, pointTypeValue, singleUse);
     }
 }

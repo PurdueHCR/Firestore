@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:purduehcr_web/Models/ApiError.dart';
 
@@ -18,10 +16,11 @@ callCloudFunction(Config config, Method method, String path, {Map<String, dynami
   });
 
   if(result.data["message"] != null){
-    print("GOT API ERROR: "+result.data["message"]);
+    print("GOT API Message: "+result.data["message"]);
     String errorString = result.data["message"];
     throw new ApiError(int.parse(errorString.split(": ")[0]), errorString.split(": ")[1]);
   }
+
   return result.data;
 }
 
@@ -41,5 +40,6 @@ String _serializeParams(Map<String, dynamic> params) {
 enum Method {
   GET,
   POST,
-  DELETE
+  DELETE,
+  PUT
 }

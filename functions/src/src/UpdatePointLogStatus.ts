@@ -24,8 +24,8 @@ const REJECTED_STRING = "DENIED: "
 export async function updatePointLogStatus(approve: boolean, approver_id: string, document_id: string): Promise<boolean> {
     
     const user = await getUser(approver_id)
-    if (user.permissionLevel != UserPermissionLevel.RHP) {
-        return Promise.reject(APIResponse.InvalidPermissionLevel)
+    if (user.permissionLevel !== UserPermissionLevel.RHP) {
+        return Promise.reject(APIResponse.InvalidPermissionLevel())
     }
     const db = admin.firestore()
     try {
@@ -34,7 +34,7 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
         const doc = await doc_ref.get()
         if (!doc.exists) {
             // PointLog could not be found
-            return Promise.reject(APIResponse.UnknownPointLog)
+            return Promise.reject(APIResponse.UnknownPointLog())
         } else {
 
             let log = PointLog.fromDocumentSnapshot(doc)
@@ -80,7 +80,7 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                     log.approveLog(user)
                     await doc_ref.set(log.toFirebaseJSON())
                     await addPoints(parseInt(point_value), user.house, resident_id)
-                    //await addPoints(5, user.house, resident_id)
+                    await addPoints(5, user.house, resident_id)
                     // Add message of approval/rejection
                     message_beginning += " approved" + message_end
                     let messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.APPROVE, user.firstName, user.lastName, UserPermissionLevel.RHP)

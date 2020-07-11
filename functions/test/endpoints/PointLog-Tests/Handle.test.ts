@@ -6,8 +6,8 @@ import {FirestoreDataFactory, POINT_LOG_DEFAULTS} from '../FirestoreDataFactory'
 
 let point_log_func
 let db: firebase.firestore.Firestore
-let accepted_log
-let rejected_log
+let approved_log
+let unhandled_log
 
 let RESIDENT_ID = "RESIDENT"
 let REC_ID = "REC"
@@ -44,14 +44,14 @@ describe('point_log/handle', ()  => {
         await FirestoreDataFactory.setPointType(db, 1)
         await FirestoreDataFactory.setPointType(db, 2, {residents_can_submit: false})
         await FirestoreDataFactory.setPointType(db, 3, {is_enabled:false})
-        let accepted_log_ref = await FirestoreDataFactory.setPointLog(db, HOUSE_NAME, RESIDENT_ID, true, POINT_LOG_DEFAULTS)
-        if (accepted_log_ref !== null) {
-            accepted_log = (accepted_log_ref as firebase.firestore.DocumentReference).id
+        let approved_log_ref = await FirestoreDataFactory.setPointLog(db, HOUSE_NAME, RESIDENT_ID, true, POINT_LOG_DEFAULTS)
+        if (approved_log_ref !== null) {
+            approved_log = (approved_log_ref as firebase.firestore.DocumentReference).id
         }
         // Not sure that this is actually set to rejected. Not sure it has the denied string
-        let rejected_log_ref = await FirestoreDataFactory.setPointLog(db, HOUSE_NAME, RESIDENT_ID, false, POINT_LOG_DEFAULTS)
-        if (rejected_log_ref !== null) {
-            rejected_log = (rejected_log_ref as firebase.firestore.DocumentReference).id
+        let unhandled_log_ref = await FirestoreDataFactory.setPointLog(db, HOUSE_NAME, RESIDENT_ID, false, POINT_LOG_DEFAULTS)
+        if (unhandled_log_ref !== null) {
+            unhandled_log = (unhandled_log_ref as firebase.firestore.DocumentReference).id
         }
         await FirestoreDataFactory.setHouse(db, HOUSE_NAME)
         await FirestoreDataFactory.setHouseCode(db, HOUSE_CODE)
@@ -77,7 +77,7 @@ describe('point_log/handle', ()  => {
 
     // Test if approve is missing
     it('Missing approve', async(done) => {
-        const body = {"point_log_id": accepted_log}
+        const body = {"point_log_id": approved_log}
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
         res.end(function (err, res) {
             if (err) {
@@ -91,7 +91,87 @@ describe('point_log/handle', ()  => {
 
     // Test if approve is not a boolean
     it('approve not boolean', async(done) => {
-        const body = {"approve":"random", "point_log_id": accepted_log}
+        const body = {"approve":"random", "point_log_id": approved_log}
+        const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(426)
+                done()
+            }
+        })
+    })
+
+    // Test if approver has incorrect permissions
+    it('approver has incorrect permissions - resident', async(done) => {
+        const body = {"approve":true, "point_log_id": approved_log}
+        const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RESIDENT_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(403)
+                done()
+            }
+        })
+    })
+
+    it('approver has incorrect permissions - rec', async(done) => {
+        const body = {"approve":true, "point_log_id": approved_log}
+        const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, REC_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(403)
+                done()
+            }
+        })
+    })
+
+    it('approver has incorrect permissions - priv res', async(done) => {
+        const body = {"approve":true, "point_log_id": approved_log}
+        const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, PRIV_RES)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(403)
+                done()
+            }
+        })
+    })
+
+    it('approver has incorrect permissions - faculty', async(done) => {
+        const body = {"approve":true, "point_log_id": approved_log}
+        const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, FACULTY)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(403)
+                done()
+            }
+        })
+    })
+
+    it('approver has incorrect permissions - ea', async(done) => {
+        const body = {"approve":true, "point_log_id": approved_log}
+        const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, EA_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(403)
+                done()
+            }
+        })
+    })
+
+    // Test if point_log_id is missing
+    it('Missing point_log_id', async(done) => {
+        const body = {"approve":true}
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
         res.end(function (err, res) {
             if (err) {
@@ -103,31 +183,77 @@ describe('point_log/handle', ()  => {
         })
     })
 
-    // Test if approver has incorrect permissions
-
-    // Test if point_log_id is missing
-    
     // Test if point_log_id cannot be found
-    
-    // Test approve when currently rejected
-    it('Approve when rejected', async(done) => {
-        const body = {"approve":true, "point_log_id":rejected_log}
+    it('invalid point_log_id', async(done) => {
+        const body = {"approve":true, "point_log_id":"gibberish"}
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
         res.end(function (err, res) {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(200)
+                expect(res.status).toBe(413)
+                done()
+            }
+        })
+    })
+
+    // Test approve when currently rejected
+    it('approve when rejected', async(done) => {
+        const body = {"approve":true, "point_log_id":unhandled_log}
+        const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(201)
                 done()
             }
         })
     })
     
     // Test approve when currently approved
+    it('approve when already approved', async(done) => {
+        const body = {"approve":true, "point_log_id":approved_log}
+        const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(416)
+                done()
+            }
+        })
+    })
 
     // Test reject when currently approved
-    
+    it('reject when approved', async(done) => {
+        const body = {"approve":false, "point_log_id":approved_log}
+        const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(201)
+                done()
+            }
+        })
+    })
+
     // Test reject when currently rejected
+    it('reject when already rejected', async(done) => {
+        const approve_body = {"approve":false, "point_log_id":unhandled_log}
+        await factory.post(point_log_func, HANDLE_POINT_PATH, approve_body, RHP_ID)
+        const body = {"approve":false, "point_log_id":unhandled_log}
+        const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(416)
+                done()
+            }
+        })
+    })
 
     // After all of the tests are done, make sure to delete the test firestore app
     afterAll(()=>{

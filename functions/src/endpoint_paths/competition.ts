@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin'
 import * as express from 'express'
 import {createSaveSemesterPointsEmail} from "../email_functions/SaveSemesterPointsEmail"
 import {createResetHouseCompetitionEmail} from "../email_functions/ResetHouseCompetitionEmail"
-import { PointType } from '../models/PointType'
+import { getUnhandledPointLogs } from '../src/GetUnhandledLogs'
 import { HouseCompetition } from '../models/HouseCompetition'
 import { PointLog } from '../models/PointLog'
 import { UserPointsFromDate } from './administration'
@@ -11,6 +11,7 @@ import { House } from '../models/House'
 import { User } from '../models/User'
 import { APIResponse } from '../models/APIResponse'
 import { getResidentProfile } from '../src/GetUserProfiles'
+import { PointType } from '../models/PointType'
 
 
 class UsersAndErrorWrapper{
@@ -263,13 +264,28 @@ comp_app.get('/secret-reset-house-competition', (req,res) => {
 				.catch( err => res.send(500).send("Failed to retrieve system preferences with error: "+res))
 })
 
-comp_app.get('/getPointTypes', (req, res) => {
-	db.collection(HouseCompetition.POINT_TYPES_KEY).get().then(pointTypeListSnapshot => {
-		const pointTypeList = PointType.fromQuerySnapshot(pointTypeListSnapshot)
-		res.status(200).send(JSON.stringify(pointTypeList))
-	}).catch(err =>{
-		res.status(400).send(""+err.message)
-	})
+comp_app.get('/getUnhandledPoints', async (req, res) => {
+	try{
+		let logs
+		if(req.query.limit !== undefined){
+			logs = await getUnhandledPointLogs(req["user"]["user_id"], parseInt(req.query.limit! as string))
+		}
+		else{
+			logs = await getUnhandledPointLogs(req["user"]["user_id"])
+		}
+		
+		res.status(APIResponse.SUCCESS_CODE).send({point_logs:logs})
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.log("Unknown Error: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
 })
 
 /**

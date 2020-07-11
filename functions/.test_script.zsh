@@ -10,6 +10,7 @@ INTEGRATION="/test\/endpoints\/.*\/.*\.test\.ts"
 TESTING="(?:$UNIT|$INTEGRATION)"
 SILENT=1
 LAUNCH_DATABASE=1
+RETURN_CODE=0
 
 while getopts ":hvt:" arg; do
   case $arg in
@@ -48,9 +49,12 @@ else
   jest --config ./jest.config.js "$TESTING" --runInBand
 fi
 
+RETURN_CODE=$?
+
 if [ $LAUNCH_DATABASE -eq 1 ]; then
   echo "Shutting Down Emulator"
   pkill java
   sleep 2
 fi
 
+return RETURN_CODE

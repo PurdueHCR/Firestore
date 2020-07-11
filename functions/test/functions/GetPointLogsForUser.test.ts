@@ -4,11 +4,11 @@ const GetPointLogsForUser = require('../../src/src/GetPointLogsForUser')
 
 
 //Sample Firestore databse object
-const log_1 = createPointLog("A","LOG_1", new Date(Date.parse("5/18/2020")))
-const log_2 = createPointLog("A","LOG_2", new Date(Date.parse("5/17/2020")))
-const log_3 = createPointLog("A","LOG_3", new Date(Date.parse("5/16/2020")))
-const log_4 = createPointLog("A","LOG_4", new Date(Date.parse("5/15/2020")))
-const log_5 = createPointLog("A","LOG_5", new Date(Date.parse("5/14/2020")))
+const log_1 = MockDataFactory.mockPointLog("A","LOG_1", new Date(Date.parse("5/18/2020")))
+const log_2 = MockDataFactory.mockPointLog("A","LOG_2", new Date(Date.parse("5/17/2020")))
+const log_3 = MockDataFactory.mockPointLog("A","LOG_3", new Date(Date.parse("5/16/2020")))
+const log_4 = MockDataFactory.mockPointLog("A","LOG_4", new Date(Date.parse("5/15/2020")))
+const log_5 = MockDataFactory.mockPointLog("A","LOG_5", new Date(Date.parse("5/14/2020")))
 
 
 //Mock the dependency firebase-admin
@@ -126,21 +126,3 @@ describe('Test Get Point Logs For User', () =>{
 
 
 })
-
-function createPointLog(resident_id:string, log_id:string, date_occurred:Date):MockDataFactory.DocumentData{
-    return {
-        id: log_id,
-        data: {
-            "DateOccurred":date_occurred,
-            "DateSubmitted":Date.now(),
-            "Description":"EMPTY description",
-            "FloorID":"",
-            "PointTypeID":0,
-            "RHPNotifications":0,
-            "ResidentFirstName":"",
-            "ResidentId":resident_id,
-            "ResidentLastName":"",
-            "ResidentNotifications":0
-        }
-    }
-}

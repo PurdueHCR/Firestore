@@ -67,7 +67,7 @@ describe('user/submitpoint', () =>{
 
     //Test if date is missing
     it('Missing Date Occured', async(done) => {
-        const body = {"point_type_id":1, "description":"test", "is_guaranteed_approval":false}
+        const body = {"point_type_id":1, "description":"test"}
         const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, body, RESIDENT_ID)
         res.end(function (err, res) {
             if(err){
@@ -82,7 +82,7 @@ describe('user/submitpoint', () =>{
 
     //Test if description is missing
     it('Missing Description', async(done) => {
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, {"point_type_id":1, "date_occurred":"4/1/2020", "is_guaranteed_approval":false}, RESIDENT_ID)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, {"point_type_id":1, "date_occurred":"4/1/2020"}, RESIDENT_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -98,7 +98,7 @@ describe('user/submitpoint', () =>{
      * Test if point type id is missing
      */
     it('Missing Point Type Id', async(done) => {
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, {"date_occurred":"4/1/2020", "description":"test", "is_guaranteed_approval":false}, RESIDENT_ID)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, {"date_occurred":"4/1/2020", "description":"test"}, RESIDENT_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -111,38 +111,10 @@ describe('user/submitpoint', () =>{
     })
 
     /**
-     * Test if is_guaranteed_approval is invalid
-     */
-    it('Missing or Invalid Guaranteed Approval', async(done) => {
-        // Try no is_guarenteed_approval
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, {"point_type_id":1, "date_occurred":"4/1/2020", "description":"test"}, RESIDENT_ID)
-        res.end(function (err, res) {
-            if (err) {
-                done(err)
-            }
-            else {
-                expect(res.status).toBe(422)
-            }
-        })
-
-        // Try is_guaranteed_approval that's not 'true' or 'false'""
-        const res_2: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, {"point_type_id":1, "date_occurred":"4/1/2020", "description":"test", "is_guaranteed_approval":"invalid"}, RESIDENT_ID)
-        res_2.end(function (err, res_2) {
-            if (err) {
-                done(err)
-            }
-            else {
-                expect(res_2.status).toBe(426)
-            }
-        })
-        done()
-    })
-
-    /**
      * Test if point type is invalid
      */
     it('Invalid Point Type', async(done) => {
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(0,"test",( new Date()).toString(),false), RESIDENT_ID)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(0,"test",( new Date()).toString()), RESIDENT_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -159,7 +131,7 @@ describe('user/submitpoint', () =>{
      */
     it('Disabled Point Type', async(done) => {
         // Choose a point type that is disabled
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(3,"test",( new Date()).toString(),false), RESIDENT_ID)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(3,"test",( new Date()).toString()), RESIDENT_ID)
         res.end(function (err, res) {
             if (err) {
                 done(err)
@@ -175,7 +147,7 @@ describe('user/submitpoint', () =>{
      * Test if user is not resident or 
      */
     it('Invalid User Permissions', async(done) => {
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,"test",( new Date()).toString(),false), REC_ID)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,"test",( new Date()).toString()), REC_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -190,7 +162,7 @@ describe('user/submitpoint', () =>{
     // Test competition disabled
     it('Competition Disabled',  async(done) => {
         await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled: false})
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,"test",( new Date()).toString(),false), RESIDENT_ID)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,"test",( new Date()).toString()), RESIDENT_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -204,7 +176,7 @@ describe('user/submitpoint', () =>{
 
     // Test if point type had residentCanSubmit = false
     it('Residents Cant Submit',  async(done) => {
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(2,"test",( new Date()).toString(),false), RESIDENT_ID)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(2,"test",( new Date()).toString()), RESIDENT_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -221,13 +193,13 @@ describe('user/submitpoint', () =>{
         const date = new Date()
         const descr = "Resident Submission Success test"
         console.log(date.toString())
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,descr,date.toString(),false), RESIDENT_ID)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,descr,date.toString()), RESIDENT_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)
             }
             else{
-                expect(res.status).toBe(201)
+                expect(res.status).toBe(202)
 
                 let documents = await db.collection("House").doc(HOUSE_NAME).collection("Points").where("Description","==",descr).limit(1).get()
                 expect(documents.docs[0].data().ApprovedOn).toBeUndefined()
@@ -254,9 +226,9 @@ describe('user/submitpoint', () =>{
         const prevUserPoints = 14
         const semPoints = 4;
         await FirestoreDataFactory.setHouse(db, HOUSE_NAME, {total_points: prevScore})
-        await FirestoreDataFactory.setUser(db, "RHP", 1, {total_points: prevUserPoints, semester_points: semPoints})
+        await FirestoreDataFactory.setUser(db, RHP_ID, 1, {total_points: prevUserPoints, semester_points: semPoints, house_name: HOUSE_NAME})
 
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,descr,date.toString(),false), RHP_ID)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,descr,date.toString()), RHP_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -264,7 +236,8 @@ describe('user/submitpoint', () =>{
             else{
                 expect(res.status).toBe(201)
 
-                let documents = await db.collection("House").doc(HOUSE_NAME).collection("Points").where("Description","==",descr).limit(1).get()
+                let documents = await db.collection("House").doc(HOUSE_NAME).collection("Points").where('Description','==',descr).limit(1).get()
+                expect(documents.docs).toHaveLength(1)
                 expect(documents.docs[0].data().ApprovedOn).toBeTruthy()
                 expect(documents.docs[0].data().ApprovedBy).toEqual("Preapproved")
                 expect(new Date(documents.docs[0].data().DateOccurred.seconds)).toBeTruthy()
@@ -272,7 +245,7 @@ describe('user/submitpoint', () =>{
                 expect(documents.docs[0].data().Description).toEqual(descr)
                 expect(documents.docs[0].data().FloorID).toEqual("4N")
                 expect(documents.docs[0].data().PointTypeID).toEqual(1)
-                expect(documents.docs[0].data().RHPNotifications).toEqual(0)
+                expect(documents.docs[0].data().RHPNotifications).toEqual(1)
                 expect(documents.docs[0].data().ResidentFirstName).toEqual("TEST_FIRST")
                 expect(documents.docs[0].data().ResidentId).toEqual(RHP_ID)
                 expect(documents.docs[0].data().ResidentLastName).toEqual("TEST_LAST")
@@ -302,13 +275,13 @@ describe('user/submitpoint', () =>{
         const date = new Date()
         const descr = "Privileged resident Submission Success test"
         console.log(date.toString())
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,descr,date.toString(), false), PRIV_RES)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,descr,date.toString()), PRIV_RES)
         res.end(async function (err, res) {
             if(err){
                 done(err)
             }
             else{
-                expect(res.status).toBe(201)
+                expect(res.status).toBe(202)
 
                 let documents = await db.collection("House").doc(HOUSE_NAME).collection("Points").where("Description","==",descr).limit(1).get()
                 expect(documents.docs[0].data().ApprovedOn).toBeUndefined()
@@ -333,7 +306,7 @@ describe('user/submitpoint', () =>{
         const descr = "Privileged resident Submission Success test"
         console.log(date.toString())
         var docID = PRIV_RES + HOUSE_CODE
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, {"point_type_id":1, "date_occurred":"4/1/2020", "description":"test", "is_guaranteed_approval":"false", "document_id":docID}, PRIV_RES)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, {"point_type_id":1, "date_occurred":"4/1/2020", "description":"test", "document_id":docID}, PRIV_RES)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -363,7 +336,7 @@ describe('user/submitpoint', () =>{
         const date = new Date()
         const descr = "FHP Submission Failure test"
         console.log(date.toString())
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,descr,date.toString(), false), FACULTY)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,descr,date.toString()), FACULTY)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -380,7 +353,7 @@ describe('user/submitpoint', () =>{
         const date = new Date()
         const descr = "EA Submission Failure test"
         console.log(date.toString())
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,descr,date.toString(), false), EA_ID)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,descr,date.toString()), EA_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -393,7 +366,12 @@ describe('user/submitpoint', () =>{
     })
 
     // After all of the tests are done, make sure to delete the test firestore app
-    afterAll(()=>{
+    afterAll(async ()=>{
+        await FirestoreDataFactory.deleteCollection(db, "House/Platinum/Points",100)
+        await FirestoreDataFactory.deleteCollection(db, "House",100)
+        await FirestoreDataFactory.deleteCollection(db, "PointTypes",100)
+        await FirestoreDataFactory.deleteCollection(db, "Users",100)
+        await FirestoreDataFactory.deleteCollection(db, "HouseCodes",100)
         Promise.all(firebase.apps().map(app => app.delete()))
     })
 
@@ -405,6 +383,6 @@ describe('user/submitpoint', () =>{
    * @param description descripton for point log
    * @param date date occurred
    */
-function createPointLogBody(id: number, description: string, date:string, is_guaranteed_approval:boolean){
-    return {"point_type_id":id, "description":description, "date_occurred":date, "is_guaranteed_approval":false}
+function createPointLogBody(id: number, description: string, date:string){
+    return {"point_type_id":id, "description":description, "date_occurred":date}
 }

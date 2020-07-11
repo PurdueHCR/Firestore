@@ -2,6 +2,7 @@ import * as firebase from "@firebase/testing"
 
 export class FirestoreDataFactory{
 
+
     /**
      * Sets the system preferences in the test database
      * 
@@ -139,7 +140,7 @@ export class FirestoreDataFactory{
                 return db.collection("Users").doc(id).set({
                     "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first,
                     "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
-                    "Permission Level":2
+                    "Permission Level":5
                 })
             default:
                 return db.collection("Users").doc(id).set({
@@ -166,16 +167,18 @@ export class FirestoreDataFactory{
         let data = {
             "DateOccurred":(ptOpts.date_occurred !== undefined)?ptOpts.date_occurred:POINT_LOG_DEFAULTS.date_occurred,
             "DateSubmitted":(ptOpts.date_submitted !== undefined)?ptOpts.date_submitted:POINT_LOG_DEFAULTS.date_submitted,
-            "Description":(ptOpts.date_submitted !== undefined)?ptOpts.description:POINT_LOG_DEFAULTS.date_submitted,
+            "Description":(ptOpts.date_submitted !== undefined)?ptOpts.description:POINT_LOG_DEFAULTS.description,
             "FloorID":(ptOpts.floor_id !== undefined)?ptOpts.floor_id:POINT_LOG_DEFAULTS.floor_id,
             "PointTypeID":(ptOpts.point_type_id !== undefined)?ptOpts.point_type_id:POINT_LOG_DEFAULTS.point_type_id! * -1,
+            "PointTypeName":(ptOpts.point_type_name !== undefined)?ptOpts.point_type_name:POINT_LOG_DEFAULTS.point_type_name!,
+            "PointTypeDescription":(ptOpts.point_type_description !== undefined)?ptOpts.point_type_description:POINT_LOG_DEFAULTS.point_type_description!,
             "RHPNotifications":(ptOpts.rhp_notifications !== undefined)?ptOpts.rhp_notifications:POINT_LOG_DEFAULTS.rhp_notifications,
             "ResidentFirstName":(ptOpts.resident_first_name !== undefined)?ptOpts.resident_first_name:POINT_LOG_DEFAULTS.resident_first_name,
             "ResidentId":resident_id,
             "ResidentLastName":(ptOpts.resident_last_name !== undefined)?ptOpts.resident_last_name:POINT_LOG_DEFAULTS.resident_last_name,
             "ResidentNotifications":(ptOpts.resident_notifications !== undefined)?ptOpts.resident_notifications:POINT_LOG_DEFAULTS.resident_notifications
         }
-        if(approved){
+        if(!approved){
             data["ApprovedBy"] = (ptOpts.approved_by !== undefined)?ptOpts.approved_by:POINT_LOG_DEFAULTS.approved_by
             data["ApprovedOn"] = (ptOpts.approved_on !== undefined)?ptOpts.approved_on:POINT_LOG_DEFAULTS.approved_on
             data["PointTypeID"] = data["PointTypeID"] * -1
@@ -187,6 +190,30 @@ export class FirestoreDataFactory{
             return db.collection("House").doc(house).collection("Points").add(data)
         }
         
+    }
+
+    static setLink(db: firebase.firestore.Firestore, link_id: string, creator_id: string, point_type_id: number, linkOpts: LinkOptions = LINK_DEFAULTS){
+        let data = {
+            Archived:linkOpts.archived,
+            CreatorID:creator_id,
+            Description:linkOpts.description,
+            Enabled: linkOpts.enabled,
+            PointID: point_type_id,
+            SingleUse: linkOpts.single_use
+        }
+        return db.collection("Links").doc(link_id).set(data)
+    }
+
+    static setPointLogMessage(db: firebase.firestore.Firestore, house_id: string, log_id: string, messageOpts: PointLogMessageOptions = MESSAGE_DEFAULTS){
+        let data = {
+            CreationDate:(messageOpts.creation_date !== undefined)?messageOpts.creation_date:MESSAGE_DEFAULTS.creation_date,
+            Message:(messageOpts.message !== undefined)?messageOpts.message:MESSAGE_DEFAULTS.message,
+            MessageType:(messageOpts.message_type !== undefined)? messageOpts.message_type:MESSAGE_DEFAULTS.message_type,
+            SenderFirstName:(messageOpts.sender_first_name !== undefined)? messageOpts.sender_first_name: MESSAGE_DEFAULTS.sender_first_name,
+            SenderLastName:(messageOpts.sender_last_name !== undefined)? messageOpts.sender_last_name: MESSAGE_DEFAULTS.sender_last_name,
+            SenderPermissionLevel:(messageOpts.sender_permission_level !== undefined)? messageOpts.sender_permission_level:MESSAGE_DEFAULTS.sender_permission_level
+        }
+        return db.collection("House").doc(house_id).collection("Points").doc(log_id).collection("Messages").add(data)
     }
 
     /**
@@ -214,6 +241,54 @@ export class FirestoreDataFactory{
             RequiredValue:(rOpts.required_value !== undefined)?rOpts.required_value:REWARD_DEFAULTS.required_value
         })
     }
+
+    /**
+     * Delete a collection
+     * @param db Test App Firestore instance
+     * @param collectionPath Path to collection
+     * @param batchSize max number to delete in batch
+     */
+    static async deleteCollection(db, collectionPath, batchSize) {
+        const collectionRef = db.collection(collectionPath);
+        const query = collectionRef.orderBy('__name__').limit(batchSize);
+      
+        return new Promise((resolve, reject) => {
+          FirestoreDataFactory.deleteQueryBatch(db, query, resolve).catch(reject);
+        });
+      }
+      
+    private static async deleteQueryBatch(db, query, resolve) {
+        const snapshot = await query.get();
+      
+        const batchSize = snapshot.size;
+        if (batchSize === 0) {
+          // When there are no documents left, we are done
+          resolve();
+          return;
+        }
+      
+        // Delete documents in a batch
+        const batch = db.batch();
+        snapshot.docs.forEach((doc) => {
+          batch.delete(doc.ref);
+        });
+        await batch.commit();
+      
+        // Recurse on the next process tick, to avoid
+        // exploding the stack.
+        process.nextTick(() => {
+          FirestoreDataFactory.deleteQueryBatch(db, query, resolve);
+        });
+      }
+}
+
+export declare type PointLogMessageOptions = {
+    creation_date?: Date
+    message?: string
+    message_type?: string
+    sender_first_name?: string
+    sender_last_name?: string
+    sender_permission_level?: number
 }
 
 /**
@@ -297,6 +372,8 @@ export declare type PointLogOptions = {
     description?:string,
     floor_id?:string,
     point_type_id?:number,
+    point_type_name?:string,
+    point_type_description?:string,
     rhp_notifications?:number,
     resident_first_name?:string,
     resident_last_name?:string,
@@ -311,6 +388,23 @@ export declare type RewardOptions = {
     id?: string
     required_ppr?: number,
     required_value?: number
+}
+
+/**
+ * Type Declaration for fields to add to Link. Undefined fields will be defaulted
+ */
+export declare type LinkOptions = {
+    archived?: boolean,
+    description?: string,
+    enabled?: boolean,
+    single_use?: boolean
+}
+
+export const LINK_DEFAULTS:LinkOptions = {
+    archived: false,
+    description: "Basic description",
+    enabled: true,
+    single_use: true
 }
 
 /**
@@ -333,6 +427,8 @@ export const POINT_LOG_DEFAULTS:PointLogOptions = {
     description: "Empty Description",
     floor_id: "4N",
     point_type_id: 1,
+    point_type_name: "Empty Name",
+    point_type_description: "Empty Description",
     rhp_notifications: 0,
     resident_first_name: "TEST_FIRST",
     resident_last_name: "TEST_LAST",
@@ -396,4 +492,16 @@ export const USER_DEFAULTS:UserOptions = {
     semester_points: 0,
     house_name: "Platinum",
     floor_id: "4N"
+}
+
+/**
+ * Default PointLogMessage Options
+ */
+export const MESSAGE_DEFAULTS:PointLogMessageOptions = {
+    creation_date: new Date(Date.now()),
+    message: "Empty Message",
+    message_type: "comment",
+    sender_first_name: "First",
+    sender_last_name: "Last",
+    sender_permission_level: 0
 }
