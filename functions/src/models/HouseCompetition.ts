@@ -7,6 +7,7 @@ import { User } from "./User"
 
 export class HouseCompetition {
 
+    static EVENTS_KEY = "Events"
     static HOUSE_KEY = "House"
     static HOUSE_COLLECTION_POINTS_KEY = "Points"
     static HOUSE_COLLECTION_POINTS_COLLECTION_MESSAGES_KEY = "Messages"
@@ -18,6 +19,7 @@ export class HouseCompetition {
     static SYSTEM_PREFERENCES_DOCUMENT_KEY = "Preferences"
     static USERS_KEY = "Users"
 
+    events: Event[] = []
     houses: House[] = []
     houseCodes: HouseCode[] = []
     links: Link[] = []
