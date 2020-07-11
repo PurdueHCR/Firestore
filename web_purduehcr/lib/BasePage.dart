@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
@@ -86,6 +87,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
                       AppBar(
                         title: Text("Purdue HCR"),
                         automaticallyImplyLeading: false,
+                        leading: buildLeadingButton(DisplayType.desktop_large),
                       ),
                       Expanded(
                           child: child
@@ -126,6 +128,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
                       AppBar(
                         title: Text("Purdue HCR"),
                         automaticallyImplyLeading: false,
+                        leading: buildLeadingButton(DisplayType.desktop_small),
                       ),
                       Expanded(
                           child: child
@@ -158,6 +161,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
         return Scaffold(
             appBar: AppBar(
               title: Text("Purdue HCR"),
+              leading: buildLeadingButton(DisplayType.mobile),
             ),
             drawer: PhcrDrawer(this.drawerLabel),
             body: child,
@@ -174,6 +178,20 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
   bool isLoadingState(S currentState);
 
   FloatingActionButton buildFloatingActionButton(BuildContext context){
+    return null;
+  }
+
+  double getActiveAreaWidth(BuildContext context){
+    switch(displayTypeOf(context)){
+      case DisplayType.desktop_large:
+      case DisplayType.desktop_small:
+        return min(MediaQuery.of(context).size.width - 200, 1000);
+      case DisplayType.mobile:
+        return MediaQuery.of(context).size.width;
+    }
+  }
+  
+  Widget buildLeadingButton(DisplayType displayType){
     return null;
   }
 

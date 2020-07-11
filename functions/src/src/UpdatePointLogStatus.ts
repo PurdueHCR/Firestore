@@ -37,8 +37,8 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
             return Promise.reject(APIResponse.UnknownPointLog())
         } else {
 
-            let log = PointLog.fromDocumentSnapshot(doc)
-            let resident_id = (await getUser(log.residentId)).id
+            const log = PointLog.fromDocumentSnapshot(doc)
+            const resident_id = (await getUser(log.residentId)).id
 
             let already_handled = true
             if (log.pointTypeId < 0) {
@@ -50,13 +50,13 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                                     .doc(log.pointTypeId.toString()).get()
             const point_value = point_type_doc.get("Value")
 
-            let message_end = " the point request."
+            const message_end = " the point request."
             let message_beginning = user.firstName + " " + user.lastName
 
             // If reject check to know if need to subtract points
             if (!approve) {
                 if (log.description.includes(REJECTED_STRING)) {
-                    let response = APIResponse.PointLogAlreadyHandled()
+                    const response = APIResponse.PointLogAlreadyHandled()
                     return Promise.reject(response)
                 } else {
                     log.description = REJECTED_STRING + log.description
@@ -67,7 +67,7 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                         await addPoints(-1*(parseInt(point_value)), user.house, resident_id)
                     }
                     message_beginning += " rejected" + message_end
-                    let messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.REJECT, user.firstName, user.lastName, UserPermissionLevel.RHP)
+                    const messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.REJECT, user.firstName, user.lastName, UserPermissionLevel.RHP)
                     await submitPointLogMessage(user.house, log, messageObj, true)
                 }
             } else {
@@ -83,11 +83,11 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                     await addPoints(5, user.house, resident_id)
                     // Add message of approval/rejection
                     message_beginning += " approved" + message_end
-                    let messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.APPROVE, user.firstName, user.lastName, UserPermissionLevel.RHP)
+                    const messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.APPROVE, user.firstName, user.lastName, UserPermissionLevel.RHP)
                     await submitPointLogMessage(user.house, log, messageObj, true)
                 } else {
                     // Log has already been approved so points should not be added
-                    let response = APIResponse.PointLogAlreadyHandled()
+                    const response = APIResponse.PointLogAlreadyHandled()
                     return Promise.reject(response)
                 }
             }

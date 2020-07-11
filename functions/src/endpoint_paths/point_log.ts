@@ -56,7 +56,7 @@ logs_app.post('/handle', async (req, res) => {
 		const error = APIResponse.MissingRequiredParameters()
 		res.status(error.code).send(error.toJson())
 	}
-	else if (req.body.approve != "false" && req.body.approve != "true") {
+	else if (req.body.approve !== "false" && req.body.approve !== "true") {
 		console.error("Invalid approve")
 		const error = APIResponse.IncorrectFormat()
 		res.status(error.code).send(error.toJson())

@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
-import 'package:purduehcr_web/HandlePointsPage/PointLogChat.dart';
+import 'package:purduehcr_web/Utility_Views/PointLogChat/PointLogChat.dart';
 import 'package:purduehcr_web/HandlePointsPage/handle_points_bloc/handle_points.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
 import 'package:purduehcr_web/SubmitPointsPage/submit_points_bloc/submit_point_bloc.dart';
@@ -27,8 +27,8 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
   _HandlePointsPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     Config config = ConfigWrapper.of(context);
     _handlePointsBloc = new HandlePointsBloc(config);
     _handlePointsBloc.add(HandlePointEventInitialize());
@@ -37,6 +37,7 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
   @override
   Widget buildLargeDesktopBody({BuildContext context, HandlePointsState state}) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Flexible(
           child: PointLogList(
@@ -49,6 +50,7 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
           child: BlocProvider<HandlePointsBloc>(
             builder: (BuildContext context) => _handlePointsBloc,
             child: PointLogChat(
+              key: ObjectKey(_selectedPointLog),
                 pointLog: _selectedPointLog
             )
           )
@@ -59,18 +61,34 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
 
   @override
   Widget buildMobileBody({BuildContext context, HandlePointsState state}) {
-    return PointLogList(
-        pointLogs: _handlePointsBloc.state.pointLogs,
-        onPressed: _onPressed
-    );
+    if(_selectedPointLog == null){
+      return PointLogList(
+          pointLogs: _handlePointsBloc.state.pointLogs,
+          onPressed: _onPressed
+      );
+    }
+    else{
+      return PointLogChat(
+          key: ObjectKey(_selectedPointLog),
+          pointLog: _selectedPointLog
+      );
+    }
   }
 
   @override
   Widget buildSmallDesktopBody({BuildContext context, HandlePointsState state}) {
-    return PointLogList(
-        pointLogs: _handlePointsBloc.state.pointLogs,
-        onPressed: _onPressed
-    );
+    if(_selectedPointLog == null){
+      return PointLogList(
+          pointLogs: _handlePointsBloc.state.pointLogs,
+          onPressed: _onPressed
+      );
+    }
+    else{
+      return PointLogChat(
+          key: ObjectKey(_selectedPointLog),
+          pointLog: _selectedPointLog
+      );
+    }
   }
 
   @override
@@ -83,29 +101,24 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
     return currentState is HandlePointsPageLoading;
   }
 
+  @override
+  Widget buildLeadingButton(DisplayType displayType){
+    if(_selectedPointLog == null){
+      return null;
+    }
+    else{
+      return IconButton(icon: Icon(Icons.arrow_back),
+      onPressed: (){
+        setState(() {
+          _selectedPointLog = null;
+        });
+      },);
+    }
+  }
+
   _onPressed(BuildContext context, PointLog pointLog) {
-    if (displayTypeOf(context) == DisplayType.desktop_large) {
-      setState(() {
-        _selectedPointLog = pointLog;
-      });
-    }
-    else {
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return BlocProvider<HandlePointsBloc>(
-              builder: (BuildContext context) => _handlePointsBloc,
-              child: SimpleDialog(
-                title: Text("Chat"),
-                children: [
-                  PointLogChat(
-                      pointLog: pointLog
-                  )
-                ],
-              ),
-            );
-          }
-      );
-    }
+    setState(() {
+      _selectedPointLog = pointLog;
+    });
   }
 }

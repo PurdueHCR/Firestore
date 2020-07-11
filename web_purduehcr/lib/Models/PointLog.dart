@@ -11,7 +11,7 @@ class PointLog{
   static const String DESCRIPTION = "description";
   static const String FLOOR_ID = "floorID";
   static const String POINT_TYPE_DESCRIPTION = "pointTypeDescription";
-  static const String POINT_TYPE_ID = "pointTypeID";
+  static const String POINT_TYPE_ID = "pointTypeId";
   static const String POINT_TYPE_NAME = "pointTypeName";
   static const String RHP_NOTIFICATION = "rhpNotification";
   static const String RESIDENT_FIRST_NAME = "residentFirstName";
@@ -76,6 +76,22 @@ class PointLog{
 
   bool wasHandled(){
     return pointTypeId > 0;
+  }
+
+  void approve(){
+    if(wasHandled()){
+      description.replaceAll(REJECTED_STRING, "");
+    }
+    else{
+      pointTypeId *= -1;
+    }
+  }
+
+  void reject(){
+    if(!wasHandled()){
+      pointTypeId *= -1;
+    }
+    description = REJECTED_STRING + description;
   }
 
   bool wasApproved(){

@@ -22,7 +22,7 @@ export async function getPointLog(user: User, log_id) : Promise<PointLog> {
         // PointLog could not be found
         return Promise.reject(APIResponse.UnknownPointLog())
     }
-    let log = PointLog.fromDocumentSnapshot(pointLogSnapshot)
+    const log = PointLog.fromDocumentSnapshot(pointLogSnapshot)
     if(user.permissionLevel === UserPermissionLevel.RHP || user.id === log.residentId){
         return Promise.resolve(log)
     }

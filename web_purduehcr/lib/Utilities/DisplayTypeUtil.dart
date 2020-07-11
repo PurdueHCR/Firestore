@@ -27,6 +27,7 @@ DisplayType displayTypeOf(BuildContext context) {
   }
 }
 
+
 /// Returns a boolean if we are in a display of [DisplayType.desktop]. Used to
 /// build adaptive and responsive layouts.
 bool isDisplayDesktop(BuildContext context) {

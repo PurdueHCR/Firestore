@@ -4,6 +4,7 @@ import 'package:purduehcr_web/Config.dart';
 import 'package:bloc/bloc.dart';
 import 'package:purduehcr_web/Models/ApiError.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
+import 'package:purduehcr_web/Models/PointLogMessage.dart';
 import 'package:purduehcr_web/Models/PointType.dart';
 import 'package:purduehcr_web/HandlePointsPage/handle_points_bloc/handle_points.dart';
 
@@ -22,7 +23,7 @@ class HandlePointsBloc extends Bloc<HandlePointEvent, HandlePointsState>{
     if(event is HandlePointEventInitialize){
       try{
         List<PointLog> pointLog = await _handlePointRepository.getUnhandledPoints();
-        yield ReadyToHandlePoint(pointLogs: pointLog);
+        yield HandlePointsPageLoaded(pointLogs: pointLog);
       }
       catch(error){
         window.console.log("There was an error loading the point types: $error");
