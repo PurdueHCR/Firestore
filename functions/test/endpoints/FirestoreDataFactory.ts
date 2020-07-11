@@ -163,13 +163,15 @@ export class FirestoreDataFactory{
      * @param approved - boolean for if the pointlog was already approved. (used to set the approved fields and sign of point type ID)
      * @param ptOpts - Optional parameters to modifu the point log
      */
-    static setPointLog(db: firebase.firestore.Firestore, house:string, resident_id:string, approved: boolean, ptOpts:PointLogOptions = POINT_LOG_DEFAULTS): Promise<firebase.firestore.DocumentReference| void>{
+    static setPointLog(db: firebase.firestore.Firestore, house:string, resident_id:string, approved: boolean, ptOpts:PointLogOptions = POINT_LOG_DEFAULTS): Promise<void> | Promise<firebase.firestore.DocumentReference>{
         let data = {
             "DateOccurred":(ptOpts.date_occurred !== undefined)?ptOpts.date_occurred:POINT_LOG_DEFAULTS.date_occurred,
             "DateSubmitted":(ptOpts.date_submitted !== undefined)?ptOpts.date_submitted:POINT_LOG_DEFAULTS.date_submitted,
             "Description":(ptOpts.date_submitted !== undefined)?ptOpts.description:POINT_LOG_DEFAULTS.description,
             "FloorID":(ptOpts.floor_id !== undefined)?ptOpts.floor_id:POINT_LOG_DEFAULTS.floor_id,
             "PointTypeID":(ptOpts.point_type_id !== undefined)?ptOpts.point_type_id:POINT_LOG_DEFAULTS.point_type_id! * -1,
+            "PointTypeName":(ptOpts.point_type_name !== undefined)?ptOpts.point_type_name:POINT_LOG_DEFAULTS.point_type_name!,
+            "PointTypeDescription":(ptOpts.point_type_description !== undefined)?ptOpts.point_type_description:POINT_LOG_DEFAULTS.point_type_description!,
             "RHPNotifications":(ptOpts.rhp_notifications !== undefined)?ptOpts.rhp_notifications:POINT_LOG_DEFAULTS.rhp_notifications,
             "ResidentFirstName":(ptOpts.resident_first_name !== undefined)?ptOpts.resident_first_name:POINT_LOG_DEFAULTS.resident_first_name,
             "ResidentId":resident_id,
@@ -370,6 +372,8 @@ export declare type PointLogOptions = {
     description?:string,
     floor_id?:string,
     point_type_id?:number,
+    point_type_name?:string,
+    point_type_description?:string,
     rhp_notifications?:number,
     resident_first_name?:string,
     resident_last_name?:string,
@@ -423,6 +427,8 @@ export const POINT_LOG_DEFAULTS:PointLogOptions = {
     description: "Empty Description",
     floor_id: "4N",
     point_type_id: 1,
+    point_type_name: "Empty Name",
+    point_type_description: "Empty Description",
     rhp_notifications: 0,
     resident_first_name: "TEST_FIRST",
     resident_last_name: "TEST_LAST",
