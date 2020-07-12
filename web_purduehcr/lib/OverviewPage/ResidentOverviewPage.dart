@@ -67,7 +67,7 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
             ),
             SizedBox(
               width: getActiveAreaWidth(context),
-              height: getActiveAreaWidth(context) * 0.3075,
+              height: 308,
               child:RecentSubmissionsCard(submissions: state.logs,),
             ),
 
@@ -108,7 +108,11 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
                 userRank:residentData.rank
             ),
             RewardsCard(reward: residentData.reward, house: getUserHouse(user, residentData.houses),),
-            RecentSubmissionsCard(submissions: residentData.logs,)
+            SizedBox(
+              width: getActiveAreaWidth(context),
+              height: 308,
+              child:RecentSubmissionsCard(submissions: state.logs,),
+            ),
           ],
         ),
       );
