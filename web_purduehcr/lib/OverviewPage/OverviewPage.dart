@@ -1,4 +1,3 @@
-import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,7 +23,7 @@ class HomePage extends StatelessWidget {
       case UserPermissionLevel.PRIVILEGED_USER:
       case UserPermissionLevel.NHAS:
       default:
-        window.console.log("Unimpelemtned");
+        print("Unimpelemtned");
         return UnimplementedPage(drawerLabel: "Overview");
     }
   }

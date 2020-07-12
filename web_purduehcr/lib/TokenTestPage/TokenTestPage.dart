@@ -1,4 +1,3 @@
-import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,7 +10,7 @@ import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 
 class TokenTestPage extends BasePage {
   TokenTestPage({Key key}) : super(key: key){
-    window.console.log("TOKEN");
+    print("TOKEN");
 
   }
 

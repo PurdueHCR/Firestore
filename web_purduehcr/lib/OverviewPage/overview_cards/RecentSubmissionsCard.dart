@@ -18,35 +18,39 @@ class RecentSubmissionsCardState extends State<RecentSubmissionsCard>{
   @override
   Widget build(BuildContext context) {
     if(widget.submissions != null && widget.submissions.length > 0){
-      print("Has submissions");
-      print("has description: "+widget.submissions[0].description);
       return Card(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Recent Submissions",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold
+                Flexible(
+                  flex: 1,
+                  child: Text("Recent Submissions",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold
+                    ),
                   ),
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.black,
-                        width: 2
+                Flexible(
+                  flex: 8,
+                  child: Container(
+                    decoration: BoxDecoration(
+//                        border: Border.all(
+//                          color: Colors.black,
+//                          width: 2
+//                        ),
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.all(Radius.circular(4))
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                      child: PointLogList(
+                        searchable: false,
+                        pointLogs: widget.submissions,
+                        onPressed: (context, log) => print("Tap"),
                       ),
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.all(Radius.circular(4))
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: PointLogList(
-                      searchable: false,
-                      pointLogs: widget.submissions,
-                      onPressed: (context, log) => print("Tap"),
                     ),
                   ),
                 )

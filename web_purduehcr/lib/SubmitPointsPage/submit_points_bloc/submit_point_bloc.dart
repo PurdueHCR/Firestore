@@ -1,4 +1,3 @@
-import 'dart:html';
 
 import 'package:purduehcr_web/Config.dart';
 import 'package:bloc/bloc.dart';
@@ -24,7 +23,7 @@ class SubmitPointBloc extends Bloc<SubmitPointEvent, SubmitPointState>{
          yield ReadyForSubmission(pointTypes: pointTypes);
       }
       catch(error){
-        window.console.log("There was an error loading the point types: $error");
+        print("There was an error loading the point types: $error");
       }
     }
     else if(event is SubmitPoint){
@@ -33,7 +32,7 @@ class SubmitPointBloc extends Bloc<SubmitPointEvent, SubmitPointState>{
       }
       on ApiError catch(apiError){
         if(apiError.errorCode == 200 || apiError.errorCode == 201){
-          window.console.log("SUCCESS: yield success");
+          print("SUCCESS: yield success");
           yield SubmissionSuccess(pointTypes: state.pointTypes, shouldDismissDialog: event.shouldDismissDialog);
         }
         else{
@@ -41,7 +40,7 @@ class SubmitPointBloc extends Bloc<SubmitPointEvent, SubmitPointState>{
         }
       }
       catch(error){
-        window.console.log("There was an error loading the point types: "+error.toString());
+        print("There was an error loading the point types: "+error.toString());
         yield SubmissionError(pointTypes: state.pointTypes, message: error.toString(), shouldDismissDialog: event.shouldDismissDialog);
       }
     }
