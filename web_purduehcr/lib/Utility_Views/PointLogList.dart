@@ -37,7 +37,7 @@ class _PointLogListState extends State<PointLogList>{
     }
     else{
       mainContent = ListView.builder(
-        shrinkWrap: true,
+//        shrinkWrap: true,
         itemCount: visibleLogs.length,
         itemBuilder: (BuildContext context, int index){
           return Card(
@@ -54,7 +54,7 @@ class _PointLogListState extends State<PointLogList>{
             visible: widget.searchable,
             child: SearchBar(onValueChanged: _onValueChanged)
         ),
-        mainContent
+        Expanded(child: mainContent)
       ],
     );
   }
@@ -86,11 +86,6 @@ class PointLogListTile extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    print("First name: "+pointLog.residentFirstName);
-    print("Description: "+pointLog.description);
-    print("WAs handled: "+pointLog.pointTypeId.toString());
-    print("Date "+pointLog.dateOccurred.toString());
-
     return ListTile(
       onTap: () => onTap(context, pointLog),
       title: Text(pointLog.residentFirstName),

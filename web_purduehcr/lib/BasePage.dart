@@ -1,4 +1,3 @@
-import 'dart:html';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
@@ -60,15 +59,17 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
                 return LoadingWidget();
               }
               else{
-                return Container(
-                  color: Theme.of(context).backgroundColor,
-                  child: Center(
-                    child: SizedBox(
-                      width: 1000,
-                      child: Container(
-                        color: Colors.white,
-                        child: buildLargeDesktopBody(context: context, state:state)
-                      )
+                return SafeArea(
+                  child: Container(
+                    color: Theme.of(context).backgroundColor,
+                    child: Center(
+                      child: SizedBox(
+                        width: 1000,
+                        child: Container(
+                          color: Colors.white,
+                          child: buildLargeDesktopBody(context: context, state:state)
+                        )
+                      ),
                     ),
                   ),
                 );

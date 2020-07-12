@@ -38,11 +38,15 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
   Widget buildLargeDesktopBody({BuildContext context, HandlePointsState state}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.max,
       children: [
         Flexible(
-          child: PointLogList(
-              pointLogs: _handlePointsBloc.state.pointLogs,
-              onPressed: _onPressed
+          child: Container(
+            height: MediaQuery.of(context).size.height,
+            child: PointLogList(
+                pointLogs: _handlePointsBloc.state.pointLogs,
+                onPressed: _onPressed
+            ),
           ),
         ),
         VerticalDivider(),

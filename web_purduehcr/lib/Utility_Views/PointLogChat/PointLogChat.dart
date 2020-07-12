@@ -97,7 +97,6 @@ class _PointLogChatState extends State<PointLogChat>{
 
   Widget buildMessages(PointLogChatState currentState){
     if(currentState is PointLogChatLoaded){
-      print("Had state being is loaded");
       Timer(
         Duration(milliseconds: 250),
             () => _scrollController.jumpTo(_scrollController.position.maxScrollExtent),

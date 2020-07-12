@@ -1,4 +1,3 @@
-import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/BasePage.dart';
@@ -163,7 +162,7 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
 
   _onChangeState(BuildContext context, LinkState state){
     if(state is LinkSuccess){
-      window.console.log("On change state success");
+      print("On change state success");
       print("Should dismiss ${state.shouldDismissDialog}");
       if(state.shouldDismissDialog){
         Navigator.pop(context);
@@ -177,7 +176,7 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
       _selectedLink = null;
     }
     else if(state is LinkError){
-      window.console.log("On change state error");
+      print("On change state error");
       if(state.shouldDismissDialog){
         Navigator.pop(context);
       }
