@@ -14,11 +14,11 @@ let RHP_ID = "RHP"
 let PRIV_RES = "PRIV_RES"
 let FHP = "FHP"
 let NHAS = "Non Honors Affiliated Staff"
-let RESIDENT_PROFILE = "/residentProfile"
+let RESIDENT_PROFILE = "/userOverview"
 
 
 //Test Suite Submit Points
-describe('GET competition/residentProfile', () =>{
+describe('GET competition/userOverview', () =>{
 
     beforeAll(async () => {
         
@@ -82,10 +82,10 @@ describe('GET competition/residentProfile', () =>{
                 //If the competition is hidden, dont show rank, or houses, or reward
                 expect(res.status).toBe(200)
                 //Make sure that the keys are defined, but that they are empty
-                expect(Object.getOwnPropertyNames(res.body.user_rank)).toHaveLength(0)
-                expect(Object.getOwnPropertyNames(res.body.next_reward)).toHaveLength(0)
-                expect(res.body.houses).toHaveLength(0)
-                expect(res.body.last_submissions).toHaveLength(5)
+                expect(Object.getOwnPropertyNames(res.body.resident.user_rank)).toHaveLength(0)
+                expect(Object.getOwnPropertyNames(res.body.resident.next_reward)).toHaveLength(0)
+                expect(res.body.resident.houses).toHaveLength(0)
+                expect(res.body.resident.last_submissions).toHaveLength(5)
                 done()
             }
         })
@@ -197,29 +197,29 @@ describe('GET competition/residentProfile', () =>{
                 expect(res.status).toBe(200)
 
                 //Check user rank
-                expect(res.body.user_rank.houseRank).toBe(6)
-                expect(res.body.user_rank.semesterRank).toBe(6)
+                expect(res.body.resident.user_rank.houseRank).toBe(6)
+                expect(res.body.resident.user_rank.semesterRank).toBe(6)
 
                 //Check houses
-                expect(res.body.houses[0].id).toBe("Platinum")
-                expect(res.body.houses[0].pointsPerResident).toBe(10)
-                expect(res.body.houses[1].id).toBe("Titanium")
-                expect(res.body.houses[1].pointsPerResident).toBe(8)
-                expect(res.body.houses[2].id).toBe("Silver")
-                expect(res.body.houses[2].pointsPerResident).toBe(3)
-                expect(res.body.houses[3].id).toBe("Palladium")
-                expect(res.body.houses[3].pointsPerResident).toBe(1)
-                expect(res.body.houses[4].id).toBe("Copper")
-                expect(res.body.houses[4].pointsPerResident).toBe(0)
+                expect(res.body.resident.houses[0].id).toBe("Platinum")
+                expect(res.body.resident.houses[0].pointsPerResident).toBe(10)
+                expect(res.body.resident.houses[1].id).toBe("Titanium")
+                expect(res.body.resident.houses[1].pointsPerResident).toBe(8)
+                expect(res.body.resident.houses[2].id).toBe("Silver")
+                expect(res.body.resident.houses[2].pointsPerResident).toBe(3)
+                expect(res.body.resident.houses[3].id).toBe("Palladium")
+                expect(res.body.resident.houses[3].pointsPerResident).toBe(1)
+                expect(res.body.resident.houses[4].id).toBe("Copper")
+                expect(res.body.resident.houses[4].pointsPerResident).toBe(0)
 
                 //check next reward
 
-                expect(res.body.next_reward.id).toBe(REWARD_DEFAULTS.id)
-                expect(res.body.next_reward.fileName).toBe(REWARD_DEFAULTS.id+".png")
-                expect(res.body.next_reward.requiredPPR).toBe(REWARD_DEFAULTS.required_ppr)
+                expect(res.body.resident.next_reward.id).toBe(REWARD_DEFAULTS.id)
+                expect(res.body.resident.next_reward.fileName).toBe(REWARD_DEFAULTS.id+".png")
+                expect(res.body.resident.next_reward.requiredPPR).toBe(REWARD_DEFAULTS.required_ppr)
 
                 //Check last submissions
-                expect(res.body.last_submissions).toHaveLength(5)
+                expect(res.body.resident.last_submissions).toHaveLength(5)
                 
                 done();
             }
@@ -229,7 +229,8 @@ describe('GET competition/residentProfile', () =>{
 
 
     //After all of the tests are done, make sure to delete the test firestore app
-    afterAll(()=>{
+    afterAll(async ()=>{
+        await FirestoreDataFactory.cleanDatabase(db)
         Promise.all(firebase.apps().map(app => app.delete()))
     })
 

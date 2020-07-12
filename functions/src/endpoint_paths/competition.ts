@@ -12,6 +12,8 @@ import { User } from '../models/User'
 import { APIResponse } from '../models/APIResponse'
 import { getResidentProfile } from '../src/GetUserProfiles'
 import { PointType } from '../models/PointType'
+import { getUser } from '../src/GetUser'
+import { UserPermissionLevel } from '../models/UserPermissionLevel'
 
 
 class UsersAndErrorWrapper{
@@ -289,12 +291,25 @@ comp_app.get('/getUnhandledPoints', async (req, res) => {
 })
 
 /**
- * Return the system preferences
+ * Get the data that is most pertinent to the given user.
+ * 
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 500 - Server Error
  */
-comp_app.get('/residentProfile', async (req, res) => {
+comp_app.get('/userOverview', async (req, res) => {
 	try{
-		const resident_profile = await getResidentProfile(req["user"]["user_id"])
-		res.status(APIResponse.SUCCESS_CODE).send(resident_profile)
+		const user = await getUser(req["user"]["user_id"])
+		if(user.permissionLevel === UserPermissionLevel.RESIDENT){
+			const resident_profile = await getResidentProfile(user)
+			res.status(APIResponse.SUCCESS_CODE).send({"resident":resident_profile})
+		}
+		else{
+			console.log("Other user permissions not yet implemented")
+			const apiResponse = APIResponse.InvalidPermissionLevel()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+		}
+		
 	}
 	catch (error){
         if( error instanceof APIResponse){

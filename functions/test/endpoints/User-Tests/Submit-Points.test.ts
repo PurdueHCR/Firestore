@@ -19,7 +19,7 @@ let HOUSE_CODE = "4N1234"
 let SUBMIT_POINTS_PATH = "/submitPoint"
 
 //Test Suite Submit Points
-describe('user/submitpoint', () =>{
+describe('user/submitpoint', async () =>{
 
     beforeAll(async () => {
         firebase.apps().map(app => app.delete())
@@ -366,13 +366,9 @@ describe('user/submitpoint', () =>{
         })
     })
 
-    // After all of the tests are done, make sure to delete the test firestore app
+    //After all of the tests are done, make sure to delete the test firestore app
     afterAll(async ()=>{
-        await FirestoreDataFactory.deleteCollection(db, "House/Platinum/Points",100)
-        await FirestoreDataFactory.deleteCollection(db, "House",100)
-        await FirestoreDataFactory.deleteCollection(db, "PointTypes",100)
-        await FirestoreDataFactory.deleteCollection(db, "Users",100)
-        await FirestoreDataFactory.deleteCollection(db, "HouseCodes",100)
+        await FirestoreDataFactory.cleanDatabase(db)
         Promise.all(firebase.apps().map(app => app.delete()))
     })
 

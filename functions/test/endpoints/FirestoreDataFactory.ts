@@ -241,12 +241,39 @@ export class FirestoreDataFactory{
     }
 
     /**
+     * run this after test to clean the database
+     * @param db Test App Firestore instance
+     */
+    static async cleanDatabase(db: firebase.firestore.Firestore){
+
+        //This technically doesnt delete any point log messages, but because 
+        // the odds of them causing issue in other tests is minimal, we don't care.
+
+        //Delete points from each house.
+        await FirestoreDataFactory.deleteCollection(db, "House/Copper/Points",100)
+        await FirestoreDataFactory.deleteCollection(db, "House/Palladium/Points",100)
+        await FirestoreDataFactory.deleteCollection(db, "House/Platinum/Points",100)
+        await FirestoreDataFactory.deleteCollection(db, "House/Silver/Points",100)
+        await FirestoreDataFactory.deleteCollection(db, "House/Titanium/Points",100)
+
+        //Delete root levels
+        await FirestoreDataFactory.deleteCollection(db, "Events",100)
+        await FirestoreDataFactory.deleteCollection(db, "House",100)
+        await FirestoreDataFactory.deleteCollection(db, "HouseCodes",100)
+        await FirestoreDataFactory.deleteCollection(db, "Links",100)
+        await FirestoreDataFactory.deleteCollection(db, "PointTypes",100)
+        await FirestoreDataFactory.deleteCollection(db, "Rewards",100)
+        await FirestoreDataFactory.deleteCollection(db, "Users",100)
+    }
+
+
+    /**
      * Delete a collection
      * @param db Test App Firestore instance
      * @param collectionPath Path to collection
      * @param batchSize max number to delete in batch
      */
-    static async deleteCollection(db, collectionPath, batchSize) {
+    private static async deleteCollection(db, collectionPath, batchSize) {
         const collectionRef = db.collection(collectionPath);
         const query = collectionRef.orderBy('__name__').limit(batchSize);
       
