@@ -5,6 +5,7 @@ import * as admin from 'firebase-admin'
 
 /**
  * Get the system preferences
+ * @throws 500 - Server Error 
  */
 export async function getSystemPreferences() : Promise<SystemPreference>{
 	const db = admin.firestore()

@@ -22,7 +22,7 @@ let HOUSE_CODE = "4N1234"
 //  let HANDLE_POINT_PATH = "/handle"
 
 // Test Suite UpdatePointLogStatus
-describe('point_log/handle', ()  => {
+describe('point_log/handle', async ()  => {
 
     beforeAll(async() => {
         firebase.apps().map(app => app.delete())
@@ -130,8 +130,9 @@ describe('point_log/handle', ()  => {
     
     // Test reject when currently rejected
 
-    // After all of the tests are done, make sure to delete the test firestore app
-    afterAll(()=>{
+    //After all of the tests are done, make sure to delete the test firestore app
+    afterAll(async ()=>{
+        await FirestoreDataFactory.cleanDatabase(db)
         Promise.all(firebase.apps().map(app => app.delete()))
     })
     

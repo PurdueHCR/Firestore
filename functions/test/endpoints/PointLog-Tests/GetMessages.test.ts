@@ -23,7 +23,7 @@ let point_log_func
 
 
 // Test Suite UpdatePointLogStatus
-describe('GET point_log/messages', ()  => {
+describe('GET point_log/messages', async ()  => {
 
     beforeAll(async() => {
         IntegrationMockFactory.mockFirebaseAdmin()
@@ -239,17 +239,9 @@ describe('GET point_log/messages', ()  => {
         })
     })
 
-    // After all of the tests are done, make sure to delete the test firestore app
+    //After all of the tests are done, make sure to delete the test firestore app
     afterAll(async ()=>{
-        await FirestoreDataFactory.deleteCollection(db, "House/Platinum/Points/"+PRIV_RES+"_LOG_1"+"/Messages",100)
-        await FirestoreDataFactory.deleteCollection(db, "House/Platinum/Points/"+RESIDENT_PLAT+"_LOG_1"+"/Messages",100)
-        await FirestoreDataFactory.deleteCollection(db, "House/Platinum/Points/"+RESIDENT_PLAT_2+"_LOG_1"+"/Messages",100)
-        await FirestoreDataFactory.deleteCollection(db, "House/Platinum/Points/"+RHP_PLAT_ID+"_LOG_1"+"/Messages",100)
-        await FirestoreDataFactory.deleteCollection(db, "House/Platinum/Points/"+RESIDENT_COPP+"_LOG_1"+"/Messages",100)
-        await FirestoreDataFactory.deleteCollection(db, "House/Platinum/Points",100)
-        await FirestoreDataFactory.deleteCollection(db, "House",100)
-        await FirestoreDataFactory.deleteCollection(db, "PointTypes",100)
-        await FirestoreDataFactory.deleteCollection(db, "Users",100)
+        await FirestoreDataFactory.cleanDatabase(db)
         Promise.all(firebase.apps().map(app => app.delete()))
     })
     
