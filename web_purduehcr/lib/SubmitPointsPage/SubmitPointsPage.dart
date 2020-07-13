@@ -1,4 +1,3 @@
-import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/BasePage.dart';
@@ -31,9 +30,11 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    Config config = ConfigWrapper.of(context);
-    _submitPointBloc = new SubmitPointBloc(config);
-    _submitPointBloc.add(SubmitPointInitialize());
+    if(_submitPointBloc == null){
+      Config config = ConfigWrapper.of(context);
+      _submitPointBloc = new SubmitPointBloc(config);
+      _submitPointBloc.add(SubmitPointInitialize());
+    }
   }
 
   @override
@@ -110,7 +111,7 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
   }
 
   _onSubmit(String description,DateTime dateOccurred,int pointTypeId) async {
-    window.console.log("Submit Point: $description, ${dateOccurred.toString()}, ${pointTypeId.toString()}");
+    print("Submit Point: $description, ${dateOccurred.toString()}, ${pointTypeId.toString()}");
     _submitPointBloc.add(SubmitPoint(
         description: description,
         dateOccurred: dateOccurred,
@@ -120,7 +121,7 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
 
   _onChangeState(BuildContext context, SubmitPointState state){
     if(state is SubmissionSuccess){
-      window.console.log("On change state success");
+      print("On change state success");
       if(state.shouldDismissDialog){
         Navigator.pop(context);
       }
@@ -128,12 +129,17 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
         backgroundColor: Colors.green,
         content: Text('Submission Recorded'),
       );
-      Scaffold.of(context).showSnackBar(snackBar);
-      _submitPointBloc.add(SubmitPointDisplayedMessage());
-      _selectedPointType = null;
+
+      //This is not a good way to do this, but if you can find a better way to do this
+      // and running in debug doesn't throw an error, please change it
+      Future.delayed(Duration(seconds: 1), (){
+        Scaffold.of(context).showSnackBar(snackBar);
+        _selectedPointType = null;
+        _submitPointBloc.add(SubmitPointDisplayedMessage());
+      });
     }
     else if(state is SubmissionError){
-      window.console.log("On change state error");
+      print("On change state error");
       if(state.shouldDismissDialog){
         Navigator.pop(context);
       }
@@ -141,9 +147,14 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
         backgroundColor: Colors.red,
         content: Text('Could not record submission'),
       );
-      Scaffold.of(context).showSnackBar(snackBar);
-      _submitPointBloc.add(SubmitPointDisplayedMessage());
-      _selectedPointType = null;
+
+      //This is not a good way to do this, but if you can find a better way to do this
+      // and running in debug doesn't throw an error, please change it
+      Future.delayed(Duration(seconds: 1), (){
+        Scaffold.of(context).showSnackBar(snackBar);
+        _submitPointBloc.add(SubmitPointDisplayedMessage());
+        _selectedPointType = null;
+      });
 
     }
   }

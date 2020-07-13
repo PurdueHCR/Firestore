@@ -56,8 +56,8 @@ class PointLog{
 
   factory PointLog.fromJson(Map<String, dynamic> json){
     return PointLog(
-      dateOccurred: DateTime.fromMicrosecondsSinceEpoch((json[DATE_OCCURRED]["_seconds"] as int) * 1000),
-      dateSubmitted: DateTime.fromMicrosecondsSinceEpoch((json[DATE_SUBMITTED]["_seconds"] as int) * 1000),
+      dateOccurred: DateTime.fromMicrosecondsSinceEpoch((json[DATE_OCCURRED]["_seconds"] as int) * 1000000),
+      dateSubmitted: DateTime.fromMicrosecondsSinceEpoch((json[DATE_SUBMITTED]["_seconds"] as int) * 1000000),
       description: json[DESCRIPTION],
       floorId: json[FLOOR_ID],
       pointTypeDescription: json[POINT_TYPE_DESCRIPTION],
