@@ -14,7 +14,7 @@ let RHP_ID = "RHP"
 let PRIV_RES = "PRIV_RES"
 let FHP = "FHP"
 let NHAS = "Non Honors Affiliated Staff"
-let RESIDENT_PROFILE = "/userOverview"
+let USER_OVERVIEW = "/userOverview"
 
 
 //Test Suite Submit Points
@@ -32,7 +32,7 @@ describe('GET competition/userOverview', () =>{
         competition_func = require('../../../src/endpoint_paths/index.ts').competition
 
         //Create 6 sample residents
-        await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0, {total_points: 0, semester_points: 0})
+        await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0, {total_points: 1, semester_points: 1})
         for(let i =0; i < 5; i++){
             await FirestoreDataFactory.setUser(db, RESIDENT_ID+" "+i.toString(), 0, {total_points: (i+1)*10, semester_points: (i+1)*10})
         }
@@ -56,6 +56,7 @@ describe('GET competition/userOverview', () =>{
         )
         //Create pointlogs for a user
         await FirestoreDataFactory.createMultiplePointLogs(db,"Platinum",RESIDENT_ID,10)
+        await FirestoreDataFactory.createMultiplePointLogs(db,"Platinum",RHP_ID,3)
 
         //Create sample rewards
         await FirestoreDataFactory.setReward(db, {id:"T-Shirts", required_ppr: 5}) // Tshirts reard 5 ppr
@@ -73,7 +74,7 @@ describe('GET competition/userOverview', () =>{
         //Set competition invisible
         await FirestoreDataFactory.setSystemPreference(db, {is_competition_visible:false})
         //Test with resident
-        const res: request.Test = factory.get(competition_func,RESIDENT_PROFILE,RESIDENT_ID)
+        const res: request.Test = factory.get(competition_func,USER_OVERVIEW,RESIDENT_ID)
         res.end(async function(err, res){
             if(err){
                 done(err)
@@ -99,7 +100,7 @@ describe('GET competition/userOverview', () =>{
         //Set competition disabled
         await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled:false})
         //Test with resident
-        const res: request.Test = factory.get(competition_func,RESIDENT_PROFILE,RESIDENT_ID)
+        const res: request.Test = factory.get(competition_func,USER_OVERVIEW,RESIDENT_ID)
         res.end(async function(err, res){
             if(err){
                 done(err)
@@ -111,17 +112,47 @@ describe('GET competition/userOverview', () =>{
         })
     })
 
-    //Test if user is RHP, REC, FHP, NHAS
-    it('Test RHP', async(done) => {
-        //Test with resident
-        const res: request.Test = factory.get(competition_func,RESIDENT_PROFILE,RHP_ID)
-        res.end(async function(err, res){
+    //Test if user is RHP
+    it('Test RHP success', async(done) => {
+        const res: request.Test = factory.get(competition_func, USER_OVERVIEW, RHP_ID)
+        res.end(async function (err, res) {
             if(err){
                 done(err)
             }
             else{
-                expect(res.status).toBe(403)
-                done()
+                expect(res.status).toBe(200)
+                expect(res.body.resident).toBeUndefined();
+                expect(res.body.rhp).toBeDefined();
+                expect(res.body.proffesional_staff).toBeUndefined();
+                expect(res.body.fhp).toBeUndefined();
+                expect(res.body.privileged_res).toBeUndefined();
+                expect(res.body.ea).toBeUndefined();
+                //Check user rank
+                expect(res.body.rhp.user_rank.houseRank).toBe(7)
+                expect(res.body.rhp.user_rank.semesterRank).toBe(7)
+
+                //Check houses
+                expect(res.body.rhp.houses[0].id).toBe("Platinum")
+                expect(res.body.rhp.houses[0].pointsPerResident).toBe(10)
+                expect(res.body.rhp.houses[1].id).toBe("Titanium")
+                expect(res.body.rhp.houses[1].pointsPerResident).toBe(8)
+                expect(res.body.rhp.houses[2].id).toBe("Silver")
+                expect(res.body.rhp.houses[2].pointsPerResident).toBe(3)
+                expect(res.body.rhp.houses[3].id).toBe("Palladium")
+                expect(res.body.rhp.houses[3].pointsPerResident).toBe(1)
+                expect(res.body.rhp.houses[4].id).toBe("Copper")
+                expect(res.body.rhp.houses[4].pointsPerResident).toBe(0)
+
+                //check next reward
+
+                expect(res.body.rhp.next_reward.id).toBe(REWARD_DEFAULTS.id)
+                expect(res.body.rhp.next_reward.fileName).toBe(REWARD_DEFAULTS.id+".png")
+                expect(res.body.rhp.next_reward.requiredPPR).toBe(REWARD_DEFAULTS.required_ppr)
+
+                //Check last submissions
+                expect(res.body.rhp.last_submissions).toHaveLength(3)
+                
+                done();
             }
         })
     })
@@ -129,7 +160,7 @@ describe('GET competition/userOverview', () =>{
     //Test if user is RHP, REC, FHP, NHAS
     it('Test REC', async(done) => {
         //Test with resident
-        const res: request.Test = factory.get(competition_func,RESIDENT_PROFILE,REC_ID)
+        const res: request.Test = factory.get(competition_func,USER_OVERVIEW,REC_ID)
         res.end(async function(err, res){
             if(err){
                 done(err)
@@ -144,7 +175,7 @@ describe('GET competition/userOverview', () =>{
     //Test if user is RHP, REC, FHP, NHAS
     it('Test FHP', async(done) => {
         //Test with resident
-        const res: request.Test = factory.get(competition_func,RESIDENT_PROFILE,FHP)
+        const res: request.Test = factory.get(competition_func,USER_OVERVIEW,FHP)
         res.end(async function(err, res){
             if(err){
                 done(err)
@@ -159,13 +190,44 @@ describe('GET competition/userOverview', () =>{
 
     //Test priv resident Invalid Access
     it('Privileged Resident Invalid Access', async(done) =>{
-        const res: request.Test = factory.get(competition_func, RESIDENT_PROFILE, PRIV_RES)
+        const res: request.Test = factory.get(competition_func, USER_OVERVIEW, PRIV_RES)
         res.end(async function (err, res) {
             if(err){
                 done(err)
             }
             else{
-                expect(res.status).toBe(403)
+                expect(res.status).toBe(200)
+                expect(res.body.resident).toBeUndefined();
+                expect(res.body.rhp).toBeUndefined();
+                expect(res.body.proffesional_staff).toBeUndefined();
+                expect(res.body.fhp).toBeUndefined();
+                expect(res.body.privileged_resident).toBeDefined();
+                expect(res.body.ea).toBeUndefined();
+                //Check user rank
+                expect(res.body.privileged_resident.user_rank.houseRank).toBe(1)
+                expect(res.body.privileged_resident.user_rank.semesterRank).toBe(1)
+
+                //Check houses
+                expect(res.body.privileged_resident.houses[0].id).toBe("Platinum")
+                expect(res.body.privileged_resident.houses[0].pointsPerResident).toBe(10)
+                expect(res.body.privileged_resident.houses[1].id).toBe("Titanium")
+                expect(res.body.privileged_resident.houses[1].pointsPerResident).toBe(8)
+                expect(res.body.privileged_resident.houses[2].id).toBe("Silver")
+                expect(res.body.privileged_resident.houses[2].pointsPerResident).toBe(3)
+                expect(res.body.privileged_resident.houses[3].id).toBe("Palladium")
+                expect(res.body.privileged_resident.houses[3].pointsPerResident).toBe(1)
+                expect(res.body.privileged_resident.houses[4].id).toBe("Copper")
+                expect(res.body.privileged_resident.houses[4].pointsPerResident).toBe(0)
+
+                //check next reward
+
+                expect(res.body.privileged_resident.next_reward.id).toBe("T-Shirts")
+                expect(res.body.privileged_resident.next_reward.fileName).toBe("T-Shirts.png")
+                expect(res.body.privileged_resident.next_reward.requiredPPR).toBe(5)
+
+                //Check last submissions
+                expect(res.body.privileged_resident.last_submissions).toHaveLength(0)
+                
                 done();
             }
         })
@@ -174,7 +236,7 @@ describe('GET competition/userOverview', () =>{
     //Test if user is RHP, REC, FHP, NHAS
     it('Test NHAS', async(done) => {
         //Test with resident
-        const res: request.Test = factory.get(competition_func,RESIDENT_PROFILE,NHAS)
+        const res: request.Test = factory.get(competition_func,USER_OVERVIEW,NHAS)
         res.end(async function(err, res){
             if(err){
                 done(err)
@@ -187,8 +249,8 @@ describe('GET competition/userOverview', () =>{
     })
 
     //Test resident success
-    it('Resident Submission Success', async(done) =>{
-        const res: request.Test = factory.get(competition_func, RESIDENT_PROFILE, RESIDENT_ID)
+    it('Resident overview Success', async(done) =>{
+        const res: request.Test = factory.get(competition_func, USER_OVERVIEW, RESIDENT_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)

@@ -304,6 +304,16 @@ comp_app.get('/userOverview', async (req, res) => {
 			const resident_profile = await getResidentProfile(user)
 			res.status(APIResponse.SUCCESS_CODE).send({"resident":resident_profile})
 		}
+		else if(user.permissionLevel === UserPermissionLevel.RHP){
+			//This is sufficient for the first version, but we will eventually want to add more to their home screen
+			const resident_profile = await getResidentProfile(user)
+			res.status(APIResponse.SUCCESS_CODE).send({"rhp":resident_profile})
+		}
+		else if(user.permissionLevel === UserPermissionLevel.PRIVILEGED_RESIDENT){
+			//This is sufficient for the first version, but we will eventually want to add more to their home screen
+			const resident_profile = await getResidentProfile(user)
+			res.status(APIResponse.SUCCESS_CODE).send({"privileged_resident":resident_profile})
+		}
 		else{
 			console.log("Other user permissions not yet implemented")
 			const apiResponse = APIResponse.InvalidPermissionLevel()
