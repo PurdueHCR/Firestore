@@ -80,7 +80,6 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                     log.approveLog(user)
                     await doc_ref.set(log.toFirebaseJSON())
                     await addPoints(parseInt(point_value), user.house, resident_id)
-                    await addPoints(5, user.house, resident_id)
                     // Add message of approval/rejection
                     message_beginning += " approved" + message_end
                     const messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.APPROVE, user.firstName, user.lastName, UserPermissionLevel.RHP)
