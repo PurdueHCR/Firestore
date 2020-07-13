@@ -4,6 +4,7 @@ import 'package:purduehcr_web/HandlePointsPage/HandlePointsPage.dart';
 import 'package:purduehcr_web/LinkPage/LinkPage.dart';
 import 'package:purduehcr_web/Account_Login_Creation/CreateAccountPage.dart';
 import 'package:purduehcr_web/Account_Login_Creation/JoinHousePage.dart';
+import 'package:purduehcr_web/MyPointsPage/MyPointsPage.dart';
 import 'package:purduehcr_web/OverviewPage/OverviewPage.dart';
 import 'package:purduehcr_web/Account_Login_Creation/LogInPage.dart';
 import 'package:purduehcr_web/SubmitPointsPage/SubmitPointsPage.dart';
@@ -30,6 +31,8 @@ class RouteGenerator {
                   return SubmitPointsPage();
                 case '/handle_points':
                   return HandlePointsPage();
+                case '/my_points':
+                  return MyPointsPage();
                 case '/links':
                   return LinkPage();
                 default:

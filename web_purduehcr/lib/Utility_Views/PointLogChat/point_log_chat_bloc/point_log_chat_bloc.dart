@@ -28,25 +28,27 @@ class PointLogChatBloc extends Bloc<PointLogChatEvent, PointLogChatState>{
     else if(event is PostMessage){
       List<PointLogMessage> messages = (state as PointLogChatLoaded).messages;
       PointLog log = (state as PointLogChatLoaded).pointLog;
-      yield PointLogChatLoading();
-     try{
-       await _pointLogChatRepository.postMessage(log, event.message.message);
-       messages.add(event.message);
-       yield PointLogChatLoaded(messages: messages, pointLog: log);
+      if(event.message.message.isNotEmpty){
+        yield PointLogChatLoading();
+        try{
+          await _pointLogChatRepository.postMessage(log, event.message.message);
+          messages.add(event.message);
+          yield PointLogChatLoaded(messages: messages, pointLog: log);
 
-     }
-     catch(error){
-       yield PointLogChatLoaded(messages: messages, pointLog: log);
-     }
+        }
+        catch(error){
+          yield PointLogChatLoaded(messages: messages, pointLog: log);
+        }
+      }
+      else{
+        yield PointLogChatLoaded(messages: messages, pointLog: log);
+      }
     }
     else if(event is ApprovePointLog){
-      print("Approve log received");
       List<PointLogMessage> messages = (state as PointLogChatLoaded).messages;
       PointLog log = (state as PointLogChatLoaded).pointLog;
-      print("Yield plcl");
       yield PointLogChatLoading();
       try{
-        print("Got user id: ");
         await _pointLogChatRepository.handlePointLog(log, true);
         messages.add(PointLogMessage.createApproveMessage());
         log.approve();

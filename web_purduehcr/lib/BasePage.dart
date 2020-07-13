@@ -25,6 +25,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
 
   @override
   void initState() {
+    //Because the bloc is not created here, it is merely retrieved, we can do this in the init state method
     authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     authState = authenticationBloc.state;
     super.initState();
