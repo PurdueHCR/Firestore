@@ -8,6 +8,8 @@ let point_log_func
 let db: firebase.firestore.Firestore
 let approved_log
 let unhandled_log
+let point_value
+let point_description
 
 let RESIDENT_ID = "RESIDENT"
 let REC_ID = "REC"
@@ -46,7 +48,10 @@ describe('point_log/handle', ()  => {
         await FirestoreDataFactory.setPointType(db, 3, {is_enabled:false})
         let approved_log_ref = await FirestoreDataFactory.setPointLog(db, HOUSE_NAME, RESIDENT_ID, true, POINT_LOG_DEFAULTS)
         if (approved_log_ref !== null) {
-            approved_log = (approved_log_ref as firebase.firestore.DocumentReference).id
+            approved_log = (approved_log_ref as firebase.firestore.DocumentReference)
+            point_value = 1
+            point_description = POINT_LOG_DEFAULTS.description!
+            approved_log = approved_log.id
         }
         // Not sure that this is actually set to rejected. Not sure it has the denied string
         let unhandled_log_ref = await FirestoreDataFactory.setPointLog(db, HOUSE_NAME, RESIDENT_ID, false, POINT_LOG_DEFAULTS)
@@ -199,13 +204,35 @@ describe('point_log/handle', ()  => {
 
     // Test approve when currently rejected
     it('approve when rejected', async(done) => {
+        const house_doc_ref = db.collection("House").doc(HOUSE_NAME)
+        let house_doc = await house_doc_ref.get()
+        const user_ref = db.collection("Users").doc(RESIDENT_ID)
+        let user_doc = await user_ref.get()
+        expect(house_doc).toBeDefined()
+        expect(house_doc.data()).toBeDefined()
+        expect(user_doc).toBeDefined()
+        expect(user_doc.data()).toBeDefined()
+        const house_points = house_doc.data()!.TotalPoints
+        const user_points = user_doc.data()!.TotalPoints
         const body = {"approve":true, "point_log_id":unhandled_log}
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
-        res.end(function (err, res) {
+        res.end(async function (err, res) {
             if (err) {
                 done(err)
             } else {
                 expect(res.status).toBe(201)
+
+                expect((await house_doc_ref.get()).data()!.TotalPoints).toEqual(house_points + point_value)
+                expect((await user_ref.get()).data()!.TotalPoints).toEqual(user_points + point_value)
+                const point_log_doc = await db.collection("House").doc(HOUSE_NAME).collection("Points").doc(unhandled_log).get()
+                expect(point_log_doc).toBeDefined()
+                expect(point_log_doc.data()!).toBeDefined()
+                expect(point_log_doc.data()!.ApprovedOn).toBeDefined()
+                expect(point_log_doc.data()!.ApprovedBy).toBeDefined()
+                expect(point_log_doc.data()!.PointTypeID).toBeGreaterThan(0)
+                expect(point_log_doc.data()!.ResidentNotifications).toBe(1)
+                expect(point_log_doc.data()!.Description).toEqual(point_description)
+
                 done()
             }
         })
@@ -213,13 +240,34 @@ describe('point_log/handle', ()  => {
     
     // Test approve when currently approved
     it('approve when already approved', async(done) => {
+        const house_doc_ref = db.collection("House").doc(HOUSE_NAME)
+        let house_doc = await house_doc_ref.get()
+        const user_ref = db.collection("Users").doc(RESIDENT_ID)
+        let user_doc = await user_ref.get()
+        expect(house_doc).toBeDefined()
+        expect(house_doc.data()!).toBeDefined()
+        expect(user_doc).toBeDefined()
+        expect(user_doc.data()!).toBeDefined()
+        const house_points = house_doc.data()!.TotalPoints
+        const user_points = user_doc.data()!.TotalPoints
         const body = {"approve":true, "point_log_id":approved_log}
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
-        res.end(function (err, res) {
+        res.end(async function (err, res) {
             if (err) {
                 done(err)
             } else {
                 expect(res.status).toBe(416)
+
+                expect((await house_doc_ref.get()).data()!.TotalPoints).toEqual(house_points)
+                expect((await user_ref.get()).data()!.TotalPoints).toEqual(user_points)
+                const point_log_doc = await db.collection("House").doc(HOUSE_NAME).collection("Points").doc(unhandled_log).get()
+                expect(point_log_doc).toBeDefined()
+                expect(point_log_doc.data()!).toBeDefined()
+                expect(point_log_doc.data()!.ApprovedOn).toBeDefined()
+                expect(point_log_doc.data()!.ApprovedBy).toBeDefined()
+                expect(point_log_doc.data()!.PointTypeID).toBeGreaterThan(0)
+                expect(point_log_doc.data()!.Description).toEqual(point_description)
+
                 done()
             }
         })
@@ -227,13 +275,37 @@ describe('point_log/handle', ()  => {
 
     // Test reject when currently approved
     it('reject when approved', async(done) => {
+        const approve_body = {"approve":false, "point_log_id":unhandled_log}
+        await factory.post(point_log_func, HANDLE_POINT_PATH, approve_body, RHP_ID)
+        const house_doc_ref = db.collection("House").doc(HOUSE_NAME)
+        let house_doc = await house_doc_ref.get()
+        const user_ref = db.collection("Users").doc(RESIDENT_ID)
+        let user_doc = await user_ref.get()
+        expect(house_doc).toBeDefined()
+        expect(house_doc.data()!).toBeDefined()
+        expect(user_doc).toBeDefined()
+        expect(user_doc.data()!).toBeDefined()
+        const house_points = house_doc.data()!.TotalPoints
+        const user_points = user_doc.data()!.TotalPoints
         const body = {"approve":false, "point_log_id":approved_log}
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
-        res.end(function (err, res) {
+        res.end(async function (err, res) {
             if (err) {
                 done(err)
             } else {
                 expect(res.status).toBe(201)
+
+                expect((await house_doc_ref.get()).data()!.TotalPoints).toEqual(house_points - point_value)
+                expect((await user_ref.get()).data()!.TotalPoints).toEqual(user_points - point_value)
+                const point_log_doc = await db.collection("House").doc(HOUSE_NAME).collection("Points").doc(unhandled_log).get()
+                expect(point_log_doc).toBeDefined()
+                expect(point_log_doc.data()!).toBeDefined()
+                expect(point_log_doc.data()!.ApprovedOn).toBeDefined()
+                expect(point_log_doc.data()!.ApprovedBy).toBeDefined()
+                expect(point_log_doc.data()!.PointTypeID).toBeGreaterThan(0)
+                expect(point_log_doc.data()!.ResidentNotifications).toBe(1)
+                expect(point_log_doc.data()!.Description).toContain("DENIED: ")
+
                 done()
             }
         })
@@ -241,15 +313,36 @@ describe('point_log/handle', ()  => {
 
     // Test reject when currently rejected
     it('reject when already rejected', async(done) => {
+        const house_doc_ref = db.collection("House").doc(HOUSE_NAME)
+        let house_doc = await house_doc_ref.get()
+        const user_ref = db.collection("Users").doc(RESIDENT_ID)
+        let user_doc = await user_ref.get()
+        expect(house_doc).toBeDefined()
+        expect(house_doc.data()!).toBeDefined()
+        expect(user_doc).toBeDefined()
+        expect(user_doc.data()!).toBeDefined()
+        const house_points = house_doc.data()!.TotalPoints
+        const user_points = user_doc.data()!.TotalPoints
         const approve_body = {"approve":false, "point_log_id":unhandled_log}
         await factory.post(point_log_func, HANDLE_POINT_PATH, approve_body, RHP_ID)
         const body = {"approve":false, "point_log_id":unhandled_log}
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
-        res.end(function (err, res) {
+        res.end(async function (err, res) {
             if (err) {
                 done(err)
             } else {
                 expect(res.status).toBe(416)
+
+                expect((await house_doc_ref.get()).data()!.TotalPoints).toEqual(house_points)
+                expect((await user_ref.get()).data()!.TotalPoints).toEqual(user_points)
+                const point_log_doc = await db.collection("House").doc(HOUSE_NAME).collection("Points").doc(unhandled_log).get()
+                expect(point_log_doc).toBeDefined()
+                expect(point_log_doc.data()!).toBeDefined()
+                expect(point_log_doc.data()!.ApprovedOn).toBeDefined()
+                expect(point_log_doc.data()!.ApprovedBy).toBeDefined()
+                expect(point_log_doc.data()!.PointTypeID).toBeGreaterThan(0)
+                expect(point_log_doc.data()!.ResidentNotifications).toBe(1)
+
                 done()
             }
         })

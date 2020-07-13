@@ -13,13 +13,14 @@ const REJECTED_STRING = "DENIED: "
 
 /**
  * 
- * @param approver_id       ID of user updating the point
+ * @param approver_id   ID of user updating the point
  * @param document_id   ID of PointLog to approve/reject
  * @param approve       Boolean to approve/reject the PointLog   
  * 
- * @throws  403 - InvalidPermissionLevel
- * @throws  413 - UnknownPointLog
- * @throws  416 - PointLogAlreadyHandled
+ * @throws 403 - InvalidPermissionLevel
+ * @throws 413 - UnknownPointLog
+ * @throws 416 - PointLogAlreadyHandled
+ * @throws 500 - Server Error
  */
 export async function updatePointLogStatus(approve: boolean, approver_id: string, document_id: string): Promise<boolean> {
     

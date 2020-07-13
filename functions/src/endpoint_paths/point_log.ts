@@ -35,8 +35,14 @@ logs_app.use(firestoreTools.validateFirebaseIdToken)
 /**
  * Handle a PointLog
  * 
- *  @throws  422 - MissingRequiredParameters
- *  @throws  426 - IncorrectFormat
+ * 	@param body.approve specifies if the point log should be approved or rejected
+ *  @param body.point_log_id specifies the point log to handle
+ * 
+ *  @throws 400 - Unknown User
+ *  @throws 401 - Unauthorized
+ *  @throws 422 - Missing Required Parameters
+ *  @throws 426 - Incorrect Format
+ *  @throws 500 - Server Error
  */
 logs_app.post('/handle', async (req, res) => {
 	console.log('req is', req)
@@ -62,7 +68,7 @@ logs_app.post('/handle', async (req, res) => {
 		res.status(error.code).send(error.toJson())
 	} else {
 		try {
-			var should_approve = (req.body.approve == 'true');
+			let should_approve = (req.body.approve == 'true');
 			const didUpdate = await updatePointLogStatus(should_approve, req["user"]["user_id"], req.body.point_log_id)
 			if (didUpdate) {
 				res.status(201).send(APIResponse.Success().toJson())
