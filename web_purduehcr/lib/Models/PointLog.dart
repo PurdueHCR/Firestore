@@ -95,6 +95,6 @@ class PointLog{
   }
 
   bool wasApproved(){
-    return description.contains(REJECTED_STRING);
+    return !description.contains(REJECTED_STRING);
   }
 }
