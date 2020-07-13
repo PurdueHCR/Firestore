@@ -7,8 +7,7 @@ import { User } from '../models/User'
 
 /**
  * Get point logs belonging to the user orderd by the date they were submitted
- * @param userID - Id of user to get point logs for
- * @param house - name of house that user belongs to
+ * @param user - User to get point logs for
  * @param limit - Optional number of point logs to retrieve
  * @throws 500 - ServerError
  */

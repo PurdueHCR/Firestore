@@ -2,7 +2,8 @@ import * as factory from '../../HTTPRequestFactory'
 import * as firebase from "@firebase/testing"
 import * as IntegrationMockFactory from '../IntegrationMockFactory'
 import *  as request from 'supertest'
-import {FirestoreDataFactory, REWARD_DEFAULTS} from '../FirestoreDataFactory'
+import {FirestoreDataFactory} from '../FirestoreDataFactory'
+import { REWARD_DEFAULTS } from '../../OptionDeclarations'
 
 
 let competition_func

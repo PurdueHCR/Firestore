@@ -268,12 +268,13 @@ comp_app.get('/secret-reset-house-competition', (req,res) => {
 
 comp_app.get('/getUnhandledPoints', async (req, res) => {
 	try{
+		const user = await getUser(req["user"]["user_id"])
 		let logs
 		if(req.query.limit !== undefined){
-			logs = await getUnhandledPointLogs(req["user"]["user_id"], parseInt(req.query.limit as string))
+			logs = await getUnhandledPointLogs(user, parseInt(req.query.limit as string))
 		}
 		else{
-			logs = await getUnhandledPointLogs(req["user"]["user_id"])
+			logs = await getUnhandledPointLogs(user)
 		}
 		
 		res.status(APIResponse.SUCCESS_CODE).send({point_logs:logs})

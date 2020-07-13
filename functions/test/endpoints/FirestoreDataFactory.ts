@@ -1,7 +1,15 @@
+///-----------------------------------------------------------------
+///   Description:    Factory methods to create instances of models in the test database
+///   Author:         Brian Johncox                    Date: April 2020
+///   Notes:          
+///                   - Type and defaults are declared in the OptionsDeclarations.ts file in the root test folder.
+///                   - All methods should take the db and required parameters individually, then use the defaults for further customazation
+///                   
+///-----------------------------------------------------------------
 import * as firebase from "@firebase/testing"
+import * as Options from "../OptionDeclarations"
 
 export class FirestoreDataFactory{
-
 
     /**
      * Sets the system preferences in the test database
@@ -9,16 +17,16 @@ export class FirestoreDataFactory{
      * @param db - Test App Firestore instance (Usually from authedApp())
      * @param spOpts - Optional parameters for the system preferences. If a field doesnt exist, it will be set to a default
      */
-    static setSystemPreference(db:firebase.firestore.Firestore, spOpts:SystemPreferenceOptions = SYSTEM_PREFERENCES_DEFAULTS): Promise<void>{
+    static setSystemPreference(db:firebase.firestore.Firestore, spOpts:Options.SystemPreferenceOptions = Options.SYSTEM_PREFERENCES_DEFAULTS): Promise<void>{
         return db.collection("SystemPreferences").doc("Preferences").set({
-            "Android_Version": (spOpts.android_version !== undefined)?spOpts.android_version:SYSTEM_PREFERENCES_DEFAULTS.android_version,
-            "OneTimeCode": (spOpts.one_time_code !== undefined)?spOpts.one_time_code:SYSTEM_PREFERENCES_DEFAULTS.one_time_code,
-            "competitionHiddenMessage": (spOpts.competition_hidden_message !== undefined)?spOpts.competition_hidden_message:SYSTEM_PREFERENCES_DEFAULTS.competition_hidden_message,
-            "houseEnabledMessage": (spOpts.house_enabled_message !== undefined)?spOpts.house_enabled_message:SYSTEM_PREFERENCES_DEFAULTS.house_enabled_message,
-            "iOS_Version":(spOpts.ios_version !== undefined)?spOpts.ios_version:SYSTEM_PREFERENCES_DEFAULTS.ios_version,
-            "isCompetitionVisible":(spOpts.is_competition_visible !== undefined)?spOpts.is_competition_visible:SYSTEM_PREFERENCES_DEFAULTS.is_competition_visible,
-            "isHouseEnabled": (spOpts.is_house_enabled !== undefined)?spOpts.is_house_enabled:SYSTEM_PREFERENCES_DEFAULTS.is_house_enabled,
-            "suggestedPointIDs": (spOpts.suggested_point_ids !== undefined)?spOpts.suggested_point_ids:SYSTEM_PREFERENCES_DEFAULTS.suggested_point_ids
+            "Android_Version": (spOpts.android_version !== undefined)?spOpts.android_version:Options.SYSTEM_PREFERENCES_DEFAULTS.android_version,
+            "OneTimeCode": (spOpts.one_time_code !== undefined)?spOpts.one_time_code:Options.SYSTEM_PREFERENCES_DEFAULTS.one_time_code,
+            "competitionHiddenMessage": (spOpts.competition_hidden_message !== undefined)?spOpts.competition_hidden_message:Options.SYSTEM_PREFERENCES_DEFAULTS.competition_hidden_message,
+            "houseEnabledMessage": (spOpts.house_enabled_message !== undefined)?spOpts.house_enabled_message:Options.SYSTEM_PREFERENCES_DEFAULTS.house_enabled_message,
+            "iOS_Version":(spOpts.ios_version !== undefined)?spOpts.ios_version:Options.SYSTEM_PREFERENCES_DEFAULTS.ios_version,
+            "isCompetitionVisible":(spOpts.is_competition_visible !== undefined)?spOpts.is_competition_visible:Options.SYSTEM_PREFERENCES_DEFAULTS.is_competition_visible,
+            "isHouseEnabled": (spOpts.is_house_enabled !== undefined)?spOpts.is_house_enabled:Options.SYSTEM_PREFERENCES_DEFAULTS.is_house_enabled,
+            "suggestedPointIDs": (spOpts.suggested_point_ids !== undefined)?spOpts.suggested_point_ids:Options.SYSTEM_PREFERENCES_DEFAULTS.suggested_point_ids
         })
     }
 
@@ -28,14 +36,14 @@ export class FirestoreDataFactory{
      * @param id - ID number for the point type
      * @param ptopts - Optional Parameters for the point type. Will be set to default if field isnt provided
      */
-    static setPointType(db: firebase.firestore.Firestore, id: number, ptopts:PointTypeOptions = POINT_TYPE_DEFAULTS): Promise<void>{
+    static setPointType(db: firebase.firestore.Firestore, id: number, ptopts:Options.PointTypeOptions = Options.POINT_TYPE_DEFAULTS): Promise<void>{
         return db.collection("PointTypes").doc(id.toString()).set({
-            "Description":(ptopts.description !== undefined)? ptopts.description: POINT_TYPE_DEFAULTS.description,
-            "Name":(ptopts.name !== undefined)? ptopts.name: POINT_TYPE_DEFAULTS.name,
-            "Enabled":(ptopts.is_enabled !== undefined)? ptopts.is_enabled: POINT_TYPE_DEFAULTS.is_enabled,
-            "PermissionLevel":(ptopts.permission_level !== undefined)? ptopts.permission_level : POINT_TYPE_DEFAULTS.permission_level,
-            "ResidentsCanSubmit": (ptopts.residents_can_submit !== undefined)? ptopts.residents_can_submit : POINT_TYPE_DEFAULTS.residents_can_submit,
-            "Value": (ptopts.value !== undefined)? ptopts.value : POINT_TYPE_DEFAULTS.value
+            "Description":(ptopts.description !== undefined)? ptopts.description: Options.POINT_TYPE_DEFAULTS.description,
+            "Name":(ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name,
+            "Enabled":(ptopts.is_enabled !== undefined)? ptopts.is_enabled: Options.POINT_TYPE_DEFAULTS.is_enabled,
+            "PermissionLevel":(ptopts.permission_level !== undefined)? ptopts.permission_level : Options.POINT_TYPE_DEFAULTS.permission_level,
+            "ResidentsCanSubmit": (ptopts.residents_can_submit !== undefined)? ptopts.residents_can_submit : Options.POINT_TYPE_DEFAULTS.residents_can_submit,
+            "Value": (ptopts.value !== undefined)? ptopts.value : Options.POINT_TYPE_DEFAULTS.value
         })
     }
 
@@ -45,23 +53,23 @@ export class FirestoreDataFactory{
      * @param id - Name of the house
      * @param hOpts  - Optional Parameters for the house. Will be set to default if field isnt provided
      */
-    static setHouse(db: firebase.firestore.Firestore, id: string, hOpts:HouseOptions = HOUSE_DEFAULTS): Promise<void> {
-        console.log("SETTING HOUSE:", (hOpts.total_points !== undefined)? hOpts.total_points: HOUSE_DEFAULTS.total_points)
+    static setHouse(db: firebase.firestore.Firestore, id: string, hOpts:Options.HouseOptions = Options.HOUSE_DEFAULTS): Promise<void> {
+        console.log("SETTING HOUSE:", (hOpts.total_points !== undefined)? hOpts.total_points: Options.HOUSE_DEFAULTS.total_points)
         return db.collection("House").doc(id).set({
-            "Color":(hOpts.color !== undefined)? hOpts.color: HOUSE_DEFAULTS.color,
-            "NumberOfResidents":(hOpts.num_residents !== undefined)? hOpts.num_residents: HOUSE_DEFAULTS.num_residents,
-            "TotalPoints":(hOpts.total_points !== undefined)? hOpts.total_points: HOUSE_DEFAULTS.total_points
+            "Color":(hOpts.color !== undefined)? hOpts.color: Options.HOUSE_DEFAULTS.color,
+            "NumberOfResidents":(hOpts.num_residents !== undefined)? hOpts.num_residents: Options.HOUSE_DEFAULTS.num_residents,
+            "TotalPoints":(hOpts.total_points !== undefined)? hOpts.total_points: Options.HOUSE_DEFAULTS.total_points
         })
     }
 
-    static setHouseCode(db: firebase.firestore.Firestore, id: string, cOpts:HouseCodeOptions = HOUSE_CODE_DEFAULTS): Promise<void> {
-        console.log("SETTING HOUSE CODE:", (cOpts.code !== undefined)? cOpts.code: HOUSE_CODE_DEFAULTS.code)
+    static setHouseCode(db: firebase.firestore.Firestore, id: string, cOpts:Options.HouseCodeOptions = Options.HOUSE_CODE_DEFAULTS): Promise<void> {
+        console.log("SETTING HOUSE CODE:", (cOpts.code !== undefined)? cOpts.code: Options.HOUSE_CODE_DEFAULTS.code)
         return db.collection("HouseCodes").doc(id).set({
-            "Code":(cOpts.code !== undefined)? cOpts.code: HOUSE_CODE_DEFAULTS.code,
-            "CodeName":(cOpts.code_name !== undefined)? cOpts.code: HOUSE_CODE_DEFAULTS.code_name,
-            "FloorId":(cOpts.floor_id !== undefined)? cOpts.code: HOUSE_CODE_DEFAULTS.floor_id,
-            "House":(cOpts.house !== undefined)? cOpts.house: HOUSE_CODE_DEFAULTS.house,
-            "PermissionLevel":(cOpts.permission_level !== undefined)? cOpts.permission_level: HOUSE_CODE_DEFAULTS.permission_level
+            "Code":(cOpts.code !== undefined)? cOpts.code: Options.HOUSE_CODE_DEFAULTS.code,
+            "CodeName":(cOpts.code_name !== undefined)? cOpts.code: Options.HOUSE_CODE_DEFAULTS.code_name,
+            "FloorId":(cOpts.floor_id !== undefined)? cOpts.code: Options.HOUSE_CODE_DEFAULTS.floor_id,
+            "House":(cOpts.house !== undefined)? cOpts.house: Options.HOUSE_CODE_DEFAULTS.house,
+            "PermissionLevel":(cOpts.permission_level !== undefined)? cOpts.permission_level: Options.HOUSE_CODE_DEFAULTS.permission_level
         })
     }
 
@@ -70,7 +78,7 @@ export class FirestoreDataFactory{
      * @param db - Test App Firestore instance (Usually from authedApp())
      * @param houseOpts - Optional Parameters for each of the houses. Will be set to defaults if not provided
      */
-    static async setAllHouses(db: firebase.firestore.Firestore, houseOpts:AllHousesOptions){
+    static async setAllHouses(db: firebase.firestore.Firestore, houseOpts:Options.AllHousesOptions){
         await this.setHouse(db,"Copper",houseOpts.copper)
         await this.setHouse(db,"Palladium",houseOpts.palladium)
         await this.setHouse(db,"Platinum", houseOpts.platinum)
@@ -85,72 +93,72 @@ export class FirestoreDataFactory{
      * @param permission_level - int that represents the permission level
      * @param uOpts - Optional parameters for the user. Will be set to default if field isn't provided
      */
-    static setUser(db: firebase.firestore.Firestore, id: string, permission_level: number, uOpts:UserOptions = USER_DEFAULTS): Promise<void> {
+    static setUser(db: firebase.firestore.Firestore, id: string, permission_level: number, uOpts:Options.UserOptions = Options.USER_DEFAULTS): Promise<void> {
         switch(permission_level){
             case 0:
                 //Resident
                 return db.collection("Users").doc(id).set({
-                    "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first, 
-                    "FloorID":(uOpts.floor_id !== undefined)? uOpts.floor_id:USER_DEFAULTS.floor_id,
-                    "House":(uOpts.house_name !== undefined)? uOpts.house_name:USER_DEFAULTS.house_name,
-                    "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
-                    "SemesterPoints":(uOpts.semester_points !== undefined)? uOpts.semester_points: USER_DEFAULTS.semester_points,
+                    "FirstName":(uOpts.first !== undefined)? uOpts.first: Options.USER_DEFAULTS.first, 
+                    "FloorID":(uOpts.floor_id !== undefined)? uOpts.floor_id:Options.USER_DEFAULTS.floor_id,
+                    "House":(uOpts.house_name !== undefined)? uOpts.house_name:Options.USER_DEFAULTS.house_name,
+                    "LastName":(uOpts.last !== undefined)? uOpts.last:Options.USER_DEFAULTS.last,
+                    "SemesterPoints":(uOpts.semester_points !== undefined)? uOpts.semester_points: Options.USER_DEFAULTS.semester_points,
                     "Permission Level":0, 
-                    "TotalPoints":(uOpts.total_points !== undefined)? uOpts.total_points: USER_DEFAULTS.total_points
+                    "TotalPoints":(uOpts.total_points !== undefined)? uOpts.total_points: Options.USER_DEFAULTS.total_points
                 })
             case 1:
                 //RHP
                 return db.collection("Users").doc(id).set({
-                    "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first, 
-                    "FloorID":(uOpts.floor_id !== undefined)? uOpts.floor_id:USER_DEFAULTS.floor_id,
-                    "House":(uOpts.house_name !== undefined)? uOpts.house_name:USER_DEFAULTS.house_name,
-                    "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
-                    "SemesterPoints":(uOpts.semester_points !== undefined)? uOpts.semester_points: USER_DEFAULTS.semester_points,
+                    "FirstName":(uOpts.first !== undefined)? uOpts.first: Options.USER_DEFAULTS.first, 
+                    "FloorID":(uOpts.floor_id !== undefined)? uOpts.floor_id:Options.USER_DEFAULTS.floor_id,
+                    "House":(uOpts.house_name !== undefined)? uOpts.house_name:Options.USER_DEFAULTS.house_name,
+                    "LastName":(uOpts.last !== undefined)? uOpts.last:Options.USER_DEFAULTS.last,
+                    "SemesterPoints":(uOpts.semester_points !== undefined)? uOpts.semester_points: Options.USER_DEFAULTS.semester_points,
                     "Permission Level":1, 
-                    "TotalPoints":(uOpts.total_points !== undefined)? uOpts.total_points: USER_DEFAULTS.total_points
+                    "TotalPoints":(uOpts.total_points !== undefined)? uOpts.total_points: Options.USER_DEFAULTS.total_points
                 })
             case 2:
                 //REC
                 return db.collection("Users").doc(id).set({
-                    "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first,
-                    "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
+                    "FirstName":(uOpts.first !== undefined)? uOpts.first: Options.USER_DEFAULTS.first,
+                    "LastName":(uOpts.last !== undefined)? uOpts.last:Options.USER_DEFAULTS.last,
                     "Permission Level":2
                 })
             case 3:
                 //FHP
                 return db.collection("Users").doc(id).set({
-                    "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first, 
-                    "House":(uOpts.house_name !== undefined)? uOpts.house_name:USER_DEFAULTS.house_name,
-                    "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
+                    "FirstName":(uOpts.first !== undefined)? uOpts.first: Options.USER_DEFAULTS.first, 
+                    "House":(uOpts.house_name !== undefined)? uOpts.house_name:Options.USER_DEFAULTS.house_name,
+                    "LastName":(uOpts.last !== undefined)? uOpts.last:Options.USER_DEFAULTS.last,
                     "Permission Level":3
                 })
             case 4:
                 //Privileged Resident
                 return db.collection("Users").doc(id).set({
-                    "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first, 
-                    "FloorID":(uOpts.floor_id !== undefined)? uOpts.floor_id:USER_DEFAULTS.floor_id,
-                    "House":(uOpts.house_name !== undefined)? uOpts.house_name:USER_DEFAULTS.house_name,
-                    "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
-                    "SemesterPoints":(uOpts.semester_points !== undefined)? uOpts.semester_points: USER_DEFAULTS.semester_points,
+                    "FirstName":(uOpts.first !== undefined)? uOpts.first: Options.USER_DEFAULTS.first, 
+                    "FloorID":(uOpts.floor_id !== undefined)? uOpts.floor_id:Options.USER_DEFAULTS.floor_id,
+                    "House":(uOpts.house_name !== undefined)? uOpts.house_name:Options.USER_DEFAULTS.house_name,
+                    "LastName":(uOpts.last !== undefined)? uOpts.last:Options.USER_DEFAULTS.last,
+                    "SemesterPoints":(uOpts.semester_points !== undefined)? uOpts.semester_points: Options.USER_DEFAULTS.semester_points,
                     "Permission Level":4, 
-                    "TotalPoints":(uOpts.total_points !== undefined)? uOpts.total_points: USER_DEFAULTS.total_points
+                    "TotalPoints":(uOpts.total_points !== undefined)? uOpts.total_points: Options.USER_DEFAULTS.total_points
                 })
             case 5:
                 //Non-Honors Affiliated Staff
                 return db.collection("Users").doc(id).set({
-                    "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first,
-                    "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
+                    "FirstName":(uOpts.first !== undefined)? uOpts.first: Options.USER_DEFAULTS.first,
+                    "LastName":(uOpts.last !== undefined)? uOpts.last:Options.USER_DEFAULTS.last,
                     "Permission Level":5
                 })
             default:
                 return db.collection("Users").doc(id).set({
-                    "FirstName":(uOpts.first !== undefined)? uOpts.first: USER_DEFAULTS.first, 
-                    "FloorID":(uOpts.floor_id !== undefined)? uOpts.floor_id:USER_DEFAULTS.floor_id,
-                    "House":(uOpts.house_name !== undefined)? uOpts.house_name:USER_DEFAULTS.house_name,
-                    "LastName":(uOpts.last !== undefined)? uOpts.last:USER_DEFAULTS.last,
-                    "SemesterPoints":(uOpts.semester_points !== undefined)? uOpts.semester_points: USER_DEFAULTS.semester_points,
+                    "FirstName":(uOpts.first !== undefined)? uOpts.first: Options.USER_DEFAULTS.first, 
+                    "FloorID":(uOpts.floor_id !== undefined)? uOpts.floor_id:Options.USER_DEFAULTS.floor_id,
+                    "House":(uOpts.house_name !== undefined)? uOpts.house_name:Options.USER_DEFAULTS.house_name,
+                    "LastName":(uOpts.last !== undefined)? uOpts.last:Options.USER_DEFAULTS.last,
+                    "SemesterPoints":(uOpts.semester_points !== undefined)? uOpts.semester_points: Options.USER_DEFAULTS.semester_points,
                     "Permission Level":0, 
-                    "TotalPoints":(uOpts.total_points !== undefined)? uOpts.total_points: USER_DEFAULTS.total_points
+                    "TotalPoints":(uOpts.total_points !== undefined)? uOpts.total_points: Options.USER_DEFAULTS.total_points
                 })
         }
     }
@@ -163,22 +171,22 @@ export class FirestoreDataFactory{
      * @param approved - boolean for if the pointlog was already approved. (used to set the approved fields and sign of point type ID)
      * @param ptOpts - Optional parameters to modifu the point log
      */
-    static setPointLog(db: firebase.firestore.Firestore, house:string, resident_id:string, approved: boolean, ptOpts:PointLogOptions = POINT_LOG_DEFAULTS): Promise<firebase.firestore.DocumentReference| void>{
+    static setPointLog(db: firebase.firestore.Firestore, house:string, resident_id:string, approved: boolean, ptOpts:Options.PointLogOptions = Options.POINT_LOG_DEFAULTS): Promise<firebase.firestore.DocumentReference| void>{
         let data = {
-            "DateOccurred":(ptOpts.date_occurred !== undefined)?ptOpts.date_occurred:POINT_LOG_DEFAULTS.date_occurred,
-            "DateSubmitted":(ptOpts.date_submitted !== undefined)?ptOpts.date_submitted:POINT_LOG_DEFAULTS.date_submitted,
-            "Description":(ptOpts.date_submitted !== undefined)?ptOpts.description:POINT_LOG_DEFAULTS.description,
-            "FloorID":(ptOpts.floor_id !== undefined)?ptOpts.floor_id:POINT_LOG_DEFAULTS.floor_id,
-            "PointTypeID":(ptOpts.point_type_id !== undefined)?ptOpts.point_type_id:POINT_LOG_DEFAULTS.point_type_id! * -1,
-            "RHPNotifications":(ptOpts.rhp_notifications !== undefined)?ptOpts.rhp_notifications:POINT_LOG_DEFAULTS.rhp_notifications,
-            "ResidentFirstName":(ptOpts.resident_first_name !== undefined)?ptOpts.resident_first_name:POINT_LOG_DEFAULTS.resident_first_name,
+            "DateOccurred":(ptOpts.date_occurred !== undefined)?ptOpts.date_occurred:Options.POINT_LOG_DEFAULTS.date_occurred,
+            "DateSubmitted":(ptOpts.date_submitted !== undefined)?ptOpts.date_submitted:Options.POINT_LOG_DEFAULTS.date_submitted,
+            "Description":(ptOpts.date_submitted !== undefined)?ptOpts.description:Options.POINT_LOG_DEFAULTS.description,
+            "FloorID":(ptOpts.floor_id !== undefined)?ptOpts.floor_id:Options.POINT_LOG_DEFAULTS.floor_id,
+            "PointTypeID":(ptOpts.point_type_id !== undefined)?ptOpts.point_type_id:Options.POINT_LOG_DEFAULTS.point_type_id! * -1,
+            "RHPNotifications":(ptOpts.rhp_notifications !== undefined)?ptOpts.rhp_notifications:Options.POINT_LOG_DEFAULTS.rhp_notifications,
+            "ResidentFirstName":(ptOpts.resident_first_name !== undefined)?ptOpts.resident_first_name:Options.POINT_LOG_DEFAULTS.resident_first_name,
             "ResidentId":resident_id,
-            "ResidentLastName":(ptOpts.resident_last_name !== undefined)?ptOpts.resident_last_name:POINT_LOG_DEFAULTS.resident_last_name,
-            "ResidentNotifications":(ptOpts.resident_notifications !== undefined)?ptOpts.resident_notifications:POINT_LOG_DEFAULTS.resident_notifications
+            "ResidentLastName":(ptOpts.resident_last_name !== undefined)?ptOpts.resident_last_name:Options.POINT_LOG_DEFAULTS.resident_last_name,
+            "ResidentNotifications":(ptOpts.resident_notifications !== undefined)?ptOpts.resident_notifications:Options.POINT_LOG_DEFAULTS.resident_notifications
         }
         if(!approved){
-            data["ApprovedBy"] = (ptOpts.approved_by !== undefined)?ptOpts.approved_by:POINT_LOG_DEFAULTS.approved_by
-            data["ApprovedOn"] = (ptOpts.approved_on !== undefined)?ptOpts.approved_on:POINT_LOG_DEFAULTS.approved_on
+            data["ApprovedBy"] = (ptOpts.approved_by !== undefined)?ptOpts.approved_by:Options.POINT_LOG_DEFAULTS.approved_by
+            data["ApprovedOn"] = (ptOpts.approved_on !== undefined)?ptOpts.approved_on:Options.POINT_LOG_DEFAULTS.approved_on
             data["PointTypeID"] = data["PointTypeID"] * -1
         }
         if(ptOpts.id){
@@ -190,26 +198,41 @@ export class FirestoreDataFactory{
         
     }
 
-    static setLink(db: firebase.firestore.Firestore, link_id: string, creator_id: string, point_type_id: number, linkOpts: LinkOptions = LINK_DEFAULTS){
+    /**
+     * 
+     * @param db - Test App Firestore instance (Usually from authedApp())
+     * @param link_id - ID of the link to be created
+     * @param creator_id - ID of the user to whom the link belongs
+     * @param point_type_id - Id of the point type to connect this link to
+     * @param linkOpts - Options for the link
+     */
+    static setLink(db: firebase.firestore.Firestore, link_id: string, creator_id: string, point_type_id: number, linkOpts: Options.LinkOptions = Options.LINK_DEFAULTS){
         let data = {
-            Archived:linkOpts.archived,
+            Archived:(linkOpts.archived !== undefined)?linkOpts.archived:Options.LINK_DEFAULTS.archived,
             CreatorID:creator_id,
-            Description:linkOpts.description,
-            Enabled: linkOpts.enabled,
+            Description:(linkOpts.description !== undefined)?linkOpts.description:Options.LINK_DEFAULTS.description,
+            Enabled: (linkOpts.enabled !== undefined)?linkOpts.enabled:Options.LINK_DEFAULTS.enabled,
             PointID: point_type_id,
-            SingleUse: linkOpts.single_use
+            SingleUse: (linkOpts.single_use !== undefined)?linkOpts.single_use:Options.LINK_DEFAULTS.single_use,
         }
         return db.collection("Links").doc(link_id).set(data)
     }
 
-    static setPointLogMessage(db: firebase.firestore.Firestore, house_id: string, log_id: string, messageOpts: PointLogMessageOptions = MESSAGE_DEFAULTS){
+    /**
+     * Create an instance of a Point Log Message in the database. However, make sure the House and the Point Log models exist first
+     * @param db  - Test App Firestore instance (Usually from authedApp())
+     * @param house_id - ID of the house that the point log belongs to
+     * @param log_id - ID of the point log to add the message to
+     * @param messageOpts - Optional parameters to modify the message
+     */
+    static setPointLogMessage(db: firebase.firestore.Firestore, house_id: string, log_id: string, messageOpts: Options.PointLogMessageOptions = Options.MESSAGE_DEFAULTS){
         let data = {
-            CreationDate:(messageOpts.creation_date !== undefined)?messageOpts.creation_date:MESSAGE_DEFAULTS.creation_date,
-            Message:(messageOpts.message !== undefined)?messageOpts.message:MESSAGE_DEFAULTS.message,
-            MessageType:(messageOpts.message_type !== undefined)? messageOpts.message_type:MESSAGE_DEFAULTS.message_type,
-            SenderFirstName:(messageOpts.sender_first_name !== undefined)? messageOpts.sender_first_name: MESSAGE_DEFAULTS.sender_first_name,
-            SenderLastName:(messageOpts.sender_last_name !== undefined)? messageOpts.sender_last_name: MESSAGE_DEFAULTS.sender_last_name,
-            SenderPermissionLevel:(messageOpts.sender_permission_level !== undefined)? messageOpts.sender_permission_level:MESSAGE_DEFAULTS.sender_permission_level
+            CreationDate:(messageOpts.creation_date !== undefined)?messageOpts.creation_date:Options.MESSAGE_DEFAULTS.creation_date,
+            Message:(messageOpts.message !== undefined)?messageOpts.message:Options.MESSAGE_DEFAULTS.message,
+            MessageType:(messageOpts.message_type !== undefined)? messageOpts.message_type:Options.MESSAGE_DEFAULTS.message_type,
+            SenderFirstName:(messageOpts.sender_first_name !== undefined)? messageOpts.sender_first_name: Options.MESSAGE_DEFAULTS.sender_first_name,
+            SenderLastName:(messageOpts.sender_last_name !== undefined)? messageOpts.sender_last_name: Options.MESSAGE_DEFAULTS.sender_last_name,
+            SenderPermissionLevel:(messageOpts.sender_permission_level !== undefined)? messageOpts.sender_permission_level:Options.MESSAGE_DEFAULTS.sender_permission_level
         }
         return db.collection("House").doc(house_id).collection("Points").doc(log_id).collection("Messages").add(data)
     }
@@ -232,11 +255,11 @@ export class FirestoreDataFactory{
      * @param db  - Test App Firestore instance (Usually from authedApp())
      * @param rOpts - Optional parameters for the Reward
      */
-    static setReward(db: firebase.firestore.Firestore, rOpts:RewardOptions = REWARD_DEFAULTS): Promise<void> {
-        return db.collection("Rewards").doc((rOpts.id)?rOpts.id:REWARD_DEFAULTS.id).set({
-            FileName:(rOpts.id !== undefined)?rOpts.id+".png":REWARD_DEFAULTS.id+".png",
-            RequiredPPR:(rOpts.required_ppr !== undefined)?rOpts.required_ppr:REWARD_DEFAULTS.required_ppr,
-            RequiredValue:(rOpts.required_value !== undefined)?rOpts.required_value:REWARD_DEFAULTS.required_value
+    static setReward(db: firebase.firestore.Firestore, rOpts:Options.RewardOptions = Options.REWARD_DEFAULTS): Promise<void> {
+        return db.collection("Rewards").doc((rOpts.id)?rOpts.id:Options.REWARD_DEFAULTS.id).set({
+            FileName:(rOpts.id !== undefined)?rOpts.id+".png":Options.REWARD_DEFAULTS.id+".png",
+            RequiredPPR:(rOpts.required_ppr !== undefined)?rOpts.required_ppr:Options.REWARD_DEFAULTS.required_ppr,
+            RequiredValue:(rOpts.required_value !== undefined)?rOpts.required_value:Options.REWARD_DEFAULTS.required_value
         })
     }
 
@@ -268,7 +291,7 @@ export class FirestoreDataFactory{
 
 
     /**
-     * Delete a collection
+     * Deletes a collection from the db using a batch processes
      * @param db Test App Firestore instance
      * @param collectionPath Path to collection
      * @param batchSize max number to delete in batch
@@ -305,224 +328,4 @@ export class FirestoreDataFactory{
           FirestoreDataFactory.deleteQueryBatch(db, query, resolve);
         });
       }
-}
-
-export declare type PointLogMessageOptions = {
-    creation_date?: Date
-    message?: string
-    message_type?: string
-    sender_first_name?: string
-    sender_last_name?: string
-    sender_permission_level?: number
-}
-
-/**
- * Type declaration for optional params for System Preference. Undefined fields will be defaulted.
- */
-export declare type SystemPreferenceOptions = {
-    android_version?: string
-    one_time_code?: string
-    competition_hidden_message?: string
-    house_enabled_message?: string
-    ios_version?: string
-    is_competition_visible?: boolean
-    is_house_enabled?: boolean
-    suggested_point_ids?: string
-};
-
-/**
- * Type declaration for optional params for point type. Undefined fields will be defaulted.
- */
-export declare type PointTypeOptions = {
-    description?: string
-    name?: string
-    is_enabled?: boolean
-    permission_level?: number
-    residents_can_submit?: boolean
-    value?: number
-};
-
-/**
- * Type declaration for optional params for House Options. Undefined fields will be defaulted.
- */
-export declare type HouseOptions = {
-    color?: string
-    num_residents?: number
-    total_points?: number
-}
-
-/**
- * Type declaration to add parameters for multiple houses at once. Undefined fields will be defaulted.
- */
-export declare type AllHousesOptions = {
-    copper?: HouseOptions,
-    palladium?:HouseOptions,
-    platinum?:HouseOptions,
-    silver?:HouseOptions,
-    titanium?:HouseOptions
-}
-
-/**
- * Type declaration for optional params for House Code Options. Undefined fields will be defaulted.
- */
-export declare type HouseCodeOptions = {
-    code?: string,
-    code_name?: string,
-    floor_id?: string,
-    house?: string,
-    permission_level?: number
-}
-
-/**
- * Type declaration for optional params for User Options. Undefined fields will be defaulted.
- */
-export declare type UserOptions = {
-    first?:string, 
-    floor_id?:string,
-    house_name?:string,
-    last?:string,
-    semester_points?:number,
-    total_points?:number
-}
-
-/**
- * Type declaration for fields to add to a point log. Undefined fields will be defaulted.
- */
-export declare type PointLogOptions = {
-    id?:string,
-    approved_by?:string,
-    approved_on?:Date,
-    date_occurred?:Date,
-    date_submitted?:Date,
-    description?:string,
-    floor_id?:string,
-    point_type_id?:number,
-    rhp_notifications?:number,
-    resident_first_name?:string,
-    resident_last_name?:string,
-    resident_notifications?:number
-
-}
-
-/**
- * Type declaration for fields to add to reward. Undefined fields will be defaulted.
- */
-export declare type RewardOptions = {
-    id?: string
-    required_ppr?: number,
-    required_value?: number
-}
-
-/**
- * Type Declaration for fields to add to Link. Undefined fields will be defaulted
- */
-export declare type LinkOptions = {
-    archived?: boolean,
-    description?: string,
-    enabled?: boolean,
-    single_use?: boolean
-}
-
-export const LINK_DEFAULTS:LinkOptions = {
-    archived: false,
-    description: "Basic description",
-    enabled: true,
-    single_use: true
-}
-
-/**
- * Default fields for Reward
- */
-export const REWARD_DEFAULTS:RewardOptions = {
-    id: "Pizza Party",
-    required_ppr: 100,
-    required_value: 20000
-}
-
-/**
- * Default fields for point log
- */
-export const POINT_LOG_DEFAULTS:PointLogOptions = {
-    approved_by: "Preapproved",
-    approved_on: new Date(Date.parse("5/18/2020")),
-    date_occurred: new Date(Date.parse("5/18/2020")),
-    date_submitted: new Date(Date.parse("5/18/2020")),
-    description: "Empty Description",
-    floor_id: "4N",
-    point_type_id: 1,
-    rhp_notifications: 0,
-    resident_first_name: "TEST_FIRST",
-    resident_last_name: "TEST_LAST",
-    resident_notifications: 0
-
-}
-
-/**
- * Default fields for system preferences
- */
-export const SYSTEM_PREFERENCES_DEFAULTS:SystemPreferenceOptions = {
-    android_version: "2.0.0",
-    one_time_code: "abc",
-    competition_hidden_message: "hidden",
-    house_enabled_message: "Honors1",
-    ios_version: "1.6.2",
-    is_competition_visible: true,
-    is_house_enabled: true,
-    suggested_point_ids: "1,2,3,4",
-}
-
-/**
- * default fields for point type
- */
-export const POINT_TYPE_DEFAULTS:PointTypeOptions = {
-    description: "Empty Point Type Description",
-    name: "Empty Point Type Name",
-    is_enabled: true,
-    permission_level: 2,
-    residents_can_submit: true,
-    value: 1
-}
-
-/**
- * Default field for house
- */
-export const HOUSE_DEFAULTS:HouseOptions = {
-    color: "#5AC0C7",
-    total_points: 20,
-    num_residents: 200
-}
-
-/**
- * Default field for house code
- */
-export const HOUSE_CODE_DEFAULTS:HouseCodeOptions = {
-    code: "4N1234",
-    code_name: "4N Resident",
-    floor_id: "4N",
-    house: "Platinum",
-    permission_level: 0
-}
-
-/**
- * Default fields for user
- */
-export const USER_DEFAULTS:UserOptions = {
-    first: "TEST_FIRST",
-    last: "TEST_LAST",
-    total_points: 0,
-    semester_points: 0,
-    house_name: "Platinum",
-    floor_id: "4N"
-}
-
-/**
- * Default PointLogMessage Options
- */
-export const MESSAGE_DEFAULTS:PointLogMessageOptions = {
-    creation_date: new Date(Date.now()),
-    message: "Empty Message",
-    message_type: "comment",
-    sender_first_name: "First",
-    sender_last_name: "Last",
-    sender_permission_level: 0
 }
