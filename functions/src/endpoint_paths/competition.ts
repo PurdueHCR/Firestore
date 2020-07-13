@@ -295,6 +295,7 @@ comp_app.get('/getUnhandledPoints', async (req, res) => {
  * 
  * @throws 400 - Unknown User
  * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permissions (This should not ever be sent because we sort permissions here, but it could be sent)
  * @throws 500 - Server Error
  */
 comp_app.get('/userOverview', async (req, res) => {

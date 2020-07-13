@@ -12,6 +12,8 @@ import { verifyUserHasCorrectPermission } from "./VerifyUserHasCorrectPermission
  * Gets all information for the overview page if user is resident
  *  *** and temporaryly, rhp and privileged res
  * @param user User for which to get profile
+ * @throws 403 - Invalid permissions
+ * @throws 500 - Server Error
  */
 export async function getResidentProfile(user:User): Promise<ResidentProfile>{
 	verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP, UserPermissionLevel.RESIDENT, UserPermissionLevel.PRIVILEGED_RESIDENT])
@@ -38,7 +40,7 @@ export async function getResidentProfile(user:User): Promise<ResidentProfile>{
 		data.houses = []
 	}
 
-	data.last_submissions = await getPointLogsForUser(user.id, user.house, 5)
+	data.last_submissions = await getPointLogsForUser(user, 5)
 
 	return data
 }
