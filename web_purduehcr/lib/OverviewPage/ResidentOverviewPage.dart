@@ -1,7 +1,4 @@
 
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/BasePage.dart';
 import 'package:purduehcr_web/Models/House.dart';
@@ -12,6 +9,7 @@ import 'package:purduehcr_web/OverviewPage/overview_cards/ProfileCard.dart';
 import 'package:purduehcr_web/OverviewPage/overview_cards/RecentSubmissionsCard.dart';
 import 'package:purduehcr_web/OverviewPage/overview_cards/RewardsCard.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
+import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 
 import '../Config.dart';
 import '../ConfigWrapper.dart';
@@ -19,7 +17,7 @@ import '../ConfigWrapper.dart';
 class ResidentOverviewPage extends BasePage {
   @override
   State<StatefulWidget> createState() {
-    window.console.log("Create State Resident Overview Page");
+    print("Create State Resident Overview Page");
     return _ResidentOverviewPageState(drawerLabel: "Overview");
   }
 
@@ -34,48 +32,52 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = authState.user;
-    Config config = ConfigWrapper.of(context);
-    _overviewBloc = new OverviewBloc(config);
-    _overviewBloc.add(OverviewLaunchedEvent(permissionLevel: user.permissionLevel));
+    if(_overviewBloc == null){
+      user = authState.user;
+      Config config = ConfigWrapper.of(context);
+      _overviewBloc = new OverviewBloc(config);
+      _overviewBloc.add(OverviewLaunchedEvent(permissionLevel: user.permissionLevel));
+    }
+
   }
 
   @override
   Widget buildLargeDesktopBody({BuildContext context, OverviewState state}) {
-    ResidentOverviewLoaded residentData = state;
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          SizedBox(
-            width: getActiveAreaWidth(context),
-            height: getActiveAreaWidth(context) * 0.3,
-            child:HouseCompetitionCard(
-              houses: residentData.houses,
+    if(state is ResidentOverviewLoaded){
+      return SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(
+              width: getActiveAreaWidth(context),
+              height: getActiveAreaWidth(context) * 0.3,
+              child:HouseCompetitionCard(
+                houses: state.houses,
+              ),
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              SizedBox(
-                width: getActiveAreaWidth(context) * 0.475,
-                height: getActiveAreaWidth(context) * 0.475 * 0.4,
-                child: ProfileCard(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                ProfileCard(
                     user:user,
-                    userRank:residentData.rank
+                    userRank:state.rank
                 ),
-              ),
-              SizedBox(
-                  width: getActiveAreaWidth(context) * 0.475,
-                  height: getActiveAreaWidth(context) * 0.475 * 0.4,
-                  child:RewardsCard(reward: residentData.reward, house: getUserHouse(user, residentData.houses),)
-              ),
-            ],
-          ),
-          RecentSubmissionsCard(submissions: residentData.logs,)
-        ],
-      ),
-    );
+                RewardsCard(reward: state.reward, house: getUserHouse(user, state.houses),)
+              ],
+            ),
+            SizedBox(
+              width: getActiveAreaWidth(context),
+              height: 308,
+              child:RecentSubmissionsCard(submissions: state.logs,),
+            ),
+
+          ],
+        ),
+      );
+    }
+    else{
+      return LoadingWidget();
+    }
   }
 
   @override
@@ -89,34 +91,35 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
   }
 
   Widget _buildBody(OverviewState state){
-    ResidentOverviewLoaded residentData = state;
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          SizedBox(
-            width: getActiveAreaWidth(context),
-            height: getActiveAreaWidth(context) * 0.3,
-            child:HouseCompetitionCard(
-              houses: residentData.houses,
+    if(state is ResidentOverviewLoaded){
+      ResidentOverviewLoaded residentData = state;
+      return SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(
+              width: getActiveAreaWidth(context),
+              height: getActiveAreaWidth(context) * 0.3,
+              child:HouseCompetitionCard(
+                houses: residentData.houses,
+              ),
             ),
-          ),
-          SizedBox(
-            width: getActiveAreaWidth(context),
-            height: getActiveAreaWidth(context) * 0.475 * 0.8,
-            child: ProfileCard(
+            ProfileCard(
                 user:user,
                 userRank:residentData.rank
             ),
-          ),
-          SizedBox(
+            RewardsCard(reward: residentData.reward, house: getUserHouse(user, residentData.houses),),
+            SizedBox(
               width: getActiveAreaWidth(context),
-              height: getActiveAreaWidth(context) * 0.475 * 0.8,
-              child:RewardsCard(reward: residentData.reward, house: getUserHouse(user, residentData.houses),)
-          ),
-          RecentSubmissionsCard(submissions: residentData.logs,)
-        ],
-      ),
-    );
+              height: 308,
+              child:RecentSubmissionsCard(submissions: state.logs,),
+            ),
+          ],
+        ),
+      );
+    }
+    else{
+      return LoadingWidget();
+    }
   }
 
   @override
@@ -135,7 +138,6 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
         return house;
       }
     }
-    window.console.error("Could not find User House");
     return houses[0];
   }
 }

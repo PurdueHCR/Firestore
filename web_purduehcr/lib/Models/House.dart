@@ -43,9 +43,7 @@ class House{
 
 
   Color getHouseColor(){
-    print("Color: "+this.color.substring(1));
     int color = int.parse(this.color.substring(1), radix: 16);
-    print("Color as int: "+ color.toString());
     return Color.fromARGB(255, (color & 0xff0000) >> 16, (color & 0xff00 >> 8), color & 0xff);
   }
 }

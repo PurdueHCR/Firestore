@@ -20,59 +20,83 @@ class RewardsCardState extends State<RewardsCard>{
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: new CircularProgressIndicator(
-                      strokeWidth: 10,
-                      valueColor: new AlwaysStoppedAnimation<Color>(widget.house.getHouseColor()),
-                      value: widget.house.pontsPerResident/ widget.reward.requiredPPR,
-                    ),
-                  ),
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: FutureBuilder(
-                        future: widget.reward.getDownloadURL(),
-                        builder: (context, snapshot){
-                          if(snapshot.connectionState == ConnectionState.done){
-                            return Image(
-                              image: NetworkImage(snapshot.data.toString()),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            drawRewardWidget(),
+            drawTextWidgets()
+          ],
+        ),
+      )
+    );
+  }
 
-                            );
-                          }
-                          else{
-                            return LoadingWidget();
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+  Widget drawRewardWidget(){
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        width: 100,
+        height: 100,
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: Stack(
             children: [
-              Spacer(),
+              Positioned.fill(
+                child: new CircularProgressIndicator(
+                  strokeWidth: 10,
+                  valueColor: new AlwaysStoppedAnimation<Color>(widget.house.getHouseColor()),
+                  value: widget.house.pontsPerResident/ widget.reward.requiredPPR,
+                ),
+              ),
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: FutureBuilder(
+                    future: widget.reward.getDownloadURL(),
+                    builder: (context, snapshot){
+                      if(snapshot.connectionState == ConnectionState.none && !snapshot.hasData){
+                        return LoadingWidget();
+                      }
+                      else{
+                        return Image.network((snapshot.data as Uri).toString());
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  Widget drawTextWidgets(){
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+          child: Column(
+            children: [
               Text("Next Reward"),
               Text(widget.reward.name),
-              Spacer(),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+          child: Column(
+            children: [
               Text(widget.house.pontsPerResident.toString()+ " / "+widget.reward.requiredPPR.toString()),
               Text("Points Per Resident", maxLines: null,),
-              Spacer(),
             ],
-          )
-        ],
-      ),
+          ),
+        )
+      ],
     );
   }
 }

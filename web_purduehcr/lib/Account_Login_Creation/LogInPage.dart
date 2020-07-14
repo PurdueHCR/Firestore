@@ -1,4 +1,3 @@
-import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,7 +29,7 @@ class LogInPageState extends State<LogInPage> {
   @override
   void initState() {
     _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
-    window.console.log("Init State");
+    print("Init State");
     super.initState();
   }
 

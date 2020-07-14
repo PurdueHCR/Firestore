@@ -12,6 +12,8 @@ import { User } from '../models/User'
 import { APIResponse } from '../models/APIResponse'
 import { getResidentProfile } from '../src/GetUserProfiles'
 import { PointType } from '../models/PointType'
+import { getUser } from '../src/GetUser'
+import { UserPermissionLevel } from '../models/UserPermissionLevel'
 
 
 class UsersAndErrorWrapper{
@@ -266,12 +268,13 @@ comp_app.get('/secret-reset-house-competition', (req,res) => {
 
 comp_app.get('/getUnhandledPoints', async (req, res) => {
 	try{
+		const user = await getUser(req["user"]["user_id"])
 		let logs
 		if(req.query.limit !== undefined){
-			logs = await getUnhandledPointLogs(req["user"]["user_id"], parseInt(req.query.limit as string))
+			logs = await getUnhandledPointLogs(user, parseInt(req.query.limit as string))
 		}
 		else{
-			logs = await getUnhandledPointLogs(req["user"]["user_id"])
+			logs = await getUnhandledPointLogs(user)
 		}
 		
 		res.status(APIResponse.SUCCESS_CODE).send({point_logs:logs})
@@ -289,12 +292,36 @@ comp_app.get('/getUnhandledPoints', async (req, res) => {
 })
 
 /**
- * Return the system preferences
+ * Get the data that is most pertinent to the given user.
+ * 
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permissions (This should not ever be sent because we sort permissions here, but it could be sent)
+ * @throws 500 - Server Error
  */
-comp_app.get('/residentProfile', async (req, res) => {
+comp_app.get('/userOverview', async (req, res) => {
 	try{
-		const resident_profile = await getResidentProfile(req["user"]["user_id"])
-		res.status(APIResponse.SUCCESS_CODE).send(resident_profile)
+		const user = await getUser(req["user"]["user_id"])
+		if(user.permissionLevel === UserPermissionLevel.RESIDENT){
+			const resident_profile = await getResidentProfile(user)
+			res.status(APIResponse.SUCCESS_CODE).send({"resident":resident_profile})
+		}
+		else if(user.permissionLevel === UserPermissionLevel.RHP){
+			//This is sufficient for the first version, but we will eventually want to add more to their home screen
+			const resident_profile = await getResidentProfile(user)
+			res.status(APIResponse.SUCCESS_CODE).send({"rhp":resident_profile})
+		}
+		else if(user.permissionLevel === UserPermissionLevel.PRIVILEGED_RESIDENT){
+			//This is sufficient for the first version, but we will eventually want to add more to their home screen
+			const resident_profile = await getResidentProfile(user)
+			res.status(APIResponse.SUCCESS_CODE).send({"privileged_resident":resident_profile})
+		}
+		else{
+			console.log("Other user permissions not yet implemented")
+			const apiResponse = APIResponse.InvalidPermissionLevel()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+		}
+		
 	}
 	catch (error){
         if( error instanceof APIResponse){

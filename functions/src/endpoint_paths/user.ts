@@ -215,10 +215,10 @@ users_app.get('/points', async (req, res) => {
 			){
 				let pointLogs
 				if(req.query.limit !== undefined){
-					pointLogs = await getPointLogsForUser(user.id, user.house, parseInt(req.query.limit as string))
+					pointLogs = await getPointLogsForUser(user, parseInt(req.query.limit as string))
 				}
 				else{
-					pointLogs = await getPointLogsForUser(user.id, user.house)
+					pointLogs = await getPointLogsForUser(user)
 				}
 				res.status(APIResponse.SUCCESS_CODE).send({points:pointLogs})
 		}

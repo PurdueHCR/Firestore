@@ -1,4 +1,3 @@
-import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,15 +15,15 @@ class HomePage extends StatelessWidget {
     User user = (BlocProvider.of<AuthenticationBloc>(context).state as Authenticated).user;
     switch(user.permissionLevel){
       case UserPermissionLevel.RESIDENT:
-        return ResidentOverviewPage();
-        break;
       case UserPermissionLevel.RHP:
+      case UserPermissionLevel.PRIVILEGED_USER:
+      return ResidentOverviewPage();
+      break;
       case UserPermissionLevel.PROFESSIONAL_STAFF:
       case UserPermissionLevel.FHP:
-      case UserPermissionLevel.PRIVILEGED_USER:
       case UserPermissionLevel.NHAS:
       default:
-        window.console.log("Unimpelemtned");
+        print("Unimpelemtned");
         return UnimplementedPage(drawerLabel: "Overview");
     }
   }

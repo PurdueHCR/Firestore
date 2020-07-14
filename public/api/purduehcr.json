@@ -705,10 +705,10 @@
         }
       }
     },
-    "/competition/residentProfile" : {
+    "/competition/userOverview" : {
       "get" : {
         "tags" : [ "competition" ],
-        "summary" : "Get All elements required for the resident profile",
+        "summary" : "Get the data that is most pertinent to the given user.",
         "parameters" : [ {
           "name" : "Authorization",
           "in" : "header",
@@ -723,11 +723,19 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "User that corresponds to the Firebase Token",
+            "description" : "The data will populate the corresponding User Type field in the response. The other User Types will not exist in the response body.",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/UserCompetitionView"
+                  "type" : "object",
+                  "properties": {
+                    "resident": {
+                      "$ref" : "#/components/schemas/ResidentOverview"
+                    },
+                    "rhp": {
+                      "$ref" : "#/components/schemas/RHPOverview"
+                    }
+                  }
                 }
               }
             }
@@ -1885,7 +1893,30 @@
           }
         }
       },
-      "UserCompetitionView" : {
+      "ResidentOverview" : {
+        "type" : "object",
+        "properties" : {
+          "user_rank" : {
+            "$ref" : "#/components/schemas/UserRank"
+          },
+          "houses" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/House"
+            }
+          },
+          "next_reward" : {
+            "$ref" : "#/components/schemas/Reward"
+          },
+          "last_submissions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PointLog"
+            }
+          }
+        }
+      },
+      "RHPOverview" : {
         "type" : "object",
         "properties" : {
           "user_rank" : {

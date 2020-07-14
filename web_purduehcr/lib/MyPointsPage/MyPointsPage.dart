@@ -2,42 +2,42 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
+import 'package:purduehcr_web/MyPointsPage/my_points_bloc/my_points.dart';
 import 'package:purduehcr_web/Utility_Views/PointLogChat/PointLogChat.dart';
-import 'package:purduehcr_web/HandlePointsPage/handle_points_bloc/handle_points.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
-import 'package:purduehcr_web/SubmitPointsPage/submit_points_bloc/submit_point_bloc.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/Utility_Views/PointLogList.dart';
 
 import '../BasePage.dart';
 import '../Config.dart';
+import 'my_points_bloc/my_points_bloc.dart';
 
-class HandlePointsPage extends BasePage {
+class MyPointsPage extends BasePage {
   @override
   State<StatefulWidget> createState() {
-    return _HandlePointsPageState(drawerLabel: "Handle Points");
+    return _MyPointsPageState(drawerLabel: "My Points");
   }
 }
 
-class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePointEvent, HandlePointsState>{
+class _MyPointsPageState extends BasePageState<MyPointsBloc, MyPointsEvent, MyPointsState>{
 
-  HandlePointsBloc _handlePointsBloc;
+  MyPointsBloc _myPointsBloc;
   PointLog _selectedPointLog;
 
-  _HandlePointsPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
+  _MyPointsPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if(_handlePointsBloc == null){
+    if(_myPointsBloc == null){
       Config config = ConfigWrapper.of(context);
-      _handlePointsBloc = new HandlePointsBloc(config);
-      _handlePointsBloc.add(HandlePointEventInitialize());
+      _myPointsBloc = new MyPointsBloc(config);
+      _myPointsBloc.add(MyPointsPageInitialize());
     }
   }
 
   @override
-  Widget buildLargeDesktopBody({BuildContext context, HandlePointsState state}) {
+  Widget buildLargeDesktopBody({BuildContext context, MyPointsState state}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
@@ -46,15 +46,15 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
           child: Container(
             height: MediaQuery.of(context).size.height,
             child: PointLogList(
-                pointLogs: _handlePointsBloc.state.pointLogs,
+                pointLogs: _myPointsBloc.state.pointLogs,
                 onPressed: _onPressed
             ),
           ),
         ),
         VerticalDivider(),
         Flexible(
-          child: BlocProvider<HandlePointsBloc>(
-            builder: (BuildContext context) => _handlePointsBloc,
+          child: BlocProvider<MyPointsBloc>(
+            builder: (BuildContext context) => _myPointsBloc,
             child: PointLogChat(
               key: ObjectKey(_selectedPointLog),
                 pointLog: _selectedPointLog
@@ -66,10 +66,10 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
   }
 
   @override
-  Widget buildMobileBody({BuildContext context, HandlePointsState state}) {
+  Widget buildMobileBody({BuildContext context, MyPointsState state}) {
     if(_selectedPointLog == null){
       return PointLogList(
-          pointLogs: _handlePointsBloc.state.pointLogs,
+          pointLogs: _myPointsBloc.state.pointLogs,
           onPressed: _onPressed
       );
     }
@@ -82,10 +82,10 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
   }
 
   @override
-  Widget buildSmallDesktopBody({BuildContext context, HandlePointsState state}) {
+  Widget buildSmallDesktopBody({BuildContext context, MyPointsState state}) {
     if(_selectedPointLog == null){
       return PointLogList(
-          pointLogs: _handlePointsBloc.state.pointLogs,
+          pointLogs: _myPointsBloc.state.pointLogs,
           onPressed: _onPressed
       );
     }
@@ -98,13 +98,13 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
   }
 
   @override
-  HandlePointsBloc getBloc() {
-    return _handlePointsBloc;
+  MyPointsBloc getBloc() {
+    return _myPointsBloc;
   }
 
   @override
-  bool isLoadingState(HandlePointsState currentState) {
-    return currentState is HandlePointsPageLoading;
+  bool isLoadingState(MyPointsState currentState) {
+    return currentState is MyPointsPageLoading;
   }
 
   @override

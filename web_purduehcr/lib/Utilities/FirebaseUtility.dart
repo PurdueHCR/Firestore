@@ -1,7 +1,4 @@
 
-import 'dart:html';
-
-import 'package:firebase/firebase.dart' as fb;
 import 'package:firebase/firebase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,10 +11,10 @@ class FirebaseUtility{
 
 
   static Future<void> initializeFirebase(Config config){
-    if(fb.apps.isEmpty ){
+    if(apps.isEmpty ){
       debugPrint("No App, so initialize Firebase");
       try {
-        app = fb.initializeApp(
+        app = initializeApp(
             apiKey: config.apiKey,
             authDomain: config.authDomain,
             databaseURL: config.databaseURL,
@@ -27,7 +24,7 @@ class FirebaseUtility{
       catch (err){
         debugPrint("We are ignoring this error");
       }
-      return fb.auth().setPersistence(fb.Persistence.SESSION);
+      return auth().setPersistence(Persistence.SESSION);
     }
     else{
       return Future.value();
@@ -41,7 +38,7 @@ class FirebaseUtility{
         await FirebaseAuth.instance.signInWithEmailAndPassword(email:email, password: password);
       }
       catch(error){
-        window.console.log("Sign in error code: ${error.code}");
+        print("Sign in error code: ${error.code}");
         String errorMessage;
         switch (error.code) {
           case "auth/invalid-email":
