@@ -15,12 +15,12 @@ class HomePage extends StatelessWidget {
     User user = (BlocProvider.of<AuthenticationBloc>(context).state as Authenticated).user;
     switch(user.permissionLevel){
       case UserPermissionLevel.RESIDENT:
-        return ResidentOverviewPage();
-        break;
       case UserPermissionLevel.RHP:
+      case UserPermissionLevel.PRIVILEGED_USER:
+      return ResidentOverviewPage();
+      break;
       case UserPermissionLevel.PROFESSIONAL_STAFF:
       case UserPermissionLevel.FHP:
-      case UserPermissionLevel.PRIVILEGED_USER:
       case UserPermissionLevel.NHAS:
       default:
         print("Unimpelemtned");

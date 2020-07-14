@@ -10,7 +10,7 @@ const PROF_ID = "Proffesional Staff_link_create"
 let db:firebase.firestore.Firestore
 
 //Test Suite GetUser
-describe('link/create', () =>{
+describe('link/create', async () =>{
 
     beforeAll(async () => {
         IntegrationMockFactory.mockFirebaseAdmin()
@@ -111,7 +111,8 @@ describe('link/create', () =>{
     })
 
     //After all of the tests are done, make sure to delete the test firestore app
-    afterAll(()=>{
+    afterAll(async ()=>{
+        await FirestoreDataFactory.cleanDatabase(db)
         Promise.all(firebase.apps().map(app => app.delete()))
     })
 

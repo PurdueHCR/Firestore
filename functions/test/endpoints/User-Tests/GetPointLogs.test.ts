@@ -13,7 +13,7 @@ const EA = "External Advisor_GET_POINT_LOGS"
 let db:firebase.firestore.Firestore
 
 //Test Suite GetUser
-describe('user/get', () =>{
+describe('user/get', async () =>{
 
     beforeAll(async () => {
         IntegrationMockFactory.mockFirebaseAdmin()
@@ -127,7 +127,8 @@ describe('user/get', () =>{
     })
 
     //After all of the tests are done, make sure to delete the test firestore app
-    afterAll(()=>{
+    afterAll(async ()=>{
+        await FirestoreDataFactory.cleanDatabase(db)
         Promise.all(firebase.apps().map(app => app.delete()))
     })
 

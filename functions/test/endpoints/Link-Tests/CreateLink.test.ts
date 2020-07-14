@@ -19,7 +19,7 @@ const PROF_RHP_DESCRIPTION =  "Link can only be made with RHP/Prof_Staff"
 const ALL_DESCRIPTION = "Link can be made by all"
 
 //Test Suite GetUser
-describe('link/create', () =>{
+describe('link/create', async () =>{
 
     beforeAll(async () => {
         IntegrationMockFactory.mockFirebaseAdmin()
@@ -391,7 +391,8 @@ describe('link/create', () =>{
     })
 
     //After all of the tests are done, make sure to delete the test firestore app
-    afterAll(()=>{
+    afterAll(async ()=>{
+        await FirestoreDataFactory.cleanDatabase(db)
         Promise.all(firebase.apps().map(app => app.delete()))
     })
 
