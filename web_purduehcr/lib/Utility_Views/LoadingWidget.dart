@@ -18,10 +18,9 @@ class _LoadingWidgetState extends State<LoadingWidget>{
   @override
   Widget build(BuildContext context) {
 
-    return SizedBox(
-      width: 100,
-      height: 100,
-      child: CircularProgressIndicator()
+    return AspectRatio(
+      aspectRatio: 1,
+      child: CircularProgressIndicator(),
     );
   }
 

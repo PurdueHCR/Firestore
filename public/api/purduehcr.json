@@ -1738,6 +1738,18 @@
             "type" : "integer",
             "example" : 1
           },
+          "pointTypeName" : {
+            "type" : "string",
+            "example" : "Point Type for events"
+          },
+          "pointTypeDescription" : {
+            "type" : "string",
+            "example" : "You can submit this point for events."
+          },
+          "pointTypeValue" : {
+            "type" : "integer",
+            "example" : "100"
+          },
           "singleUse" : {
             "type" : "boolean",
             "example" : false

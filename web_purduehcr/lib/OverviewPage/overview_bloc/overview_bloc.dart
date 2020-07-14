@@ -11,12 +11,11 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState>{
   }
 
   @override
-  OverviewState get initialState => OverviewInitial();
+  OverviewState get initialState => OverviewLoading();
 
   @override
   Stream<OverviewState> mapEventToState( OverviewEvent event) async* {
     if(event is OverviewLaunchedEvent){
-      yield OverviewLoading();
       try{
         yield await overviewRepository.getUserOverview(event.permissionLevel);
       }

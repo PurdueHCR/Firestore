@@ -33,7 +33,6 @@ String _serializeParams(Map<String, dynamic> params) {
     for (String key in params.keys) {
       queryString += key + "=" + params[key].toString() + "&";
     }
-    print("DID WORK : "+queryString.substring(0, queryString.length - 1));
     return queryString.substring(0, queryString.length - 1);
   }
 }

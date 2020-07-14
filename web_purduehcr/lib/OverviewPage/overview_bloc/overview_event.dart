@@ -12,5 +12,4 @@ class OverviewLaunchedEvent extends OverviewEvent {
 
   @override
   List<Object> get props => [permissionLevel];
-
 }
