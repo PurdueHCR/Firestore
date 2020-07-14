@@ -38,7 +38,7 @@ links_app.use(firestoreTools.validateFirebaseIdToken)
  */
 links_main.get('/', async (req, res) => {
 
-    if(req.query.id === null){
+    if(!req.query.id || req.query.id === ""){
         const error = APIResponse.MissingRequiredParameters()
 		res.status(error.code).send(error.toJson())
     }

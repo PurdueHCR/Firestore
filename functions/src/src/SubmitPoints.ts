@@ -6,17 +6,17 @@ import { APIResponse } from "../models/APIResponse"
 import { getSystemPreferences } from "./GetSystemPreferences"
 import { getPointTypeById } from "./GetPointTypeById"
 import { addPoints } from "./AddPoints"
-import { getUser } from "./GetUser"
 import { submitPointLogMessage } from './SubmitPointLogMessage'
 import { PointLogMessage } from '../models/PointLogMessage'
+import { User } from '../models/User'
 
 /**
  * Checks permissions and submits points to database
  * 
- * @param userId	The id of the user for whom this point is being submit
+ * @param user		The user for whom this point is being submit
  * @param log 		Contains information about the point log
- * @param isGuaranteedApproval Is this a log which does not need an RHP to approve it
  * @param documentId (optional) does this point log have an id already - ex. single use QR codes
+ * @param overrideResidentsCanSubmit (optional) overrides the point type's canResidentsSubmitField
  * @returns True if the points were added, false if needs approval
  * 
  * @throws 403 - This User does not have the correct permission levels.
@@ -27,18 +27,17 @@ import { PointLogMessage } from '../models/PointLogMessage'
  * @throws 419 - Users Can Not Self Submit This Point Type
  * @throws 500 - Server Error
  */
-export async function submitPoint(userId: string, log: UnsubmittedPointLog, documentId?: string | null): Promise<Boolean>{
-
+export async function submitPoint(user: User, log: UnsubmittedPointLog, documentId?: string | null, overrideResidentsCanSubmit:boolean = false): Promise<Boolean>{
 	const db = admin.firestore()
 	const systemPreferences = await getSystemPreferences()
 	if (systemPreferences.isHouseEnabled) {
 		// Not sure if this try catch is the best way to check the promise returned from checking the PointType
 		try {
 			const pointType = await getPointTypeById(log.pointTypeId)
-			if(pointType.enabled && pointType.residentCanSubmit){
-				const user = await getUser(userId)
+			if(pointType.enabled && ( overrideResidentsCanSubmit || pointType.residentCanSubmit)){
 				if(user.isParticipantInCompetition()){
 					log.updateFieldsWithUser(user)
+					log.updateFieldsWithPointType(pointType)
 
 					let was_approved = false
 					if(user.permissionLevel === UserPermissionLevel.RHP){
@@ -52,6 +51,11 @@ export async function submitPoint(userId: string, log: UnsubmittedPointLog, docu
 					}
 					try {
 						if (documentId && documentId !== "") {
+							// If the PointLog has a pre-determined documentId then it means it is a single-use code and should be approved
+							log.approveLog()
+							log.id = documentId
+							was_approved = true
+							
 							//If a document ID is provided, check if the id exists, and if not, set in database
 							const doc = await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house)
 														.collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).doc(documentId).get()
@@ -62,18 +66,13 @@ export async function submitPoint(userId: string, log: UnsubmittedPointLog, docu
 								await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house)
 									.collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).doc(documentId).set(log.toFirebaseJSON())
 							}
-							// If the PointLog has a pre-determined documentId then it means it is a single-use code and should be approved
-							log.approveLog()
-							log.id = documentId
-							was_approved = true
+
 						}
 						else {
 							//No document id, so create new document in database
 							if (was_approved === false) {
 								log.rhpNotifications++
 							}
-							console.log("Create new point log that was approved")
-							console.log("house: "+user.house)
 							const document = await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house)
 														.collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).add(log.toFirebaseJSON())
 							log.id = document.id
@@ -90,11 +89,7 @@ export async function submitPoint(userId: string, log: UnsubmittedPointLog, docu
 
 					//If the log is automatically approved, add points to the user and the house
 					if(was_approved){
-						if (user.permissionLevel === UserPermissionLevel.RHP) {
-							await submitPointLogMessage(user.house, log, PointLogMessage.getPreaprovedMessage(), false)
-						} else {
-							await submitPointLogMessage(user.house, log, PointLogMessage.getPreaprovedMessage(), true)
-						}
+						await submitPointLogMessage(user.house, log, PointLogMessage.getPreaprovedMessage(), true)
 						await addPoints(pointType.value, user.house, user.id)
 						return Promise.resolve(true)
 					}

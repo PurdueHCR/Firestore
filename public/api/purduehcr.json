@@ -393,6 +393,143 @@
         }
       }
     },
+    "/user/submitLink" : {
+      "post" : {
+        "tags" : [ "user" ],
+        "summary" : "Submit a point through a link",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "Fields to submit a point log",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties": {
+                  "link_id": {
+                    "type" : "string",
+                    "example" : "kPW2Qq2Mvsjrb3Lk9ulL"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "The Point Log was successfully submitted for the resident and an approval request was sent to an RHP.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "The Point Log was successfully submitted and was automatically approved.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "408" : {
+            "description" : "There is no link with that Id",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LinkDoesntExist"
+                }
+              }
+            }
+          },
+          "412" : {
+            "description" : "House Competition is disabled.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CompetitionDisabled"
+                }
+              }
+            }
+          },
+          "418" : {
+            "description" : "Point Type is disabled.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDisabled"
+                }
+              }
+            }
+          },
+          "419" : {
+            "description" : "Users can not self submit this point type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeSelfSubmissionDisabled"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Required parameters are missing.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
     "/user/links": {
       "get" : {
         "tags": [ "user"],
@@ -1737,6 +1874,18 @@
           "pointId" : {
             "type" : "integer",
             "example" : 1
+          },
+          "pointTypeName" : {
+            "type" : "string",
+            "example" : "Point Type for events"
+          },
+          "pointTypeDescription" : {
+            "type" : "string",
+            "example" : "You can submit this point for events."
+          },
+          "pointTypeValue" : {
+            "type" : "integer",
+            "example" : "100"
           },
           "singleUse" : {
             "type" : "boolean",

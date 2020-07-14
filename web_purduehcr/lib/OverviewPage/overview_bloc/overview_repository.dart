@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:purduehcr_web/Config.dart';
 import 'package:purduehcr_web/Models/House.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
@@ -50,7 +51,7 @@ class OverviewRepository {
     houseList.forEach((element) {
       houses.add(House.fromJson(element));
     });
-    return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses);
+    return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, key: UniqueKey());
   }
 
   ///Call the api to get the information for the resident overview
@@ -71,7 +72,7 @@ class OverviewRepository {
     houseList.forEach((element) {
       houses.add(House.fromJson(element));
     });
-    return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses);
+    return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, key: UniqueKey());
   }
 
   ///Call the api to get the information for the resident overview
@@ -92,6 +93,6 @@ class OverviewRepository {
     houseList.forEach((element) {
       houses.add(House.fromJson(element));
     });
-    return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses);
+    return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, key: UniqueKey());
   }
 }

@@ -8,7 +8,8 @@ import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/OverviewPage/ResidentOverviewPage.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key key}) : super(key: key);
+  final String linkId;
+  const HomePage({Key key, this.linkId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +18,13 @@ class HomePage extends StatelessWidget {
       case UserPermissionLevel.RESIDENT:
       case UserPermissionLevel.RHP:
       case UserPermissionLevel.PRIVILEGED_USER:
-      return ResidentOverviewPage();
+      return ResidentOverviewPage(linkId: linkId,);
       break;
       case UserPermissionLevel.PROFESSIONAL_STAFF:
       case UserPermissionLevel.FHP:
       case UserPermissionLevel.NHAS:
       default:
-        print("Unimpelemtned");
+        print("Unimplemented");
         return UnimplementedPage(drawerLabel: "Overview");
     }
   }

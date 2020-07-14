@@ -245,7 +245,7 @@ describe('user/submitpoint', async () =>{
                 expect(documents.docs[0].data().Description).toEqual(descr)
                 expect(documents.docs[0].data().FloorID).toEqual("4N")
                 expect(documents.docs[0].data().PointTypeID).toEqual(1)
-                expect(documents.docs[0].data().RHPNotifications).toEqual(1)
+                expect(documents.docs[0].data().RHPNotifications).toEqual(0)
                 expect(documents.docs[0].data().ResidentFirstName).toEqual("TEST_FIRST")
                 expect(documents.docs[0].data().ResidentId).toEqual(RHP_ID)
                 expect(documents.docs[0].data().ResidentLastName).toEqual("TEST_LAST")
@@ -301,6 +301,7 @@ describe('user/submitpoint', async () =>{
     })
 
     // Test priv resident success with documentID provided
+    // **NOTE: Update to this test because documenbtID should not do anything for this endpoint
     it('Privileged Resident Submission Success with documentID Provided', async(done) => {
         const date = new Date()
         const descr = "Privileged resident Submission Success test"
@@ -312,7 +313,7 @@ describe('user/submitpoint', async () =>{
                 done(err)
             }
             else{
-                expect(res.status).toBe(201)
+                expect(res.status).toBe(202)
 
                 let documents = await db.collection("House").doc(HOUSE_NAME).collection("Points").where("Description","==",descr).limit(1).get()
                 expect(documents.docs[0].data().ApprovedOn).toBeUndefined()

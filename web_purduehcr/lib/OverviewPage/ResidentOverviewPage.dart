@@ -10,15 +10,20 @@ import 'package:purduehcr_web/OverviewPage/overview_cards/RecentSubmissionsCard.
 import 'package:purduehcr_web/OverviewPage/overview_cards/RewardsCard.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
+import 'package:purduehcr_web/Utility_Views/SubmitLinkWidget/SubmitLinkWidget.dart';
 
 import '../Config.dart';
 import '../ConfigWrapper.dart';
 
 class ResidentOverviewPage extends BasePage {
+  final String linkId;
+
+  ResidentOverviewPage({this.linkId});
+
   @override
   State<StatefulWidget> createState() {
     print("Create State Resident Overview Page");
-    return _ResidentOverviewPageState(drawerLabel: "Overview");
+    return _ResidentOverviewPageState(drawerLabel: "Overview", linkId: linkId);
   }
 
 }
@@ -26,8 +31,17 @@ class ResidentOverviewPage extends BasePage {
 class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, OverviewState> {
   User user;
   OverviewBloc _overviewBloc;
+  String linkId;
 
-  _ResidentOverviewPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
+  _ResidentOverviewPageState({@required String drawerLabel, this.linkId}):super(drawerLabel:drawerLabel);
+
+  @override
+  void initState() {
+    super.initState();
+    //When the view is finished loading, handle link
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => handleLink());
+  }
 
   @override
   void didChangeDependencies() {
@@ -38,7 +52,6 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
       _overviewBloc = new OverviewBloc(config);
       _overviewBloc.add(OverviewLaunchedEvent(permissionLevel: user.permissionLevel));
     }
-
   }
 
   @override
@@ -139,5 +152,21 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
       }
     }
     return houses[0];
+  }
+
+  void handleLink(){
+    if(linkId != null){
+      showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return SubmitLinkWidget(linkId: linkId,);
+        }
+      ).then((didSubmit) {
+        print("GOT VALUE BACK: $didSubmit");
+        if(didSubmit){
+          _overviewBloc.add(ReloadOverview(permissionLevel: user.permissionLevel));
+        }
+      });
+    }
   }
 }

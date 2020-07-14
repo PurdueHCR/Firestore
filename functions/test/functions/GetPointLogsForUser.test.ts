@@ -5,11 +5,11 @@ const GetPointLogsForUser = require('../../src/src/GetPointLogsForUser')
 
 
 //Sample Firestore databse object
-const log_1 = MockDataFactory.mockPointLog("A","LOG_1", new Date(Date.parse("5/18/2020")))
-const log_2 = MockDataFactory.mockPointLog("A","LOG_2", new Date(Date.parse("5/17/2020")))
-const log_3 = MockDataFactory.mockPointLog("A","LOG_3", new Date(Date.parse("5/16/2020")))
-const log_4 = MockDataFactory.mockPointLog("A","LOG_4", new Date(Date.parse("5/15/2020")))
-const log_5 = MockDataFactory.mockPointLog("A","LOG_5", new Date(Date.parse("5/14/2020")))
+const log_1 = MockDataFactory.mockPointLog("A","LOG_1", new Date(Date.parse("5/18/2020")), true, {date_submitted: new Date(Date.parse("5/18/2020"))})
+const log_2 = MockDataFactory.mockPointLog("A","LOG_2", new Date(Date.parse("5/17/2020")), true, {date_submitted: new Date(Date.parse("5/17/2020"))})
+const log_3 = MockDataFactory.mockPointLog("A","LOG_3", new Date(Date.parse("5/16/2020")), true, {date_submitted: new Date(Date.parse("5/16/2020"))})
+const log_4 = MockDataFactory.mockPointLog("A","LOG_4", new Date(Date.parse("5/15/2020")), true, {date_submitted: new Date(Date.parse("5/15/2020"))})
+const log_5 = MockDataFactory.mockPointLog("A","LOG_5", new Date(Date.parse("5/14/2020")), true, {date_submitted: new Date(Date.parse("5/14/2020"))})
 
 const user_a = ModelFactory.createUser("Test-A-ID", 0, {house_name:"Platinum"})
 const user_b = ModelFactory.createUser("Test-B-ID", 0, {house_name:"Copper"})

@@ -4,6 +4,7 @@ import * as express from 'express'
 import { APIResponse } from '../models/APIResponse'
 import { UnsubmittedPointLog } from '../models/UnsubmittedPointLog'
 import { submitPoint } from '../src/SubmitPoints'
+import { submitLink} from '../src/SubmitLink'
 import { getUser } from '../src/GetUser'
 import { createUser } from '../src/CreateUser'
 import { isInDateRange } from '../src/IsInDateRange'
@@ -11,6 +12,8 @@ import { getUserRank } from '../src/GetUserRank'
 import { getPointLogsForUser } from '../src/GetPointLogsForUser'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { getUserLinks } from '../src/GetUserLinks'
+import { getLinkById } from '../src/GetLinkById'
+import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 
 if(admin.apps.length === 0){
 	admin.initializeApp(functions.config().firebase)
@@ -121,6 +124,64 @@ users_app.get('/get', async (req, res) => {
 })
 
 /**
+ * Submit a point through a link
+ * 
+ * @params body.link_id the id of the link to submit a point with
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permission Level
+ * @throws 408 - Link Doesnt Exist
+ * @throws 409 - This Link Has Already Been Submitted
+ * @throws 412 - House Competition Is Disabled
+ * @throws 417 - Unknown Point Type
+ * @throws 418 - Point Type Is Disabled
+ * @throws 419 - Users Can Not Self Submit This Point Type
+ * @throws 500 - Server Error
+ */
+users_app.post('/submitLink', async (req, res) => {
+	if(!req.body || !req.body.link_id ||  req.body.link_id === "" ){
+		if(!req.body){
+			console.error("Missing Body")
+		}
+		else if(!req.body.link_id || req.body.link_id === "" ){
+			console.error("Missing link")
+		}
+		else{
+			console.error("Unkown missing parameter??? This shouldnt be called")
+		}
+		const error = APIResponse.MissingRequiredParameters()
+		res.status(error.code).send(error.toJson())
+	}
+	else{
+		try{
+			const link = await getLinkById(req.body.link_id !)
+			const user = await getUser(req["user"]["user_id"])
+			verifyUserHasCorrectPermission(user, [UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP, UserPermissionLevel.PRIVILEGED_RESIDENT])
+			const didAddPoints = await submitLink(user,link)
+				
+			if(!didAddPoints){
+				const success = APIResponse.SuccessAwaitsApproval()
+				res.status(201).send(success.toJson())
+			}
+			else {
+				const success = APIResponse.SuccessAndApproved()
+				res.status(202).send(success.toJson())
+			}
+		}
+		catch(error){
+			if(error instanceof APIResponse){
+				res.status(error.code).send(error.toJson())
+			}
+			else{
+				console.log("FAILED WITH DB FROM user ERROR: "+ error)
+				const apiResponse = APIResponse.ServerError()
+				res.status(apiResponse.code).send(apiResponse.toJson())
+			}
+		}
+	}
+})
+
+/**
  * Submit a point for this user
  * 
  * @throws  401 - Unauthorized
@@ -158,11 +219,8 @@ users_app.post('/submitPoint', async (req, res) => {
 			const date_occurred = new Date(req.body.date_occurred)
 			if (isInDateRange(date_occurred)) {
 				const log = new UnsubmittedPointLog(date_occurred, req.body.description, parseInt(req.body.point_type_id))
-				let docID = null
-				if (req.body.document_id) {
-					docID = req.body.document_id
-				}
-				const didAddPoints = await submitPoint(req["user"]["user_id"], log, docID)
+				const user = await getUser(req["user"]["user_id"])
+				const didAddPoints = await submitPoint(user, log)
 				const success = APIResponse.Success()
 				if(didAddPoints){
 					res.status(201).send(success.toJson())

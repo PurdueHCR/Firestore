@@ -18,7 +18,7 @@ export async function getPointLogsForUser(user:User, limit: number = -1) : Promi
         const pointLogQuerySnapshot = await reference.get()
         let logs = PointLog.fromQuerySnapshot(pointLogQuerySnapshot)
         logs.sort((a:PointLog, b:PointLog) => {
-            return (b.dateOccurred < a.dateOccurred)? -1: 1
+            return (b.dateSubmitted < a.dateSubmitted)? -1: 1
         })
         if(limit > 0){
             logs = logs.slice(0,limit)
