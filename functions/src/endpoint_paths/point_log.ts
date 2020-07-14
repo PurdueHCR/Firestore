@@ -70,19 +70,27 @@ logs_app.post('/handle', async (req, res) => {
 		const error = APIResponse.IncorrectFormat()
 		res.status(error.code).send(error.toJson())
 	} else {
-		try {
-			let should_approve = (req.body.approve == 'true');
-			const didUpdate = await updatePointLogStatus(should_approve, req["user"]["user_id"], req.body.point_log_id)
-			if (didUpdate) {
-				res.status(201).send(APIResponse.Success().toJson())
-			}
-		} catch (error) {
-			console.log("FAILED WITH ERROR: "+ error.toString())
-			if (error instanceof APIResponse){
-				res.status(error.code).send(error.toJson())
-			} else {
-				const apiResponse = APIResponse.ServerError()
-				res.status(apiResponse.code).send(apiResponse.toJson())
+
+		let should_approve = (req.body.approve == 'true');
+		if(!should_approve && (!req.body.message || req.body.message === "")){
+			console.error("If approve is false, you must send a message.")
+			const error = APIResponse.MissingRequiredParameters()
+			res.status(error.code).send(error.toJson())
+		}
+		else{
+			try {
+				const didUpdate = await updatePointLogStatus(should_approve, req["user"]["user_id"], req.body.point_log_id, req.body.message)
+				if (didUpdate) {
+					res.status(201).send(APIResponse.Success().toJson())
+				}
+			} catch (error) {
+				console.log("FAILED WITH ERROR: "+ error.toString())
+				if (error instanceof APIResponse){
+					res.status(error.code).send(error.toJson())
+				} else {
+					const apiResponse = APIResponse.ServerError()
+					res.status(apiResponse.code).send(apiResponse.toJson())
+				}
 			}
 		}
 	}
