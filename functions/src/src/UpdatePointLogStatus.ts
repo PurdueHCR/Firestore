@@ -8,6 +8,7 @@ import { PointLogMessage } from '../models/PointLogMessage'
 import { addPoints } from './AddPoints'
 import { PointLog } from '../models/PointLog'
 import { MessageType } from '../models/MessageType'
+import { getSystemPreferences } from './GetSystemPreferences'
 
 const REJECTED_STRING = "DENIED: "
 
@@ -18,12 +19,18 @@ const REJECTED_STRING = "DENIED: "
  * @param approve       Boolean to approve/reject the PointLog   
  * 
  * @throws 403 - InvalidPermissionLevel
+ * @throws 412 - House Competition Disabled
  * @throws 413 - UnknownPointLog
  * @throws 416 - PointLogAlreadyHandled
  * @throws 500 - Server Error
  */
 export async function updatePointLogStatus(approve: boolean, approver_id: string, document_id: string): Promise<boolean> {
     
+    const system_preferences = await getSystemPreferences()
+    if (!system_preferences.isHouseEnabled) {
+        return Promise.reject(APIResponse.CompetitionDisabled())
+    }
+
     const user = await getUser(approver_id)
     if (user.permissionLevel !== UserPermissionLevel.RHP) {
         return Promise.reject(APIResponse.InvalidPermissionLevel())

@@ -40,12 +40,15 @@ logs_app.use(firestoreTools.validateFirebaseIdToken)
  * 
  *  @throws 400 - Unknown User
  *  @throws 401 - Unauthorized
+ *  @throws 403 - InvalidPermissionLevel
+ *  @throws 412 - House Competition Disabled
+ *  @throws 413 - UnknownPointLog
+ *  @throws 416 - PointLogAlreadyHandled
  *  @throws 422 - Missing Required Parameters
  *  @throws 426 - Incorrect Format
  *  @throws 500 - Server Error
  */
 logs_app.post('/handle', async (req, res) => {
-	console.log('req is', req)
 	if (!req.body || !req.body.approve || req.body.approve === ""
 			|| !req.body.point_log_id || req.body.point_log_id === "") {
 		if (!req.body) {
