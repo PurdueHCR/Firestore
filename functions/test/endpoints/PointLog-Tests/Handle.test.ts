@@ -2,7 +2,7 @@ import * as factory from '../../HTTPRequestFactory'
 import * as firebase from "@firebase/testing"
 import * as IntegrationMockFactory from '../IntegrationMockFactory'
 import * as request from 'supertest'
-import {FirestoreDataFactory} from '../FirestoreDataFactory'
+import {FirestoreDataFactory, CompetitionPointStatus} from '../FirestoreDataFactory'
 import { POINT_LOG_DEFAULTS } from '../../OptionDeclarations'
 
 let point_log_func
@@ -11,6 +11,8 @@ let approved_log
 let unhandled_log
 let rejected_log
 let point_description
+
+let originalPointStatus: CompetitionPointStatus
 
 
 let RESIDENT_ID = "RESIDENT"
@@ -81,6 +83,7 @@ describe('point_log/handle', async ()  => {
         if (unhandled_log_ref !== null) {
             unhandled_log = (unhandled_log_ref as firebase.firestore.DocumentReference).id
         }
+        originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
         await FirestoreDataFactory.setSystemPreference(db)
     })
 
@@ -238,7 +241,7 @@ describe('point_log/handle', async ()  => {
     // Test approve when unhandled
     it('approve when unhandled', async(done) => {
         const body = {"approve":true, "point_log_id":unhandled_log}
-        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
+        
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
         res.end(async function (err, res) {
             if (err) {
@@ -265,7 +268,7 @@ describe('point_log/handle', async ()  => {
     // Test approve when currently rejected
     it('The log was rejected but now it is being approved', async(done) => {
         const body = {"approve":true, "point_log_id":rejected_log}
-        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
+        
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
         res.end(async function (err, res) {
             if (err) {
@@ -292,7 +295,7 @@ describe('point_log/handle', async ()  => {
     // Test approve when currently approved
     it('approve when already approved', async(done) => {
         const body = {"approve":true, "point_log_id":approved_log}
-        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
+        
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
         res.end(async function (err, res) {
             if (err) {
@@ -318,7 +321,7 @@ describe('point_log/handle', async ()  => {
     // Test reject when unhandled
     it('reject when unhandled', async(done) => {
         const body = {"approve":false, "point_log_id":unhandled_log, "message":"Please give more details"}
-        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
+        
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
         res.end(async function (err, res) {
             if (err) {
@@ -345,7 +348,7 @@ describe('point_log/handle', async ()  => {
     // Test reject when currently approved
     it('The log was approved but now we are rejecting it', async(done) => {
         const body = {"approve":false, "point_log_id":approved_log, "message":"Please give more details"}
-        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
+        
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
         res.end(async function (err, res) {
             if (err) {
@@ -372,7 +375,7 @@ describe('point_log/handle', async ()  => {
     // Test reject when currently rejected
     it('reject when already rejected', async(done) => {
         const body = {"approve":false, "point_log_id":REJECT_LOG_ID, "message":"Please give more details"}
-        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
+        
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
         res.end(async function (err, res) {
             if (err) {
@@ -399,7 +402,7 @@ describe('point_log/handle', async ()  => {
     it('approve when competition disabled', async(done) => {
         await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled:false})
         const body = {"approve":true, "point_log_id":unhandled_log}
-        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
+        
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
         res.end(async function (err, res) {
             if (err) {
@@ -424,7 +427,7 @@ describe('point_log/handle', async ()  => {
     it('reject when competition disabled', async(done) => {
         await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled:false})
         const body = {"approve":false, "point_log_id":unhandled_log, "message":"Please give more details"}
-        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
+        
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
         res.end(async function (err, res) {
             if (err) {
@@ -450,7 +453,7 @@ describe('point_log/handle', async ()  => {
     it('approve when competition hidden', async(done) => {
         await FirestoreDataFactory.setSystemPreference(db, {is_competition_visible:false})
         const body = {"approve":true, "point_log_id":unhandled_log}
-        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
+        
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
         res.end(async function (err, res) {
             if (err) {
@@ -478,7 +481,7 @@ describe('point_log/handle', async ()  => {
     it('reject when competition hidden', async(done) => {
         await FirestoreDataFactory.setSystemPreference(db, {is_competition_visible:false})
         const body = {"approve":false, "point_log_id":unhandled_log, "message":"Please give more details"}
-        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
+        
         const res: request.Test = factory.post(point_log_func, HANDLE_POINT_PATH, body, RHP_ID)
         res.end(async function (err, res) {
             if (err) {
