@@ -4,7 +4,6 @@ import * as IntegrationMockFactory from '../IntegrationMockFactory'
 import *  as request from 'supertest'
 import {FirestoreDataFactory} from '../FirestoreDataFactory'
 
-
 let user_func
 let db: firebase.firestore.Firestore
 

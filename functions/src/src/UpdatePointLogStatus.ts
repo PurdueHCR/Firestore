@@ -8,23 +8,32 @@ import { PointLogMessage } from '../models/PointLogMessage'
 import { addPoints } from './AddPoints'
 import { PointLog } from '../models/PointLog'
 import { MessageType } from '../models/MessageType'
+import { getSystemPreferences } from './GetSystemPreferences'
 
 const REJECTED_STRING = "DENIED: "
 
 /**
  * 
- * @param approver_id       ID of user updating the point
+ * @param approver_id   ID of user updating the point
  * @param document_id   ID of PointLog to approve/reject
  * @param approve       Boolean to approve/reject the PointLog   
  * 
- * @throws  403 - InvalidPermissionLevel
- * @throws  413 - UnknownPointLog
+ * @throws 403 - InvalidPermissionLevel
+ * @throws 412 - House Competition Disabled
+ * @throws 413 - UnknownPointLog
+ * @throws 416 - PointLogAlreadyHandled
+ * @throws 500 - Server Error
  */
 export async function updatePointLogStatus(approve: boolean, approver_id: string, document_id: string): Promise<boolean> {
     
+    const system_preferences = await getSystemPreferences()
+    if (!system_preferences.isHouseEnabled) {
+        return Promise.reject(APIResponse.CompetitionDisabled())
+    }
+
     const user = await getUser(approver_id)
     if (user.permissionLevel !== UserPermissionLevel.RHP) {
-        return Promise.reject(APIResponse.InvalidPermissionLevel)
+        return Promise.reject(APIResponse.InvalidPermissionLevel())
     }
     const db = admin.firestore()
     try {
@@ -33,7 +42,7 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
         const doc = await doc_ref.get()
         if (!doc.exists) {
             // PointLog could not be found
-            return Promise.reject(APIResponse.UnknownPointLog)
+            return Promise.reject(APIResponse.UnknownPointLog())
         } else {
 
             const log = PointLog.fromDocumentSnapshot(doc)
@@ -79,7 +88,6 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                     log.approveLog(user)
                     await doc_ref.set(log.toFirebaseJSON())
                     await addPoints(parseInt(point_value), user.house, resident_id)
-                    //await addPoints(5, user.house, resident_id)
                     // Add message of approval/rejection
                     message_beginning += " approved" + message_end
                     const messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.APPROVE, user.firstName, user.lastName, UserPermissionLevel.RHP)

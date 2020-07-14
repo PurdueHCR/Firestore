@@ -1,7 +1,6 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as express from 'express'
-// import * as bodyParser from "body-parser"
 import { APIResponse } from '../models/APIResponse'
 import { UnsubmittedPointLog } from '../models/UnsubmittedPointLog'
 import { submitPoint } from '../src/SubmitPoints'
@@ -26,7 +25,6 @@ users_app.use(express.json())
 users_app.use(express.urlencoded({ extended: true }))
 
 const firestoreTools = require('../firestoreTools')
-
 
 users_app.use(cors({origin:true}))
 users_app.use(firestoreTools.flutterReformat)
