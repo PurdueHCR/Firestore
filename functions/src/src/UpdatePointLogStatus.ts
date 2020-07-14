@@ -17,6 +17,7 @@ const REJECTED_STRING = "DENIED: "
  * @param approver_id   ID of user updating the point
  * @param document_id   ID of PointLog to approve/reject
  * @param approve       Boolean to approve/reject the PointLog   
+ * @param rejectionMessage String message to post or rejection cause
  * 
  * @throws 403 - InvalidPermissionLevel
  * @throws 412 - House Competition Disabled
@@ -24,7 +25,7 @@ const REJECTED_STRING = "DENIED: "
  * @throws 416 - PointLogAlreadyHandled
  * @throws 500 - Server Error
  */
-export async function updatePointLogStatus(approve: boolean, approver_id: string, document_id: string): Promise<boolean> {
+export async function updatePointLogStatus(approve: boolean, approver_id: string, document_id: string, rejectionMessage?:string): Promise<boolean> {
     
     const system_preferences = await getSystemPreferences()
     if (!system_preferences.isHouseEnabled) {
@@ -77,6 +78,11 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                     message_beginning += " rejected" + message_end
                     const messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.REJECT, user.firstName, user.lastName, UserPermissionLevel.RHP)
                     await submitPointLogMessage(user.house, log, messageObj, true)
+
+                    if(rejectionMessage !== undefined){
+                        const rejetMessage = new PointLogMessage(new Date(), rejectionMessage!, MessageType.COMMENT, user.firstName, user.lastName, UserPermissionLevel.RHP)
+                        await submitPointLogMessage(user.house, log, rejetMessage, true)
+                    }
                 }
             } else {
                 if (log.description.includes(REJECTED_STRING) || !already_handled) {

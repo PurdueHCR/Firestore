@@ -161,7 +161,12 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
         builder: (BuildContext context){
           return SubmitLinkWidget(linkId: linkId,);
         }
-      );
+      ).then((didSubmit) {
+        print("GOT VALUE BACK: $didSubmit");
+        if(didSubmit){
+          _overviewBloc.add(ReloadOverview(permissionLevel: user.permissionLevel));
+        }
+      });
     }
   }
 }

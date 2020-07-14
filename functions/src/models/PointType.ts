@@ -10,15 +10,15 @@ export class PointType{
     static RESIDENTS_CAN_SUBMIT = "ResidentsCanSubmit"
     static VALUE = "Value"
 
-    id: String
-    description: String
+    id: string
+    description: string
     enabled: Boolean
-    name: String
+    name: string
     permissionLevel: LinkCreatablePermissionLevel
     residentCanSubmit: Boolean
     value: number
 
-    constructor(id: String, description: String, enabled: Boolean, name: String, permissionLevel: LinkCreatablePermissionLevel,
+    constructor(id: string, description: string, enabled: Boolean, name: string, permissionLevel: LinkCreatablePermissionLevel,
          residentsCanSubmit: Boolean, value: number){
             this.id = id;
             this.description = description;
@@ -46,7 +46,7 @@ export class PointType{
      * @param documentId Required because DocumentData.id is null
      * @param document 
      */
-    private static fromData(documentId: String, document: FirebaseFirestore.DocumentData){
+    private static fromData(documentId: string, document: FirebaseFirestore.DocumentData){
         const id = documentId;
         let  description = ""
         let enabled = false

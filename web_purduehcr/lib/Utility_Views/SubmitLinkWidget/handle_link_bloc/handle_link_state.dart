@@ -26,7 +26,8 @@ class HandleLinkError extends HandleLinkState {
 }
 
 class SubmitLinkForPointsSuccess extends HandleLinkState {
-  const SubmitLinkForPointsSuccess();
+  final String message;
+  const SubmitLinkForPointsSuccess({this.message = ""});
   @override
-  List<Object> get props => [];
+  List<Object> get props => [message];
 }

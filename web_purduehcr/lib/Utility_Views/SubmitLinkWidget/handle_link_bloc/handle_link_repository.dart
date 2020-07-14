@@ -15,8 +15,8 @@ class HandleLinkRepository {
   }
 
   Future submitLink(String linkId) async {
-    Map<String, dynamic> body = {"id": linkId};
-    await callCloudFunction(config, Method.POST, "user/submitPointWithLink", body: body);
+    Map<String, dynamic> body = {"link_id": linkId};
+    await callCloudFunction(config, Method.POST, "user/submitLink", body: body);
   }
 
 }

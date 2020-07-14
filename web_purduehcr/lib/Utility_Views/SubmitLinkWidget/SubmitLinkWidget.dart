@@ -52,7 +52,7 @@ class _SubmitLinkWidgetState extends State<SubmitLinkWidget>{
         RaisedButton(
           child: Text("Great!"),
           onPressed: (){
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(true);
           },
         ),
       ];
@@ -62,7 +62,7 @@ class _SubmitLinkWidgetState extends State<SubmitLinkWidget>{
         RaisedButton(
           child: Text("Sad ..."),
           onPressed: (){
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(false);
           },
         ),
       ];
@@ -72,7 +72,7 @@ class _SubmitLinkWidgetState extends State<SubmitLinkWidget>{
         FlatButton(
           child: Text("Close"),
           onPressed: (){
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(false);
           },
         ),
         RaisedButton(
@@ -146,7 +146,7 @@ class _SubmitLinkWidgetState extends State<SubmitLinkWidget>{
     else if(state is SubmitLinkForPointsSuccess){
       return Container(
           width: 300,
-          child: Text("Your point has been submitted! Thanks for scanning.")
+          child: Text(state.message)
       );
     }
     else{

@@ -23,6 +23,15 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState>{
         yield OverviewError(error: error);
       }
     }
+    else if(event is ReloadOverview){
+      try{
+        yield OverviewLoading();
+        yield await overviewRepository.getUserOverview(event.permissionLevel);
+      }
+      catch(error){
+        yield OverviewError(error: error);
+      }
+    }
   }
 
   @override

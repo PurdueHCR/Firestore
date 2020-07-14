@@ -11,19 +11,19 @@ export class Link {
     static POINT_TYPE_DESCRIPTION = "PointTypeDescription"
     static POINT_TYPE_VALUE = "PointTypeValue"
 
-    id: String
+    id: string
     archived: Boolean
-    creatorId: String
-    description: String
+    creatorId: string
+    description: string
     enabled: Boolean
     pointId: number
-    pointTypeName: String
-    pointTypeDescription: String
+    pointTypeName: string
+    pointTypeDescription: string
     pointTypeValue: number
     singleUse: Boolean
 
-    constructor(id: String, archived: Boolean, creatorId: String, description: String, 
-        enabled: Boolean, pointId: number, pointTypeName: String, pointTypeDescription: String, pointTypeValue: number, singleUse: Boolean){
+    constructor(id: string, archived: Boolean, creatorId: string, description: string, 
+        enabled: Boolean, pointId: number, pointTypeName: string, pointTypeDescription: string, pointTypeValue: number, singleUse: Boolean){
         this.id = id
         this.archived = archived
         this.creatorId = creatorId
@@ -64,15 +64,15 @@ export class Link {
         return this.fromDocumentData(document.id, document.data()!)
     }
 
-    private static fromDocumentData(docId: String, document: FirebaseFirestore.DocumentData) : Link{
-        let id: String
+    private static fromDocumentData(docId: string, document: FirebaseFirestore.DocumentData) : Link{
+        let id: string
         let archived: Boolean
-        let creatorId: String
-        let description: String
+        let creatorId: string
+        let description: string
         let enabled: Boolean
         let pointId: number
-        let pointTypeName: String
-        let pointTypeDescription: String
+        let pointTypeName: string
+        let pointTypeDescription: string
         let pointTypeValue: number
         let singleUse: Boolean
 
