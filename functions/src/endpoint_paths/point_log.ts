@@ -20,12 +20,12 @@ if(admin.apps.length === 0){
 const logs_app = express()
 const cors = require('cors')
 const logs_main = express()
-const firestoreTools = require('../firestoreTools')
 
 logs_main.use(logs_app)
 logs_app.use(express.json())
 logs_app.use(express.urlencoded({ extended: false }))
 
+const firestoreTools = require('../firestoreTools')
 export const log_main = functions.https.onRequest(logs_main)
 
 logs_app.use(cors({origin:true}))
@@ -34,9 +34,22 @@ logs_app.use(firestoreTools.validateFirebaseIdToken)
 
 /**
  * Handle a PointLog
+ * 
+ * 	@param body.approve specifies if the point log should be approved or rejected
+ *  @param body.point_log_id specifies the point log to handle
+ * 
+ *  @throws 400 - Unknown User
+ *  @throws 401 - Unauthorized
+ *  @throws 403 - InvalidPermissionLevel
+ *  @throws 412 - House Competition Disabled
+ *  @throws 413 - UnknownPointLog
+ *  @throws 416 - PointLogAlreadyHandled
+ *  @throws 422 - Missing Required Parameters
+ *  @throws 426 - Incorrect Format
+ *  @throws 500 - Server Error
  */
 logs_app.post('/handle', async (req, res) => {
-	if (!req.body.approve || req.body.approve === "" || !req.body.approver_id || req.body.approver_id === ""
+	if (!req.body || !req.body.approve || req.body.approve === ""
 			|| !req.body.point_log_id || req.body.point_log_id === "") {
 		if (!req.body) {
 			console.error("Missing Body")
@@ -44,15 +57,11 @@ logs_app.post('/handle', async (req, res) => {
 		else if (!req.body.approve || req.body.approve === "") {
 			console.error("Missing approve")
 		}
-		else if (!req.body.approver_id || req.body.approver_id === "") {
-			console.error("Missing approver_id")
-		}
 		else if (!req.body.point_log_id || req.body.point_log_id === "") {
 			console.error("Missing point_log_id")
 		} else {
 			console.error("Unknown missing parameter")
 		}
-
 		const error = APIResponse.MissingRequiredParameters()
 		res.status(error.code).send(error.toJson())
 	}
@@ -62,8 +71,8 @@ logs_app.post('/handle', async (req, res) => {
 		res.status(error.code).send(error.toJson())
 	} else {
 		try {
-			const should_approve = (req.body.approve === 'true');
-			const didUpdate = await updatePointLogStatus(should_approve, req.body.approver_id, req.body.point_log_id)
+			let should_approve = (req.body.approve == 'true');
+			const didUpdate = await updatePointLogStatus(should_approve, req["user"]["user_id"], req.body.point_log_id)
 			if (didUpdate) {
 				res.status(201).send(APIResponse.Success().toJson())
 			}
