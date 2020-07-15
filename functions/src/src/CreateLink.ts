@@ -11,15 +11,15 @@ import { HouseCompetition } from '../models/HouseCompetition';
  * @param user_id 
  * @param point_type_id 
  * @param single_use 
+ * @param is_enabled
  * @param description 
  * @throws 417 - Unkown Point Type
  * @throws 418 - Point Type Disabled
  * @throws 430 - InsufficientPointTypePermissionForLink
  * @throws 500 - Server Error
  */
-export async function createLink(user:User, point_type_id: number, is_single_use: boolean, description: string) : Promise<Link>{
+export async function createLink(user:User, point_type_id: number, is_single_use: boolean, is_enabled: boolean, description: string) : Promise<Link>{
     const blank_id = "";
-    const is_enabled = false;
     const is_archived = false;
 
     const db = admin.firestore()

@@ -31,7 +31,7 @@ class LinkRepository {
   }
 
   Future<Link> createLink(String description, bool enabled, bool singleUse, int pointTypeId) async {
-    Map<String, dynamic> body = {"description": description, "single_use":singleUse, "enabled":enabled, "point_id":pointTypeId};
+    Map<String, dynamic> body = {"description": description, "single_use":singleUse, "is_enabled":enabled, "point_id":pointTypeId};
     Map<String, dynamic> linkDocument = await callCloudFunction(config, Method.POST, "link/create", body: body);
     return Link.fromJson(linkDocument);
   }
