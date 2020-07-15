@@ -27,6 +27,7 @@ export async function submitLink(user:User, link:Link): Promise<Boolean>{
         const log = new UnsubmittedPointLog(new Date(Date.now()), link.description, link.pointId)
         let approved: Boolean
         if(link.singleUse){
+            console.log("Is single use")
             approved = await submitPoint(user,log, user.id+link.id, true)
         }
         else{

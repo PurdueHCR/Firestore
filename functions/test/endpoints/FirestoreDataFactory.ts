@@ -359,11 +359,18 @@ export class CompetitionPointStatus {
         this.status = status
     }
 
+    /**
+     * returns a copy of the original status with an added offset
+     * @param value number of points to offset by
+     */
     offset(value:number): PointStatus{
-        this.status.house_points += value
-        this.status.user_points += value
-        this.status.user_semester_points += value
-        return this.status
+        let offsetStatus: PointStatus = { 
+            user_points: this.status.user_points + value,
+            house_points: this.status.house_points + value,
+            user_semester_points: this.status.user_semester_points + value
+        }
+        
+        return offsetStatus
     }
 }
 
