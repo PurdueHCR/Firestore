@@ -48,6 +48,9 @@ class HandleLinkBloc extends Bloc<HandleLinkEvent, HandleLinkState>{
         else if(apiError.errorCode == 202){
           yield SubmitLinkForPointsSuccess(message: "Congrats! Your point submission has been recorded and you've got your points!");
         }
+        else if(apiError.errorCode == 407){
+          yield HandleLinkError(message: "Sorry, this link is currently disabled. Talk to whoever gave you the link about enabling it.");
+        }
         else if(apiError.errorCode == 408){
           yield HandleLinkError(message: "Sorry, we could not give you points for this link. We can't find it in our database. Try talking to whoever gave you this link.");
         }

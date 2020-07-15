@@ -44,7 +44,7 @@ class _LinkEditFormState extends State<LinkEditForm>{
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   QrImage(
-                    data: widget.link.generateURL(),
+                    data: widget.link.dynamicLink,
                     version: QrVersions.auto,
                     size: 200.0,
                   ),
@@ -126,24 +126,11 @@ class _LinkEditFormState extends State<LinkEditForm>{
               Container(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: OutlineButton(
-                  child: Text("Copy iOS Link"),
+                  child: Text("Copy Link"),
                   onPressed: () {
-                    Clipboard.setData(ClipboardData(text: widget.link.generateIOSLink()));
+                    Clipboard.setData(ClipboardData(text: widget.link.dynamicLink));
                     final snackBar = SnackBar(
-                      content: Text('Copied iOS Link to Clipboard'),
-                    );
-                    Scaffold.of(context).showSnackBar(snackBar);
-                  },
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: OutlineButton(
-                  child: Text("Copy Android Link"),
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: widget.link.generateAndroidLink()));
-                    final snackBar = SnackBar(
-                      content: Text('Copied Android Link to Clipboard'),
+                      content: Text('Copied link to clipboard'),
                     );
                     Scaffold.of(context).showSnackBar(snackBar);
                   },

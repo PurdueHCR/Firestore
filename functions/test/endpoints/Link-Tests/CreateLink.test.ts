@@ -23,6 +23,7 @@ describe('link/create', async () =>{
 
     beforeAll(async () => {
         IntegrationMockFactory.mockFirebaseAdmin()
+        IntegrationMockFactory.mockDynamicLink()
         db = IntegrationMockFactory.getDb()
 
         link_function = require('../../../src/endpoint_paths/index.ts').link

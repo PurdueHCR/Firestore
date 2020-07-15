@@ -18,6 +18,7 @@
     "@firebase/app": "^0.5.4",
     "@types/node": "^13.7.1",
     "body-parser": "^1.19.0",
+    "build-url": "^2.0.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "firebase-admin": "^8.9.2",
@@ -26,13 +27,16 @@
     "glob": "^7.1.6",
     "minimist": "^1.2.5",
     "nodemailer": "^6.4.2",
-    "raw-body": "^2.4.1"
+    "raw-body": "^2.4.1",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.5"
   },
   "devDependencies": {
     "@firebase/testing": "0.11.4",
     "@grpc/grpc-js": "^1.0.3",
     "@grpc/proto-loader": "^0.5.4",
     "@types/jest": "^25.2.1",
+    "@types/request-promise": "^4.1.46",
     "@types/supertest": "^2.0.9",
     "firebase": "^7.14.3",
     "firebase-admin": "8.2.0",

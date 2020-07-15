@@ -44,6 +44,14 @@ export function mockFirebaseAdmin(db: firebase.firestore.Firestore = getDb()){
     })
 }
 
+export function mockDynamicLink(){
+    jest.mock('request-promise', () => jest.fn(() => {
+        return Promise.resolve({shortLink:"https://this_is_a_fake_link"})
+    }))
+    const test = require('firebase-functions-test')()
+    test.mockConfig({ applinks: { main_app_url:"https://main_app_url/%23/", dynamic_link_url: "https://hcrpoint.page.link/", key:"keykeykeykey" }});
+}
+
 let db:firebase.firestore.Firestore
 
 // Helper function to setup the test db instance

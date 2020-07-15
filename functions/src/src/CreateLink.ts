@@ -1,5 +1,6 @@
 import * as admin from 'firebase-admin'
 import { getPointTypeById } from "./GetPointTypeById"
+import { makeDynamicLinkForLink } from "./CreateDynamicLink"
 import {User} from "../models/User"
 import { APIResponse } from '../models/APIResponse';
 import { Link } from '../models/Link';
@@ -27,6 +28,11 @@ export async function createLink(user:User, point_type_id: number, is_single_use
         let link = new Link(blank_id,is_archived,user.id, description, is_enabled, point_type_id, pointType.name, pointType.description, pointType.value, is_single_use);
         const linkDoc = await db.collection(HouseCompetition.LINKS_KEY).add(link.toFirebaseJson())
         link = Link.fromSnapshotDocument(await linkDoc.get());
+
+        const dynamicLink = await makeDynamicLinkForLink(link)
+        link.dynamicLink = dynamicLink.toString()
+        await linkDoc.update(link.updateDynamicLinkJson())
+        
         return Promise.resolve(link)
     }
     else if(!pointType.enabled){

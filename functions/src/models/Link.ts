@@ -10,6 +10,7 @@ export class Link {
     static POINT_TYPE_NAME = "PointTypeName";
     static POINT_TYPE_DESCRIPTION = "PointTypeDescription"
     static POINT_TYPE_VALUE = "PointTypeValue"
+    static DYNAMIC_LINK = "DynamicLink"
 
     id: string
     archived: Boolean
@@ -21,9 +22,10 @@ export class Link {
     pointTypeDescription: string
     pointTypeValue: number
     singleUse: Boolean
+    dynamicLink: string
 
     constructor(id: string, archived: Boolean, creatorId: string, description: string, 
-        enabled: Boolean, pointId: number, pointTypeName: string, pointTypeDescription: string, pointTypeValue: number, singleUse: Boolean){
+        enabled: Boolean, pointId: number, pointTypeName: string, pointTypeDescription: string, pointTypeValue: number, singleUse: Boolean, dynamicLink:string = ""){
         this.id = id
         this.archived = archived
         this.creatorId = creatorId
@@ -34,19 +36,27 @@ export class Link {
         this.pointTypeName = pointTypeName
         this.pointTypeDescription = pointTypeDescription
         this.pointTypeValue = pointTypeValue
+        this.dynamicLink = dynamicLink
     }
 
     public toFirebaseJson(){
-        const map = {};
-        map[Link.ARCHIVED] = this.archived;
-        map[Link.CREATOR_ID] = this.creatorId;
-        map[Link.DESCRIPTION] = this.description;
-        map[Link.ENABLED] = this.enabled;
-        map[Link.POINT_ID] = this.pointId;
-        map[Link.SINGLE_USE] = this.singleUse;
-        map[Link.POINT_TYPE_NAME] = this.pointTypeName;
+        const map = {}
+        map[Link.ARCHIVED] = this.archived
+        map[Link.CREATOR_ID] = this.creatorId
+        map[Link.DESCRIPTION] = this.description
+        map[Link.ENABLED] = this.enabled
+        map[Link.POINT_ID] = this.pointId
+        map[Link.SINGLE_USE] = this.singleUse
+        map[Link.POINT_TYPE_NAME] = this.pointTypeName
         map[Link.POINT_TYPE_DESCRIPTION] = this.pointTypeDescription
         map[Link.POINT_TYPE_VALUE] = this.pointTypeValue
+        map[Link.DYNAMIC_LINK] = this.dynamicLink
+        return map;
+    }
+
+    public updateDynamicLinkJson(){
+        const map = {}
+        map[Link.DYNAMIC_LINK] = this.dynamicLink
         return map;
     }
     
@@ -75,6 +85,7 @@ export class Link {
         let pointTypeDescription: string
         let pointTypeValue: number
         let singleUse: Boolean
+        let dynamicLink: string
 
         id = docId;
         if(Link.ARCHIVED in document) {
@@ -140,6 +151,14 @@ export class Link {
             pointTypeValue = -1
         }
 
-        return new Link(id, archived, creatorId, description, enabled, pointId, pointTypeName, pointTypeDescription, pointTypeValue, singleUse);
+        if(Link.DYNAMIC_LINK in document) {
+            dynamicLink = document[Link.DYNAMIC_LINK]
+        }
+        else{
+            dynamicLink = "Undefined"
+        }
+
+
+        return new Link(id, archived, creatorId, description, enabled, pointId, pointTypeName, pointTypeDescription, pointTypeValue, singleUse, dynamicLink);
     }
 }
