@@ -10,47 +10,30 @@ import { APIResponse } from '../models/APIResponse';
  * @param link Link to create a dynamic link for
  */
 export async function makeDynamicLinkForLink(link:Link): Promise<string> {
+    let applinks
+    if(functions.config().applinks.key === undefined || functions.config().applinks.key === ""){
+        applinks = require('../../development_keys/dynamic_link_keys.json')
+    }
+    else{
+        applinks = functions.config().applinks
+    }
     try{
-        let longLink
-        if(functions.config().applinks.key === undefined || functions.config().applinks.key === ""){
-            longLink = UrlBuilder("https://hcrpoint.page.link", {
-                queryParams: {
-                    link: "http://localhost:7357/#/"+"addpoints\/"+link.id,
-                    ibi: "DecodeProgramming.HCRPoint",
-                    apn: "com.hcrpurdue.jason.hcrhousepoints",
-                    afl: "http://localhost:7357/#/"+"addpoints/"+link.id,
-                    ifl: "http://localhost:7357/#/"+"addpoints/"+link.id,
-                    st: link.description,
-                    sd: "Tap this link to get "+link.pointTypeValue + (link.pointTypeValue == 1)? " point!": " points!"
-                }
-            });
-        }
-        else{
-            longLink = UrlBuilder(`${functions.config().applinks.dynamic_link_url}`, {
-                queryParams: {
-                    link: `${functions.config().applinks.main_app_url}`+"addpoints/"+link.id,
-                    ibi: "DecodeProgramming.HCRPoint",
-                    apn: "com.hcrpurdue.jason.hcrhousepoints",
-                    afl: `${functions.config().applinks.main_app_url}`+"addpoints/"+link.id,
-                    ifl: `${functions.config().applinks.main_app_url}`+"addpoints/"+link.id,
-                    st: link.description,
-                    sd: "Tap this link to get "+link.pointTypeValue + (link.pointTypeValue == 1)? " point!": " points!"
-                }
-            });
-        }
+        let longLink = UrlBuilder(`${applinks.dynamic_link_url}`, {
+            queryParams: {
+                link: `${applinks.main_app_url}`+"addpoints/"+link.id,
+                ibi: "DecodeProgramming.HCRPoint",
+                apn: "com.hcrpurdue.jason.hcrhousepoints",
+                afl: `${applinks.main_app_url}`+"addpoints/"+link.id,
+                ifl: `${applinks.main_app_url}`+"addpoints/"+link.id,
+                st: link.description,
+                sd: "Tap this link to get "+link.pointTypeValue + (link.pointTypeValue == 1)? " point!": " points!"
+            }
+        });
 
         console.log("LONG LINK: "+longLink)
-
-        let uri
-        if(functions.config().applinks.route === undefined || functions.config().applinks.route === ""){
-            uri = `https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=AIzaSyD8iqaRoxfgcdQhyYzsTjFm6uIVkjfBREs`
-        }
-        else{
-            uri = `https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=${functions.config().applinks.key}`
-        }
         const options = {
             method: 'POST',
-            uri: uri,
+            uri: `https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=${applinks.key}`,
             body: {
                 "longDynamicLink": longLink,
                 "suffix": {

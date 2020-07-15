@@ -11,6 +11,7 @@ export class Link {
     static POINT_TYPE_DESCRIPTION = "PointTypeDescription"
     static POINT_TYPE_VALUE = "PointTypeValue"
     static DYNAMIC_LINK = "DynamicLink"
+    static CLAIMED_COUNT = "ClaimedCount"
 
     id: string
     archived: Boolean
@@ -23,12 +24,14 @@ export class Link {
     pointTypeValue: number
     singleUse: Boolean
     dynamicLink: string
+    claimedCount:number
 
-    constructor(id: string, archived: Boolean, creatorId: string, description: string, 
+    constructor(id: string, archived: Boolean, creatorId: string, claimedCount: number, description: string, 
         enabled: Boolean, pointId: number, pointTypeName: string, pointTypeDescription: string, pointTypeValue: number, singleUse: Boolean, dynamicLink:string = ""){
         this.id = id
         this.archived = archived
         this.creatorId = creatorId
+        this.claimedCount = claimedCount
         this.description = description
         this.enabled = enabled
         this.pointId = pointId
@@ -43,6 +46,7 @@ export class Link {
         const map = {}
         map[Link.ARCHIVED] = this.archived
         map[Link.CREATOR_ID] = this.creatorId
+        map[Link.CLAIMED_COUNT] = this.claimedCount
         map[Link.DESCRIPTION] = this.description
         map[Link.ENABLED] = this.enabled
         map[Link.POINT_ID] = this.pointId
@@ -57,6 +61,12 @@ export class Link {
     public updateDynamicLinkJson(){
         const map = {}
         map[Link.DYNAMIC_LINK] = this.dynamicLink
+        return map;
+    }
+
+    public updateClaimedCountJson(){
+        const map = {}
+        map[Link.CLAIMED_COUNT] = this.claimedCount
         return map;
     }
     
@@ -78,6 +88,7 @@ export class Link {
         let id: string
         let archived: Boolean
         let creatorId: string
+        let claimedCount: number
         let description: string
         let enabled: Boolean
         let pointId: number
@@ -100,6 +111,13 @@ export class Link {
         }
         else {
             creatorId = ""
+        }
+
+        if(Link.CLAIMED_COUNT in document) {
+            claimedCount = document[Link.CLAIMED_COUNT]
+        }
+        else{
+            claimedCount = 0
         }
 
         if(Link.DESCRIPTION in document) {
@@ -159,6 +177,6 @@ export class Link {
         }
 
 
-        return new Link(id, archived, creatorId, description, enabled, pointId, pointTypeName, pointTypeDescription, pointTypeValue, singleUse, dynamicLink);
+        return new Link(id, archived, creatorId, claimedCount, description, enabled, pointId, pointTypeName, pointTypeDescription, pointTypeValue, singleUse, dynamicLink);
     }
 }

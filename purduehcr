@@ -22,6 +22,8 @@ if [ "$1" = "build" ]; then
     cd functions
     npm run build
     echo "done"
+    if [ "$2" != "dev" ]; then
+        echo "Make sure you set the firebase functions:config:set applinks.key= applinks.dynamic_link_url= applinks.main_app_url="
 elif [ "$1" = "install" ]; then
     echo "Checking required tools"
     if ! type "flutter" > /dev/null; then

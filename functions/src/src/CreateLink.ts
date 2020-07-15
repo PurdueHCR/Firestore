@@ -25,7 +25,7 @@ export async function createLink(user:User, point_type_id: number, is_single_use
     const db = admin.firestore()
     const pointType = await getPointTypeById(point_type_id)
     if(pointType.canUserGenerateLinks(user.permissionLevel)){
-        let link = new Link(blank_id,is_archived,user.id, description, is_enabled, point_type_id, pointType.name, pointType.description, pointType.value, is_single_use);
+        let link = new Link(blank_id,is_archived,user.id, 0, description, is_enabled, point_type_id, pointType.name, pointType.description, pointType.value, is_single_use);
         const linkDoc = await db.collection(HouseCompetition.LINKS_KEY).add(link.toFirebaseJson())
         link = Link.fromSnapshotDocument(await linkDoc.get());
 

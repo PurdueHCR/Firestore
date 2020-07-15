@@ -8,7 +8,7 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "emulate": "npm run build && firebase emulators:start --only functions",
+    "emulate": "zsh .emulate_script.zsh",
     "test": "zsh .test_script.zsh",
     "unit": "zsh .test_script.zsh -t unit",
     "integration": "zsh .test_script.zsh -t integration"
@@ -53,5 +53,7 @@
   "private": true,
   "engines": {
     "node": "10"
-  }
+  },
+  "resolveJsonModule": true,
+  "esModuleInterop": true
 }

@@ -1,8 +1,10 @@
+import * as admin from 'firebase-admin'
 import { User } from "../models/User"
 import { Link } from "../models/Link"
 import {submitPoint} from "./SubmitPoints"
 import { UnsubmittedPointLog } from "../models/UnsubmittedPointLog"
 import { APIResponse } from "../models/APIResponse"
+import { HouseCompetition } from '../models/HouseCompetition'
 
 /**
  * Submit a link for points
@@ -19,14 +21,27 @@ import { APIResponse } from "../models/APIResponse"
  */
 export async function submitLink(user:User, link:Link): Promise<Boolean>{
 
+    const db = admin.firestore()
+
     if(link.enabled){
         const log = new UnsubmittedPointLog(new Date(Date.now()), link.description, link.pointId)
+        let approved: Boolean
         if(link.singleUse){
-            return submitPoint(user,log, user.id+link.id, true)
+            approved = await submitPoint(user,log, user.id+link.id, true)
         }
         else{
-            return submitPoint(user,log,null, true)
+            approved = await submitPoint(user,log,null, true)
         }
+        await db.runTransaction(async (transaction) => {
+			//Get the current house
+			const linkSnapshot = await transaction.get(db.collection(HouseCompetition.LINKS_KEY).doc(link.id))
+			const currentLink = Link.fromSnapshotDocument(linkSnapshot)
+            
+            currentLink.claimedCount += 1
+            transaction.update(db.collection(HouseCompetition.LINKS_KEY).doc(link.id), currentLink.updateClaimedCountJson())
+        })
+        
+        return approved
     }
     else{
         return Promise.reject(APIResponse.LinkIsNotEnabled())

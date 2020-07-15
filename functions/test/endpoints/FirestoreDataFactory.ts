@@ -221,6 +221,7 @@ export class FirestoreDataFactory{
             Enabled: (linkOpts.enabled !== undefined)?linkOpts.enabled:Options.LINK_DEFAULTS.enabled,
             PointID: point_type_id,
             SingleUse: (linkOpts.single_use !== undefined)?linkOpts.single_use:Options.LINK_DEFAULTS.single_use,
+            ClaimedCount: (linkOpts.claimed_count !== undefined)?linkOpts.claimed_count:Options.LINK_DEFAULTS.claimed_count
         }
         return db.collection("Links").doc(link_id).set(data)
     }
