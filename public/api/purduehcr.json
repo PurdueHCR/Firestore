@@ -764,6 +764,149 @@
         }
       }
     },
+    "/competition/history" : {
+      "get" : {
+        "tags" : [ "competition" ],
+        "summary" : "Endpoint for Professional Staff and RHPs to view the history of submissions in their house.",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        },{
+          "name" : "type",
+          "in" : "query",
+          "description" : "Type of search to perform. {'recent','user','point_type'}.",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "user"
+        },{
+          "name" : "last_name",
+          "in" : "query",
+          "description" : "Search term used for finding point submissions for users with the given last name. Required if the search type is 'user'.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Doe"
+        },{
+          "name" : "point_type_id",
+          "in" : "query",
+          "description" : "Id for the point type to get submissions for. (Only applies when the type is 'point_type'. This will only find point submissions which were handled.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer"
+          },
+          "example" : 2
+        },{
+          "name" : "date",
+          "in" : "query",
+          "description" : "Defines the latest date a point submission could have in the search. (Only applies when the type is 'recent'.)",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "ed3rodsaw34fnbjdla"
+        },{
+          "name" : "startAt",
+          "in" : "query",
+          "description" : "Oldest date returned in the previous query. This is used for pagination.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : 0
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties": {
+                    "point_logs": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointLog"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing required parameters.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/competition/getUnhandledPoints" : {
       "get" : {
         "tags" : [ "competition" ],

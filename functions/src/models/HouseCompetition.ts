@@ -4,6 +4,7 @@ import { PointType } from "./PointType"
 import { Reward } from "./Reward"
 import { Link } from "./Link"
 import { User } from "./User"
+import { APIResponse } from "./APIResponse"
 
 export class HouseCompetition {
 
@@ -24,4 +25,14 @@ export class HouseCompetition {
     pointTypes: PointType[] = []
     rewards: Reward[] = []
     users: User[] = []
+
+    /**
+     * Validate that the provided name is a house in the competition
+     * @param house name of the house
+     */
+    static validateHouseName(house:string) {
+        if(house !== "Copper" && house !== "Palladium" && house !== "Platinum" && house !== "Silver" && house !== "Titanium"){
+            throw APIResponse.UnknownHouse()
+        }
+    }
 }

@@ -14,6 +14,8 @@ import { getResidentProfile } from '../src/GetUserProfiles'
 import { PointType } from '../models/PointType'
 import { getUser } from '../src/GetUser'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
+import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
+import { getRecentHistory, getHistoryFilterUser, getHistoryFilterPointType} from '../src/GetHistory'
 
 
 class UsersAndErrorWrapper{
@@ -336,22 +338,147 @@ comp_app.get('/userOverview', async (req, res) => {
 })
 
 /**
- * competition/getHouses => retrieves the list of houses and sends them back
+ * Get the history of point submissions for a house
+ * @param query.type Required param to determine what search category to have (recent, user, point_type)
+ * @param query.point_type_id Integer for the point id. Required if the search type is 'point_type'.
+ * @param query.last_name String of the last name of the user to search for. Required when the search type is user.
+ * @param query.date Date to use as the starting point for a 'recent' query. Not required.
+ * @param query.startAt: Date to use in pagenation
+ * @param query.house: String to use as the house id if the current user is a Professional Staff
  * 
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permissions
+ * @throws 422 - Missing required parameters
+ * @throws 423 - InvalidDateFormat
+ * @throws 426 - IncorrectFormat
+ * @throws 500 - Server Error
  */
+comp_app.get('/history', async (req, res) => {
+	try{
+		if(req.query === undefined || req.query.type === undefined){
+			console.error("Query is not defined or type is not defined.")
+			const error = APIResponse.MissingRequiredParameters()
+			res.status(error.code).send(error.toJson())
+		}
+		else{
+			
+			let startAt:Date | null = null
+			if(req.query.startAt !== undefined && !isNaN(Date.parse(req.query.startAt as string))){
+				startAt = new Date(Date.parse(req.query.startAt as string))
+			}
+			else if (req.query.startAt !== undefined && isNaN(Date.parse(req.query.startAt as string))){
+				console.error("Invalid date")
+				throw APIResponse.InvalidDateFormat()
+			}
 
-// Put code for /getHouses below
+			if(req.query.type === "recent"){
+				let date:Date = new Date(Date.now())
+				if(req.query.date !== undefined && !isNaN(Date.parse(req.query.date as string))){
+					date = new Date(Date.parse(req.query.date as string))
+					
+				}
+				else if (req.query.date !== undefined && isNaN(Date.parse(req.query.date as string))){
+					console.error("Invalid date")
+					throw APIResponse.InvalidDateFormat()
+				}
+				const user = await getUser(req["user"]["user_id"])
+				verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF])
+				const house_name = getHouseNameForHistory(user, req)
+				
+				let point_logs: PointLog[]
+				if(startAt === null){
+					point_logs = await getRecentHistory(house_name, date)
+				}
+				else{
+					point_logs = await getRecentHistory(house_name, date, startAt)
+				}
+				res.status(APIResponse.SUCCESS_CODE).send({point_logs:point_logs})
+				
 
-// Put code for /getHouses above
+			}
+			else if(req.query.type === "user"){
+				if(req.query.last_name === undefined || req.query.last_name === ""){
+					const error = APIResponse.MissingRequiredParameters()
+						res.status(error.code).send(error.toJson())
+				}
+				else{
+					const user = await getUser(req["user"]["user_id"])
+					verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF])
+					const house_name = getHouseNameForHistory(user, req)
+					let point_logs: PointLog[]
+					if(startAt === null){
+						point_logs = await getHistoryFilterUser(house_name, req.query.last_name as string)
+					}
+					else{
+						point_logs = await getHistoryFilterUser(house_name, req.query.last_name as string, startAt)
+					}
 
-/**
- * competition/getRewards => retrieves the list of rewards and sends them back
- * 
- */
+					res.status(APIResponse.SUCCESS_CODE).send({point_logs:point_logs})
+				}
+				
+			}
+			else if(req.query.type === "point_type"){
+				if(req.query.point_type_id === undefined){
+					console.error("Point type id is not provided")
+					throw APIResponse.MissingRequiredParameters()
+				}
+				else if(parseInt(req.query.point_type_id as string) <= 0){
+					console.error("Point type id can not be 0 or a negative number")
+					throw APIResponse.IncorrectFormat()
+				}
+				else{
+					const user = await getUser(req["user"]["user_id"])
+					verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF])
+					const house_name = getHouseNameForHistory(user, req)
+					let point_logs: PointLog[]
+					if(startAt === null){
+						point_logs = await getHistoryFilterPointType(house_name, parseInt(req.query.point_type_id as string))
+					}
+					else{
+						point_logs = await getHistoryFilterPointType(house_name, parseInt(req.query.point_type_id as string), startAt)
+					}
+					res.status(APIResponse.SUCCESS_CODE).send({point_logs:point_logs})
+				}
+			}
+			else{
+				console.error("Type parameter is not a valid format.")
+				throw APIResponse.IncorrectFormat()
+			}
+		}
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+		}
+		else if(error instanceof TypeError){
+			console.error("Got a typeof error: "+error)
+			const apiResponse = APIResponse.IncorrectFormat()
+			res.status(apiResponse.code).send(apiResponse.toJson())
+		}
+        else {
+            console.log("Unknown Error: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
+})
 
-// Put code for /getRewards below
-
-// Put code for /getRewards above
+function getHouseNameForHistory(user:User, req): string{
+	console.log("Checking hosue name")
+	let house_name = user.house
+	if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+		if(req.query.house === undefined || req.query.house === ""){
+			throw APIResponse.MissingRequiredParameters()
+		}
+		else{
+			HouseCompetition.validateHouseName(req.query.house as string)
+			house_name = req.query.house as string
+		}
+	}
+	console.log("Using house: "+house_name)
+	return house_name
+}
 
 
 /**
