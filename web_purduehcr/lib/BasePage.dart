@@ -188,7 +188,21 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
       case DisplayType.desktop_large:
       case DisplayType.desktop_small:
         return min(MediaQuery.of(context).size.width - 200, 1000);
-      case DisplayType.mobile:
+      default:
+        return MediaQuery.of(context).size.width;
+    }
+  }
+
+  /// Returns the optimal width for a dialog that consists of
+  /// a complex task. For notification dialogs, use the default
+  /// size provided in the dialog builder.
+  double getOptimalDialogWidth(BuildContext context){
+    switch(displayTypeOf(context)){
+      case DisplayType.desktop_large:
+        return min((MediaQuery.of(context).size.width - 200) * 0.5, 400);
+      case DisplayType.desktop_small:
+        return min(MediaQuery.of(context).size.width - 200, 400) ;
+      default:
         return MediaQuery.of(context).size.width;
     }
   }

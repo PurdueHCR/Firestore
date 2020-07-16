@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purduehcr_web/LinkPage/link_bloc/link.dart';
 import 'package:purduehcr_web/Models/Link.dart';
-import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:purduehcr_web/Utility_Views/PointTypeList.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -11,7 +12,7 @@ class LinkEditForm extends StatefulWidget{
   final Link link;
   final Function(Link link) onUpdate;
 
-  const LinkEditForm({Key key, this.link, this.onUpdate});
+  const LinkEditForm({Key key, this.link, this.onUpdate}):super(key:key);
 
   @override
   State<StatefulWidget> createState() {
@@ -21,18 +22,42 @@ class LinkEditForm extends StatefulWidget{
 }
 
 class _LinkEditFormState extends State<LinkEditForm>{
-  bool isLoading = false;
-  bool hasChanges = false;
+
+  // because it is created in another file
+  // ignore: close_sinks
+  LinkBloc _linkBloc;
   bool isChangingText = false;
-  TextEditingController descriptionController ;
+  TextEditingController descriptionController;
+  bool isEnabled;
+  bool isSingleUse;
+  bool isArchived;
+  String description = "";
+
+  @override
+  void initState() {
+    super.initState();
+    isEnabled = widget.link.enabled;
+    isSingleUse = widget.link.singleUse;
+    isArchived = widget.link.archived;
+    description = widget.link.description;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if(_linkBloc == null){
+      _linkBloc = BlocProvider.of<LinkBloc>(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if(widget.link == null){
-      return Text("Select a Link");
-    }else if(isLoading){
-      return LoadingWidget();
+      return Center(
+          child: Text("Select a Link")
+      );
     }
-    else{
+    else {
       return SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -61,18 +86,26 @@ class _LinkEditFormState extends State<LinkEditForm>{
                   controller: descriptionController,
                   maxLines: null,
                   maxLength: 250,
+                  onEditingComplete: (){
+                    FocusScope.of(context).unfocus();
+                    setState(() {
+                      isChangingText = false;
+                      print("This should update to: "+descriptionController.text);
+                      description = descriptionController.text;
+                      _linkBloc.add(UpdateLink(link: widget.link, description:descriptionController.text));
+                    });
+                  },
                 ) :
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    Text(widget.link.description),
+                    Text(description),
                     IconButton(
                       icon: Icon(Icons.edit),
                       onPressed: (){
                         setState(() {
                           descriptionController = TextEditingController(text: widget.link.description);
-                          hasChanges = true;
                           isChangingText = true;
                         });
                       },
@@ -93,30 +126,30 @@ class _LinkEditFormState extends State<LinkEditForm>{
               ),
               SwitchListTile(
                   title: const Text('Single Use'),
-                  value: widget.link.singleUse,
+                  value: isSingleUse,
                   onChanged: (bool val) =>
                       setState(() {
-                        widget.link.singleUse = val;
-                        hasChanges = true;
+                        isSingleUse = val;
+                        _linkBloc.add(UpdateLink(link: widget.link, singleUse: isSingleUse));
                       }
                     )
               ),
               SwitchListTile(
                   title: const Text('Enabled'),
-                  value: widget.link.enabled,
+                  value: isEnabled,
                   onChanged: (bool val) =>
                       setState(() {
-                        widget.link.enabled = val;
-                        hasChanges = true;
+                        isEnabled = val;
+                        _linkBloc.add(UpdateLink(link: widget.link, enabled: isEnabled));
                       })
               ),
               SwitchListTile(
                   title: const Text('Archived'),
-                  value: widget.link.archived,
+                  value: isArchived,
                   onChanged: (bool val) =>
                       setState((){
-                        widget.link.archived = val;
-                        hasChanges = true;
+                        isArchived = val;
+                        _linkBloc.add(UpdateLink(link: widget.link, archived: isArchived));
                       })
               ),
               Container(
@@ -136,34 +169,6 @@ class _LinkEditFormState extends State<LinkEditForm>{
                   },
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: Visibility(
-                  visible: hasChanges,
-                  child: RaisedButton(
-                    child: Text("Save Changes"),
-                    onPressed: (){
-                      setState(() {
-                        if(descriptionController.text.isEmpty){
-                          final snackBar = SnackBar(
-                            backgroundColor: Colors.red,
-                            content: Text('Can not have empty description'),
-                          );
-                          Scaffold.of(context).showSnackBar(snackBar);
-                          hasChanges = false;
-                          isChangingText = false;
-                        }
-                        else{
-                          widget.link.description = descriptionController.text;
-                          widget.onUpdate(widget.link);
-                          hasChanges = false;
-                          isChangingText = false;
-                        }
-                      });
-                    },
-                  ),
-                ),
-              )
             ],
           ),
         ),

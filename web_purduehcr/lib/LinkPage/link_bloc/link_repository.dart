@@ -36,8 +36,14 @@ class LinkRepository {
     return Link.fromJson(linkDocument);
   }
 
-  Future updateLink(Link link) async {
-    await callCloudFunction(config, Method.PUT, "link/update", body: link.getUpdateJson());
+  Future updateLink(Link link, {String description, bool enabled, bool singleUse, bool archived}) async {
+    Map<String, dynamic> body = Map();
+    body["link_id"] = link.id;
+    body[Link.DESCRIPTION] = (description != null)? description : link.description;
+    body[Link.ENABLED] = (enabled != null)? enabled : link.enabled;
+    body[Link.ARCHIVED] = (archived != null)? archived : link.archived;
+    body[Link.SINGLE_USE] = (singleUse != null)? singleUse : link.singleUse;
+    await callCloudFunction(config, Method.PUT, "link/update", body: body);
   }
   
 }

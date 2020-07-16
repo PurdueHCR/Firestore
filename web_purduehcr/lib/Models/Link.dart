@@ -49,15 +49,4 @@ class Link {
     );
   }
 
-
-  Map<String, dynamic> getUpdateJson() {
-    Map<String, dynamic> data = Map();
-    data["link_id"] = id;
-    data[ARCHIVED] = archived;
-    data[ENABLED] = enabled;
-    data[DESCRIPTION] = description;
-    data[SINGLE_USE] = singleUse;
-    return data;
-  }
-
 }
