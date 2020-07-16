@@ -105,10 +105,13 @@ export declare type PointLogOptions = {
     description?:string,
     floor_id?:string,
     point_type_id?:number,
+    point_type_name?:string,
+    point_type_description?:string,
     rhp_notifications?:number,
     resident_first_name?:string,
     resident_last_name?:string,
-    resident_notifications?:number
+    resident_notifications?:number,
+    approved?:boolean
 }
 
 export const POINT_LOG_DEFAULTS:PointLogOptions = {
@@ -119,11 +122,14 @@ export const POINT_LOG_DEFAULTS:PointLogOptions = {
     description: "Empty Description",
     floor_id: "4N",
     point_type_id: 1,
+    point_type_name: "PLACEHOLDER PT NAME",
+    point_type_description: "PLACEHOLDER PT DESCR",
     rhp_notifications: 0,
     resident_first_name: "TEST_FIRST",
     resident_last_name: "TEST_LAST",
-    resident_notifications: 0
-
+    resident_notifications: 0,
+    approved: false
+    
 }
 
 ///----------------------------------------------------------------

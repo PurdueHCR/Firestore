@@ -168,28 +168,33 @@ export class FirestoreDataFactory{
      * @param db - Test App Firestore instance (Usually from authedApp())
      * @param house - name of the house to add point log for
      * @param resident_id - id of resident to add point log for
-     * @param approved - boolean for if the pointlog was already approved. (used to set the approved fields and sign of point type ID)
+     * @param handled - boolean for if the pointlog was already handled. (used to set the approved fields and sign of point type ID)
      * @param ptOpts - Optional parameters to modifu the point log
      */
-    static setPointLog(db: firebase.firestore.Firestore, house:string, resident_id:string, approved: boolean, ptOpts:PointLogOptions = POINT_LOG_DEFAULTS): Promise<void> | Promise<firebase.firestore.DocumentReference>{
+    static setPointLog(db: firebase.firestore.Firestore, house:string, resident_id:string, handled: boolean, ptOpts:Options.PointLogOptions = Options.POINT_LOG_DEFAULTS): Promise<void> | Promise<firebase.firestore.DocumentReference>{
         let data = {
-            "DateOccurred":(ptOpts.date_occurred !== undefined)?ptOpts.date_occurred:POINT_LOG_DEFAULTS.date_occurred,
-            "DateSubmitted":(ptOpts.date_submitted !== undefined)?ptOpts.date_submitted:POINT_LOG_DEFAULTS.date_submitted,
-            "Description":(ptOpts.date_submitted !== undefined)?ptOpts.description:POINT_LOG_DEFAULTS.description,
-            "FloorID":(ptOpts.floor_id !== undefined)?ptOpts.floor_id:POINT_LOG_DEFAULTS.floor_id,
-            "PointTypeID":(ptOpts.point_type_id !== undefined)?ptOpts.point_type_id:POINT_LOG_DEFAULTS.point_type_id! * -1,
-            "PointTypeName":(ptOpts.point_type_name !== undefined)?ptOpts.point_type_name:POINT_LOG_DEFAULTS.point_type_name!,
-            "PointTypeDescription":(ptOpts.point_type_description !== undefined)?ptOpts.point_type_description:POINT_LOG_DEFAULTS.point_type_description!,
-            "RHPNotifications":(ptOpts.rhp_notifications !== undefined)?ptOpts.rhp_notifications:POINT_LOG_DEFAULTS.rhp_notifications,
-            "ResidentFirstName":(ptOpts.resident_first_name !== undefined)?ptOpts.resident_first_name:POINT_LOG_DEFAULTS.resident_first_name,
+            "DateOccurred":(ptOpts.date_occurred !== undefined)?ptOpts.date_occurred:Options.POINT_LOG_DEFAULTS.date_occurred,
+            "DateSubmitted":(ptOpts.date_submitted !== undefined)?ptOpts.date_submitted:Options.POINT_LOG_DEFAULTS.date_submitted,
+            "Description":(ptOpts.description !== undefined)?ptOpts.description:Options.POINT_LOG_DEFAULTS.description,
+            "FloorID":(ptOpts.floor_id !== undefined)?ptOpts.floor_id:Options.POINT_LOG_DEFAULTS.floor_id,
+            "PointTypeID":(ptOpts.point_type_id !== undefined)?ptOpts.point_type_id * -1 :Options.POINT_LOG_DEFAULTS.point_type_id! * -1,
+            "PointTypeName":(ptOpts.point_type_name !== undefined)?ptOpts.point_type_name:Options.POINT_LOG_DEFAULTS.point_type_name!,
+            "PointTypeDescription":(ptOpts.point_type_description !== undefined)?ptOpts.point_type_description:Options.POINT_LOG_DEFAULTS.point_type_description!,
+            "RHPNotifications":(ptOpts.rhp_notifications !== undefined)?ptOpts.rhp_notifications:Options.POINT_LOG_DEFAULTS.rhp_notifications,
+            "ResidentFirstName":(ptOpts.resident_first_name !== undefined)?ptOpts.resident_first_name:Options.POINT_LOG_DEFAULTS.resident_first_name,
             "ResidentId":resident_id,
             "ResidentLastName":(ptOpts.resident_last_name !== undefined)?ptOpts.resident_last_name:Options.POINT_LOG_DEFAULTS.resident_last_name,
             "ResidentNotifications":(ptOpts.resident_notifications !== undefined)?ptOpts.resident_notifications:Options.POINT_LOG_DEFAULTS.resident_notifications
         }
-        if(!approved){
+        if(handled){
             data["ApprovedBy"] = (ptOpts.approved_by !== undefined)?ptOpts.approved_by:Options.POINT_LOG_DEFAULTS.approved_by
             data["ApprovedOn"] = (ptOpts.approved_on !== undefined)?ptOpts.approved_on:Options.POINT_LOG_DEFAULTS.approved_on
             data["PointTypeID"] = data["PointTypeID"] * -1
+            const approved = (ptOpts.approved !== undefined)?ptOpts.approved:Options.POINT_LOG_DEFAULTS.approved
+            console.log(data["Description"] + " WAs approved: "+approved)
+            if(!approved){
+                data["Description"] = "DENIED: "+data["Description"]
+            }
         }
         if(ptOpts.id){
             return db.collection("House").doc(house).collection("Points").doc(ptOpts.id!).set(data)
@@ -265,6 +270,18 @@ export class FirestoreDataFactory{
         })
     }
 
+
+    static async getCompetitionPointsStatus(db: firebase.firestore.Firestore, house:string, user_id:string): Promise<CompetitionPointStatus> {
+        const user_doc = await db.collection("Users").doc(user_id).get()
+        const house_doc = await db.collection("House").doc(house).get()
+        const status: PointStatus = {
+            user_points: user_doc.data()!["TotalPoints"],
+            user_semester_points: user_doc.data()!["SemesterPoints"],
+            house_points: house_doc.data()!["TotalPoints"]
+        }
+        return new CompetitionPointStatus(status)
+    }
+
     /**
      * run this after test to clean the database
      * @param db Test App Firestore instance
@@ -332,226 +349,25 @@ export class FirestoreDataFactory{
       }
 }
 
-export declare type PointLogMessageOptions = {
-    creation_date?: Date
-    message?: string
-    message_type?: string
-    sender_first_name?: string
-    sender_last_name?: string
-    sender_permission_level?: number
+
+
+export class CompetitionPointStatus {
+    status: PointStatus
+
+    constructor(status: PointStatus){
+        this.status = status
+    }
+
+    offset(value:number): PointStatus{
+        this.status.house_points += value
+        this.status.user_points += value
+        this.status.user_semester_points += value
+        return this.status
+    }
 }
 
-/**
- * Type declaration for optional params for System Preference. Undefined fields will be defaulted.
- */
-export declare type SystemPreferenceOptions = {
-    android_version?: string
-    one_time_code?: string
-    competition_hidden_message?: string
-    house_enabled_message?: string
-    ios_version?: string
-    is_competition_visible?: boolean
-    is_house_enabled?: boolean
-    suggested_point_ids?: string
-};
-
-/**
- * Type declaration for optional params for point type. Undefined fields will be defaulted.
- */
-export declare type PointTypeOptions = {
-    description?: string
-    name?: string
-    is_enabled?: boolean
-    permission_level?: number
-    residents_can_submit?: boolean
-    value?: number
-};
-
-/**
- * Type declaration for optional params for House Options. Undefined fields will be defaulted.
- */
-export declare type HouseOptions = {
-    color?: string
-    num_residents?: number
-    total_points?: number
-}
-
-/**
- * Type declaration to add parameters for multiple houses at once. Undefined fields will be defaulted.
- */
-export declare type AllHousesOptions = {
-    copper?: HouseOptions,
-    palladium?:HouseOptions,
-    platinum?:HouseOptions,
-    silver?:HouseOptions,
-    titanium?:HouseOptions
-}
-
-/**
- * Type declaration for optional params for House Code Options. Undefined fields will be defaulted.
- */
-export declare type HouseCodeOptions = {
-    code?: string,
-    code_name?: string,
-    floor_id?: string,
-    house?: string,
-    permission_level?: number
-}
-
-/**
- * Type declaration for optional params for User Options. Undefined fields will be defaulted.
- */
-export declare type UserOptions = {
-    first?:string, 
-    floor_id?:string,
-    house_name?:string,
-    last?:string,
-    semester_points?:number,
-    total_points?:number
-}
-
-/**
- * Type declaration for fields to add to a point log. Undefined fields will be defaulted.
- */
-export declare type PointLogOptions = {
-    id?:string,
-    approved_by?:string,
-    approved_on?:Date,
-    date_occurred?:Date,
-    date_submitted?:Date,
-    description?:string,
-    floor_id?:string,
-    point_type_id?:number,
-    point_type_name?:string,
-    point_type_description?:string,
-    rhp_notifications?:number,
-    resident_first_name?:string,
-    resident_last_name?:string,
-    resident_notifications?:number
-
-}
-
-/**
- * Type declaration for fields to add to reward. Undefined fields will be defaulted.
- */
-export declare type RewardOptions = {
-    id?: string
-    required_ppr?: number,
-    required_value?: number
-}
-
-/**
- * Type Declaration for fields to add to Link. Undefined fields will be defaulted
- */
-export declare type LinkOptions = {
-    archived?: boolean,
-    description?: string,
-    enabled?: boolean,
-    single_use?: boolean
-}
-
-export const LINK_DEFAULTS:LinkOptions = {
-    archived: false,
-    description: "Basic description",
-    enabled: true,
-    single_use: true
-}
-
-/**
- * Default fields for Reward
- */
-export const REWARD_DEFAULTS:RewardOptions = {
-    id: "Pizza Party",
-    required_ppr: 100,
-    required_value: 20000
-}
-
-/**
- * Default fields for point log
- */
-export const POINT_LOG_DEFAULTS:PointLogOptions = {
-    approved_by: "Preapproved",
-    approved_on: new Date(Date.parse("5/18/2020")),
-    date_occurred: new Date(Date.parse("5/18/2020")),
-    date_submitted: new Date(Date.parse("5/18/2020")),
-    description: "Empty Description",
-    floor_id: "4N",
-    point_type_id: 1,
-    point_type_name: "Empty Name",
-    point_type_description: "Empty Description",
-    rhp_notifications: 0,
-    resident_first_name: "TEST_FIRST",
-    resident_last_name: "TEST_LAST",
-    resident_notifications: 0
-
-}
-
-/**
- * Default fields for system preferences
- */
-export const SYSTEM_PREFERENCES_DEFAULTS:SystemPreferenceOptions = {
-    android_version: "2.0.0",
-    one_time_code: "abc",
-    competition_hidden_message: "hidden",
-    house_enabled_message: "Honors1",
-    ios_version: "1.6.2",
-    is_competition_visible: true,
-    is_house_enabled: true,
-    suggested_point_ids: "1,2,3,4",
-}
-
-/**
- * default fields for point type
- */
-export const POINT_TYPE_DEFAULTS:PointTypeOptions = {
-    description: "Empty Point Type Description",
-    name: "Empty Point Type Name",
-    is_enabled: true,
-    permission_level: 2,
-    residents_can_submit: true,
-    value: 1
-}
-
-/**
- * Default field for house
- */
-export const HOUSE_DEFAULTS:HouseOptions = {
-    color: "#5AC0C7",
-    total_points: 20,
-    num_residents: 200
-}
-
-/**
- * Default field for house code
- */
-export const HOUSE_CODE_DEFAULTS:HouseCodeOptions = {
-    code: "4N1234",
-    code_name: "4N Resident",
-    floor_id: "4N",
-    house: "Platinum",
-    permission_level: 0
-}
-
-/**
- * Default fields for user
- */
-export const USER_DEFAULTS:UserOptions = {
-    first: "TEST_FIRST",
-    last: "TEST_LAST",
-    total_points: 0,
-    semester_points: 0,
-    house_name: "Platinum",
-    floor_id: "4N"
-}
-
-/**
- * Default PointLogMessage Options
- */
-export const MESSAGE_DEFAULTS:PointLogMessageOptions = {
-    creation_date: new Date(Date.now()),
-    message: "Empty Message",
-    message_type: "comment",
-    sender_first_name: "First",
-    sender_last_name: "Last",
-    sender_permission_level: 0
+export declare type PointStatus = {
+    user_points:number,
+    user_semester_points:number,
+    house_points:number
 }
