@@ -228,10 +228,8 @@ describe('user/submitLink', async () =>{
 
     // Test if point type has residentsCantSubmit = false
     it('Point Type has residentsCanSubmit == false',  async(done) => {
-        const originalUser = (await db.collection("Users").doc(RESIDENT_ID).get())
-        const originalPoints = originalUser.data()!["TotalPoints"]
-        const originalSemesterPoints = originalUser.data()!["TotalPoints"]
-        const originalHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
+        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
+        const linkScans = (await db.collection("Links").doc(LINK_WITH_PT_RESIDENTS_CANT_SUBMIT).get()).data()!["ClaimedCount"]
         const res: request.Test = factory.post(user_func, SUBMIT_LINK_PATH, {"link_id": LINK_WITH_PT_RESIDENTS_CANT_SUBMIT}, RESIDENT_ID)
         res.end(async function (err, res) {
             if(err){
@@ -245,14 +243,11 @@ describe('user/submitLink', async () =>{
                 expect(documents.docs[0].data().RHPNotifications).toEqual(1)
                 expect(documents.docs[0].data().ResidentId).toEqual(RESIDENT_ID)
                 expect(documents.docs[0].data().ResidentNotifications).toEqual(0)
-                const newUser = (await db.collection("Users").doc(RESIDENT_ID).get())
-                const newPoints = newUser.data()!["TotalPoints"]
-                const newSemesterPoints = newUser.data()!["TotalPoints"]
-                const newHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
 
-                expect(newPoints).toBe(originalPoints)
-                expect(newSemesterPoints).toBe(originalSemesterPoints)
-                expect(newHousePoints).toBe(originalHousePoints)
+                const newPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
+                expect(newPointStatus.status).toEqual(originalPointStatus.status)
+                const newScans = (await db.collection("Links").doc(LINK_WITH_PT_RESIDENTS_CANT_SUBMIT).get()).data()!["ClaimedCount"]
+                expect(newScans).toBe(linkScans + 1)
                 done()
             }
         })
@@ -260,11 +255,9 @@ describe('user/submitLink', async () =>{
 
     // Test resident success
     it('Resident Submission Success with multi use', async(done) =>{
+        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
         const originalLength = (await db.collection("House").doc(HOUSE_NAME).collection("Points").where("ResidentId","==",RESIDENT_ID).get()).docs.length
-        const originalUser = (await db.collection("Users").doc(RESIDENT_ID).get())
-        const originalPoints = originalUser.data()!["TotalPoints"]
-        const originalSemesterPoints = originalUser.data()!["TotalPoints"]
-        const originalHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
+        const linkScans = (await db.collection("Links").doc(MULTI_USE_LINK).get()).data()!["ClaimedCount"]
         
         const res: request.Test = factory.post(user_func, SUBMIT_LINK_PATH, {"link_id":MULTI_USE_LINK}, RESIDENT_ID)
         res.end(async function (err, res) {
@@ -289,15 +282,10 @@ describe('user/submitLink', async () =>{
                         expect(res.status).toBe(201)
                         const newLength = (await db.collection("House").doc(HOUSE_NAME).collection("Points").where("ResidentId","==",RESIDENT_ID).get()).docs.length
                         expect(newLength).toEqual(originalLength + 2)
-
-                        const newUser = (await db.collection("Users").doc(RESIDENT_ID).get())
-                        const newPoints = newUser.data()!["TotalPoints"]
-                        const newSemesterPoints = newUser.data()!["TotalPoints"]
-                        const newHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
-
-                        expect(newPoints).toBe(originalPoints)
-                        expect(newSemesterPoints).toBe(originalSemesterPoints)
-                        expect(newHousePoints).toBe(originalHousePoints)
+                        const newPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
+                        expect(newPointStatus.status).toEqual(originalPointStatus.status)
+                        const newScans = (await db.collection("Links").doc(MULTI_USE_LINK).get()).data()!["ClaimedCount"]
+                        expect(newScans).toBe(linkScans + 2)
                         done()
                     }
                 })
@@ -308,11 +296,9 @@ describe('user/submitLink', async () =>{
 
     // Test resident success
     it('Resident Submission Success with single use', async(done) =>{
+        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
         const originalLength = (await db.collection("House").doc(HOUSE_NAME).collection("Points").where("ResidentId","==",RESIDENT_ID).get()).docs.length
-        const originalUser = (await db.collection("Users").doc(RESIDENT_ID).get())
-        const originalPoints = originalUser.data()!["TotalPoints"]
-        const originalSemesterPoints = originalUser.data()!["TotalPoints"]
-        const originalHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
+        const linkScans = (await db.collection("Links").doc(SINGLE_USE_LINK).get()).data()!["ClaimedCount"]
         
         const res: request.Test = factory.post(user_func, SUBMIT_LINK_PATH, {"link_id":SINGLE_USE_LINK}, RESIDENT_ID)
         res.end(async function (err, res) {
@@ -328,14 +314,8 @@ describe('user/submitLink', async () =>{
                 expect(documents.docs[0].data().ResidentId).toEqual(RESIDENT_ID)
                 expect(documents.docs[0].data().ResidentNotifications).toEqual(1)
 
-                const midUser = (await db.collection("Users").doc(RESIDENT_ID).get())
-                const midPoints = midUser.data()!["TotalPoints"]
-                const midSemesterPoints = midUser.data()!["TotalPoints"]
-                const midHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
-
-                expect(midPoints).toBe(originalPoints + 1)
-                expect(midSemesterPoints).toBe(originalSemesterPoints + 1)
-                expect(midHousePoints).toBe(originalHousePoints + 1)
+                const newPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
+                expect(newPointStatus.status).toEqual(originalPointStatus.offset(1))
 
                 const res2: request.Test = factory.post(user_func, SUBMIT_LINK_PATH, {"link_id":SINGLE_USE_LINK}, RESIDENT_ID)
                 res2.end(async function (err, res) {
@@ -346,15 +326,12 @@ describe('user/submitLink', async () =>{
                         expect(res.status).toBe(409)
                         const newLength = (await db.collection("House").doc(HOUSE_NAME).collection("Points").where("ResidentId","==",RESIDENT_ID).get()).docs.length
                         expect(newLength).toEqual(originalLength + 1)
-
-                        const newUser = (await db.collection("Users").doc(RESIDENT_ID).get())
-                        const newPoints = newUser.data()!["TotalPoints"]
-                        const newSemesterPoints = newUser.data()!["TotalPoints"]
-                        const newHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
-
-                        expect(newPoints).toBe(midPoints)
-                        expect(newSemesterPoints).toBe(midSemesterPoints)
-                        expect(newHousePoints).toBe(midHousePoints)
+                        
+                        const newPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RESIDENT_ID)
+                        
+                        expect(newPointStatus.status).toEqual(originalPointStatus.offset(1))
+                        const newScans = (await db.collection("Links").doc(SINGLE_USE_LINK).get()).data()!["ClaimedCount"]
+                        expect(newScans).toBe(linkScans + 1)
                         done()
                     }
                 })
@@ -365,11 +342,9 @@ describe('user/submitLink', async () =>{
 
     // Test RHP success
     it('RHP Submission Success with multi use', async(done) =>{
+        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RHP_ID)
         const originalLength = (await db.collection("House").doc(HOUSE_NAME).collection("Points").where("ResidentId","==",RHP_ID).get()).docs.length
-        const originalUser = (await db.collection("Users").doc(PRIV_RES_ID).get())
-        const originalPoints = originalUser.data()!["TotalPoints"]
-        const originalSemesterPoints = originalUser.data()!["TotalPoints"]
-        const originalHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
+        const linkScans = (await db.collection("Links").doc(MULTI_USE_LINK).get()).data()!["ClaimedCount"]
         
         const res: request.Test = factory.post(user_func, SUBMIT_LINK_PATH, {"link_id":MULTI_USE_LINK}, RHP_ID)
         res.end(async function (err, res) {
@@ -395,14 +370,10 @@ describe('user/submitLink', async () =>{
                         const newLength = (await db.collection("House").doc(HOUSE_NAME).collection("Points").where("ResidentId","==",RHP_ID).get()).docs.length
                         expect(newLength).toEqual(originalLength + 2)
 
-                        const newUser = (await db.collection("Users").doc(RHP_ID).get())
-                        const newPoints = newUser.data()!["TotalPoints"]
-                        const newSemesterPoints = newUser.data()!["TotalPoints"]
-                        const newHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
-
-                        expect(newPoints).toBe(originalPoints + 2)
-                        expect(newSemesterPoints).toBe(originalSemesterPoints + 2)
-                        expect(newHousePoints).toBe(originalHousePoints + 2)
+                        const newPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RHP_ID)
+                        expect(newPointStatus.status).toEqual(originalPointStatus.offset(2))
+                        const newScans = (await db.collection("Links").doc(MULTI_USE_LINK).get()).data()!["ClaimedCount"]
+                        expect(newScans).toBe(linkScans + 2)
                         done()
                     }
                 })
@@ -413,11 +384,9 @@ describe('user/submitLink', async () =>{
 
     // Test RHP success
     it('RHP Submission Success with single use', async(done) =>{
+        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RHP_ID)
         const originalLength = (await db.collection("House").doc(HOUSE_NAME).collection("Points").where("ResidentId","==",RHP_ID).get()).docs.length
-        const originalUser = (await db.collection("Users").doc(RHP_ID).get())
-        const originalPoints = originalUser.data()!["TotalPoints"]
-        const originalSemesterPoints = originalUser.data()!["TotalPoints"]
-        const originalHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
+        const linkScans = (await db.collection("Links").doc(SINGLE_USE_LINK).get()).data()!["ClaimedCount"]
         
         const res: request.Test = factory.post(user_func, SUBMIT_LINK_PATH, {"link_id":SINGLE_USE_LINK}, RHP_ID)
         res.end(async function (err, res) {
@@ -433,14 +402,10 @@ describe('user/submitLink', async () =>{
                 expect(documents.docs[0].data().ResidentId).toEqual(RHP_ID)
                 expect(documents.docs[0].data().ResidentNotifications).toEqual(1)
 
-                const midUser = (await db.collection("Users").doc(RHP_ID).get())
-                const midPoints = midUser.data()!["TotalPoints"]
-                const midSemesterPoints = midUser.data()!["TotalPoints"]
-                const midHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
-
-                expect(midPoints).toBe(originalPoints + 1)
-                expect(midSemesterPoints).toBe(originalSemesterPoints + 1)
-                expect(midHousePoints).toBe(originalHousePoints + 1)
+                const newPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RHP_ID)
+                expect(newPointStatus.status).toEqual(originalPointStatus.offset(1))
+                const newScans = (await db.collection("Links").doc(SINGLE_USE_LINK).get()).data()!["ClaimedCount"]
+                expect(newScans).toBe(linkScans + 1)
 
                 const res2: request.Test = factory.post(user_func, SUBMIT_LINK_PATH, {"link_id":SINGLE_USE_LINK}, RHP_ID)
                 res2.end(async function (err, res) {
@@ -452,14 +417,10 @@ describe('user/submitLink', async () =>{
                         const newLength = (await db.collection("House").doc(HOUSE_NAME).collection("Points").where("ResidentId","==",RHP_ID).get()).docs.length
                         expect(newLength).toEqual(originalLength + 1)
 
-                        const newUser = (await db.collection("Users").doc(RHP_ID).get())
-                        const newPoints = newUser.data()!["TotalPoints"]
-                        const newSemesterPoints = newUser.data()!["TotalPoints"]
-                        const newHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
-
-                        expect(newPoints).toBe(midPoints)
-                        expect(newSemesterPoints).toBe(midSemesterPoints)
-                        expect(newHousePoints).toBe(midHousePoints)
+                        const newPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, RHP_ID)
+                        expect(newPointStatus.status).toEqual(originalPointStatus.offset(1))
+                        const newScans = (await db.collection("Links").doc(SINGLE_USE_LINK).get()).data()!["ClaimedCount"]
+                        expect(newScans).toBe(linkScans + 1)
                         done()
                     }
                 })
@@ -470,11 +431,9 @@ describe('user/submitLink', async () =>{
     
     // Test priv resident success
     it('Privileged Resident Submission Success single use', async(done) =>{
+        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, PRIV_RES_ID)
         const originalLength = (await db.collection("House").doc(HOUSE_NAME).collection("Points").where("ResidentId","==",PRIV_RES_ID).get()).docs.length
-        const originalUser = (await db.collection("Users").doc(PRIV_RES_ID).get())
-        const originalPoints = originalUser.data()!["TotalPoints"]
-        const originalSemesterPoints = originalUser.data()!["TotalPoints"]
-        const originalHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
+        const linkScans = (await db.collection("Links").doc(SINGLE_USE_LINK).get()).data()!["ClaimedCount"]
         
         const res: request.Test = factory.post(user_func, SUBMIT_LINK_PATH, {"link_id":SINGLE_USE_LINK}, PRIV_RES_ID)
         res.end(async function (err, res) {
@@ -490,14 +449,8 @@ describe('user/submitLink', async () =>{
                 expect(documents.docs[0].data().ResidentId).toEqual(PRIV_RES_ID)
                 expect(documents.docs[0].data().ResidentNotifications).toEqual(1)
 
-                const midUser = (await db.collection("Users").doc(PRIV_RES_ID).get())
-                const midPoints = midUser.data()!["TotalPoints"]
-                const midSemesterPoints = midUser.data()!["TotalPoints"]
-                const midHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
-
-                expect(midPoints).toBe(originalPoints + 1)
-                expect(midSemesterPoints).toBe(originalSemesterPoints + 1)
-                expect(midHousePoints).toBe(originalHousePoints + 1)
+                const newPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, PRIV_RES_ID)
+                expect(newPointStatus.status).toEqual(originalPointStatus.offset(1))
 
                 const res2: request.Test = factory.post(user_func, SUBMIT_LINK_PATH, {"link_id":SINGLE_USE_LINK}, PRIV_RES_ID)
                 res2.end(async function (err, res) {
@@ -509,14 +462,10 @@ describe('user/submitLink', async () =>{
                         const newLength = (await db.collection("House").doc(HOUSE_NAME).collection("Points").where("ResidentId","==",PRIV_RES_ID).get()).docs.length
                         expect(newLength).toEqual(originalLength + 1)
 
-                        const newUser = (await db.collection("Users").doc(PRIV_RES_ID).get())
-                        const newPoints = newUser.data()!["TotalPoints"]
-                        const newSemesterPoints = newUser.data()!["TotalPoints"]
-                        const newHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
-
-                        expect(newPoints).toBe(midPoints)
-                        expect(newSemesterPoints).toBe(midSemesterPoints)
-                        expect(newHousePoints).toBe(midHousePoints)
+                        const newPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, PRIV_RES_ID)
+                        expect(newPointStatus.status).toEqual(originalPointStatus.offset(1))
+                        const newScans = (await db.collection("Links").doc(SINGLE_USE_LINK).get()).data()!["ClaimedCount"]
+                        expect(newScans).toBe(linkScans + 1)
                         done()
                     }
                 })
@@ -527,11 +476,9 @@ describe('user/submitLink', async () =>{
 
     // Test priv resident success
     it('Privileged Resident Submission Success multi use', async(done) =>{
+        const originalPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, PRIV_RES_ID)
         const originalLength = (await db.collection("House").doc(HOUSE_NAME).collection("Points").where("ResidentId","==",PRIV_RES_ID).get()).docs.length
-        const originalUser = (await db.collection("Users").doc(PRIV_RES_ID).get())
-        const originalPoints = originalUser.data()!["TotalPoints"]
-        const originalSemesterPoints = originalUser.data()!["TotalPoints"]
-        const originalHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
+        const linkScans = (await db.collection("Links").doc(MULTI_USE_LINK).get()).data()!["ClaimedCount"]
         
         const res: request.Test = factory.post(user_func, SUBMIT_LINK_PATH, {"link_id":MULTI_USE_LINK}, PRIV_RES_ID)
         res.end(async function (err, res) {
@@ -557,14 +504,10 @@ describe('user/submitLink', async () =>{
                         const newLength = (await db.collection("House").doc(HOUSE_NAME).collection("Points").where("ResidentId","==",PRIV_RES_ID).get()).docs.length
                         expect(newLength).toEqual(originalLength + 2)
 
-                        const newUser = (await db.collection("Users").doc(PRIV_RES_ID).get())
-                        const newPoints = newUser.data()!["TotalPoints"]
-                        const newSemesterPoints = newUser.data()!["TotalPoints"]
-                        const newHousePoints = (await db.collection("House").doc(HOUSE_NAME).get()).data()!["TotalPoints"]
-
-                        expect(newPoints).toBe(originalPoints)
-                        expect(newSemesterPoints).toBe(originalSemesterPoints)
-                        expect(newHousePoints).toBe(originalHousePoints)
+                        const newPointStatus = await FirestoreDataFactory.getCompetitionPointsStatus(db, HOUSE_NAME, PRIV_RES_ID)
+                        expect(newPointStatus.status).toEqual(originalPointStatus.status)
+                        const newScans = (await db.collection("Links").doc(MULTI_USE_LINK).get()).data()!["ClaimedCount"]
+                        expect(newScans).toBe(linkScans + 2)
                         done()
                     }
                 })

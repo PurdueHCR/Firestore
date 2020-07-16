@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/BasePage.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/LinkPage/LinkCreationForm.dart';
@@ -29,18 +30,32 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    Config config = ConfigWrapper.of(context);
-    _linkBloc = new LinkBloc(config: config);
-    _linkBloc.add(LinkInitialize());
+    if(_linkBloc == null) {
+      Config config = ConfigWrapper.of(context);
+      _linkBloc = new LinkBloc(config: config);
+      _linkBloc.add(LinkInitialize());
+    }
   }
 
   @override
   Widget buildMobileBody({BuildContext context, LinkState state}) {
     _onChangeState(context, state);
-    return LinkList(
-        links: _linkBloc.state.links,
-        onPressed: _onPressed
-    );
+    if(_selectedLink == null){
+      return LinkList(
+          links: _linkBloc.state.links,
+          onPressed: _onPressed
+      );
+    }
+    else {
+      return BlocProvider(
+        builder: (BuildContext context) => _linkBloc,
+        child: LinkEditForm(
+            key: ObjectKey(_selectedLink),
+            link: _selectedLink,
+            onUpdate: _onUpdate
+        ),
+      );
+    }
   }
 
   @override
@@ -60,11 +75,14 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
         ),
         VerticalDivider(),
         Flexible(
-          child: LinkEditForm(
-            key: UniqueKey(),
-              link: _selectedLink,
-              onUpdate: _onUpdate
-          ),
+          child: BlocProvider(
+            builder: (BuildContext context) => _linkBloc,
+            child: LinkEditForm(
+                key: ObjectKey(_selectedLink),
+                link: _selectedLink,
+                onUpdate: _onUpdate
+            ),
+          )
         )
       ],
     );
@@ -73,10 +91,22 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
   @override
   Widget buildSmallDesktopBody({BuildContext context, LinkState state}) {
     _onChangeState(context, state);
-    return LinkList(
-        links: _linkBloc.state.links,
-        onPressed: _onPressed
-    );
+    if(_selectedLink == null){
+      return LinkList(
+          links: _linkBloc.state.links,
+          onPressed: _onPressed
+      );
+    }
+    else {
+      return BlocProvider(
+        builder: (BuildContext context) => _linkBloc,
+        child: LinkEditForm(
+            key: ObjectKey(_selectedLink),
+            link: _selectedLink,
+            onUpdate: _onUpdate
+        ),
+      );
+    }
   }
 
   @override
@@ -108,8 +138,7 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
             ),
             children: [
               SizedBox(
-                width: 100,
-                height: 450,
+                width: getOptimalDialogWidth(context),
                 child: LinkCreationForm(_linkBloc, _onCreate)
               )
             ],
@@ -118,75 +147,92 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
     );
   }
 
-  _onCreate(String description,bool enabled, bool singleuse, int pointTypeId){
-    print("Create Link: $description, singleUse: ${singleuse.toString()}, ptid:${pointTypeId.toString()}, enabled: ${enabled.toString()}");
+  _onCreate(String description,bool enabled, bool singleUse, int pointTypeId){
     _linkBloc.add(CreateLink(
         description: description,
         enabled: enabled,
-        singleUse: singleuse,
+        singleUse: singleUse,
         pointTypeId: pointTypeId,
         shouldDismissDialog: true));
   }
 
   _onUpdate(Link link){
     print("Updating Link!");
-    _linkBloc.add(UpdateLink(link: link, shouldDismissDialog: displayTypeOf(context) != DisplayType.desktop_large));
+    _linkBloc.add(UpdateLink(link: link));
 
   }
 
-  _onPressed(BuildContext context, Link link){
-    if(displayTypeOf(context) == DisplayType.desktop_large){
-      setState(() {
-        _selectedLink = link;
-      });
+  @override
+  Widget buildLeadingButton(DisplayType displayType){
+    if(_selectedLink == null || displayType == DisplayType.desktop_large){
+      return null;
     }
     else{
-      showDialog(
-          context: context,
-          builder: (BuildContext context){
-            return SimpleDialog(
-              title: Text("Link Details"),
-              children: [
-                LinkEditForm(
-                    key: UniqueKey(),
-                    link: link,
-                    onUpdate: _onUpdate
-                ),
-              ],
-            );
-          }
-      );
+      return IconButton(icon: Icon(Icons.arrow_back),
+        onPressed: (){
+          setState(() {
+            _selectedLink = null;
+          });
+        },);
     }
+  }
+
+  _onPressed(BuildContext context, Link link){
+    setState(() {
+      _selectedLink = link;
+    });
   }
 
 
   _onChangeState(BuildContext context, LinkState state){
-    if(state is LinkSuccess){
-      print("On change state success");
-      print("Should dismiss ${state.shouldDismissDialog}");
-      if(state.shouldDismissDialog){
-        Navigator.pop(context);
-      }
+    if(state is CreateLinkSuccess){
+      Navigator.pop(context);
       final snackBar = SnackBar(
         backgroundColor: Colors.green,
-        content: Text(state.message),
+        content: Text("Your link has been created!"),
       );
-      Scaffold.of(context).showSnackBar(snackBar);
-      _linkBloc.add(LinkDisplayedMessage());
-      _selectedLink = null;
+      Future.delayed(Duration(seconds: 1), (){
+        Scaffold.of(context).showSnackBar(snackBar);
+        _linkBloc.add(LinkDisplayedMessage());
+      });
     }
-    else if(state is LinkError){
-      print("On change state error");
-      if(state.shouldDismissDialog){
-        Navigator.pop(context);
-      }
+    else if(state is CreateLinkError){
+      Navigator.pop(context);
       final snackBar = SnackBar(
         backgroundColor: Colors.red,
-        content: Text('Could not create lnk'),
+        content: Text("Sorry. There was a problem creating your link. Please try again."),
       );
-      Scaffold.of(context).showSnackBar(snackBar);
-      _linkBloc.add(LinkDisplayedMessage());
-      _selectedLink = null;
+      Future.delayed(Duration(seconds: 1), (){
+        Scaffold.of(context).showSnackBar(snackBar);
+        _linkBloc.add(LinkDisplayedMessage());
+      });
+    }
+    else if(state is UpdateLinkError){
+      print("Failed to update link");
+      final snackBar = SnackBar(
+        backgroundColor: Colors.red,
+        content: Text("Sorry, there was an error updating your link. Please try again."),
+      );
+
+      Future.delayed(Duration(seconds: 1), (){
+        Scaffold.of(context).showSnackBar(snackBar);
+        _selectedLink = state.originalLink;
+        _linkBloc.add(LinkDisplayedMessage());
+      });
+    }
+    else if(state is UpdateLinkSuccess){
+      Future.delayed(Duration(seconds: 1), (){
+        // Handle a link update success
+        if(state.description != null)
+          state.originalLink.description = state.description;
+        if(state.enabled != null)
+          state.originalLink.enabled = state.enabled;
+        if(state.singleUse != null)
+          state.originalLink.singleUse = state.singleUse;
+        if(state.archived != null)
+          state.originalLink.archived = state.archived;
+        _linkBloc.add(LinkDisplayedMessage());
+      });
 
     }
   }

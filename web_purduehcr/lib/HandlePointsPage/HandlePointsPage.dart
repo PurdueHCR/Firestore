@@ -109,7 +109,7 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
 
   @override
   Widget buildLeadingButton(DisplayType displayType){
-    if(_selectedPointLog == null){
+    if(_selectedPointLog == null || displayType == DisplayType.desktop_large){
       return null;
     }
     else{

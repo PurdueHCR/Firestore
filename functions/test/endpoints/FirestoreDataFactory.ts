@@ -221,6 +221,7 @@ export class FirestoreDataFactory{
             Enabled: (linkOpts.enabled !== undefined)?linkOpts.enabled:Options.LINK_DEFAULTS.enabled,
             PointID: point_type_id,
             SingleUse: (linkOpts.single_use !== undefined)?linkOpts.single_use:Options.LINK_DEFAULTS.single_use,
+            ClaimedCount: (linkOpts.claimed_count !== undefined)?linkOpts.claimed_count:Options.LINK_DEFAULTS.claimed_count
         }
         return db.collection("Links").doc(link_id).set(data)
     }
@@ -358,11 +359,18 @@ export class CompetitionPointStatus {
         this.status = status
     }
 
+    /**
+     * returns a copy of the original status with an added offset
+     * @param value number of points to offset by
+     */
     offset(value:number): PointStatus{
-        this.status.house_points += value
-        this.status.user_points += value
-        this.status.user_semester_points += value
-        return this.status
+        let offsetStatus: PointStatus = { 
+            user_points: this.status.user_points + value,
+            house_points: this.status.house_points + value,
+            user_semester_points: this.status.user_semester_points + value
+        }
+        
+        return offsetStatus
     }
 }
 

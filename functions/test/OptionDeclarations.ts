@@ -61,14 +61,16 @@ export declare type LinkOptions = {
     archived?: boolean,
     description?: string,
     enabled?: boolean,
-    single_use?: boolean
+    single_use?: boolean,
+    claimed_count?: number
 }
 
 export const LINK_DEFAULTS:LinkOptions = {
     archived: false,
     description: "Basic description",
     enabled: true,
-    single_use: true
+    single_use: true,
+    claimed_count: 0
 }
 ///----------------------------------------------------------------
 

@@ -31,13 +31,19 @@ class LinkRepository {
   }
 
   Future<Link> createLink(String description, bool enabled, bool singleUse, int pointTypeId) async {
-    Map<String, dynamic> body = {"description": description, "single_use":singleUse, "enabled":enabled, "point_id":pointTypeId};
+    Map<String, dynamic> body = {"description": description, "single_use":singleUse, "is_enabled":enabled, "point_id":pointTypeId};
     Map<String, dynamic> linkDocument = await callCloudFunction(config, Method.POST, "link/create", body: body);
     return Link.fromJson(linkDocument);
   }
 
-  Future updateLink(Link link) async {
-    await callCloudFunction(config, Method.PUT, "link/update", body: link.getUpdateJson());
+  Future updateLink(Link link, {String description, bool enabled, bool singleUse, bool archived}) async {
+    Map<String, dynamic> body = Map();
+    body["link_id"] = link.id;
+    body[Link.DESCRIPTION] = (description != null)? description : link.description;
+    body[Link.ENABLED] = (enabled != null)? enabled : link.enabled;
+    body[Link.ARCHIVED] = (archived != null)? archived : link.archived;
+    body[Link.SINGLE_USE] = (singleUse != null)? singleUse : link.singleUse;
+    await callCloudFunction(config, Method.PUT, "link/update", body: body);
   }
   
 }

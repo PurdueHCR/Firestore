@@ -14,6 +14,7 @@ class Link {
   static const String POINT_TYPE_VALUE = "pointTypeValue";
   static const String SINGLE_USE = "singleUse";
   static const String ID = "id";
+  static const String DYNAMIC_LINK = "dynamicLink";
 
   bool archived;
   bool enabled;
@@ -25,10 +26,11 @@ class Link {
   int pointTypeValue;
   String id;
   bool singleUse;
+  String dynamicLink;
   Link({@required this.archived, @required this.enabled, @required this.creatorId,
   @required this.description, @required this.pointTypeId, @required this.id,
   @required this.singleUse, @required this.pointTypeName, @required this.pointTypeDescription,
-    @required this.pointTypeValue
+    @required this.pointTypeValue, @required this.dynamicLink
   });
 
   factory Link.fromJson(Map<String, dynamic> json){
@@ -42,30 +44,9 @@ class Link {
       singleUse: json[SINGLE_USE],
       pointTypeName: json[POINT_TYPE_NAME],
       pointTypeDescription: json[POINT_TYPE_DESCRIPTION],
-      pointTypeValue: json[POINT_TYPE_VALUE]
+      pointTypeValue: json[POINT_TYPE_VALUE],
+      dynamicLink: json[DYNAMIC_LINK]
     );
-  }
-
-  String generateURL(){
-    return "hcrpoint://addpoints/"+this.id;
-  }
-
-  String generateIOSLink(){
-    return "hcrpoint://addpoints/"+this.id;
-  }
-
-  String generateAndroidLink(){
-    return "intent://addpoints/"+this.id+"#Intent;scheme=hcrpoint;package=com.hcrpurdue.jason.hcrhousepoints;end";
-  }
-
-  Map<String, dynamic> getUpdateJson() {
-    Map<String, dynamic> data = Map();
-    data["link_id"] = id;
-    data[ARCHIVED] = archived;
-    data[ENABLED] = enabled;
-    data[DESCRIPTION] = description;
-    data[SINGLE_USE] = singleUse;
-    return data;
   }
 
 }
