@@ -80,7 +80,7 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                     await submitPointLogMessage(user.house, log, messageObj, true)
 
                     if(rejectionMessage !== undefined){
-                        const rejetMessage = new PointLogMessage(new Date(), rejectionMessage!, MessageType.COMMENT, user.firstName, user.lastName, UserPermissionLevel.RHP)
+                        const rejetMessage = new PointLogMessage(new Date(), rejectionMessage, MessageType.COMMENT, user.firstName, user.lastName, UserPermissionLevel.RHP)
                         await submitPointLogMessage(user.house, log, rejetMessage, true)
                     }
                 }
