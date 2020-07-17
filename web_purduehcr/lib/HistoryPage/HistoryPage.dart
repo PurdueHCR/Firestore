@@ -55,22 +55,32 @@ class _HistoryPageState
 
   @override
   Widget buildMobileBody({BuildContext context, HistoryState state}) {
-    return Column(
-      children: [
-        buildSearchView(context, state),
-        buildBottomView(context, state)
-      ],
-    );
+    if(_selectedPointLog == null){
+      return Column(
+        children: [
+          buildSearchView(context, state),
+          buildBottomView(context, state)
+        ],
+      );
+    }
+    else{
+      return buildBottomView(context, state);
+    }
   }
 
   @override
   Widget buildSmallDesktopBody({BuildContext context, HistoryState state}) {
-    return Column(
-      children: [
-        buildSearchView(context, state),
-        buildBottomView(context, state)
-      ],
-    );
+    if(_selectedPointLog == null){
+      return Column(
+        children: [
+          buildSearchView(context, state),
+          buildBottomView(context, state)
+        ],
+      );
+    }
+    else{
+      return buildBottomView(context, state);
+    }
   }
 
   Widget buildBottomView(BuildContext context, HistoryState state) {
@@ -400,6 +410,21 @@ class _HistoryPageState
   void dispose() {
     super.dispose();
     _historyBloc.close();
+  }
+
+  @override
+  Widget buildLeadingButton(DisplayType displayType){
+    if(_selectedPointLog == null || displayType == DisplayType.desktop_large){
+      return null;
+    }
+    else{
+      return IconButton(icon: Icon(Icons.arrow_back),
+        onPressed: (){
+          setState(() {
+            _selectedPointLog = null;
+          });
+        },);
+    }
   }
 
   _onPressed(BuildContext context, PointLog pointLog) {
