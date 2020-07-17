@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/HandlePointsPage/HandlePointsPage.dart';
+import 'package:purduehcr_web/HistoryPage/HistoryPage.dart';
 import 'package:purduehcr_web/LinkPage/LinkPage.dart';
 import 'package:purduehcr_web/Account_Login_Creation/CreateAccountPage.dart';
 import 'package:purduehcr_web/Account_Login_Creation/JoinHousePage.dart';
@@ -15,8 +16,6 @@ import 'package:purduehcr_web/authentication/authentication.dart';
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final args = settings.arguments;
-    print("Naviagte to page: ${settings.name}");
-    print("Has arguments: ${args.toString()}");
     return PageRouteBuilder(pageBuilder: (context, animation1, animation2) {
       return BlocBuilder<AuthenticationBloc, AuthenticationState>(
           bloc: BlocProvider.of<AuthenticationBloc>(context),
@@ -37,6 +36,8 @@ class RouteGenerator {
                   return MyPointsPage();
                 case 'links':
                   return LinkPage();
+                case 'house_history':
+                  return HistoryPage();
                 case 'addpoints':
                   if(path.length == 3){
                     return HomePage(linkId: path[2],);

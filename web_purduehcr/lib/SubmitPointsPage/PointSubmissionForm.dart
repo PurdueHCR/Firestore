@@ -68,12 +68,21 @@ class _PointSubmissionFormState extends State<PointSubmissionForm>{
                     color: !_dateSubmissionError? Colors.transparent: Color.fromARGB(255, 0xff, 0x72, 0x72),
                     shape: RoundedRectangleBorder(side: BorderSide(color: Colors.black, width: 1) ),
                     onPressed: () {
-                      showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2019), lastDate: DateTime(2022)).then((date){
+                      DateTime now = DateTime.now();
+                      DateTime start;
+                      if(now.month >= 8){
+                        start = DateTime(now.year, 8);
+                      }
+                      else{
+                        start = DateTime(now.year, 0);
+                      }
+                      showDatePicker(context: context, initialDate: now, firstDate: start, lastDate: now).then((date){
                         setState(() {
                           _selectedDate = date;
                           _dateSubmissionError = false;
                         });
                       });
+
                     },
                     child: _selectedDate == null? null:
                     Text( DateFormat.yMd('en_US').format(_selectedDate),

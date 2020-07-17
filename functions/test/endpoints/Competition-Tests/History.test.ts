@@ -13,7 +13,7 @@ const SILVER_RESIDENT_ID = "SILVER_RESIDENT_ID_HISTORY"
 
 const COPPER_RHP_ID = "COPPER_RHP_HISTORY"
 const PLAT_RHP_ID = "PLAT_RHP_HISTORY"
-const SILVER_RHP_ID = "PLAT_RHP_HISTORY"
+const SILVER_RHP_ID = "SILVER_RHP_HISTORY"
 const TITANIUM_RHP_ID = "TITANIUM_RHP_HISTORY"
 
 const PROF_ID = "Proffesional Staff_HISTORY"
@@ -40,12 +40,12 @@ describe('GET competition/history', () =>{
 
         competition_func = require('../../../src/endpoint_paths/index.ts').competition
 
-        await FirestoreDataFactory.setUser(db, PLATINUM_RESIDENT_ID, 0)
+        await FirestoreDataFactory.setUser(db, PLATINUM_RESIDENT_ID, 0, {house_name:"Platinum"})
         await FirestoreDataFactory.setUser(db, COPPER_RESIDENT_ID, 0, {house_name:"Copper"})
         await FirestoreDataFactory.setUser(db, SILVER_RESIDENT_ID, 0, {house_name:"Silver"})
 
 
-        await FirestoreDataFactory.setUser(db, PLAT_RHP_ID, 1)
+        await FirestoreDataFactory.setUser(db, PLAT_RHP_ID, 1, {house_name:"Platinum"})
         await FirestoreDataFactory.setUser(db, COPPER_RHP_ID, 1, {house_name:"Copper"})
         await FirestoreDataFactory.setUser(db, SILVER_RHP_ID, 1, {house_name:"Silver"})
         await FirestoreDataFactory.setUser(db, TITANIUM_RHP_ID, 1, {house_name:"Titanium"})
@@ -72,6 +72,7 @@ describe('GET competition/history', () =>{
             })
         }
 
+        await FirestoreDataFactory.setPointLog(db, "Platinum", PLATINUM_RESIDENT_ID, true,{date_submitted:new Date("Thu Jul 02 2020 04:00:00 GMT-0400")})
 
     })
 
@@ -465,6 +466,22 @@ describe('GET competition/history', () =>{
                 expect(res.body.point_logs).toHaveLength(25)
                 expect(new Date(res.body.point_logs[0].dateSubmitted.seconds * 1000)).toEqual(new Date("1/30/2020"))
                 expect(new Date(res.body.point_logs[24].dateSubmitted.seconds * 1000)).toEqual(new Date("1/6/2020"))
+                done()
+            }
+        })
+    })
+
+    it('Recent retrieves pointlogs on the given day', (done) => {
+        const params:HistoryParams = {type: 'recent', date: "7/2/2020"}
+        const res = factory.get(competition_func, ENDPOINT, PLAT_RHP_ID, params)
+        res.end(function (err, res) {
+            if(err){
+                done(err)
+            }
+            else{
+                //Make sure that if they request points behind a day, the response includes the pointlog in the response
+                expect(res.status).toBe(200)
+                expect(res.body.point_logs).toHaveLength(1)
                 done()
             }
         })

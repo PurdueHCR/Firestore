@@ -64,7 +64,7 @@ flutter:
   assets:
     - assets/main_icon.jpg
     - assets/main_icon.png
-    - assets/flutter-firebase-config.json
+#    - assets/flutter-firebase-config.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

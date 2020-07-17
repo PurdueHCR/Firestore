@@ -286,7 +286,7 @@ comp_app.get('/getUnhandledPoints', async (req, res) => {
             res.status(error.code).send(error.toJson())
         }
         else {
-            console.log("Unknown Error: "+error.toString())
+            console.error("Unknown Error: "+error.toString())
             const apiResponse = APIResponse.ServerError()
             res.status(apiResponse.code).send(apiResponse.toJson())
         }
@@ -319,7 +319,7 @@ comp_app.get('/userOverview', async (req, res) => {
 			res.status(APIResponse.SUCCESS_CODE).send({"privileged_resident":resident_profile})
 		}
 		else{
-			console.log("Other user permissions not yet implemented")
+			console.error("Other user permissions not yet implemented")
 			const apiResponse = APIResponse.InvalidPermissionLevel()
             res.status(apiResponse.code).send(apiResponse.toJson())
 		}
@@ -330,7 +330,7 @@ comp_app.get('/userOverview', async (req, res) => {
             res.status(error.code).send(error.toJson())
         }
         else {
-            console.log("Unknown Error: "+error.toString())
+            console.error("Unknown Error: "+error.toString())
             const apiResponse = APIResponse.ServerError()
             res.status(apiResponse.code).send(apiResponse.toJson())
         }
@@ -382,6 +382,7 @@ comp_app.get('/history', async (req, res) => {
 					console.error("Invalid date")
 					throw APIResponse.InvalidDateFormat()
 				}
+				date.setHours(23,59,59)
 				const user = await getUser(req["user"]["user_id"])
 				verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF])
 				const house_name = getHouseNameForHistory(user, req)
@@ -457,7 +458,7 @@ comp_app.get('/history', async (req, res) => {
 			res.status(apiResponse.code).send(apiResponse.toJson())
 		}
         else {
-            console.log("Unknown Error: "+error.toString())
+            console.error("Unknown Error: "+error.toString())
             const apiResponse = APIResponse.ServerError()
             res.status(apiResponse.code).send(apiResponse.toJson())
         }
@@ -465,7 +466,6 @@ comp_app.get('/history', async (req, res) => {
 })
 
 function getHouseNameForHistory(user:User, req): string{
-	console.log("Checking hosue name")
 	let house_name = user.house
 	if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
 		if(req.query.house === undefined || req.query.house === ""){
@@ -476,7 +476,6 @@ function getHouseNameForHistory(user:User, req): string{
 			house_name = req.query.house as string
 		}
 	}
-	console.log("Using house: "+house_name)
 	return house_name
 }
 

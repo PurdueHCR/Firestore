@@ -13,6 +13,7 @@ class FirebaseUtility{
   static Future<void> initializeFirebase(Config config){
     if(apps.isEmpty ){
       debugPrint("No App, so initialize Firebase");
+      print("Has key: "+ config.apiKey);
       try {
         app = initializeApp(
             apiKey: config.apiKey,
