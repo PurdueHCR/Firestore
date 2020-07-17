@@ -815,14 +815,14 @@
         },{
           "name" : "date",
           "in" : "query",
-          "description" : "Defines the latest date a point submission could have in the search. (Only applies when the type is 'recent'.)",
+          "description" : "Defines the date to get point submissions that occurred on or before. (Only applies when the type is 'recent'.)",
           "required" : false,
           "style" : "form",
           "explode" : true,
           "schema" : {
             "type" : "string"
           },
-          "example" : "ed3rodsaw34fnbjdla"
+          "example" : "8/24/2020"
         },{
           "name" : "startAt",
           "in" : "query",
@@ -833,7 +833,7 @@
           "schema" : {
             "type" : "string"
           },
-          "example" : 0
+          "example" : "4/19/2020"
         } ],
         "responses" : {
           "200" : {
@@ -890,6 +890,36 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "423" : {
+            "description" : "Could not interpret the provided date",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDateFormat"
+                }
+              }
+            }
+          },
+          "425" : {
+            "description" : "The provided house name is incorrect.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownHouse"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "At least one of the parameters you provided was in an incorrect format.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
                 }
               }
             }

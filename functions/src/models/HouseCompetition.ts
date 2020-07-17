@@ -29,6 +29,7 @@ export class HouseCompetition {
     /**
      * Validate that the provided name is a house in the competition
      * @param house name of the house
+     * @throws 425 - Unknown House
      */
     static validateHouseName(house:string) {
         if(house !== "Copper" && house !== "Palladium" && house !== "Platinum" && house !== "Silver" && house !== "Titanium"){

@@ -351,6 +351,7 @@ comp_app.get('/userOverview', async (req, res) => {
  * @throws 403 - Invalid Permissions
  * @throws 422 - Missing required parameters
  * @throws 423 - InvalidDateFormat
+ * @throws 425 - UnknownHouse
  * @throws 426 - IncorrectFormat
  * @throws 500 - Server Error
  */
@@ -465,6 +466,14 @@ comp_app.get('/history', async (req, res) => {
 	}
 })
 
+/**
+ * If the house field is provided and the user is Proffesional Staff, use the house field. If user is not prof staff, it returns the user house
+ * @param user User making request
+ * @param req Request object to check for query param
+ * @return house id to use
+ * @throws 422 - Missing Required Parameters
+ * @throws 425 - Unknown User
+ */
 function getHouseNameForHistory(user:User, req): string{
 	let house_name = user.house
 	if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){

@@ -12,8 +12,6 @@ class FirebaseUtility{
 
   static Future<void> initializeFirebase(Config config){
     if(apps.isEmpty ){
-      debugPrint("No App, so initialize Firebase");
-      print("Has key: "+ config.apiKey);
       try {
         app = initializeApp(
             apiKey: config.apiKey,
@@ -39,7 +37,6 @@ class FirebaseUtility{
         await FirebaseAuth.instance.signInWithEmailAndPassword(email:email, password: password);
       }
       catch(error){
-        print("Sign in error code: ${error.code}");
         String errorMessage;
         switch (error.code) {
           case "auth/invalid-email":
@@ -60,8 +57,15 @@ class FirebaseUtility{
           case "auth/operation-not-allowed":
             errorMessage = "Signing in with Email and Password is not enabled.";
             break;
+          case "auth/id-token-revoked":
+          case "auth/id-token-expired":
+            print("The app's auth token is expired. This is bad. Please contact the Honors College Development Committee about updating the auth token.");
+            errorMessage = "Uh oh, there was a problem. Please try again later.";
+            break;
           default:
-            errorMessage = error.toString();
+            print("There was an unknown problem with the connection to Google's server. If the problem persists, please send this code to the Honors College Development Committee: ${error.code}");
+            errorMessage = "Uh oh, there was a problem. Please try again later.";
+            break;
         }
         return Future.error(errorMessage);
       }
@@ -74,7 +78,6 @@ class FirebaseUtility{
         await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
       }
       catch(error){
-        //TODO Handle all create Account errors
         return Future.error(error.code);
       }
     });
