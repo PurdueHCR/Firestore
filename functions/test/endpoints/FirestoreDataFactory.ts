@@ -54,7 +54,6 @@ export class FirestoreDataFactory{
      * @param hOpts  - Optional Parameters for the house. Will be set to default if field isnt provided
      */
     static setHouse(db: firebase.firestore.Firestore, id: string, hOpts:Options.HouseOptions = Options.HOUSE_DEFAULTS): Promise<void> {
-        console.log("SETTING HOUSE:", (hOpts.total_points !== undefined)? hOpts.total_points: Options.HOUSE_DEFAULTS.total_points)
         return db.collection("House").doc(id).set({
             "Color":(hOpts.color !== undefined)? hOpts.color: Options.HOUSE_DEFAULTS.color,
             "NumberOfResidents":(hOpts.num_residents !== undefined)? hOpts.num_residents: Options.HOUSE_DEFAULTS.num_residents,
@@ -63,7 +62,6 @@ export class FirestoreDataFactory{
     }
 
     static setHouseCode(db: firebase.firestore.Firestore, id: string, cOpts:Options.HouseCodeOptions = Options.HOUSE_CODE_DEFAULTS): Promise<void> {
-        console.log("SETTING HOUSE CODE:", (cOpts.code !== undefined)? cOpts.code: Options.HOUSE_CODE_DEFAULTS.code)
         return db.collection("HouseCodes").doc(id).set({
             "Code":(cOpts.code !== undefined)? cOpts.code: Options.HOUSE_CODE_DEFAULTS.code,
             "CodeName":(cOpts.code_name !== undefined)? cOpts.code: Options.HOUSE_CODE_DEFAULTS.code_name,
@@ -191,7 +189,6 @@ export class FirestoreDataFactory{
             data["ApprovedOn"] = (ptOpts.approved_on !== undefined)?ptOpts.approved_on:Options.POINT_LOG_DEFAULTS.approved_on
             data["PointTypeID"] = data["PointTypeID"] * -1
             const approved = (ptOpts.approved !== undefined)?ptOpts.approved:Options.POINT_LOG_DEFAULTS.approved
-            console.log(data["Description"] + " WAs approved: "+approved)
             if(!approved){
                 data["Description"] = "DENIED: "+data["Description"]
             }
