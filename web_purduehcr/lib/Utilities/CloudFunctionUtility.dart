@@ -20,7 +20,6 @@ callCloudFunction(Config config, Method method, String path, {Map<String, dynami
     String errorString = result.data["message"];
     throw new ApiError(int.parse(errorString.split(": ")[0]), errorString.split(": ")[1]);
   }
-  print("GOT response: "+result.data.toString());
   return result.data;
 }
 
@@ -34,7 +33,6 @@ String _serializeParams(Map<String, dynamic> params) {
     for (String key in params.keys) {
       queryString += key + "=" + params[key].toString() + "&";
     }
-    print("DID WORK : "+queryString.substring(0, queryString.length - 1));
     return queryString.substring(0, queryString.length - 1);
   }
 }

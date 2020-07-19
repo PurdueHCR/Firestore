@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
@@ -42,7 +40,7 @@ class AuthenticationBloc
         yield Authenticated(user);
       }
       on ApiError catch(apiError){
-        window.console.log("Failed to get User model with API Error. $apiError");
+        print("Failed to get User model with API Error. $apiError");
         // TODO Handle No user.
         // Right now if there is no user model, authBLoC will yield unauthenticated
         // . However, because the previous state was Unauthenticated (thus
@@ -52,7 +50,7 @@ class AuthenticationBloc
         yield Unauthenticated();
       }
       catch(error){
-        window.console.log("Failed to get User model. $error");
+        print("Failed to get User model. $error");
         yield Unauthenticated();
       }
 

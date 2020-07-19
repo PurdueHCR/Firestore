@@ -7,15 +7,17 @@ import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 const _DrawerOptions OVERVIEW = _DrawerOptions("Overview","/",Icon(Icons.account_circle));
 const _DrawerOptions SUBMIT_POINTS = _DrawerOptions("Submit Points","/submit_points",Icon(Icons.add));
 const _DrawerOptions HANDLE_POINTS = _DrawerOptions("Handle Points","/handle_points",Icon(Icons.message));
+const _DrawerOptions MY_POINTS = _DrawerOptions("My Points","/my_points",Icon(Icons.list));
+const _DrawerOptions HISTORY = _DrawerOptions("House History","/house_history",Icon(Icons.history));
 const _DrawerOptions TOKEN = _DrawerOptions("Token","/token",Icon(Icons.add));
 const _DrawerOptions LINKS = _DrawerOptions("Links", "/links", Icon(Icons.link));
 
-const List<_DrawerOptions> RESIDENT_LIST = [OVERVIEW,SUBMIT_POINTS,TOKEN];
-const List<_DrawerOptions> RHP_LIST = [OVERVIEW,SUBMIT_POINTS, HANDLE_POINTS, LINKS];
-const List<_DrawerOptions> PROFESSIONAL_STAFF_LIST = [OVERVIEW, LINKS];
+const List<_DrawerOptions> RESIDENT_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, TOKEN];
+const List<_DrawerOptions> RHP_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, HANDLE_POINTS, LINKS, HISTORY];
+const List<_DrawerOptions> PROFESSIONAL_STAFF_LIST = [OVERVIEW, LINKS, HISTORY];
 const List<_DrawerOptions> FHP_LIST = [OVERVIEW, LINKS];
-const List<_DrawerOptions> PRIVILEGED_USER_LIST = [OVERVIEW,SUBMIT_POINTS, LINKS];
-const List<_DrawerOptions> NHAS_LIST = [OVERVIEW, LINKS];
+const List<_DrawerOptions> PRIVILEGED_USER_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, LINKS];
+const List<_DrawerOptions> EA_LIST = [OVERVIEW, LINKS];
 
 class PhcrDrawer extends Drawer {
 
@@ -47,7 +49,7 @@ class PhcrDrawer extends Drawer {
         selectedList = PRIVILEGED_USER_LIST;
         break;
       case UserPermissionLevel.NHAS:
-        selectedList = NHAS_LIST;
+        selectedList = EA_LIST;
         break;
     }
     return Drawer(

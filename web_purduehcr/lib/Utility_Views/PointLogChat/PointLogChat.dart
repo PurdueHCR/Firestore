@@ -12,6 +12,7 @@ import 'package:purduehcr_web/Models/PointLogMessage.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:purduehcr_web/Utility_Views/PointLogChat/point_log_chat_bloc/point_log_chat.dart';
+import 'package:purduehcr_web/Utility_Views/RichTextView.dart';
 import 'package:purduehcr_web/authentication/authentication.dart';
 
 class PointLogChat extends StatefulWidget{
@@ -97,7 +98,6 @@ class _PointLogChatState extends State<PointLogChat>{
 
   Widget buildMessages(PointLogChatState currentState){
     if(currentState is PointLogChatLoaded){
-      print("Had state being is loaded");
       Timer(
         Duration(milliseconds: 250),
             () => _scrollController.jumpTo(_scrollController.position.maxScrollExtent),
@@ -316,8 +316,16 @@ class PointLogMessageTile extends StatelessWidget{
   final PointLogMessage message;
   final bool isFromCurrentUser;
   const PointLogMessageTile({this.message, this.isFromCurrentUser});
+
+  bool _isLink(String input) {
+    final matcher = new RegExp(
+        r"(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)");
+    return matcher.hasMatch(input);
+  }
+
   @override
   Widget build(BuildContext context) {
+
     if(isFromCurrentUser){
       return Padding(
         padding: EdgeInsets.fromLTRB(48, 0, 4, 4),
@@ -332,7 +340,10 @@ class PointLogMessageTile extends StatelessWidget{
                   color: Colors.lightBlue,
                   child: Padding(
                     padding: EdgeInsets.all(8),
-                    child: Text(message.message,textAlign: TextAlign.start),
+                    child: RichTextView(
+                      text: message.message,
+                      style: TextStyle(color: Colors.white),
+                    )
                   ),
                 ),
               ),
@@ -367,7 +378,10 @@ class PointLogMessageTile extends StatelessWidget{
                   color: Colors.black26,
                   child: Padding(
                     padding: EdgeInsets.all(8),
-                    child: Text(message.message,textAlign: TextAlign.start),
+                      child: RichTextView(
+                        text: message.message,
+                        style: TextStyle(color: Colors.black),
+                      )
                   ),
                 ),
               ),

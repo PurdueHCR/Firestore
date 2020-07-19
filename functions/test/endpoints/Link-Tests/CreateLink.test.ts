@@ -19,10 +19,11 @@ const PROF_RHP_DESCRIPTION =  "Link can only be made with RHP/Prof_Staff"
 const ALL_DESCRIPTION = "Link can be made by all"
 
 //Test Suite GetUser
-describe('link/create', () =>{
+describe('link/create', async () =>{
 
     beforeAll(async () => {
         IntegrationMockFactory.mockFirebaseAdmin()
+        IntegrationMockFactory.mockDynamicLink()
         db = IntegrationMockFactory.getDb()
 
         link_function = require('../../../src/endpoint_paths/index.ts').link
@@ -45,7 +46,7 @@ describe('link/create', () =>{
 
 
     test('Point Type Doesnt Exist results in error', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: -1, description: EMPTY_DESCRIPTION}, RHP_ID)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: -1, description: EMPTY_DESCRIPTION, is_enabled: true}, RHP_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -58,7 +59,7 @@ describe('link/create', () =>{
     })
 
     test('Point Type Disabled results in error', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 0, description: EMPTY_DESCRIPTION}, RHP_ID)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 0, description: EMPTY_DESCRIPTION, is_enabled: true}, RHP_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -71,7 +72,7 @@ describe('link/create', () =>{
     })
     
     test('Point Type Permissions do not allow creation', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 1, description: PROF_ONLY_DESCRIPTION}, RHP_ID)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 1, description: PROF_ONLY_DESCRIPTION, is_enabled: true}, RHP_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -85,7 +86,7 @@ describe('link/create', () =>{
 
     //Level 1 is Prof only
     test('RHP can\'t create level 1 link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 1, description: PROF_ONLY_DESCRIPTION
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 1, description: PROF_ONLY_DESCRIPTION, is_enabled: true
         }, RHP_ID)
         res.end(function (err, res) {
             if(err){
@@ -100,7 +101,7 @@ describe('link/create', () =>{
 
     //Level 2 is RHP and Prof staff
     test('RHP can create Level 2 link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 2, description: PROF_RHP_DESCRIPTION + "RHP"}, RHP_ID)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 2, description: PROF_RHP_DESCRIPTION + "RHP", is_enabled: true}, RHP_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -115,7 +116,7 @@ describe('link/create', () =>{
 
     //Level 3 is rhp, prof, fhp, priv_res, EA
     test('RHP can create Level 3 link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION + "RHP"}, RHP_ID)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION + "RHP", is_enabled: true}, RHP_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -130,7 +131,7 @@ describe('link/create', () =>{
 
     //Level 1 is Prof only
     test('Prof Staff can create level 1 link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 1, description: PROF_ONLY_DESCRIPTION + "PROF"
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 1, description: PROF_ONLY_DESCRIPTION + "PROF", is_enabled: true
         }, PROF_ID)
         res.end(function (err, res) {
             if(err){
@@ -146,7 +147,7 @@ describe('link/create', () =>{
 
     //Level 2 is RHP and Prof staff
     test('PROF can create Level 2 link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 2, description: PROF_RHP_DESCRIPTION + "PROF_ID"}, PROF_ID)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 2, description: PROF_RHP_DESCRIPTION + "PROF_ID", is_enabled: true}, PROF_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -161,7 +162,7 @@ describe('link/create', () =>{
 
     //Level 3 is rhp, prof, fhp, priv_res, EA
     test('PROF can create Level 3 link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION + "PROF"}, PROF_ID)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION + "PROF", is_enabled: true}, PROF_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -176,7 +177,7 @@ describe('link/create', () =>{
 
     //Level 1 is Prof only
     test('FHP can\'t create level 1 link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 1, description: PROF_ONLY_DESCRIPTION + "FHP"
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 1, description: PROF_ONLY_DESCRIPTION + "FHP", is_enabled: true
         }, FHP_ID)
         res.end(function (err, res) {
             if(err){
@@ -191,7 +192,7 @@ describe('link/create', () =>{
 
     //Level 2 is RHP and Prof staff
     test('FHP can create Level 2 link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 2, description: PROF_RHP_DESCRIPTION + "FHP"}, FHP_ID)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 2, description: PROF_RHP_DESCRIPTION + "FHP", is_enabled: true}, FHP_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -205,7 +206,7 @@ describe('link/create', () =>{
 
     //Level 3 is rhp, prof, fhp, priv_res, EA
     test('FHP can create Level 3 link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION + "FHP_ID"}, FHP_ID)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION + "FHP_ID", is_enabled: true}, FHP_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -220,7 +221,7 @@ describe('link/create', () =>{
 
     //Level 1 is Prof only
     test('Priv res can\'t create level 1 link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 1, description: PROF_ONLY_DESCRIPTION + "priv_res"
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 1, description: PROF_ONLY_DESCRIPTION + "priv_res", is_enabled: true
         }, PRIV_RES)
         res.end(function (err, res) {
             if(err){
@@ -235,7 +236,7 @@ describe('link/create', () =>{
 
     //Level 2 is RHP and Prof staff
     test('PRIV_RES can create Level 2 link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 2, description: PROF_RHP_DESCRIPTION + "PRIV_RES"}, PRIV_RES)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 2, description: PROF_RHP_DESCRIPTION + "PRIV_RES", is_enabled: true}, PRIV_RES)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -249,7 +250,7 @@ describe('link/create', () =>{
 
     //Level 3 is rhp, prof, fhp, priv_res, EA
     test('PRIV_RES can create Level 3 link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION + "PRIV_RES"}, PRIV_RES)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION + "PRIV_RES", is_enabled: true}, PRIV_RES)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -264,7 +265,7 @@ describe('link/create', () =>{
 
     //Level 1 is Prof only
     test('EA can\'t create level 1 link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 1, description: PROF_ONLY_DESCRIPTION + "EA_ID"
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 1, description: PROF_ONLY_DESCRIPTION + "EA_ID", is_enabled: true
         }, EA_ID)
         res.end(function (err, res) {
             if(err){
@@ -279,7 +280,7 @@ describe('link/create', () =>{
 
     //Level 2 is RHP and Prof staff
     test('EA can create Level 2 link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 2, description: PROF_RHP_DESCRIPTION + "EA_ID"}, EA_ID)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 2, description: PROF_RHP_DESCRIPTION + "EA_ID", is_enabled: true}, EA_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -293,7 +294,7 @@ describe('link/create', () =>{
 
     //Level 3 is rhp, prof, fhp, priv_res, EA
     test('EA can create Level 3 link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION + "EA_ID"}, EA_ID)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION + "EA_ID", is_enabled: true}, EA_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -307,7 +308,7 @@ describe('link/create', () =>{
     })
 
     test('Resident can\'t create Link', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION + "RES"}, RESIDENT_ID)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION + "RES", is_enabled: true}, RESIDENT_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -320,7 +321,7 @@ describe('link/create', () =>{
     })
 
     test('Single User not provided results in missing required parameter error', async (done) => {
-        const res = factory.post(link_function, "/create",{ point_id: 3, description: ALL_DESCRIPTION + "RHP"}, RHP_ID)
+        const res = factory.post(link_function, "/create",{ point_id: 3, description: ALL_DESCRIPTION + "RHP", is_enabled: true}, RHP_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -333,7 +334,7 @@ describe('link/create', () =>{
     })
 
     test('point type id not provided results in missing required parameter error', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: false, description: ALL_DESCRIPTION + "RHP"}, RHP_ID)
+        const res = factory.post(link_function, "/create",{ single_use: false, description: ALL_DESCRIPTION + "RHP", is_enabled: true}, RHP_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -346,7 +347,7 @@ describe('link/create', () =>{
     })
 
     test('description not provided results in missing required parameter error', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3}, RHP_ID)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, is_enabled: true}, RHP_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -359,7 +360,7 @@ describe('link/create', () =>{
     })
 
     test('User does not exist results in error', async (done) => {
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION}, "Invalid Id")
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION, is_enabled: true}, "Invalid Id")
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -373,7 +374,7 @@ describe('link/create', () =>{
 
     test('Competition hidden and competition disabled do not prevent creation', async (done) => {
         await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled: false, is_competition_visible: false})
-        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION + "RHP"}, RHP_ID)
+        const res = factory.post(link_function, "/create",{ single_use: true, point_id: 3, description: ALL_DESCRIPTION + "RHP", is_enabled: true}, RHP_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -391,7 +392,8 @@ describe('link/create', () =>{
     })
 
     //After all of the tests are done, make sure to delete the test firestore app
-    afterAll(()=>{
+    afterAll(async ()=>{
+        await FirestoreDataFactory.cleanDatabase(db)
         Promise.all(firebase.apps().map(app => app.delete()))
     })
 

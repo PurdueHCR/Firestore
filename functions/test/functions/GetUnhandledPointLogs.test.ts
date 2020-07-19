@@ -1,4 +1,5 @@
 import * as MockDataFactory from '../MockDataFactory'
+import * as ModelFactory from './tools/ModelFactory'
 
 const GetUnhandledLogs = require('../../src/src/GetUnhandledLogs')
 
@@ -10,34 +11,10 @@ const log_3 = MockDataFactory.mockPointLog("A","LOG_3", new Date(Date.parse("5/1
 const log_4 = MockDataFactory.mockPointLog("A","LOG_4", new Date(Date.parse("5/15/2020")))
 const log_5 = MockDataFactory.mockPointLog("A","LOG_5", new Date(Date.parse("5/14/2020")))
 
-const rhp:MockDataFactory.DocumentData = {
-    id: "Test-rhp-ID",
-    data: {
-        FirstName: "First name",
-        FloorID: "4N",
-        House: "Copper",
-        LastName: "Last Name",
-        SemesterPoints: 20,
-        "Permission Level": 1,
-        TotalPoints: 20,
-        UserID: "Test-rhp-ID"
-    }
-}
 
-const platinumrhp:MockDataFactory.DocumentData = {
-    id: "platinumrhp",
-    data: {
-        FirstName: "First name",
-        FloorID: "4N",
-        House: "Platinum",
-        LastName: "Last Name",
-        SemesterPoints: 20,
-        "Permission Level": 1,
-        TotalPoints: 20,
-        UserID: "platinumrhp"
-    }
-}
+const rhp = ModelFactory.createUser("Test-rhp-ID", 1, {first:"First name", floor_id:"2N", house_name:"Copper", last:"Last Name", semester_points: 20, total_points:20})
 
+const platinumrhp = ModelFactory.createUser("Test-platinumrhp-ID", 1, {first:"First name", floor_id:"4N", house_name:"Platinum", last:"Last Name", semester_points: 20, total_points:20})
 
 
 //Mock the dependency firebase-admin
@@ -92,35 +69,6 @@ jest.mock('firebase-admin', () => ({
                     }
                 }
             }
-            else if(collection_name === "Users"){
-                return {
-                    doc: (doc_id: String)=> {
-                        if(doc_id === "Test-rhp-ID"){
-                            return {
-                                //db.collection("").doc("Test-User-ID").get()
-                                get: MockDataFactory.mockFirebaseDocumentRequest(rhp)
-                            }
-                        }
-                        else if(doc_id === "platinumrhp"){
-                            return {
-                                get: MockDataFactory.mockFirebaseDocumentRequest(platinumrhp)
-                            }
-                        }
-                        else if(doc_id === "Server-Error"){
-                            return {
-                                //db.collection("").doc("Server-Error").get()
-                                get: MockDataFactory.mockServerError()
-                            }
-                        }
-                        else {
-                            return {
-                                //db.collection(*).doc(*).get()
-                                get:MockDataFactory.mockDocumentDoesntExist()
-                            }
-                        }
-                    }
-                }
-            }
             else{
                 throw Error("Unkown Collection")
             }
@@ -134,13 +82,13 @@ describe('Test Get unhandled Point logs', () =>{
 
     //
     test('No unhandled point logs', async() => {
-        let logs = await GetUnhandledLogs.getUnhandledPointLogs("Test-rhp-ID");
+        let logs = await GetUnhandledLogs.getUnhandledPointLogs(rhp);
         expect(logs).toHaveLength(0)
     })
 
     //
     test('Unhandled Points point logs', async() => {
-        let logs = await GetUnhandledLogs.getUnhandledPointLogs("platinumrhp");
+        let logs = await GetUnhandledLogs.getUnhandledPointLogs(platinumrhp);
         expect(logs).toHaveLength(5)
         expect(logs[0].dateOccurred.getDay()).toBe(new Date(Date.parse("5/18/2020")).getDay())
         expect(logs[1].dateOccurred.getDay()).toBe(new Date(Date.parse("5/17/2020")).getDay())
@@ -151,7 +99,7 @@ describe('Test Get unhandled Point logs', () =>{
 
     //
     test('User limit less than number of logs', async() => {
-        let logs = await GetUnhandledLogs.getUnhandledPointLogs("platinumrhp", 3);
+        let logs = await GetUnhandledLogs.getUnhandledPointLogs(platinumrhp, 3);
         expect(logs).toHaveLength(3)
         expect(logs[0].dateOccurred.getDay()).toBe(new Date(Date.parse("5/18/2020")).getDay())
         expect(logs[1].dateOccurred.getDay()).toBe(new Date(Date.parse("5/17/2020")).getDay())
@@ -160,7 +108,7 @@ describe('Test Get unhandled Point logs', () =>{
 
     //
     test(' limits more than point logs', async() => {
-        let logs = await GetUnhandledLogs.getUnhandledPointLogs("platinumrhp", 8);
+        let logs = await GetUnhandledLogs.getUnhandledPointLogs(platinumrhp, 8);
         expect(logs).toHaveLength(5)
         expect(logs[0].dateOccurred.getDay()).toBe(new Date(Date.parse("5/18/2020")).getDay())
         expect(logs[1].dateOccurred.getDay()).toBe(new Date(Date.parse("5/17/2020")).getDay())
@@ -171,7 +119,7 @@ describe('Test Get unhandled Point logs', () =>{
 
     //
     test('invalid limit', async() => {
-        let logs = await GetUnhandledLogs.getUnhandledPointLogs("platinumrhp", -10);
+        let logs = await GetUnhandledLogs.getUnhandledPointLogs(platinumrhp, -10);
         expect(logs).toHaveLength(5)
         expect(logs[0].dateOccurred.getDay()).toBe(new Date(Date.parse("5/18/2020")).getDay())
         expect(logs[1].dateOccurred.getDay()).toBe(new Date(Date.parse("5/17/2020")).getDay())

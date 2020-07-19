@@ -20,8 +20,25 @@ export class APIResponse{
         return this.code+": "+this.message
     }
 
+    /**
+     * 200 - Success
+     */
     static Success(): APIResponse {
         return new APIResponse(APIResponse.SUCCESS_CODE, "Success")
+    }
+
+    /**
+     * 201 - Success Awaits Approval
+     */
+    static SuccessAwaitsApproval(): APIResponse {
+        return new APIResponse(201, "Success")
+    }
+
+    /**
+     * 202 - Success And Approved
+     */
+    static SuccessAndApproved(): APIResponse {
+        return new APIResponse(202, "Success")
     }
 
     /**
@@ -54,6 +71,14 @@ export class APIResponse{
      */
     static InvalidPermissionLevel(): APIResponse {
         return new APIResponse(403, "This User does not have the correct permission levels.")
+    }
+
+    /**
+     * 406 - Link is Not Enabled
+     * The Link is not enabled. It must be turned on by the owner.
+     */
+    static LinkIsNotEnabled(): APIResponse {
+        return new APIResponse(407, "This link is not currently enabled. Talk to whoever gave you this link about enabling it.")
     }
 
     /**

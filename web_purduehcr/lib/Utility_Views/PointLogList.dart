@@ -8,8 +8,10 @@ class PointLogList extends StatefulWidget{
   final List<PointLog> pointLogs;
   final Function(BuildContext, PointLog) onPressed;
   final bool searchable;
+  final bool showLoadMoreButton;
+  final Function loadMore;
 
-  const PointLogList({Key key, @required this.pointLogs, @required this.onPressed, this.searchable = true}):
+  const PointLogList({Key key, @required this.pointLogs, @required this.onPressed, this.searchable = true, this.showLoadMoreButton = false, this.loadMore}):
         assert(pointLogs != null), assert(onPressed != null), super(key: key);
 
   @override
@@ -37,12 +39,20 @@ class _PointLogListState extends State<PointLogList>{
     }
     else{
       mainContent = ListView.builder(
-        shrinkWrap: true,
-        itemCount: visibleLogs.length,
+//        shrinkWrap: true,
+        itemCount: (this.widget.showLoadMoreButton)? visibleLogs.length + 1 : visibleLogs.length,
         itemBuilder: (BuildContext context, int index){
-          return Card(
-            child: PointLogListTile(pointLog: visibleLogs[index], onTap: widget.onPressed),
-          );
+          if(index == visibleLogs.length){
+            return OutlineButton(
+              child: Text("Load More"),
+              onPressed: this.widget.loadMore,
+            );
+          }
+          else{
+            return Card(
+              child: PointLogListTile(pointLog: visibleLogs[index], onTap: widget.onPressed),
+            );
+          }
         },
       );
     }
@@ -54,7 +64,7 @@ class _PointLogListState extends State<PointLogList>{
             visible: widget.searchable,
             child: SearchBar(onValueChanged: _onValueChanged)
         ),
-        mainContent
+        Expanded(child: mainContent)
       ],
     );
   }

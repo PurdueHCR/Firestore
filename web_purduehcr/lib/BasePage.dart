@@ -1,4 +1,3 @@
-import 'dart:html';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
@@ -26,6 +25,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
 
   @override
   void initState() {
+    //Because the bloc is not created here, it is merely retrieved, we can do this in the init state method
     authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     authState = authenticationBloc.state;
     super.initState();
@@ -60,15 +60,17 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
                 return LoadingWidget();
               }
               else{
-                return Container(
-                  color: Theme.of(context).backgroundColor,
-                  child: Center(
-                    child: SizedBox(
-                      width: 1000,
-                      child: Container(
-                        color: Colors.white,
-                        child: buildLargeDesktopBody(context: context, state:state)
-                      )
+                return SafeArea(
+                  child: Container(
+                    color: Theme.of(context).backgroundColor,
+                    child: Center(
+                      child: SizedBox(
+                        width: 1000,
+                        child: Container(
+                          color: Colors.white,
+                          child: buildLargeDesktopBody(context: context, state:state)
+                        )
+                      ),
                     ),
                   ),
                 );
@@ -186,7 +188,21 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
       case DisplayType.desktop_large:
       case DisplayType.desktop_small:
         return min(MediaQuery.of(context).size.width - 200, 1000);
-      case DisplayType.mobile:
+      default:
+        return MediaQuery.of(context).size.width;
+    }
+  }
+
+  /// Returns the optimal width for a dialog that consists of
+  /// a complex task. For notification dialogs, use the default
+  /// size provided in the dialog builder.
+  double getOptimalDialogWidth(BuildContext context){
+    switch(displayTypeOf(context)){
+      case DisplayType.desktop_large:
+        return min((MediaQuery.of(context).size.width - 200) * 0.5, 400);
+      case DisplayType.desktop_small:
+        return min(MediaQuery.of(context).size.width - 200, 400) ;
+      default:
         return MediaQuery.of(context).size.width;
     }
   }

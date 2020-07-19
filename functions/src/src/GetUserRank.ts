@@ -8,8 +8,6 @@ import { APIResponse } from '../models/APIResponse'
  * Get the UserRank for a userId
  * 
  * @param user_id Database id of the user to retrieve Rank for
- * @throws 400 - NonExistantUser
- * @throws 401 - Unauthroized
  * @throws 403 - Invalid Permission Level
  * @throws 500 - ServerError
  */
@@ -23,8 +21,6 @@ export async function getUserRank(user_id: string): Promise<UserRank> {
  * Get the UserRank for a userId
  * 
  * @param user_id Database id of the user to retrieve Rank for
- * @throws 400 - NonExistantUser
- * @throws 401 - Unauthroized
  * @throws 403 - Invalid Permission Level
  * @throws 500 - ServerError
  */

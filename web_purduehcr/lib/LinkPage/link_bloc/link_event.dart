@@ -23,16 +23,17 @@ class CreateLink extends LinkEvent {
 
   @override
   List<Object> get props => [description, enabled, singleUse, pointTypeId];
-
-
 }
 
 class UpdateLink extends LinkEvent {
   final Link link;
-  final bool shouldDismissDialog;
-  const UpdateLink({this.link, this.shouldDismissDialog});
+  final String description;
+  final bool enabled;
+  final bool singleUse;
+  final bool archived;
+  const UpdateLink({@required this.link, this.description, this.enabled, this.singleUse, this.archived}):assert(link != null);
   @override
-  List<Object> get props => [link, shouldDismissDialog];
+  List<Object> get props => [link, description, enabled, singleUse, archived];
 }
 
 class LinkDisplayedMessage extends LinkEvent {

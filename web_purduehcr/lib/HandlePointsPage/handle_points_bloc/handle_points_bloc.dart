@@ -1,4 +1,3 @@
-import 'dart:html';
 
 import 'package:purduehcr_web/Config.dart';
 import 'package:bloc/bloc.dart';
@@ -26,7 +25,7 @@ class HandlePointsBloc extends Bloc<HandlePointEvent, HandlePointsState>{
         yield HandlePointsPageLoaded(pointLogs: pointLog);
       }
       catch(error){
-        window.console.log("There was an error loading the point types: $error");
+        print("There was an error loading the point types: $error");
       }
     }
   }

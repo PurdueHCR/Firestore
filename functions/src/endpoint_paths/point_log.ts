@@ -35,11 +35,20 @@ logs_app.use(firestoreTools.validateFirebaseIdToken)
 /**
  * Handle a PointLog
  * 
- *  @throws  422 - MissingRequiredParameters
- *  @throws  426 - IncorrectFormat
+ * 	@param body.approve specifies if the point log should be approved or rejected
+ *  @param body.point_log_id specifies the point log to handle
+ * 
+ *  @throws 400 - Unknown User
+ *  @throws 401 - Unauthorized
+ *  @throws 403 - InvalidPermissionLevel
+ *  @throws 412 - House Competition Disabled
+ *  @throws 413 - UnknownPointLog
+ *  @throws 416 - PointLogAlreadyHandled
+ *  @throws 422 - Missing Required Parameters
+ *  @throws 426 - Incorrect Format
+ *  @throws 500 - Server Error
  */
 logs_app.post('/handle', async (req, res) => {
-	console.log('req is', req)
 	if (!req.body || !req.body.approve || req.body.approve === ""
 			|| !req.body.point_log_id || req.body.point_log_id === "") {
 		if (!req.body) {
@@ -61,19 +70,27 @@ logs_app.post('/handle', async (req, res) => {
 		const error = APIResponse.IncorrectFormat()
 		res.status(error.code).send(error.toJson())
 	} else {
-		try {
-			var should_approve = (req.body.approve == 'true');
-			const didUpdate = await updatePointLogStatus(should_approve, req["user"]["user_id"], req.body.point_log_id)
-			if (didUpdate) {
-				res.status(201).send(APIResponse.Success().toJson())
-			}
-		} catch (error) {
-			console.log("FAILED WITH ERROR: "+ error.toString())
-			if (error instanceof APIResponse){
-				res.status(error.code).send(error.toJson())
-			} else {
-				const apiResponse = APIResponse.ServerError()
-				res.status(apiResponse.code).send(apiResponse.toJson())
+
+		let should_approve = (req.body.approve == 'true');
+		if(!should_approve && (!req.body.message || req.body.message === "")){
+			console.error("If approve is false, you must send a message.")
+			const error = APIResponse.MissingRequiredParameters()
+			res.status(error.code).send(error.toJson())
+		}
+		else{
+			try {
+				const didUpdate = await updatePointLogStatus(should_approve, req["user"]["user_id"], req.body.point_log_id, req.body.message)
+				if (didUpdate) {
+					res.status(201).send(APIResponse.Success().toJson())
+				}
+			} catch (error) {
+				console.log("FAILED WITH ERROR: "+ error.toString())
+				if (error instanceof APIResponse){
+					res.status(error.code).send(error.toJson())
+				} else {
+					const apiResponse = APIResponse.ServerError()
+					res.status(apiResponse.code).send(apiResponse.toJson())
+				}
 			}
 		}
 	}

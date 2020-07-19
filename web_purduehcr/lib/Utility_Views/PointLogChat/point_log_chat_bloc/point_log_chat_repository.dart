@@ -44,7 +44,7 @@ class PointLogChatRepository {
   Future handlePointLog(PointLog log, bool approved, {String message = ""}) async {
     try {
       await callCloudFunction(config, Method.POST, "point_log/handle",
-      body: {"point_log_id": log.id, "message": message, "approve":approved});
+      body: {"point_log_id": log.id, "message": message, "approve":approved.toString()});
     }
     catch(error){
       if(error is ApiError){

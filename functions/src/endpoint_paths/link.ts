@@ -38,7 +38,7 @@ links_app.use(firestoreTools.validateFirebaseIdToken)
  */
 links_main.get('/', async (req, res) => {
 
-    if(req.query.id === null){
+    if(!req.query.id || req.query.id === ""){
         const error = APIResponse.MissingRequiredParameters()
 		res.status(error.code).send(error.toJson())
     }
@@ -76,7 +76,7 @@ links_main.get('/', async (req, res) => {
  */
 links_main.post('/create' ,async (req, res) => {
 
-    if(req.body["single_use"] === undefined || req.body["point_id"] === undefined || req.body["description"] === undefined){
+    if(req.body["single_use"] === undefined || req.body["point_id"] === undefined || req.body["description"] === undefined || req.body["is_enabled"] === undefined){
 		const error = APIResponse.MissingRequiredParameters()
 		res.status(error.code).send(error.toJson())
     }
@@ -86,11 +86,12 @@ links_main.post('/create' ,async (req, res) => {
             const description = req.body["description"]
             const point_id = parseInt(req.body["point_id"])
             const is_single_use = req.body["single_use"]
+            const is_enabled = req.body["is_enabled"]
 
             const user = await getUser(user_id)
             const permissions = [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.FACULTY, UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.EXTERNAL_ADVISOR]
             verifyUserHasCorrectPermission(user, permissions)
-            const link = await createLink(user,point_id, is_single_use, description)
+            const link = await createLink(user,point_id, is_single_use, is_enabled, description)
             res.status(APIResponse.SUCCESS_CODE).send(link)
         }
         catch(suberror){
