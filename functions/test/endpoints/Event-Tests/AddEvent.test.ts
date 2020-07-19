@@ -46,7 +46,7 @@ describe('event/add', () => {
 
     beforeEach(async () => {
         await FirestoreDataFactory.setSystemPreference(db)
-        await FirestoreDataFactory.deleteCollection(db, "Events", 1)
+        await FirestoreDataFactory.cleanEvents(db)
     })
 
     // Test if no body is provided
@@ -67,7 +67,7 @@ describe('event/add', () => {
     it('Missing name', async(done) => {
         const body = {
             "details": "test details",
-            "date": "July 11, 2020",
+            "date": "January 1, 2100",
             "location": "test location",
             "points": "5",
             "point_type_id":"1",
@@ -90,7 +90,7 @@ describe('event/add', () => {
     it('Missing details', async(done) => {
         const body = {
             "name": "test event",
-            "date": "July 11, 2020",
+            "date": "January 1, 2100",
             "location": "test location",
             "points": "5",
             "point_type_id":"1",
@@ -137,7 +137,7 @@ describe('event/add', () => {
         const body = {
             "name": "test event",
             "details": "test details",
-            "date": "July 11, 2020",
+            "date": "January 1, 2100",
             "points": "5",
             "point_type_id":"1",
             "point_type_name":"test type name",
@@ -160,7 +160,7 @@ describe('event/add', () => {
         const body = {
             "name": "test event",
             "details": "test details",
-            "date": "July 11, 2020",
+            "date": "January 1, 2100",
             "location": "test location",
             "point_type_id":"1",
             "point_type_name":"test type name",
@@ -183,7 +183,7 @@ describe('event/add', () => {
         const body = {
             "name": "test event",
             "details": "test details",
-            "date": "July 11, 2020",
+            "date": "January 1, 2100",
             "location": "test location",
             "points": "5",
             "point_type_id":"1",
@@ -206,7 +206,7 @@ describe('event/add', () => {
         const body = {
             "name": "test event",
             "details": "test details",
-            "date": "July 11, 2020",
+            "date": "January 1, 2100",
             "location": "test location",
             "points": "5",
             "point_type_name":"test type name",
@@ -229,7 +229,7 @@ describe('event/add', () => {
         const body = {
             "name": "test event",
             "details": "test details",
-            "date": "July 11, 2020",
+            "date": "January 1, 2100",
             "location": "test location",
             "points": "5",
             "point_type_id":"1",
@@ -252,7 +252,7 @@ describe('event/add', () => {
         const body = {
             "name": "test event",
             "details": "test details",
-            "date": "July 11, 2020",
+            "date": "January 1, 2100",
             "location": "test location",
             "points": "5",
             "point_type_id":"1",
@@ -426,7 +426,7 @@ describe('event/add', () => {
  */
 
 function createDefaultEventBody() {
-        return {"name":"test event", "details":"test details", "date":"July 18, 2020", "location":"test location",
+        return {"name":"test event", "details":"test details", "date":"January 1, 2100", "location":"test location",
                 "points":5, "point_type_id":1, "point_type_name":"test type name",
                 "point_type_description":"test type description", "house":"test house"}
     }
