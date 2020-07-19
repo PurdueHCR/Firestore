@@ -2,8 +2,9 @@ import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as express from 'express'
 import { APIResponse } from '../models/APIResponse'
-import { Event } from '../models/Event'
 import { addEvent } from '../src/AddEvent'
+import { UserPermissionLevel } from '../models/UserPermissionLevel'
+import { getUser } from '../src/GetUser'
 
 // Made sure that the app is only initialized one time
 if (admin.apps.length == 0) {
@@ -28,13 +29,28 @@ events_app.use(firestoreTools.validateFirebaseIdToken)
 /**
  * Add an Event
  * 
- * @throws  422 - Missing Required Parameters
+ * @param name event name
+ * @param details event details
+ * @param date event date
+ * @param location event location string
+ * @param points number of points for attending the event
+ * @param point_type_id id of the PointType associated with the event
+ * @param point_type_name name of the PointType associated with the event
+ * @param point_type_description description of the PointType associated with the event
+ * @param house house name for attending event
+ * 
+ * @throws 403 - Invalid Permission Level
+ * @throws 422 - Missing Required Parameters
+ * @throws 424 - Date Not In Range
+ * @throws 500 - Server Error
  */
 events_app.post('/add', async (req, res) => {
     
     if (!req.body || !req.body.name || req.body.name === "" || !req.body.details || req.body.details === ""
         || !req.body.date || req.body.date === "" || !req.body.location || req.body.location === ""
-        || !req.body.points || req.body.points === "" || !req.body.house || req.body.house === "") {
+        || !req.body.points || req.body.points === "" || !req.body.point_type_id || req.body.point_type_id === ""
+        || !req.body.point_type_name || req.body.point_type_name === "" || !req.body.point_type_description
+        ||req.body.point_type_description === "" || !req.body.house || req.body.house === "") {
             if (!req.body) {
                 console.error("Missing Body")
             }
@@ -53,6 +69,15 @@ events_app.post('/add', async (req, res) => {
             else if (!req.body.points || req.body.points === "") {
                 console.error("Missing points")
             }
+            else if (!req.body.point_type_id || req.body.point_type_id === "") {
+                console.error("Missing point_type_id")
+            }
+            else if (!req.body.point_type_name || req.body.point_type_name === "") {
+                console.error("Missing point_type_name")
+            }
+            else if (!req.body.point_type_description || req.body.point_type_description === "") {
+                console.error("Missing point_type_description")
+            }
             else if (!req.body.house || req.body.house === "") {
                 console.error("Missing house")
             }
@@ -60,11 +85,23 @@ events_app.post('/add', async (req, res) => {
             res.status(error.code).send(error.toJson())
     } else {
         try {
+            let user = await getUser(req["user"]["user_id"])
+            if (user.permissionLevel === UserPermissionLevel.RESIDENT) {
+                const error = APIResponse.InvalidPermissionLevel()
+                res.status(error.code).send(error.toJson())
+                return
+            }
             const event_date = new Date(req.body.date)
-            // TODO: Function to check that date is in future
-            const event = new Event(req.body.name, req.body.details, event_date,
-                req.body.location, parseInt(req.body.points), req.body.house, req["user"]["user_id"], "")
-            const didAddEvent = await addEvent(event)
+            let today = new Date()
+            // Must set today to earliest possible time so event_date set to today's date will not error
+            today.setHours(0,0,0,0)
+            if (event_date < today) {
+                const error = APIResponse.DateNotInRange()
+                res.status(error.code).send(error.toJson())
+            }
+            const didAddEvent = await addEvent(req.body.name, req.body.details, event_date,
+                req.body.location, parseInt(req.body.points), req.body.point_type_id, req.body.point_type_name,
+                req.body.point_type_description, req.body.house, user.id)
             const success = APIResponse.Success()
             if (didAddEvent) {
                 res.status(201).send(success.toJson())

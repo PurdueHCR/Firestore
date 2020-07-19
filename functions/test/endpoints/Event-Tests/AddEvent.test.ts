@@ -46,6 +46,7 @@ describe('event/add', () => {
 
     beforeEach(async () => {
         await FirestoreDataFactory.setSystemPreference(db)
+        await FirestoreDataFactory.deleteCollection(db, "Events", 1)
     })
 
     // Test if no body is provided
@@ -69,6 +70,9 @@ describe('event/add', () => {
             "date": "July 11, 2020",
             "location": "test location",
             "points": "5",
+            "point_type_id":"1",
+            "point_type_name":"test type name",
+            "point_type_description":"test type description",
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -89,6 +93,9 @@ describe('event/add', () => {
             "date": "July 11, 2020",
             "location": "test location",
             "points": "5",
+            "point_type_id":"1",
+            "point_type_name":"test type name",
+            "point_type_description":"test type description",
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -109,6 +116,9 @@ describe('event/add', () => {
             "details": "test details",
             "location": "test location",
             "points": "5",
+            "point_type_id":"1",
+            "point_type_name":"test type name",
+            "point_type_description":"test type description",
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -129,6 +139,9 @@ describe('event/add', () => {
             "details": "test details",
             "date": "July 11, 2020",
             "points": "5",
+            "point_type_id":"1",
+            "point_type_name":"test type name",
+            "point_type_description":"test type description",
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -149,6 +162,9 @@ describe('event/add', () => {
             "details": "test details",
             "date": "July 11, 2020",
             "location": "test location",
+            "point_type_id":"1",
+            "point_type_name":"test type name",
+            "point_type_description":"test type description",
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -170,6 +186,78 @@ describe('event/add', () => {
             "date": "July 11, 2020",
             "location": "test location",
             "points": "5",
+            "point_type_id":"1",
+            "point_type_name":"test type name",
+            "point_type_description":"test type description"
+          }
+        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(422)
+                done()
+            }
+        })
+    })
+
+    // Test if no point_type_id
+    it('Missing point_type_id', async(done) => {
+        const body = {
+            "name": "test event",
+            "details": "test details",
+            "date": "July 11, 2020",
+            "location": "test location",
+            "points": "5",
+            "point_type_name":"test type name",
+            "point_type_description":"test type description",
+            "house":"test_house"
+          }
+        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(422)
+                done()
+            }
+        })
+    })
+
+    // Test if no point_type_name
+    it('Missing point_type_id', async(done) => {
+        const body = {
+            "name": "test event",
+            "details": "test details",
+            "date": "July 11, 2020",
+            "location": "test location",
+            "points": "5",
+            "point_type_id":"1",
+            "point_type_description":"test type description",
+            "house":"test_house"
+          }
+        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(422)
+                done()
+            }
+        })
+    })
+
+    // Test if no point_type_description
+    it('Missing point_type_description', async(done) => {
+        const body = {
+            "name": "test event",
+            "details": "test details",
+            "date": "July 11, 2020",
+            "location": "test location",
+            "points": "5",
+            "point_type_id":"1",
+            "point_type_name":"test type name",
+            "house":"test_house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
         res.end(function (err, res) {
@@ -184,15 +272,7 @@ describe('event/add', () => {
 
     // Test permission - resident
     it('Test permission - resident', async(done) => {
-        const body = {
-            "name": "test event",
-            "details": "test details",
-            "date": "July 11, 2020",
-            "location": "test location",
-            "points": "5",
-            "house": "test house"
-          }
-        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RESIDENT_ID)
+        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, createDefaultEventBody(), RESIDENT_ID)
         res.end(function (err, res) {
             if (err) {
                 done(err)
@@ -205,15 +285,7 @@ describe('event/add', () => {
 
     // Test permission - RHP
     it('Test permission - RHP', async(done) => {
-        const body = {
-            "name": "test event",
-            "details": "test details",
-            "date": "July 11, 2020",
-            "location": "test location",
-            "points": "5",
-            "house": "test house"
-          }
-        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
+        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, createDefaultEventBody(), RHP_ID)
         res.end(async function (err, res) {
             if (err) {
                 done(err)
@@ -226,9 +298,7 @@ describe('event/add', () => {
                 expect(data).toBeDefined()
                 expect(data.Name).toBe("test event")
                 expect(data.Details).toBe("test details")
-                // Not the best way to test the date but it works
-                expect(data.Date.nanoseconds).toBe(0)
-                expect(data.Date.seconds).toBe(1594440000)
+                expect(data.Date).toBeDefined()
                 expect(data.Location).toBe("test location")
                 expect(data.Points).toBe(5)
                 expect(data.House).toBe("test house")
@@ -239,17 +309,9 @@ describe('event/add', () => {
         })
     })
 
-    // Test permission - REC/REA
-    it('Test permission - REC/REA', async(done) => {
-        const body = {
-            "name": "test event",
-            "details": "test details",
-            "date": "July 11, 2020",
-            "location": "test location",
-            "points": "5",
-            "house": "test house"
-          }
-        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, REC_ID)
+    // Test permission - Professional Staff
+    it('Test permission - Professional Staff', async(done) => {
+        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, createDefaultEventBody(), REC_ID)
         res.end(async function (err, res) {
             if (err) {
                 done(err)
@@ -262,13 +324,11 @@ describe('event/add', () => {
                 expect(data).toBeDefined()
                 expect(data.Name).toBe("test event")
                 expect(data.Details).toBe("test details")
-                // Not the best way to test the date but it works
-                expect(data.Date.nanoseconds).toBe(0)
-                expect(data.Date.seconds).toBe(1594440000)
+                expect(data.Date).toBeDefined()
                 expect(data.Location).toBe("test location")
                 expect(data.Points).toBe(5)
                 expect(data.House).toBe("test house")
-                expect(data.CreatorID).toBe(RHP_ID)
+                expect(data.CreatorID).toBe(REC_ID)
                 
                 done()
             }
@@ -277,15 +337,7 @@ describe('event/add', () => {
 
     // Test permission - faculty
     it('Test permission - faculty', async(done) => {
-        const body = {
-            "name": "test event",
-            "details": "test details",
-            "date": "July 11, 2020",
-            "location": "test location",
-            "points": "5",
-            "house": "test house"
-          }
-        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, FACULTY)
+        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, createDefaultEventBody(), FACULTY)
         res.end(async function (err, res) {
             if (err) {
                 done(err)
@@ -298,13 +350,11 @@ describe('event/add', () => {
                 expect(data).toBeDefined()
                 expect(data.Name).toBe("test event")
                 expect(data.Details).toBe("test details")
-                // Not the best way to test the date but it works
-                expect(data.Date.nanoseconds).toBe(0)
-                expect(data.Date.seconds).toBe(1594440000)
+                expect(data.Date).toBeDefined()
                 expect(data.Location).toBe("test location")
                 expect(data.Points).toBe(5)
                 expect(data.House).toBe("test house")
-                expect(data.CreatorID).toBe(RHP_ID)
+                expect(data.CreatorID).toBe(FACULTY)
                 
                 done()
             }
@@ -313,15 +363,7 @@ describe('event/add', () => {
 
     // Test permission - priviledged resident
     it('Test permission - priviledged resident', async(done) => {
-        const body = {
-            "name": "test event",
-            "details": "test details",
-            "date": "July 11, 2020",
-            "location": "test location",
-            "points": "5",
-            "house": "test house"
-          }
-        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, PRIV_RES)
+        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, createDefaultEventBody(), PRIV_RES)
         res.end(async function (err, res) {
             if (err) {
                 done(err)
@@ -334,13 +376,11 @@ describe('event/add', () => {
                 expect(data).toBeDefined()
                 expect(data.Name).toBe("test event")
                 expect(data.Details).toBe("test details")
-                // Not the best way to test the date but it works
-                expect(data.Date.nanoseconds).toBe(0)
-                expect(data.Date.seconds).toBe(1594440000)
+                expect(data.Date).toBeDefined()
                 expect(data.Location).toBe("test location")
                 expect(data.Points).toBe(5)
                 expect(data.House).toBe("test house")
-                expect(data.CreatorID).toBe(RHP_ID)
+                expect(data.CreatorID).toBe(PRIV_RES)
 
                 done()
             }
@@ -349,15 +389,7 @@ describe('event/add', () => {
 
     // Test permission - external advisor
     it('Test permission - external advisor', async(done) => {
-        const body = {
-            "name": "test event",
-            "details": "test details",
-            "date": "July 11, 2020",
-            "location": "test location",
-            "points": "5",
-            "house": "test house"
-          }
-        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, EA_ID)
+        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, createDefaultEventBody(), EA_ID)
         res.end(async function (err, res) {
             if (err) {
                 done(err)
@@ -370,13 +402,11 @@ describe('event/add', () => {
                 expect(data).toBeDefined()
                 expect(data.Name).toBe("test event")
                 expect(data.Details).toBe("test details")
-                // Not the best way to test the date but it works
-                expect(data.Date.nanoseconds).toBe(0)
-                expect(data.Date.seconds).toBe(1594440000)
+                expect(data.Date).toBeDefined()
                 expect(data.Location).toBe("test location")
                 expect(data.Points).toBe(5)
                 expect(data.House).toBe("test house")
-                expect(data.CreatorID).toBe(RHP_ID)
+                expect(data.CreatorID).toBe(EA_ID)
 
                 done()
             }
@@ -388,3 +418,15 @@ describe('event/add', () => {
         Promise.all(firebase.apps().map(app => app.delete()))
     })
 })
+
+/**
+ * Create the body for an event/add post using default parameters
+ * 
+ * @returns an add event body
+ */
+
+function createDefaultEventBody() {
+        return {"name":"test event", "details":"test details", "date":"July 18, 2020", "location":"test location",
+                "points":5, "point_type_id":1, "point_type_name":"test type name",
+                "point_type_description":"test type description", "house":"test house"}
+    }

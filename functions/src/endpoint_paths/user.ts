@@ -1,7 +1,6 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as express from 'express'
-import * as bodyParser from "body-parser"
 import { APIResponse } from '../models/APIResponse'
 import { UnsubmittedPointLog } from '../models/UnsubmittedPointLog'
 import { submitPoint } from '../src/SubmitPoints'
@@ -22,8 +21,8 @@ const cors = require('cors')
 const users_main = express()
 
 users_main.use(users_app)
-users_app.use(bodyParser.json())
-users_app.use(bodyParser.urlencoded({ extended: true }))
+users_app.use(express.json())
+users_app.use(express.urlencoded({ extended: true }))
 
 const firestoreTools = require('../firestoreTools')
 
