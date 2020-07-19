@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
+import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/Utility_Views/LogListAndChat.dart';
 import 'package:purduehcr_web/HandlePointsPage/handle_points_bloc/handle_points.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
@@ -11,7 +12,7 @@ import '../Config.dart';
 class HandlePointsPage extends BasePage {
   @override
   State<StatefulWidget> createState() {
-    return _HandlePointsPageState(drawerLabel: "Handle Points");
+    return _HandlePointsPageState("Handle Points");
   }
 }
 
@@ -20,7 +21,9 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
   HandlePointsBloc _handlePointsBloc;
   PointLog _selectedPointLog;
 
-  _HandlePointsPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
+  _HandlePointsPageState(String drawerLabel) : super(drawerLabel);
+
+
 
   @override
   void didChangeDependencies() {
@@ -72,9 +75,16 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
     }
   }
 
+
+
   _onPressed(BuildContext context, PointLog pointLog) {
     setState(() {
       _selectedPointLog = pointLog;
     });
+  }
+
+  @override
+  UserPermissionSet getAcceptedPermissionLevels() {
+    return UserPermissionSet([UserPermissionLevel.RHP].toSet());
   }
 }

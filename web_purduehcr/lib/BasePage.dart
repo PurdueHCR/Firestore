@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:purduehcr_web/Utility_Views/PhcrDrawer.dart';
@@ -21,15 +22,23 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
   Authenticated authState;
   final String drawerLabel;
 
-  BasePageState({@required this.drawerLabel}):assert(drawerLabel != null);
+  BasePageState(this.drawerLabel);
 
   @override
   void initState() {
+    super.initState();
     //Because the bloc is not created here, it is merely retrieved, we can do this in the init state method
     authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     authState = authenticationBloc.state;
-    super.initState();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_){
+      if(!getAcceptedPermissionLevels().contains(authState.user.permissionLevel)){
+        Navigator.of(context).pushReplacementNamed("/");
+      }
+    });
+
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -179,6 +188,12 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
   Widget buildMobileBody({BuildContext context, S state});
   bool isLoadingState(S currentState);
 
+  /// Returns a list of UserPermissionLevels which are allowed
+  /// to access this page. If the user does not have one
+  /// of these permissions, they will be redirected to the
+  /// overview page.
+  UserPermissionSet getAcceptedPermissionLevels();
+
   FloatingActionButton buildFloatingActionButton(BuildContext context){
     return null;
   }
@@ -220,14 +235,13 @@ class UnimplementedPage extends BasePage{
 
   @override
   State<StatefulWidget> createState() {
-    return UnimplementedPageState(drawerLabel: drawerLabel);
+    return UnimplementedPageState(drawerLabel);
   }
 }
 
 class UnimplementedPageState extends BasePageState{
 
-  final String drawerLabel;
-  UnimplementedPageState({@required this.drawerLabel}):super(drawerLabel:drawerLabel);
+  UnimplementedPageState(String drawerLabel) : super(drawerLabel);
 
   @override
   Widget buildLargeDesktopBody({BuildContext context, state}) {
@@ -252,6 +266,11 @@ class UnimplementedPageState extends BasePageState{
   @override
   Bloc getBloc() {
     return null;
+  }
+
+  @override
+  UserPermissionSet getAcceptedPermissionLevels() {
+    return AllPermissionsSet();
   }
 
 }

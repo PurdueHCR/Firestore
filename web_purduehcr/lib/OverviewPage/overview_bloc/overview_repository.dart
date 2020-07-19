@@ -23,11 +23,11 @@ class OverviewRepository {
         return _getResidentOverview();
       case UserPermissionLevel.RHP:
       return _getRHPOverview();
-      case UserPermissionLevel.PRIVILEGED_USER:
+      case UserPermissionLevel.PRIVILEGED_RESIDENT:
       return _getPrivilegeResidentOverview();
       case UserPermissionLevel.PROFESSIONAL_STAFF:
       case UserPermissionLevel.FHP:
-      case UserPermissionLevel.NHAS:
+      case UserPermissionLevel.EXTERNAL_ADVISER:
       default:
         return Future.error(UnimplementedError());
     }

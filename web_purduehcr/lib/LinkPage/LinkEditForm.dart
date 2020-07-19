@@ -28,18 +28,20 @@ class _LinkEditFormState extends State<LinkEditForm>{
   LinkBloc _linkBloc;
   bool isChangingText = false;
   TextEditingController descriptionController;
-  bool isEnabled;
-  bool isSingleUse;
-  bool isArchived;
+  bool isEnabled = false;
+  bool isSingleUse = false;
+  bool isArchived = false;
   String description = "";
 
   @override
   void initState() {
     super.initState();
-    isEnabled = widget.link.enabled;
-    isSingleUse = widget.link.singleUse;
-    isArchived = widget.link.archived;
-    description = widget.link.description;
+    if(widget.link != null){
+      isEnabled = widget.link.enabled;
+      isSingleUse = widget.link.singleUse;
+      isArchived = widget.link.archived;
+      description = widget.link.description;
+    }
   }
 
   @override

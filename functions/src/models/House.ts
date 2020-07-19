@@ -2,6 +2,7 @@ import { UserWithPoints } from "./User"
 import { PointLog } from "./PointLog"
 
 export class House {
+    
 
     static COLOR = "Color"
     static NUMBER_OF_RESIDENTS = "NumberOfResidents"
@@ -19,6 +20,14 @@ export class House {
         this.totalPoints = totalPoints
         this.id = id
         this.pointsPerResident = totalPoints/numberOfResidents
+    }
+
+    firestoreJson() {
+        const data = {}
+        data[House.COLOR] = this.color
+        data[House.NUMBER_OF_RESIDENTS] = this.numberOfResidents
+        data[House.TOTAL_POINTS] = this.totalPoints
+        return data
     }
 
     /**

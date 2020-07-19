@@ -6,34 +6,24 @@ import {createResetHouseCompetitionEmail} from "../email_functions/ResetHouseCom
 import { getUnhandledPointLogs } from '../src/GetUnhandledLogs'
 import { HouseCompetition } from '../models/HouseCompetition'
 import { PointLog } from '../models/PointLog'
-import { UserPointsFromDate } from './administration'
-import { House } from '../models/House'
 import { User } from '../models/User'
 import { APIResponse } from '../models/APIResponse'
 import { getResidentProfile } from '../src/GetUserProfiles'
-import { PointType } from '../models/PointType'
 import { getUser } from '../src/GetUser'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 import { getRecentHistory, getHistoryFilterUser, getHistoryFilterPointType} from '../src/GetHistory'
-
-
-class UsersAndErrorWrapper{
-	err: any
-	userByUserId: Map<string, UserPointsFromDate>
-
-	constructor(err: any, users: Map<string, UserPointsFromDate>){
-		this.err = err
-		this.userByUserId = users
-	}
-}
+import { getSystemPreferences } from '../src/GetSystemPreferences'
+import { updateSystemPreferences } from '../src/SetSystemPreference'
+import { saveAndResetSemester } from '../src/SaveAndResetSemester'
+import {verifyOneTimeCode, generateOneTimeCode} from '../src/OTCGenerator'
+import {resetHouseCompetition} from '../src/ResetHouseCompetition'
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
 	admin.initializeApp(functions.config().firebase)
 }
 
-const db = admin.firestore()
 const comp_app = express()
 const cors = require('cors')
 const comp_main = express()
@@ -66,212 +56,271 @@ comp_app.use(firestoreTools.validateFirebaseIdToken)
 
 
 
-/**
- * Post Function that sends an email to confirm the saving of the semester points
- */
-comp_app.post('/save-semester-points', (req, res) => {
-	//Get user
-	db.collection(HouseCompetition.USERS_KEY).doc(req["user"]["user_id"]).get()
-	.then(async userDocument => {
-		if(userDocument.exists ){
-			//User exists, then make sure that permission is 2, REC/REA
-			const permissionLevel = userDocument.data()!["Permission Level"]
-			if(permissionLevel === 2){
+comp_app.get('/settings', async (req, res) => {
+	try{
+		const user = await getUser(req["user"]["user_id"])
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
+		const systemPreferences = await getSystemPreferences();
+		
+		res.status(APIResponse.SUCCESS_CODE).send({settings:systemPreferences})
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.error("Unknown Error getting competition system prefernces: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
+})
 
+comp_app.put('/settings', async (req, res) => {
+	try{
+		const competitionHiddenMessage = req.body.competitionHiddenMessage
+		const isCompetitionVisible = req.body.isCompetitionVisible
+		const isCompetitionEnabled = req.body.isCompetitionEnabled
+		const competitionDisabledMessage = req.body.competitionDisabledMessage
+		const user = await getUser(req["user"]["user_id"])
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
+		const systemPreferences = await getSystemPreferences();
+		if(competitionHiddenMessage !== undefined){
+			if(typeof competitionHiddenMessage === 'string')
+			systemPreferences.competitionDisabledMessage = competitionHiddenMessage
+			else
+				throw APIResponse.IncorrectFormat()
+		}
+		if(isCompetitionVisible !== undefined ){
+			if(typeof isCompetitionVisible === 'boolean')
+				systemPreferences.isCompetitionVisible = isCompetitionVisible
+			else
+				throw APIResponse.IncorrectFormat()
+		}
+		if(competitionDisabledMessage !== undefined){
+			if(typeof competitionDisabledMessage === 'string')
+			systemPreferences.competitionDisabledMessage = competitionDisabledMessage
+			else
+				throw APIResponse.IncorrectFormat()
+		}
+		if(isCompetitionEnabled !== undefined ){
+			if(typeof isCompetitionEnabled === 'boolean')
+				systemPreferences.isCompetitionEnabled = isCompetitionEnabled
+			else
+				throw APIResponse.IncorrectFormat()
+		}
+		await updateSystemPreferences(systemPreferences)
+		
+		throw APIResponse.Success()
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.error("Unknown Error getting competition system prefernces: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
+})
+
+
+/**
+ * Set all users in the house competition to have semester points = 0
+ */
+comp_app.post('/endSemester', async (req, res) => {
+	try{
+		const user = await getUser(req["user"]["user_id"])
+		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+
+			const systemPreferences = await getSystemPreferences()
+			if(!systemPreferences.isCompetitionEnabled){
 				//Generate random key, save it to the house system and create a link 
-				const secretKey = randomString(50)
-				const path = "https://"+req.hostname+"/competition/secret-semester-points-set?code="+secretKey
-				await db.collection(HouseCompetition.SYSTEM_PREFERENCES_KEY).doc("Preferences").update({OneTimeCode: secretKey})
+				const secretKey = generateOneTimeCode()
+				const path = "https://"+req.hostname+"/competition/confirmEndSemester?code="+secretKey
 
 				//Set the mail options
 				const mailOptions = {
-					from: 'Purdue HCR Contact <purduehcrcontact@gmail.com',
+					from: 'Purdue HCR Contact <purduehcrcontact@gmail.com>',
 					to: req["user"]["email"],
-					subject: "Set Semester Points",
+					subject: "Ending The Semester in the House Competition",
 					html: createSaveSemesterPointsEmail(path)
 				}
 
 				//Send mail
-				transporter.sendMail(mailOptions,  (erro, info) =>{
+				transporter.sendMail(mailOptions,  (erro, _info) =>{
 					if(erro){
-						//Could not send email
-						return res.status(500).send(erro)
+						console.log("Sending email error: "+erro)
+						throw APIResponse.CouldNotSendEmail()
 					}
 					else{
-						return res.status(200).send("Confirmation sent")
+						throw APIResponse.Success()
 					}
 				})
 			}
 			else{
-				//User is not an REA/REC
-				res.status(409).send("User does not have sufficient permissions to perform this action.")
+				console.error("Competition must be disabled to end the semester")
+				throw APIResponse.CompetitionMustBeDisabled()
 			}
-			
 		}
 		else{
-			//User does not have user data in the database
-			res.status(410).send("Undefined User Role")
+			//User is not an REA/REC
+			console.error("User must be Professional staff to perform this action")
+			throw APIResponse.InvalidPermissionLevel()
 		}
-	})
-	//Server error
-	.catch(err => res.status(500).send("Failed to retrieve user with error: "+ res))
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.error("Unknown Error on endSemester: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
 })
 
 /**
  * Get request This will be called from an email sent to the rec with the one time use code
  */
-comp_app.get('/secret-semester-points-set', (req, res) => {
+comp_app.get('/confirmEndSemester', async (req, res) => {
 
-	if(req.query.date === null || req.query.date === ""){
-		res.status(400).send("Include a date in the query")
+	try{
+		if(req.query.code === undefined || typeof req.query.code !== 'string' || req.query.code === ""){
+			throw APIResponse.MissingRequiredParameters()
+		}
+		verifyOneTimeCode(req.query.code)
+		const systemPreferences = await getSystemPreferences()
+		if(systemPreferences.isCompetitionEnabled){
+			throw APIResponse.CompetitionDisabled()
+		}
+		else{
+			await saveAndResetSemester()
+		}
+		throw APIResponse.Success()
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.error("Unknown Error: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
 	}
 
-	//Get user id. Check the house. Get the rank of the user
-	db.collection(HouseCompetition.SYSTEM_PREFERENCES_KEY).doc("Preferences").get()
-	.then(preferenceDocument =>{
-	//Check that the house is enabled and that the codes match
-	if(preferenceDocument.data()!.isHouseEnabled){
-		res.status(412).send("House Competition must be disabled before this is run.")
-	}
-	else if(preferenceDocument.data()!.OneTimeCode !== req.query.code){
-		res.status(400).send("Invalid Code")
-	}
-	else{
-		
-		//Get the Point Types
-		db.collection(HouseCompetition.POINT_TYPES_KEY).get()
-		.then(async pointTypeDocuments =>{
-			const pts = PointType.fromQuerySnapshot(pointTypeDocuments)
-
-			const date = new Date(Date.parse(req.query.date as string))
-			
-			//Get all the houses
-			db.collection(HouseCompetition.HOUSE_KEY).get().then(async housesSnapshot => {
-				const houses: House[] = House.fromQuerySnapshot(housesSnapshot)
-				const usersByHouse: Map<string, Map<string, UserPointsFromDate>> = new Map()
-				for( const hs of houses){
-					const uaew = await getUserPointsFromDate(hs.id, pts, date)
-					if(uaew.err !== null){
-						res.status(400).send("Failed "+ uaew.err.message.toString())
-						return
-					}
-					else{
-						usersByHouse[hs.id] = uaew.userByUserId
-					}
-					
-				}
-				const usersRef =  db.collection(HouseCompetition.USERS_KEY)
-
-				//Iterate through the residents in batches 
-				usersRef.get().then(async listOfUserSnapshots =>{
-					//Get the number of users
-					const count = listOfUserSnapshots.docs.length
-					let i = 0
-					const users = User.fromQuerySnapshot(listOfUserSnapshots)
-					//create a batch job
-					let batch = db.batch()
-					while( i < count){
-
-						//add an update to the user for the batch job
-						const ref = db.collection(HouseCompetition.USERS_KEY).doc(listOfUserSnapshots.docs[i].id)
-						const user = users[i]
-						let userNewPointsSinceDate:number = 0
-						if(user.house !== null && user.house !== "" && usersByHouse[user.house.toString()] !== null && usersByHouse[user.house.toString()][user.id.toString()] !== null){
-							userNewPointsSinceDate = usersByHouse[user.house.toString()][user.id.toString()].points
-						}
-						batch.update(ref, {LastSemesterPoints: user.totalPoints - userNewPointsSinceDate})
-						i ++
-
-						//A batch job can only update 500 objects at a time, so at 499 commit the batch, and create a new one
-						if(i === 499){
-							await batch.commit()
-							batch = db.batch()
-						}
-					}
-					//Reset the OneTimeCode on the server
-					batch.update(db.collection(HouseCompetition.SYSTEM_PREFERENCES_KEY).doc("Preferences"),{OneTimeCode: randomString(50)})
-					await batch.commit()
-					//Post completion html/ message
-					res.status(200).send("Complete")
-				}).catch(err => { res.status(500).send("Failed to get Users: "+res)})
-
-			}).catch(err => { res.status(500).send("Failed to get houses: "+res)})
-		})
-		.catch( err => res.status(500).send("Failed to get Point Types: "+res))
-				
-	}
-	})
-	.catch(err => {
-		res.status(500).send("Failed to get System Preferences"+ err)
-	})
+	
 })
 
 /**
  * Post function to send an email to reset the house competition
  */
-comp_app.post('/reset-house-competition', (req, res) => {
-	//Get user id. Check the house. Get the rank of the user
-	db.collection(HouseCompetition.USERS_KEY).doc(req["user"]["user_id"]).get()
-	.then(async userDocument => {
-		if(userDocument.exists ){
-			const permissionLevel = userDocument.data()!["Permission Level"]
-			if(permissionLevel === 2){
-				const secretKey = randomString(50)
-				const path = "https://"+req.hostname+"/competition/secret-reset-house-competition?code="+secretKey
+comp_app.post('/resetCompetition', async (req, res) => {
+	try{
+		const user = await getUser(req["user"]["user_id"])
+		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+
+			const systemPreferences = await getSystemPreferences()
+			if(!systemPreferences.isCompetitionEnabled){
+				//Generate random key, save it to the house system and create a link 
+				const secretKey = generateOneTimeCode()
+				const path = "https://"+req.hostname+"/competition/confirmResetCompetition?code="+secretKey+"&user="+user.id
 				
-				await db.collection(HouseCompetition.SYSTEM_PREFERENCES_KEY).doc("Preferences").update({OneTimeCode: secretKey})
 				const mailOptions = {
-					from: 'Purdue HCR Contact <purduehcrcontact@gmail.com',
+					from: 'Purdue HCR Contact <purduehcrcontact@gmail.com>',
 					to: req["user"]["email"],
-					subject: "Set Semester Points",
+					subject: "Resetting the House Competition",
 					html: createResetHouseCompetitionEmail(path)
 				}
-				transporter.sendMail(mailOptions,  (erro, info) =>{
+				//Send mail
+				transporter.sendMail(mailOptions,  (erro, _info) =>{
 					if(erro){
-						return res.status(500).send(erro)
+						console.log("Sending email error: "+erro)
+						throw APIResponse.CouldNotSendEmail()
 					}
 					else{
-						return res.status(200).send("Confirmation sent")
+						throw APIResponse.Success()
 					}
 				})
 			}
 			else{
-				res.status(409).send("User does not have sufficient permissions to perform this action.")
+				console.error("Competition must be disabled to end the semester")
+				throw APIResponse.CompetitionMustBeDisabled()
 			}
-			
 		}
 		else{
-			res.status(410).send("Undefined User Role")
+			//User is not an REA/REC
+			console.error("User must be Professional staff to perform this action")
+			throw APIResponse.InvalidPermissionLevel()
 		}
-	})
-	.catch(err => res.status(500).send("Failed to retrieve user with error: "+ res))
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.error("Unknown Error on endSemester: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
 })
 
 /**
  * Get request the button in the reset house competition email will call this function
  */
-comp_app.get('/secret-reset-house-competition', (req,res) => {
-	db.collection(HouseCompetition.SYSTEM_PREFERENCES_KEY).doc("Preferences").get()
-				.then(preferenceDocument =>{
-					//Check that the house competition is still disabled
-					if(preferenceDocument.data()!.isHouseEnabled){
-						res.status(412).send("House Competition must be disabled before this is run.")
-					}
-					else if(preferenceDocument.data()!.OneTimeCode !== req.query.code){
-						res.status(400).send("Invalid Code")
-					}
-					else{
-						//TODO Complete actual deletion
-						res.status(200).send("UNIMPLEMENTED")
-					}
-				})
-				.catch( err => res.send(500).send("Failed to retrieve system preferences with error: "+res))
+comp_app.get('/confirmResetCompetition', async (req,res) => {
+	try{
+		if(req.query.code === undefined || typeof req.query.code !== 'string' || req.query.code === ""){
+			throw APIResponse.MissingRequiredParameters()
+		}
+		else if(req.query.user === undefined || typeof req.query.user !== 'string' || req.query.user === ""){
+			throw APIResponse.MissingRequiredParameters()
+		}
+		const user = await getUser(req.query.user)
+		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+			verifyOneTimeCode(req.query.code)
+			const systemPreferences = await getSystemPreferences()
+			if(systemPreferences.isCompetitionEnabled){
+				throw APIResponse.CompetitionDisabled()
+			}
+			else{
+				await resetHouseCompetition(user)
+			}
+			throw APIResponse.Success()
+		}
+		else{
+			throw APIResponse.InvalidPermissionLevel()
+		}
+		
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.error("Unknown Error: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
 })
 
+
+/**
+ * Get the unhandled points for a house
+ * @param limit - optional limit for how many to retrieve
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 500 - Server Error
+ */
 comp_app.get('/getUnhandledPoints', async (req, res) => {
 	try{
 		const user = await getUser(req["user"]["user_id"])
-		let logs
+		let logs: PointLog[]
 		if(req.query.limit !== undefined){
 			logs = await getUnhandledPointLogs(user, parseInt(req.query.limit as string))
 		}
@@ -486,82 +535,5 @@ function getHouseNameForHistory(user:User, req): string{
 		}
 	}
 	return house_name
-}
-
-
-/**
- * Generate a random string
- * 
- * @param length length of the string
- */
-function randomString(length) {
-	const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    let result = ''
-    for (let i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)]
-    return result
-}
-
-
-/**
- * Get the points that each user has scored after a date
- * 
- * @param house 
- * @param pts 
- * @param date 
- */
-function getUserPointsFromDate(house:string, pts:PointType[], date:Date){
-	const userPointsPromise = new Promise<UsersAndErrorWrapper>((resolve, reject) => {
-		
-		//Get 
-	db.collection(HouseCompetition.HOUSE_KEY).doc(house).collection('Points').where('DateSubmitted', '>', date).get()
-	.then(async pointLogSnapshot =>{
-
-		const usersFromUserID: Map<string, UserPointsFromDate> = new Map()
-		const pointLogs = PointLog.fromQuerySnapshot(pointLogSnapshot)
-		//Create new list of users
-		//iterate through all of the pointlog documents
-		for(const pl of pointLogs ){
-
-			//If the point log has been approved
-			if(pl.pointTypeId > 0){
-				//console.log("We got a point log from (" +pl.residentId+") " + pl.residentFirstName + " "+pl.residentLastName+ " With value: "+pl.pointTypeId)
-				//Iterate through the point types
-				for( const ptIterator of pts ){
-					//If the point types is found
-					if(ptIterator.id === pl.pointTypeId.toString()){
-
-						//Assigned means it hasnt been used
-						let assigned = false
-
-
-						if(usersFromUserID[pl.residentId.toString()] !== null){
-							//console.log("WE GOT ONE!!!!!: "+pl.residentFirstName + " "+pl.residentLastName)
-							assigned = true
-							usersFromUserID[pl.residentId.toString()].addLog(pl, ptIterator.value)
-						}
-
-						//If no user was found, add the user
-						if(!assigned){
-							//console.log("And a new user!!! with the name of : "+pl.residentFirstName + " "+pl.residentLastName)
-							const user = new UserPointsFromDate(pl.residentId, pl.residentFirstName, pl.residentLastName)
-							user.addLog(pl, ptIterator.value)
-							usersFromUserID[pl.residentId.toString()] =  user
-						}
-						//point type was found and given to user, so we can break out of the point type loop
-						break
-					}
-				}
-			}
-		}
-		//Resturn json object with the users
-		const uaew: UsersAndErrorWrapper = new UsersAndErrorWrapper(null, usersFromUserID)
-		resolve(uaew)
-	})
-	.catch(err => {
-		const uaew: UsersAndErrorWrapper = new UsersAndErrorWrapper(err, new Map())
-		resolve(uaew) 
-	})
-	})
-	return userPointsPromise
 }
 

@@ -17,12 +17,12 @@ class HomePage extends StatelessWidget {
     switch(user.permissionLevel){
       case UserPermissionLevel.RESIDENT:
       case UserPermissionLevel.RHP:
-      case UserPermissionLevel.PRIVILEGED_USER:
+      case UserPermissionLevel.PRIVILEGED_RESIDENT:
       return ResidentOverviewPage(linkId: linkId,);
       break;
       case UserPermissionLevel.PROFESSIONAL_STAFF:
       case UserPermissionLevel.FHP:
-      case UserPermissionLevel.NHAS:
+      case UserPermissionLevel.EXTERNAL_ADVISER:
       default:
         print("Unimplemented");
         return UnimplementedPage(drawerLabel: "Overview");
