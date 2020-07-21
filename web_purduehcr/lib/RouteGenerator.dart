@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purduehcr_web/ControlsPage/ControlsPage.dart';
 import 'package:purduehcr_web/HandlePointsPage/HandlePointsPage.dart';
 import 'package:purduehcr_web/HistoryPage/HistoryPage.dart';
 import 'package:purduehcr_web/LinkPage/LinkPage.dart';
@@ -38,6 +39,8 @@ class RouteGenerator {
                   return LinkPage();
                 case 'house_history':
                   return HistoryPage();
+                case 'controls':
+                  return ControlsPage();
                 case 'addpoints':
                   if(path.length == 3){
                     return HomePage(linkId: path[2],);

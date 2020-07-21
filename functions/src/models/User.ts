@@ -40,6 +40,12 @@ export class User {
         return this.firstName + " " + this.lastName
     }
 
+    getSemesterUpdate(){
+        const data = {}
+        data[User.SEMESTER_POINTS] = 0
+        return data
+    }
+
     /**
      * Returns true if the user is Resident, RHP, or Priv_res. So, people who can submit points and have rank
      */

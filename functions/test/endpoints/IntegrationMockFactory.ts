@@ -42,14 +42,56 @@ export function mockFirebaseAdmin(db: firebase.firestore.Firestore = getDb()){
     
         }
     })
+    mockConfig()
 }
 
 export function mockDynamicLink(){
     jest.mock('request-promise', () => jest.fn(() => {
         return Promise.resolve({shortLink:"https://this_is_a_fake_link"})
     }))
+}
+
+export function mockOTCGenerator(){
+    jest.mock('otplib', () => {
+        return {
+            authenticator: {
+                generate: (secret) => "TESTTOKEN",
+                check:(token, secret) => {
+                    console.log("Checking "+token)
+                    if(token === "TESTTOKEN"){
+                        return true
+                    }
+                    else{
+                        console.log("Invalid token")
+                        return false
+                    }
+                }
+            }
+        }
+    })
+}
+
+export function mockConfig(){
     const test = require('firebase-functions-test')()
-    test.mockConfig({ applinks: { main_app_url:"https://main_app_url/%23/", dynamic_link_url: "https://hcrpoint.page.link/", key:"keykeykeykey" }});
+    test.mockConfig(
+        { 
+            otc: { 
+            secret:"SUPERDUPERSECRET"
+            }, 
+            fb: {
+                token:"TEST"
+            },
+            applinks: { 
+                main_app_url:"https://main_app_url/%23/", 
+                dynamic_link_url: "https://hcrpoint.page.link/", 
+                key:"keykeykeykey" 
+            },
+            email_auth: {
+                user: "email",
+                pass: "password"
+            }
+        }
+    );
 }
 
 let db:firebase.firestore.Firestore
@@ -60,6 +102,7 @@ export function getDb() {
         return db
     }
     else{
+        process.env.GCLOUD_PROJECT = 'test-project'
         return firebase
             .initializeTestApp({ projectId: 'test-project', auth: { uid: "Authorization"} })
             .firestore();

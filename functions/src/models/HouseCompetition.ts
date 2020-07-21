@@ -1,4 +1,4 @@
-import { House } from "./House"
+import { HouseWithPointLog } from "./House"
 import { HouseCode } from "./Housecode"
 import { PointType } from "./PointType"
 import { Reward } from "./Reward"
@@ -19,7 +19,7 @@ export class HouseCompetition {
     static SYSTEM_PREFERENCES_DOCUMENT_KEY = "Preferences"
     static USERS_KEY = "Users"
 
-    houses: House[] = []
+    houses: HouseWithPointLog[] = []
     houseCodes: HouseCode[] = []
     links: Link[] = []
     pointTypes: PointType[] = []

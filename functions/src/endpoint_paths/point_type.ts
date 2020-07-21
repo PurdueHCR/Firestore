@@ -87,7 +87,7 @@ pt_app.get('/', async (req, res) => {
 pt_app.get('/submittable', async (req, res) => { 
 	try{
 		const system_preferences = await getSystemPreferences()
-		if(system_preferences.isHouseEnabled){
+		if(system_preferences.isCompetitionEnabled){
 			const user = await getUser(req["user"]["user_id"])
 			const user_pts = await getSubmittablePointTypes(user)
 			res.status(APIResponse.SUCCESS_CODE).send({point_types:user_pts})

@@ -9,6 +9,7 @@ import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/HistoryPage/history_bloc/history.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
 import 'package:purduehcr_web/Models/PointType.dart';
+import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:purduehcr_web/Utility_Views/LogListAndChat.dart';
@@ -17,7 +18,7 @@ import 'package:purduehcr_web/Utility_Views/PointTypeList.dart';
 class HistoryPage extends BasePage {
   @override
   State<StatefulWidget> createState() {
-    return _HistoryPageState(drawerLabel: "House History");
+    return _HistoryPageState( "House History");
   }
 }
 
@@ -31,8 +32,8 @@ class _HistoryPageState
   TextEditingController userController = TextEditingController();
   TextEditingController pointTypeController = TextEditingController();
 
-  _HistoryPageState({@required String drawerLabel})
-      : super(drawerLabel: drawerLabel);
+  _HistoryPageState(String drawerLabel) : super(drawerLabel);
+
 
   @override
   void didChangeDependencies() {
@@ -431,5 +432,10 @@ class _HistoryPageState
     setState(() {
       _selectedPointLog = pointLog;
     });
+  }
+
+  @override
+  UserPermissionSet getAcceptedPermissionLevels() {
+    return ResidentialLifeStaffSet();
   }
 }

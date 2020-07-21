@@ -74,6 +74,14 @@ export class APIResponse{
     }
 
     /**
+     * 405 - The The provided one time code is either invalid or has expired.
+     * Epired or Invlaid one time code
+     */
+    static InvalidOneTimeCode(): APIResponse {
+        return new APIResponse(405, "The provided one time code is either invalid or has expired.")
+    }
+
+    /**
      * 406 - Link is Not Enabled
      * The Link is not enabled. It must be turned on by the owner.
      */
@@ -114,6 +122,14 @@ export class APIResponse{
     }
 
     /**
+     * 411 - Could Not Send Email
+     * There was an error sending the email
+     */
+    static CouldNotSendEmail(): APIResponse {
+        return new APIResponse(411, "Failed to send Email")
+    }
+
+    /**
      * 412 - House Competition Is Disabled
      * House Competition is disabled so the request may not be completed at this time
      */
@@ -127,6 +143,14 @@ export class APIResponse{
      */
     static UnknownPointLog(): APIResponse {
         return new APIResponse(413, "Unkown PointLog")
+    }
+
+    /**
+     * 414 - House Competition Must Be Disabled
+     * The House Competition must be disabled to perform this action
+     */
+    static CompetitionMustBeDisabled(): APIResponse {
+        return new APIResponse(414, "The House Competition must be disabled to perform this action")
     }
 
     /**

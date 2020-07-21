@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:purduehcr_web/BasePage.dart';
 import 'package:purduehcr_web/Models/House.dart';
 import 'package:purduehcr_web/Models/User.dart';
+import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/OverviewPage/overview_bloc/overview.dart';
 import 'package:purduehcr_web/OverviewPage/overview_cards/HouseCompetitionCard.dart';
 import 'package:purduehcr_web/OverviewPage/overview_cards/ProfileCard.dart';
@@ -23,7 +24,7 @@ class ResidentOverviewPage extends BasePage {
   @override
   State<StatefulWidget> createState() {
     print("Create State Resident Overview Page");
-    return _ResidentOverviewPageState(drawerLabel: "Overview", linkId: linkId);
+    return _ResidentOverviewPageState( "Overview", linkId: linkId);
   }
 
 }
@@ -33,7 +34,7 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
   OverviewBloc _overviewBloc;
   String linkId;
 
-  _ResidentOverviewPageState({@required String drawerLabel, this.linkId}):super(drawerLabel:drawerLabel);
+  _ResidentOverviewPageState(String drawerLabel, {this.linkId}):super(drawerLabel);
 
   @override
   void initState() {
@@ -168,5 +169,10 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
         }
       });
     }
+  }
+
+  @override
+  UserPermissionSet getAcceptedPermissionLevels() {
+    return CompetitionParticipantsSet();
   }
 }
