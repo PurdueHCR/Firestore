@@ -21,7 +21,6 @@ export class HouseCompetition {
     static USERS_KEY = "Users"
 
     events: Event[] = []
-    houses: House[] = []
     houses: HouseWithPointLog[] = []
     houseCodes: HouseCode[] = []
     links: Link[] = []
