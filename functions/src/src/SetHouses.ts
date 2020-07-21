@@ -22,7 +22,7 @@ export async function setHouses(houses:House[]){
 export async function setHouse(house:House){
     const db = admin.firestore()
     try{
-        await db.collection(HouseCompetition.POINT_TYPES_KEY).doc(house.id.toString()).set(house.firestoreJson())
+        await db.collection(HouseCompetition.HOUSE_KEY).doc(house.id.toString()).set(house.firestoreJson())
     }
     catch (err) {
         console.error("Error setting pointType. " + err)

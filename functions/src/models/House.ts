@@ -51,7 +51,7 @@ export class House {
         return houses
     }
 
-    private static fromData(document: FirebaseFirestore.DocumentData, doc_id: string): House{
+    protected static fromData(document: FirebaseFirestore.DocumentData, doc_id: string): House{
         let color: string
         let numberOfResidents: number
         let totalPoints: number
@@ -99,4 +99,17 @@ export class HouseWithUser extends House {
     addUser(pl:PointLog){
         this.users.push(pl.createUser())
     }
+}
+
+export class HouseWithPointLog extends House{
+    pointLogs: PointLog[] = []
+
+    static fromQuerySnapshot(snapshot: FirebaseFirestore.QuerySnapshot): HouseWithPointLog[]{
+        const houses: HouseWithPointLog[] = []
+        for(const document of snapshot.docs){
+            houses.push(this.fromData(document.data(), document.id) as HouseWithPointLog)
+        }
+        return houses
+    }
+
 }

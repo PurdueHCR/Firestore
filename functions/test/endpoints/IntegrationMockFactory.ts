@@ -52,6 +52,29 @@ export function mockDynamicLink(){
     test.mockConfig({ applinks: { main_app_url:"https://main_app_url/%23/", dynamic_link_url: "https://hcrpoint.page.link/", key:"keykeykeykey" }});
 }
 
+export function mockOTCGenerator(){
+    jest.mock('otplib', () => {
+        return {
+            authenticator: {
+                generate: (secret) => "TESTTOKEN",
+                check:(token, secret) => {
+                    console.log("Checking "+token)
+                    if(token === "TESTTOKEN"){
+                        return true
+                    }
+                    else{
+                        console.log("Invalid token")
+                        return false
+                    }
+                }
+            }
+        }
+    })
+
+    const test = require('firebase-functions-test')()
+    test.mockConfig({ otc: { secret:"SUPERDUPERSECRET"}, fb: {token:"TEST"}});
+}
+
 let db:firebase.firestore.Firestore
 
 // Helper function to setup the test db instance
@@ -60,6 +83,7 @@ export function getDb() {
         return db
     }
     else{
+        process.env.GCLOUD_PROJECT = 'test-project'
         return firebase
             .initializeTestApp({ projectId: 'test-project', auth: { uid: "Authorization"} })
             .firestore();

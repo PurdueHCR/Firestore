@@ -42,10 +42,7 @@ export const competition_main = functions.https.onRequest(comp_main)
 //Setup the Sending Email Control
 const transporter = nodemailer.createTransport({
 	service: 'gmail',
-	auth: {
-		user: 'purduehcrcontact@gmail.com',
-		pass: 'Honors1!'
-	}
+	auth: require("../../development_keys/email_auth.json")
 })
 
 //setup Cors for cross site requests
@@ -55,7 +52,13 @@ comp_app.use(firestoreTools.flutterReformat)
 comp_app.use(firestoreTools.validateFirebaseIdToken)
 
 
-
+/**
+ * Get the System Preferences 
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permission
+ * @throws 500 - Server Error
+ */
 comp_app.get('/settings', async (req, res) => {
 	try{
 		const user = await getUser(req["user"]["user_id"])
@@ -76,24 +79,44 @@ comp_app.get('/settings', async (req, res) => {
 	}
 })
 
+/**
+ * Update the System Preferences 
+ * @params req.body.competitionHiddenMessage - string
+ * @params req.body.isCompetitionVisible - bool
+ * @params req.body.competitionDisabledMessage - string
+ * @params req.body.isCompetitionEnabled - bool
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permission
+ * @throws 422 - Missing Required Parameters
+ * @throws 426 - Incorrect Format
+ * @throws 500 - Server Error
+ */
 comp_app.put('/settings', async (req, res) => {
 	try{
+		if(req.body === undefined || 
+			(req.body.competitionHiddenMessage === undefined && !("isCompetitionVisible" in req.body) && req.body.competitionDisabledMessage === undefined && !("isCompetitionEnabled" in req.body)))
+			throw APIResponse.MissingRequiredParameters()
+
 		const competitionHiddenMessage = req.body.competitionHiddenMessage
-		const isCompetitionVisible = req.body.isCompetitionVisible
-		const isCompetitionEnabled = req.body.isCompetitionEnabled
 		const competitionDisabledMessage = req.body.competitionDisabledMessage
 		const user = await getUser(req["user"]["user_id"])
 		verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
 		const systemPreferences = await getSystemPreferences();
+		
 		if(competitionHiddenMessage !== undefined){
 			if(typeof competitionHiddenMessage === 'string')
-			systemPreferences.competitionDisabledMessage = competitionHiddenMessage
+			systemPreferences.competitionHiddenMessage = competitionHiddenMessage
 			else
 				throw APIResponse.IncorrectFormat()
 		}
-		if(isCompetitionVisible !== undefined ){
-			if(typeof isCompetitionVisible === 'boolean')
-				systemPreferences.isCompetitionVisible = isCompetitionVisible
+		if("isCompetitionVisible" in req.body){
+			console.log(typeof req.body.isCompetitionVisible)
+			if(req.body.isCompetitionVisible === 'false' || req.body.isCompetitionVisible === 'true')
+				systemPreferences.isCompetitionVisible = req.body.isCompetitionVisible === 'true'
+			else if(req.body.isCompetitionVisible === true || req.body.isCompetitionVisible === false){
+				systemPreferences.isCompetitionVisible = req.body.isCompetitionVisible
+			}
 			else
 				throw APIResponse.IncorrectFormat()
 		}
@@ -103,9 +126,11 @@ comp_app.put('/settings', async (req, res) => {
 			else
 				throw APIResponse.IncorrectFormat()
 		}
-		if(isCompetitionEnabled !== undefined ){
-			if(typeof isCompetitionEnabled === 'boolean')
-				systemPreferences.isCompetitionEnabled = isCompetitionEnabled
+		if( "isCompetitionEnabled"  in req.body){
+			if(req.body.isCompetitionEnabled === 'false' || req.body.isCompetitionEnabled === 'true')
+				systemPreferences.isCompetitionEnabled = req.body.isCompetitionEnabled === 'true'
+			else if(req.body.isCompetitionEnabled === false || req.body.isCompetitionEnabled === true)
+				systemPreferences.isCompetitionEnabled = req.body.isCompetitionEnabled
 			else
 				throw APIResponse.IncorrectFormat()
 		}
@@ -127,7 +152,12 @@ comp_app.put('/settings', async (req, res) => {
 
 
 /**
- * Set all users in the house competition to have semester points = 0
+ * Request the end semester email
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permission
+ * @throws 414 - Competition must be disabled
+ * @throws 500 - Server Error
  */
 comp_app.post('/endSemester', async (req, res) => {
 	try{
@@ -148,16 +178,9 @@ comp_app.post('/endSemester', async (req, res) => {
 					html: createSaveSemesterPointsEmail(path)
 				}
 
-				//Send mail
-				transporter.sendMail(mailOptions,  (erro, _info) =>{
-					if(erro){
-						console.log("Sending email error: "+erro)
-						throw APIResponse.CouldNotSendEmail()
-					}
-					else{
-						throw APIResponse.Success()
-					}
-				})
+				await transporter.sendMail(mailOptions)
+				throw APIResponse.Success()
+
 			}
 			else{
 				console.error("Competition must be disabled to end the semester")
@@ -183,7 +206,7 @@ comp_app.post('/endSemester', async (req, res) => {
 })
 
 /**
- * Get request This will be called from an email sent to the rec with the one time use code
+ * Confirm the end semester. Must be called through the /endSemester endpoint
  */
 comp_app.get('/confirmEndSemester', async (req, res) => {
 
@@ -216,7 +239,12 @@ comp_app.get('/confirmEndSemester', async (req, res) => {
 })
 
 /**
- * Post function to send an email to reset the house competition
+ * Request the reset competition email
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permission
+ * @throws 414 - Competition must be disabled
+ * @throws 500 - Server Error
  */
 comp_app.post('/resetCompetition', async (req, res) => {
 	try{
@@ -235,16 +263,8 @@ comp_app.post('/resetCompetition', async (req, res) => {
 					subject: "Resetting the House Competition",
 					html: createResetHouseCompetitionEmail(path)
 				}
-				//Send mail
-				transporter.sendMail(mailOptions,  (erro, _info) =>{
-					if(erro){
-						console.log("Sending email error: "+erro)
-						throw APIResponse.CouldNotSendEmail()
-					}
-					else{
-						throw APIResponse.Success()
-					}
-				})
+				await transporter.sendMail(mailOptions)
+				throw APIResponse.Success()
 			}
 			else{
 				console.error("Competition must be disabled to end the semester")
@@ -270,7 +290,7 @@ comp_app.post('/resetCompetition', async (req, res) => {
 })
 
 /**
- * Get request the button in the reset house competition email will call this function
+ * Confirm the reset competition. Must be called through the /resetCompetition endpoint
  */
 comp_app.get('/confirmResetCompetition', async (req,res) => {
 	try{
@@ -285,7 +305,7 @@ comp_app.get('/confirmResetCompetition', async (req,res) => {
 			verifyOneTimeCode(req.query.code)
 			const systemPreferences = await getSystemPreferences()
 			if(systemPreferences.isCompetitionEnabled){
-				throw APIResponse.CompetitionDisabled()
+				throw APIResponse.CompetitionMustBeDisabled()
 			}
 			else{
 				await resetHouseCompetition(user)
