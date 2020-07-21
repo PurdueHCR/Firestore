@@ -29,7 +29,7 @@ export class PointType{
             this.value = value;
     }
 
-    firebaseJson(){
+    firestoreJson(){
         const data = {}
         data[PointType.DESCRIPTION] = this.description
         data[PointType.ENABLED] = this.enabled
