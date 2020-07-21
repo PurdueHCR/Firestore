@@ -41,10 +41,10 @@ export const competition_main = functions.https.onRequest(comp_main)
 
 let auth: any
 if(functions.config().email_auth === undefined){
-	auth = functions.config().email_auth
+	auth = require("../../development_keys/email_auth.json")
 }
 else{
-	auth = require("../../development_keys/email_auth.json")
+	auth = functions.config().email_auth
 }
 //Setup the Sending Email Control
 const transporter = nodemailer.createTransport({
