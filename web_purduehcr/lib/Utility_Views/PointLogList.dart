@@ -96,11 +96,6 @@ class PointLogListTile extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    print("First name: "+pointLog.residentFirstName);
-    print("Description: "+pointLog.description);
-    print("WAs handled: "+pointLog.pointTypeId.toString());
-    print("Date "+pointLog.dateOccurred.toString());
-
     return ListTile(
       onTap: () => onTap(context, pointLog),
       title: Text(pointLog.residentFirstName),

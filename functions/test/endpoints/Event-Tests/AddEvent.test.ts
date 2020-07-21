@@ -3,6 +3,7 @@ import * as firebase from "@firebase/testing"
 import * as IntegrationMockFactory from '../IntegrationMockFactory'
 import * as request from 'supertest'
 import { FirestoreDataFactory } from '../FirestoreDataFactory'
+import { POINT_TYPE_DEFAULTS } from '../../OptionDeclarations'
 
 let add_event_func
 let db: firebase.firestore.Firestore
@@ -39,7 +40,9 @@ describe('event/add', () => {
         await FirestoreDataFactory.setUser(db, FACULTY, 3)
         await FirestoreDataFactory.setUser(db, PRIV_RES, 4)
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
-        
+        await FirestoreDataFactory.setPointType(db, 1, POINT_TYPE_DEFAULTS)
+        await FirestoreDataFactory.setPointType(db, 2, {residents_can_submit:false})
+        await FirestoreDataFactory.setPointType(db, 3, {is_enabled:false})
         await FirestoreDataFactory.setHouse(db, HOUSE_NAME)
         await FirestoreDataFactory.setHouseCode(db, HOUSE_CODE)
     })
@@ -71,8 +74,6 @@ describe('event/add', () => {
             "location": "test location",
             "points": "5",
             "point_type_id":"1",
-            "point_type_name":"test type name",
-            "point_type_description":"test type description",
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -94,8 +95,6 @@ describe('event/add', () => {
             "location": "test location",
             "points": "5",
             "point_type_id":"1",
-            "point_type_name":"test type name",
-            "point_type_description":"test type description",
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -117,8 +116,6 @@ describe('event/add', () => {
             "location": "test location",
             "points": "5",
             "point_type_id":"1",
-            "point_type_name":"test type name",
-            "point_type_description":"test type description",
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -140,8 +137,6 @@ describe('event/add', () => {
             "date": "January 1, 2100",
             "points": "5",
             "point_type_id":"1",
-            "point_type_name":"test type name",
-            "point_type_description":"test type description",
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -163,8 +158,6 @@ describe('event/add', () => {
             "date": "January 1, 2100",
             "location": "test location",
             "point_type_id":"1",
-            "point_type_name":"test type name",
-            "point_type_description":"test type description",
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -186,9 +179,7 @@ describe('event/add', () => {
             "date": "January 1, 2100",
             "location": "test location",
             "points": "5",
-            "point_type_id":"1",
-            "point_type_name":"test type name",
-            "point_type_description":"test type description"
+            "point_type_id":"1"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
         res.end(function (err, res) {
@@ -209,8 +200,6 @@ describe('event/add', () => {
             "date": "January 1, 2100",
             "location": "test location",
             "points": "5",
-            "point_type_name":"test type name",
-            "point_type_description":"test type description",
             "house":"test_house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -224,47 +213,45 @@ describe('event/add', () => {
         })
     })
 
-    // Test if no point_type_name
-    it('Missing point_type_id', async(done) => {
-        const body = {
-            "name": "test event",
-            "details": "test details",
-            "date": "January 1, 2100",
-            "location": "test location",
-            "points": "5",
-            "point_type_id":"1",
-            "point_type_description":"test type description",
-            "house":"test_house"
-          }
+    // Test unsubmittable point type
+    it('Test unsubmittable point type', async(done) => {
+        let body = createDefaultEventBody()
+        body['point_type_id'] = 2
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
         res.end(function (err, res) {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(422)
+                expect(res.status).toBe(430)
                 done()
             }
         })
     })
 
-    // Test if no point_type_description
-    it('Missing point_type_description', async(done) => {
-        const body = {
-            "name": "test event",
-            "details": "test details",
-            "date": "January 1, 2100",
-            "location": "test location",
-            "points": "5",
-            "point_type_id":"1",
-            "point_type_name":"test type name",
-            "house":"test_house"
-          }
+    // Test disabled point type
+    it('Test disabled point type', async(done) => {
+        let body = createDefaultEventBody()
+        body['point_type_id'] = 3
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
         res.end(function (err, res) {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(422)
+                expect(res.status).toBe(418)
+                done()
+            }
+        })
+    })
+
+    // Test competition disabled
+    it('Test competition disabled', async(done) => {
+        await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled:false})
+        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, createDefaultEventBody(), RHP_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(412)
                 done()
             }
         })
@@ -290,7 +277,7 @@ describe('event/add', () => {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(201)
+                expect(res.status).toBe(200)
 
                 let doc = await db.collection("Events").where('Name','==','test event').limit(1).get()
                 expect(doc.docs[0]).toBeDefined()
@@ -316,7 +303,7 @@ describe('event/add', () => {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(201)
+                expect(res.status).toBe(200)
 
                 let doc = await db.collection("Events").where('Name','==','test event').limit(1).get()
                 expect(doc.docs[0]).toBeDefined()
@@ -342,7 +329,7 @@ describe('event/add', () => {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(201)
+                expect(res.status).toBe(200)
 
                 let doc = await db.collection("Events").where('Name','==','test event').limit(1).get()
                 expect(doc.docs[0]).toBeDefined()
@@ -368,7 +355,7 @@ describe('event/add', () => {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(201)
+                expect(res.status).toBe(200)
 
                 let doc = await db.collection("Events").where('Name','==','test event').limit(1).get()
                 expect(doc.docs[0]).toBeDefined()
@@ -394,7 +381,7 @@ describe('event/add', () => {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(201)
+                expect(res.status).toBe(200)
 
                 let doc = await db.collection("Events").where('Name','==','test event').limit(1).get()
                 expect(doc.docs[0]).toBeDefined()
@@ -427,6 +414,5 @@ describe('event/add', () => {
 
 function createDefaultEventBody() {
         return {"name":"test event", "details":"test details", "date":"January 1, 2100", "location":"test location",
-                "points":5, "point_type_id":1, "point_type_name":"test type name",
-                "point_type_description":"test type description", "house":"test house"}
+                "points":5, "point_type_id":1, "house":"test house"}
     }

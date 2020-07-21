@@ -5,6 +5,8 @@ import { APIResponse } from '../models/APIResponse'
 import { addEvent } from '../src/AddEvent'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { getUser } from '../src/GetUser'
+import { getPointTypeById } from '../src/GetPointTypeById'
+import { getSystemPreferences } from '../src/GetSystemPreferences'
 
 // Made sure that the app is only initialized one time
 if (admin.apps.length == 0) {
@@ -35,13 +37,15 @@ events_app.use(firestoreTools.validateFirebaseIdToken)
  * @param location event location string
  * @param points number of points for attending the event
  * @param point_type_id id of the PointType associated with the event
- * @param point_type_name name of the PointType associated with the event
- * @param point_type_description description of the PointType associated with the event
  * @param house house name for attending event
  * 
  * @throws 403 - Invalid Permission Level
+ * @throws 412 - Competition Disabled
+ * @throws 417 - Unknown Point Type
+ * @throws 418 - Point Type Is Disabled
  * @throws 422 - Missing Required Parameters
  * @throws 424 - Date Not In Range
+ * @throws 430 - Insufficient Permission Level For Create a Link with that Point Type
  * @throws 500 - Server Error
  */
 events_app.post('/add', async (req, res) => {
@@ -49,7 +53,6 @@ events_app.post('/add', async (req, res) => {
     if (!req.body || !req.body.name || req.body.name === "" || !req.body.details || req.body.details === ""
         || !req.body.date || req.body.date === "" || !req.body.location || req.body.location === ""
         || !req.body.points || req.body.points === "" || !req.body.point_type_id || req.body.point_type_id === ""
-        || !req.body.point_type_name || req.body.point_type_name === "" || !req.body.point_type_description
         ||req.body.point_type_description === "" || !req.body.house || req.body.house === "") {
             if (!req.body) {
                 console.error("Missing Body")
@@ -72,12 +75,6 @@ events_app.post('/add', async (req, res) => {
             else if (!req.body.point_type_id || req.body.point_type_id === "") {
                 console.error("Missing point_type_id")
             }
-            else if (!req.body.point_type_name || req.body.point_type_name === "") {
-                console.error("Missing point_type_name")
-            }
-            else if (!req.body.point_type_description || req.body.point_type_description === "") {
-                console.error("Missing point_type_description")
-            }
             else if (!req.body.house || req.body.house === "") {
                 console.error("Missing house")
             }
@@ -85,9 +82,26 @@ events_app.post('/add', async (req, res) => {
             res.status(error.code).send(error.toJson())
     } else {
         try {
+            const system_preferences = await getSystemPreferences()
+		    if(!system_preferences.isHouseEnabled) {
+                const error = APIResponse.CompetitionDisabled()
+                res.status(error.code).send(error.toJson())
+                return
+            }
             let user = await getUser(req["user"]["user_id"])
             if (user.permissionLevel === UserPermissionLevel.RESIDENT) {
                 const error = APIResponse.InvalidPermissionLevel()
+                res.status(error.code).send(error.toJson())
+                return
+            }
+            let type = await getPointTypeById(req.body.point_type_id)
+            if (!type.residentCanSubmit) {
+                const error = APIResponse.InsufficientPointTypePermissionForLink()
+                res.status(error.code).send(error.toJson())
+                return
+            }
+            if (!type.enabled) {
+                const error = APIResponse.PointTypeDisabled()
                 res.status(error.code).send(error.toJson())
                 return
             }
@@ -99,16 +113,9 @@ events_app.post('/add', async (req, res) => {
                 const error = APIResponse.DateNotInRange()
                 res.status(error.code).send(error.toJson())
             }
-            const didAddEvent = await addEvent(req.body.name, req.body.details, event_date,
-                req.body.location, parseInt(req.body.points), req.body.point_type_id, req.body.point_type_name,
-                req.body.point_type_description, req.body.house, user.id)
-            const success = APIResponse.Success()
-            if (didAddEvent) {
-                res.status(201).send(success.toJson())
-            }
-            else {
-                res.status(202).send(success.toJson())
-            }
+            await addEvent(req.body.name, req.body.details, event_date,
+                req.body.location, parseInt(req.body.points), type, req.body.house, user.id)
+            res.status(200).send(APIResponse.Success())
         } catch (error) {
             console.error("FAILED WITH ERROR: " + error.toString())
             if (error instanceof TypeError) {
@@ -123,6 +130,4 @@ events_app.post('/add', async (req, res) => {
             }
         }
     }
-
-    // Check that user is not resident in the next page
 })
