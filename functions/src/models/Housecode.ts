@@ -25,6 +25,16 @@ export class HouseCode {
         this.permissionLevel = permissionLevel
     }
 
+    firestoreJson(){
+        const data = {}
+        data[HouseCode.CODE] = this.code
+        data[HouseCode.CODE_NAME] = this.codeName
+        data[HouseCode.FLOOR_ID] = this.floorId
+        data[HouseCode.HOUSE] = this.house
+        data[HouseCode.PERMISSION_LEVEL] = this.permissionLevel
+        return data
+    }
+
     static fromDocument(document: FirebaseFirestore.DocumentSnapshot): HouseCode {
         return this.fromData(document.id, document.data()!)
     }

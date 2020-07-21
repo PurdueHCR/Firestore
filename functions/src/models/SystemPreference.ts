@@ -1,41 +1,63 @@
 export class SystemPreference {
 
     static ANDROID_VERSION = "Android_Version"
-    static ONE_TIME_CODE = "OneTimeCode"
-    static HOUSE_ENABLED_MESSAGE = "houseEnabledMessage"
+    static COMPETITION_DISABLED_MESSAGE = "houseEnabledMessage"
+    static COMPETITION_HIDDEN_MESSAGE = "competitionHiddenMessage"
     static IOS_VERSION = "iOS_Version"
-    static IS_HOUSE_ENABLED = "isHouseEnabled"
+    static IS_COMPETITION_ENABLED = "isHouseEnabled"
     static IS_COMPETITION_VISIBLE = "isCompetitionVisible"
     static SUGGESTED_POINT_IDS = "suggestedPointIDs"
 
-    id: String
-    androidVersion: String
-    oneTimeCode: String
-    houseEnabledMessage: String
-    iosVersion: String
-    isHouseEnabled: Boolean
-    suggestedPointIds: String
+    id: string
+    androidVersion: string
+    competitionDisabledMessage: string
+    competitionHiddenMessage: string
+    iosVersion: string
+    isCompetitionEnabled: Boolean
+    suggestedPointIds: string
     isCompetitionVisible: Boolean
 
-    constructor(id:String, androidVersion: String, oneTimeCode: String, houseEnabledMessage: String, iosVersion: String, isHouseEnabled: Boolean, suggestedPointIds: String, isCompetitionVisible: Boolean){
+    constructor(id:string, androidVersion: string,  competitionDisabledMessage: string, iosVersion: string, competitionHiddenMessage:string, isCompetitionEnabled: Boolean, suggestedPointIds: string, isCompetitionVisible: Boolean){
         this.id = id
         this.androidVersion = androidVersion
-        this.oneTimeCode = oneTimeCode
-        this.houseEnabledMessage = houseEnabledMessage
+        this.competitionDisabledMessage = competitionDisabledMessage
+        this.competitionHiddenMessage = competitionHiddenMessage
         this.iosVersion = iosVersion
-        this.isHouseEnabled = isHouseEnabled
+        this.isCompetitionEnabled = isCompetitionEnabled
         this.suggestedPointIds = suggestedPointIds
         this.isCompetitionVisible = isCompetitionVisible
     }
 
+    updateFirebaseJson(){
+        const data= {}
+        data[SystemPreference.COMPETITION_DISABLED_MESSAGE] = this.competitionDisabledMessage
+        data[SystemPreference.COMPETITION_HIDDEN_MESSAGE] = this.competitionHiddenMessage
+        data[SystemPreference.IS_COMPETITION_ENABLED] = this.isCompetitionEnabled
+        data[SystemPreference.IS_COMPETITION_VISIBLE] = this.isCompetitionVisible
+        return data
+    }
+
+    firebaseJson(){
+        const data= {}
+        data[SystemPreference.ANDROID_VERSION] = this.androidVersion
+        data[SystemPreference.COMPETITION_DISABLED_MESSAGE] = this.competitionDisabledMessage
+        data[SystemPreference.COMPETITION_HIDDEN_MESSAGE] = this.competitionHiddenMessage
+        data[SystemPreference.IOS_VERSION] = this.iosVersion
+        data[SystemPreference.IS_COMPETITION_ENABLED] = this.isCompetitionEnabled
+        data[SystemPreference.IS_COMPETITION_VISIBLE] = this.isCompetitionVisible
+        data[SystemPreference.SUGGESTED_POINT_IDS] = this.suggestedPointIds
+        return data
+    }
+
     static fromDocument(document: FirebaseFirestore.DocumentSnapshot): SystemPreference{
-        let id: String
-        let androidVersion: String
-        let oneTimeCode: String
-        let houseEnabledMessage: String
-        let iosVersion: String
-        let isHouseEnabled: Boolean
-        let suggestedPointIds: String
+        let id: string
+        let androidVersion: string
+        // let oneTimeCode: string
+        let competitionDisabledMessage: string
+        let competitionHiddenMessage: string
+        let iosVersion: string
+        let isCompetitionEnabled: Boolean
+        let suggestedPointIds: string
         let isCompetitionVisible: Boolean
         id = document.id;
 
@@ -46,18 +68,18 @@ export class SystemPreference {
             androidVersion = ""
         }
 
-        if( SystemPreference.ONE_TIME_CODE in document.data()!){
-            oneTimeCode = document.data()![SystemPreference.ONE_TIME_CODE];
+        if( SystemPreference.COMPETITION_HIDDEN_MESSAGE in document.data()!){
+            competitionHiddenMessage = document.data()![SystemPreference.COMPETITION_HIDDEN_MESSAGE];
         }
         else{
-            oneTimeCode = ""
+            competitionHiddenMessage = ""
         }
 
-        if( SystemPreference.HOUSE_ENABLED_MESSAGE in document.data()!){
-            houseEnabledMessage = document.data()![SystemPreference.HOUSE_ENABLED_MESSAGE];
+        if( SystemPreference.COMPETITION_DISABLED_MESSAGE in document.data()!){
+            competitionDisabledMessage = document.data()![SystemPreference.COMPETITION_DISABLED_MESSAGE];
         }
         else{
-            houseEnabledMessage = ""
+            competitionDisabledMessage = ""
         }
 
         if( SystemPreference.IOS_VERSION in document.data()!){
@@ -67,11 +89,11 @@ export class SystemPreference {
             iosVersion = ""
         }
 
-        if( SystemPreference.IS_HOUSE_ENABLED in document.data()!){
-            isHouseEnabled = document.data()![SystemPreference.IS_HOUSE_ENABLED];
+        if( SystemPreference.IS_COMPETITION_ENABLED in document.data()!){
+            isCompetitionEnabled = document.data()![SystemPreference.IS_COMPETITION_ENABLED];
         }
         else{
-            isHouseEnabled = false
+            isCompetitionEnabled = false
         }
 
         if( SystemPreference.IS_COMPETITION_VISIBLE in document.data()!){
@@ -87,8 +109,6 @@ export class SystemPreference {
         else{
             suggestedPointIds = "";
         }
-        return new SystemPreference(id, androidVersion, oneTimeCode, houseEnabledMessage, iosVersion, isHouseEnabled, suggestedPointIds, isCompetitionVisible);
+        return new SystemPreference(id, androidVersion, competitionDisabledMessage, iosVersion, competitionHiddenMessage, isCompetitionEnabled, suggestedPointIds, isCompetitionVisible);
     }
-
-
 }

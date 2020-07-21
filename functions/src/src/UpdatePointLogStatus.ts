@@ -28,7 +28,7 @@ const REJECTED_STRING = "DENIED: "
 export async function updatePointLogStatus(approve: boolean, approver_id: string, document_id: string, rejectionMessage?:string): Promise<boolean> {
     
     const system_preferences = await getSystemPreferences()
-    if (!system_preferences.isHouseEnabled) {
+    if (!system_preferences.isCompetitionEnabled) {
         return Promise.reject(APIResponse.CompetitionDisabled())
     }
 

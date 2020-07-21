@@ -1,4 +1,4 @@
-import { House } from "./House"
+import { HouseWithPointLog } from "./House"
 import { HouseCode } from "./Housecode"
 import { PointType } from "./PointType"
 import { Reward } from "./Reward"
@@ -22,6 +22,7 @@ export class HouseCompetition {
 
     events: Event[] = []
     houses: House[] = []
+    houses: HouseWithPointLog[] = []
     houseCodes: HouseCode[] = []
     links: Link[] = []
     pointTypes: PointType[] = []

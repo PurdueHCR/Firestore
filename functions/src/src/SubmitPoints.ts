@@ -30,7 +30,7 @@ import { User } from '../models/User'
 export async function submitPoint(user: User, log: UnsubmittedPointLog, documentId?: string | null, overrideResidentsCanSubmit:boolean = false): Promise<Boolean>{
 	const db = admin.firestore()
 	const systemPreferences = await getSystemPreferences()
-	if (systemPreferences.isHouseEnabled) {
+	if (systemPreferences.isCompetitionEnabled) {
 		// Not sure if this try catch is the best way to check the promise returned from checking the PointType
 		try {
 			const pointType = await getPointTypeById(log.pointTypeId)

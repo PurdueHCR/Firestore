@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
+import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/MyPointsPage/my_points_bloc/my_points.dart';
 import 'package:purduehcr_web/Utility_Views/PointLogChat/PointLogChat.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
@@ -15,7 +16,7 @@ import 'my_points_bloc/my_points_bloc.dart';
 class MyPointsPage extends BasePage {
   @override
   State<StatefulWidget> createState() {
-    return _MyPointsPageState(drawerLabel: "My Points");
+    return _MyPointsPageState( "My Points");
   }
 }
 
@@ -24,7 +25,8 @@ class _MyPointsPageState extends BasePageState<MyPointsBloc, MyPointsEvent, MyPo
   MyPointsBloc _myPointsBloc;
   PointLog _selectedPointLog;
 
-  _MyPointsPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
+  _MyPointsPageState(String drawerLabel) : super(drawerLabel);
+
 
   @override
   void didChangeDependencies() {
@@ -126,5 +128,10 @@ class _MyPointsPageState extends BasePageState<MyPointsBloc, MyPointsEvent, MyPo
     setState(() {
       _selectedPointLog = pointLog;
     });
+  }
+
+  @override
+  UserPermissionSet getAcceptedPermissionLevels() {
+    return CompetitionParticipantsSet();
   }
 }

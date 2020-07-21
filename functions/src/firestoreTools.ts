@@ -21,7 +21,7 @@ const validateFirebaseIdToken = async (req, res , next) => {
   		return
 	}
 
-	if(req.path === '/secret-reset-house-competition'){
+	if(req.path === '/confirmResetCompetition'){
     	next()
   		return
 	}

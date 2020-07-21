@@ -7,6 +7,7 @@ import 'package:purduehcr_web/LinkPage/LinkCreationForm.dart';
 import 'package:purduehcr_web/LinkPage/LinkEditForm.dart';
 import 'package:purduehcr_web/LinkPage/link_bloc/link.dart';
 import 'package:purduehcr_web/Models/Link.dart';
+import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/Utility_Views/LinkList.dart';
 
@@ -15,7 +16,7 @@ import '../Config.dart';
 class LinkPage extends BasePage{
   @override
   State<StatefulWidget> createState() {
-    return _LinkPageState(drawerLabel: "Links");
+    return _LinkPageState( "Links");
   }
 
 }
@@ -25,7 +26,8 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
   LinkBloc _linkBloc;
   Link _selectedLink;
 
-  _LinkPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
+  _LinkPageState(String drawerLabel) : super(drawerLabel);
+
 
   @override
   void didChangeDependencies() {
@@ -157,7 +159,6 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
   }
 
   _onUpdate(Link link){
-    print("Updating Link!");
     _linkBloc.add(UpdateLink(link: link));
 
   }
@@ -235,6 +236,11 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
       });
 
     }
+  }
+
+  @override
+  UserPermissionSet getAcceptedPermissionLevels() {
+    return ActivityPlannerSet();
   }
 
 }

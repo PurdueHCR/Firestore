@@ -29,6 +29,17 @@ export class PointType{
             this.value = value;
     }
 
+    firebaseJson(){
+        const data = {}
+        data[PointType.DESCRIPTION] = this.description
+        data[PointType.ENABLED] = this.enabled
+        data[PointType.NAME] = this.name
+        data[PointType.PERMISSION_LEVEL] = this.permissionLevel
+        data[PointType.RESIDENTS_CAN_SUBMIT] = this.residentCanSubmit
+        data[PointType.VALUE] = this.value
+        return data
+    }
+
     static fromQuerySnapshot(snapshot: FirebaseFirestore.QuerySnapshot): PointType[]{
         const types: PointType[] = []
         for( const document of snapshot.docs){
