@@ -5,6 +5,7 @@ import { APIResponse } from '../models/APIResponse'
 import { addEvent } from '../src/AddEvent'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { getUser } from '../src/GetUser'
+import { getEvents } from '../src/GetEvents'
 
 // Made sure that the app is only initialized one time
 if (admin.apps.length == 0) {
@@ -125,4 +126,30 @@ events_app.post('/add', async (req, res) => {
     }
 
     // Check that user is not resident in the next page
+})
+
+/**
+ * Get all events available to the user
+ * 
+ * @throws 500 - Server Error
+ */
+events_app.post('/get', async (req, res) => {
+
+    try {
+        const user = await getUser(req["user"]["user_id"])
+        const events = await getEvents(user)
+        res.status(APIResponse.SUCCESS_CODE).send(events.toJson())
+    } catch (error) {
+        console.error("FAILED WITH ERROR: " + error.toString())
+        if (error instanceof TypeError) {
+            const apiResponse = APIResponse.InvalidDateFormat()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+        else if (error instanceof APIResponse) {
+            res.status(error.code).send(error.toJson())
+        } else {
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+    }
 })
