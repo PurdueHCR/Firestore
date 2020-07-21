@@ -442,7 +442,10 @@ class _ControlsPageState extends BasePageState{
             "Sorry. There was a problem updating the settings. Please try again."),
       );
       WidgetsBinding.instance
-          .addPostFrameCallback((_) => Scaffold.of(context).showSnackBar(snackBar));
+          .addPostFrameCallback((_) {
+        Scaffold.of(context).showSnackBar(snackBar);
+        _controlBloc.add(ControlHandledMessage());
+      });
 
     }
     else if (state is ControlEmailError) {
@@ -452,7 +455,10 @@ class _ControlsPageState extends BasePageState{
             '${state.message}'),
       );
       WidgetsBinding.instance
-          .addPostFrameCallback((_) => Scaffold.of(context).showSnackBar(snackBar));
+          .addPostFrameCallback((_) {
+        Scaffold.of(context).showSnackBar(snackBar);
+        _controlBloc.add(ControlHandledMessage());
+      });
     }
   }
 }

@@ -42,14 +42,13 @@ export function mockFirebaseAdmin(db: firebase.firestore.Firestore = getDb()){
     
         }
     })
+    mockConfig()
 }
 
 export function mockDynamicLink(){
     jest.mock('request-promise', () => jest.fn(() => {
         return Promise.resolve({shortLink:"https://this_is_a_fake_link"})
     }))
-    const test = require('firebase-functions-test')()
-    test.mockConfig({ applinks: { main_app_url:"https://main_app_url/%23/", dynamic_link_url: "https://hcrpoint.page.link/", key:"keykeykeykey" }});
 }
 
 export function mockOTCGenerator(){
@@ -70,9 +69,29 @@ export function mockOTCGenerator(){
             }
         }
     })
+}
 
+export function mockConfig(){
     const test = require('firebase-functions-test')()
-    test.mockConfig({ otc: { secret:"SUPERDUPERSECRET"}, fb: {token:"TEST"}});
+    test.mockConfig(
+        { 
+            otc: { 
+            secret:"SUPERDUPERSECRET"
+            }, 
+            fb: {
+                token:"TEST"
+            },
+            applinks: { 
+                main_app_url:"https://main_app_url/%23/", 
+                dynamic_link_url: "https://hcrpoint.page.link/", 
+                key:"keykeykeykey" 
+            },
+            email_auth: {
+                user: "email",
+                pass: "password"
+            }
+        }
+    );
 }
 
 let db:firebase.firestore.Firestore

@@ -11,6 +11,11 @@ class ControlInitialize extends ControlEvent {
   List<Object> get props => [];
 }
 
+class ControlHandledMessage extends ControlEvent {
+  const ControlHandledMessage();
+  @override
+  List<Object> get props => [];
+}
 
 class UpdateSettings extends ControlEvent {
   final bool isCompetitionEnabled;

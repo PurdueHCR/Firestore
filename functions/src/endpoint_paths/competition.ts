@@ -39,11 +39,19 @@ comp_app.use(express.urlencoded({ extended: false }))
 // competition_main is the object to be exported. export this in index.ts
 export const competition_main = functions.https.onRequest(comp_main)
 
+let auth: any
+if(functions.config().email_auth === undefined){
+	auth = functions.config().email_auth
+}
+else{
+	auth = require("../../development_keys/email_auth.json")
+}
 //Setup the Sending Email Control
 const transporter = nodemailer.createTransport({
 	service: 'gmail',
-	auth: require("../../development_keys/email_auth.json")
+	auth: auth
 })
+
 
 //setup Cors for cross site requests
 comp_app.use(cors({origin:true}))
