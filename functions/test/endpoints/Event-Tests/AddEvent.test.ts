@@ -72,8 +72,7 @@ describe('event/add', () => {
             "details": "test details",
             "date": "January 1, 2100",
             "location": "test location",
-            "points": "5",
-            "point_type_id":"1",
+            "point_type_id":1,
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -93,8 +92,7 @@ describe('event/add', () => {
             "name": "test event",
             "date": "January 1, 2100",
             "location": "test location",
-            "points": "5",
-            "point_type_id":"1",
+            "point_type_id":1,
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -114,8 +112,7 @@ describe('event/add', () => {
             "name": "test event",
             "details": "test details",
             "location": "test location",
-            "points": "5",
-            "point_type_id":"1",
+            "point_type_id":1,
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -135,29 +132,7 @@ describe('event/add', () => {
             "name": "test event",
             "details": "test details",
             "date": "January 1, 2100",
-            "points": "5",
-            "point_type_id":"1",
-            "house": "test house"
-          }
-        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
-        res.end(function (err, res) {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.status).toBe(422)
-                done()
-            }
-        })
-    })
-
-    // Test if no points provided
-    it('Missing points', async(done) => {
-        const body = {
-            "name": "test event",
-            "details": "test details",
-            "date": "January 1, 2100",
-            "location": "test location",
-            "point_type_id":"1",
+            "point_type_id":1,
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -178,8 +153,7 @@ describe('event/add', () => {
             "details": "test details",
             "date": "January 1, 2100",
             "location": "test location",
-            "points": "5",
-            "point_type_id":"1"
+            "point_type_id":1
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
         res.end(function (err, res) {
@@ -199,7 +173,6 @@ describe('event/add', () => {
             "details": "test details",
             "date": "January 1, 2100",
             "location": "test location",
-            "points": "5",
             "house":"test_house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -413,6 +386,6 @@ describe('event/add', () => {
  */
 
 function createDefaultEventBody() {
-        return {"name":"test event", "details":"test details", "date":"January 1, 2100", "location":"test location",
-                "points":5, "point_type_id":1, "house":"test house"}
+        return {"name":"test event", "details":"test details", "date":"January 1, 2100",
+                "location":"test location", "point_type_id":1, "house":"test house"}
     }

@@ -7,6 +7,7 @@ import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { getUser } from '../src/GetUser'
 import { getPointTypeById } from '../src/GetPointTypeById'
 import { getSystemPreferences } from '../src/GetSystemPreferences'
+import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 
 // Made sure that the app is only initialized one time
 if (admin.apps.length == 0) {
@@ -52,8 +53,7 @@ events_app.post('/add', async (req, res) => {
     
     if (!req.body || !req.body.name || req.body.name === "" || !req.body.details || req.body.details === ""
         || !req.body.date || req.body.date === "" || !req.body.location || req.body.location === ""
-        || !req.body.points || req.body.points === "" || !req.body.point_type_id || req.body.point_type_id === ""
-        ||req.body.point_type_description === "" || !req.body.house || req.body.house === "") {
+        || !req.body.point_type_id || req.body.point_type_id === "" || !req.body.house || req.body.house === "") {
             if (!req.body) {
                 console.error("Missing Body")
             }
@@ -68,9 +68,6 @@ events_app.post('/add', async (req, res) => {
             }
             else if (!req.body.location || req.body.location === "") {
                 console.error("Missing location")
-            }
-            else if (!req.body.points || req.body.points === "") {
-                console.error("Missing points")
             }
             else if (!req.body.point_type_id || req.body.point_type_id === "") {
                 console.error("Missing point_type_id")
@@ -89,11 +86,9 @@ events_app.post('/add', async (req, res) => {
                 return
             }
             let user = await getUser(req["user"]["user_id"])
-            if (user.permissionLevel === UserPermissionLevel.RESIDENT) {
-                const error = APIResponse.InvalidPermissionLevel()
-                res.status(error.code).send(error.toJson())
-                return
-            }
+            let valid_users = [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.EXTERNAL_ADVISOR,
+                                UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.FACULTY]
+            verifyUserHasCorrectPermission(user, valid_users)
             let type = await getPointTypeById(req.body.point_type_id)
             if (!type.residentCanSubmit) {
                 const error = APIResponse.InsufficientPointTypePermissionForLink()
@@ -114,7 +109,7 @@ events_app.post('/add', async (req, res) => {
                 res.status(error.code).send(error.toJson())
             }
             await addEvent(req.body.name, req.body.details, event_date,
-                req.body.location, parseInt(req.body.points), type, req.body.house, user.id)
+                req.body.location, type, req.body.house, user.id)
             res.status(200).send(APIResponse.Success())
         } catch (error) {
             console.error("FAILED WITH ERROR: " + error.toString())
