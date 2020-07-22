@@ -22,7 +22,7 @@ export async function setPointTypes(types:PointType[]){
 export async function setPointType(type:PointType){
     const db = admin.firestore()
     try{
-        await db.collection(HouseCompetition.POINT_TYPES_KEY).doc(type.id.toString()).set(type.firebaseJson())
+        await db.collection(HouseCompetition.POINT_TYPES_KEY).doc(type.id.toString()).set(type.firestoreJson())
     }
     catch (err) {
         console.error("Error setting pointType. " + err)

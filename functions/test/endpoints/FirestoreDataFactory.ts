@@ -321,7 +321,7 @@ export class FirestoreDataFactory{
      * @param collectionPath Path to collection
      * @param batchSize max number to delete in batch
      */
-    private static async deleteCollection(db, collectionPath, batchSize) {
+    static async deleteCollection(db, collectionPath, batchSize) {
         const collectionRef = db.collection(collectionPath);
         const query = collectionRef.orderBy('__name__').limit(batchSize);
       

@@ -160,7 +160,6 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
 
   _onUpdate(Link link){
     _linkBloc.add(UpdateLink(link: link));
-
   }
 
   @override
