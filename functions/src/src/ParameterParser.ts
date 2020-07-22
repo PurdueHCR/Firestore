@@ -8,11 +8,9 @@ import {APIResponse} from '../models/APIResponse'
  */
 export function parseInputForString(arg:any): string {
     if(arg === undefined || arg === null ){
-        console.log("Missing string parameter")
         throw APIResponse.MissingRequiredParameters()
     }
     else if(typeof arg !== 'string' || arg === ""){
-        console.error("field must be a non empty string")
         throw APIResponse.IncorrectFormat()
     }
     else{
@@ -48,19 +46,15 @@ export function parseInputForBoolean(arg:any): boolean {
  * @throws 426 - Incorrect Format
  */
 export function parseInputForNumber(arg:any, min:number = Number.MIN_SAFE_INTEGER, max:number = Number.MAX_SAFE_INTEGER): number {
-    console.log("Checking field: "+arg)
     if(arg === undefined || arg === null){
-        console.log("Undefined or null")
         throw APIResponse.MissingRequiredParameters()
     }
     else if(typeof arg === 'string'){
         const value = parseInt(arg)
         if(isNaN(value)){
-            console.log("Thats not a number.")
             throw APIResponse.IncorrectFormat()
         }
         else if( value < min || value > max){
-            console.log("Number out of range.")
             throw APIResponse.IncorrectFormat()
         }
         return value
@@ -68,13 +62,11 @@ export function parseInputForNumber(arg:any, min:number = Number.MIN_SAFE_INTEGE
     else if(typeof arg === 'number'){
         const value = arg as number
         if( value < min || value > max){
-            console.log("Number out of range.")
             throw APIResponse.IncorrectFormat()
         }
         return value
     }
     else{
-        console.log("Incorrect format for number")
         throw APIResponse.IncorrectFormat()
     }
 }

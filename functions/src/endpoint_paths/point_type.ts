@@ -113,37 +113,22 @@ pt_app.put('/', async (req, res) => {
 		const id = ParameterParser.parseInputForNumber(req.body.id)
 		const pointType = await getPointTypeById(id)
 		if("description" in req.body){
-			console.log("Checking description")
 			pointType.description = ParameterParser.parseInputForString(req.body.description)
 		}
 		if("enabled" in req.body){
-
-			console.log("Checking enabled")
 			pointType.enabled = ParameterParser.parseInputForBoolean(req.body.enabled)
 		}
 		if("name" in req.body){
-			console.log("Checking name")
 			pointType.name = ParameterParser.parseInputForString(req.body.name)
 		}
 		if("residentsCanSubmit" in req.body){
-			console.log("Checking residentsCanSubmit")
 			pointType.residentsCanSubmit = ParameterParser.parseInputForBoolean(req.body.residentsCanSubmit)
 		}
 		if("permissionLevel" in req.body){
-			console.log("Checking permissionlevle")
-			const level = ParameterParser.parseInputForNumber(req.body.permissionLevel)
-			if(level >= 1 && level <= 3)
-				pointType.permissionLevel = level
-			else
-				throw APIResponse.IncorrectFormat()
+			pointType.permissionLevel = ParameterParser.parseInputForNumber(req.body.permissionLevel,1,3)
 		}
 		if("value" in req.body){
-			console.log("Checking value")
-			const value = ParameterParser.parseInputForNumber(req.body.value)
-			if(value >= 1)
-				pointType.value = value
-			else
-				throw APIResponse.IncorrectFormat()
+			pointType.value = ParameterParser.parseInputForNumber(req.body.value, 1)
 		}
 
 		await updatePointType(pointType)
