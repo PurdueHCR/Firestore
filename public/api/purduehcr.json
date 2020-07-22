@@ -1452,6 +1452,214 @@
             }
           }
         }
+      },
+      "put" : {
+        "tags": [ "point_type"],
+        "summary": "Route for professional staff to update a point type",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to update a point type. Id is the only required parameters",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PointType"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses": {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "417" : {
+            "description" : "The Id provided for the point type was not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDoesNotExist"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "An id must be provided as well as at least one of the other parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags": [ "point_type"],
+        "summary": "Route for professional staff to create a point type",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to update a point type. ",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PointTypeWithoutId"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses": {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointType"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "An id must be provided as well as at least one of the other parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/point_type/submittable": {
@@ -1573,97 +1781,6 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/point_type/update" : {
-      "put" : {
-        "tags" : [ "point_type" ],
-        "summary" : "Update a Point Type",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "requestBody" : {
-          "description" : "Body sent to update the Point Type. Only id is required. The other parameters are optional.",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/PointType"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Success"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permission Level -  Only Professional Staf can edit point types",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "426" : {
-            "description" : "One or more fields provided were in an invalid format to save in the database",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidDataFormat"
                 }
               }
             }
@@ -2189,27 +2306,56 @@
             "type" : "string",
             "example" : "5"
           },
-          "Description" : {
+          "description" : {
             "type" : "string",
             "example" : "Attend a House Dinner"
           },
-          "Enabled" : {
+          "enabled" : {
             "type" : "boolean",
             "example" : true
           },
-          "Name" : {
+          "name" : {
             "type" : "string",
             "example" : "House Dinner"
           },
-          "PermissionLevel" : {
+          "permissionLevel" : {
             "type" : "number",
             "example" : 1
           },
-          "ResidentsCanSubmit" : {
+          "residentsCanSubmit" : {
             "type" : "boolean",
             "example" : true
           },
-          "Value" : {
+          "value" : {
+            "type" : "number",
+            "example" : 1
+          }
+        }
+      },
+      "PointTypeWithoutId" : {
+        "type" : "object",
+        "properties" : {
+          "description" : {
+            "type" : "string",
+            "example" : "Attend a House Dinner"
+          },
+          "enabled" : {
+            "type" : "boolean",
+            "example" : true
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "House Dinner"
+          },
+          "permissionLevel" : {
+            "type" : "number",
+            "example" : 1
+          },
+          "residentsCanSubmit" : {
+            "type" : "boolean",
+            "example" : true
+          },
+          "value" : {
             "type" : "number",
             "example" : 1
           }

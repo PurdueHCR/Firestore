@@ -34,7 +34,7 @@ export async function submitPoint(user: User, log: UnsubmittedPointLog, document
 		// Not sure if this try catch is the best way to check the promise returned from checking the PointType
 		try {
 			const pointType = await getPointTypeById(log.pointTypeId)
-			if(pointType.enabled && ( overrideResidentsCanSubmit || pointType.residentCanSubmit)){
+			if(pointType.enabled && ( overrideResidentsCanSubmit || pointType.residentsCanSubmit)){
 				if(user.isParticipantInCompetition()){
 					log.updateFieldsWithUser(user)
 					log.updateFieldsWithPointType(pointType)
@@ -103,7 +103,7 @@ export async function submitPoint(user: User, log: UnsubmittedPointLog, document
 					return Promise.reject(APIResponse.InvalidPermissionLevel())
 				}
 			}
-			else if(!pointType.residentCanSubmit){
+			else if(!pointType.residentsCanSubmit){
 				return Promise.reject(APIResponse.PointTypeSelfSubmissionDisabled())
 			}
 			else {

@@ -80,7 +80,7 @@ class _ControlsPageState extends BasePageState{
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("Failed to retrieve settings")
+          Text("Failed to download settings.")
         ],
       );
     }
