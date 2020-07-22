@@ -3,6 +3,7 @@ import * as firebase from "@firebase/testing"
 import * as IntegrationMockFactory from '../IntegrationMockFactory'
 import * as request from 'supertest'
 import { FirestoreDataFactory } from '../FirestoreDataFactory'
+import { APIResponse } from '../../../src/models/APIResponse'
 
 let get_events_func
 let db: firebase.firestore.Firestore
@@ -17,7 +18,7 @@ let HOUSE_NAME_1 = "Platinum"
 let HOUSE_CODE_1 = "4N1234"
 let HOUSE_NAME_2 = "Palladium"
 let HOUSE_CODE_2 = "3N1234"
-let ADD_EVENT_PATH = "/get"
+let GET_EVENTS_PATH = "/get"
 
 // Test Suite GetEvents
 describe('event/get', () => {
@@ -34,7 +35,7 @@ describe('event/get', () => {
         get_events_func = require('../../../src/endpoint_paths/index.ts').event
     
         // Create sample data for tests
-        await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0)
+        await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0, {house_name:"Palladium"})
         await FirestoreDataFactory.setUser(db, RHP_ID, 1)
         await FirestoreDataFactory.setUser(db, REC_ID, 2)
         await FirestoreDataFactory.setUser(db, FACULTY, 3)
@@ -50,4 +51,31 @@ describe('event/get', () => {
     beforeEach(async () => {
         await FirestoreDataFactory.setSystemPreference(db)
     })
+
+    // Test if no body is provided
+    it('Missing Body', async(done) => {
+        const res: request.Test = factory.post(get_events_func, GET_EVENTS_PATH, {}, RESIDENT_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(422)
+            }
+        })
+    })
+
+    // Test if user has no events
+
+    // Test Palladium user - Resident
+
+    // Test RHP
+
+    // Test Professional Staff
+
+    // Test External Adivsors
+    
+    // Test Faculty
+
+    // Test Priviledged Residents
+
 })

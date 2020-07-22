@@ -18,21 +18,14 @@ import { APIResponse } from '../models/APIResponse'
  */
 export async function getEvents(user: User): Promise<Event[]> {
 
-    try {
-        const db = admin.firestore()
-        if (user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF) {
-            // Professional staff should see all events
-            const events = Event.fromQuerySnapshot(await db.collection(HouseCompetition.EVENTS_KEY).get())
-            console.log("These are the events", events)
-            return Promise.resolve(events)
-        } else {
-            const events = Event.fromQuerySnapshot(await db.collection(HouseCompetition.EVENTS_KEY).where('House', 'in', [user.house, "All Houses"]).get())
-            console.log("These are the events", events)
-            return Promise.resolve(events)
-        }
-    } catch (error) {
-        console.error(error)
-        return Promise.reject(APIResponse.ServerError())
+    const db = admin.firestore()
+    if (user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF) {
+        // Professional staff should see all events
+        const events = Event.fromQuerySnapshot(await db.collection(HouseCompetition.EVENTS_KEY).get())
+        return Promise.resolve(events)
+    } else {
+        const events = Event.fromQuerySnapshot(await db.collection(HouseCompetition.EVENTS_KEY).where('House', 'in', [user.house, "All Houses"]).get())
+        return Promise.resolve(events)
     }
 
 }
