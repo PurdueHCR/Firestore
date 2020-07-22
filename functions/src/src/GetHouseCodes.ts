@@ -40,3 +40,21 @@ export async function getViewableHouseCodes(user:User): Promise<HouseCode[]>{
     }
 
 }
+
+/**
+ * Get a house code with the following id
+ * @param id Id of the housecode to find
+ * @returns HouseCode with the given Id
+ * @throws 410 - House Code does not exist
+ */
+export async function getHouseCodeById(id:string): Promise<HouseCode>{
+    const db = admin.firestore()
+    const documentSnapshot = await db.collection(HouseCompetition.HOUSE_CODES_KEY).doc(id).get()
+    if(documentSnapshot.exists){
+        return HouseCode.fromDocumentSnapshot(documentSnapshot)
+    }
+    else{
+        throw APIResponse.HouseCodeDoesNotExist()
+    }
+    
+}

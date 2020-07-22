@@ -7,6 +7,7 @@ export class HouseCode {
     static FLOOR_ID = "FloorId"
     static HOUSE = "House"
     static PERMISSION_LEVEL = "PermissionLevel"
+    static DYNAMIC_LINK = "DynamicLink"
 
     id:string
     code: string
@@ -14,15 +15,17 @@ export class HouseCode {
     floorId: string
     house: string
     permissionLevel: UserPermissionLevel
+    dynamicLink: string
     
 
-    constructor(id:string, code: string, codeName: string, floorId: string, house: string, permissionLevel: UserPermissionLevel){
+    constructor(id:string, code: string, codeName: string, floorId: string, house: string, permissionLevel: UserPermissionLevel, dynamicLink:string){
         this.id = id
         this.code = code
         this.codeName = codeName
         this.floorId = floorId
         this.house = house
         this.permissionLevel = permissionLevel
+        this.dynamicLink = dynamicLink
     }
 
     firestoreJson(){
@@ -32,6 +35,14 @@ export class HouseCode {
         data[HouseCode.FLOOR_ID] = this.floorId
         data[HouseCode.HOUSE] = this.house
         data[HouseCode.PERMISSION_LEVEL] = this.permissionLevel
+        data[HouseCode.DYNAMIC_LINK] = this.dynamicLink
+        return data
+    }
+
+    getUpdateCodeFirestoreJson(){
+        const data = {}
+        data[HouseCode.CODE] = this.code
+        data[HouseCode.DYNAMIC_LINK] = this.dynamicLink
         return data
     }
 
@@ -53,6 +64,7 @@ export class HouseCode {
         let floorId: string
         let house: string
         let permissionLevel: UserPermissionLevel
+        let dynamicLink: string
         let id:string
 
         id = doc_id
@@ -61,7 +73,8 @@ export class HouseCode {
         floorId = document[HouseCode.FLOOR_ID]
         house = document[HouseCode.HOUSE]
         permissionLevel =  document[HouseCode.PERMISSION_LEVEL]
+        dynamicLink = document[HouseCode.DYNAMIC_LINK]
 
-        return new HouseCode(id, code, codeName, floorId, house, permissionLevel)
+        return new HouseCode(id, code, codeName, floorId, house, permissionLevel, dynamicLink)
     }
 }
