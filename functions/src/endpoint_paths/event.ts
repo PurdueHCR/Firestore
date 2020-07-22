@@ -80,7 +80,7 @@ events_app.post('/add', async (req, res) => {
     } else {
         try {
             const system_preferences = await getSystemPreferences()
-		    if(!system_preferences.isHouseEnabled) {
+		    if(!system_preferences.isCompetitionEnabled) {
                 const error = APIResponse.CompetitionDisabled()
                 res.status(error.code).send(error.toJson())
                 return

@@ -260,7 +260,7 @@ describe('event/add', () => {
                 expect(data.Details).toBe("test details")
                 expect(data.Date).toBeDefined()
                 expect(data.Location).toBe("test location")
-                expect(data.Points).toBe(5)
+                expect(data.Points).toBe(1)
                 expect(data.House).toBe("test house")
                 expect(data.CreatorID).toBe(RHP_ID)
 
@@ -286,7 +286,7 @@ describe('event/add', () => {
                 expect(data.Details).toBe("test details")
                 expect(data.Date).toBeDefined()
                 expect(data.Location).toBe("test location")
-                expect(data.Points).toBe(5)
+                expect(data.Points).toBe(1)
                 expect(data.House).toBe("test house")
                 expect(data.CreatorID).toBe(REC_ID)
                 
@@ -312,7 +312,7 @@ describe('event/add', () => {
                 expect(data.Details).toBe("test details")
                 expect(data.Date).toBeDefined()
                 expect(data.Location).toBe("test location")
-                expect(data.Points).toBe(5)
+                expect(data.Points).toBe(1)
                 expect(data.House).toBe("test house")
                 expect(data.CreatorID).toBe(FACULTY)
                 
@@ -338,7 +338,7 @@ describe('event/add', () => {
                 expect(data.Details).toBe("test details")
                 expect(data.Date).toBeDefined()
                 expect(data.Location).toBe("test location")
-                expect(data.Points).toBe(5)
+                expect(data.Points).toBe(1)
                 expect(data.House).toBe("test house")
                 expect(data.CreatorID).toBe(PRIV_RES)
 
@@ -364,7 +364,7 @@ describe('event/add', () => {
                 expect(data.Details).toBe("test details")
                 expect(data.Date).toBeDefined()
                 expect(data.Location).toBe("test location")
-                expect(data.Points).toBe(5)
+                expect(data.Points).toBe(1)
                 expect(data.House).toBe("test house")
                 expect(data.CreatorID).toBe(EA_ID)
 
