@@ -54,7 +54,7 @@ export async function getHouseCodeById(id:string): Promise<HouseCode>{
         return HouseCode.fromDocumentSnapshot(documentSnapshot)
     }
     else{
-        throw APIResponse.HouseCodeDoesNotExist()
+        throw APIResponse.UnknownHouseCodeId()
     }
     
 }

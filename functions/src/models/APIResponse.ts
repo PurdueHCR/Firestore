@@ -154,6 +154,14 @@ export class APIResponse{
     }
 
     /**
+     * 415 - Unknown House Code Id
+     * There is no House Code with the provided id. Make sure you use the Id field of the House Code and not the code field.
+     */
+    static UnknownHouseCodeId(): APIResponse {
+        return new APIResponse(415, "There is no House Code with the provided id. Make sure you use the Id field of the House Code and not the code field.")
+    }
+
+    /**
      * 416 - PointLog Already Handled
      * The PointLog is already in the requested approved/rejected state
      */

@@ -110,6 +110,121 @@
       }
     },
 
+    "/house_codes/refresh" : {
+      "post" : {
+        "tags" : [ "house_codes" ],
+        "summary" : "Refresh the code field in the House Code models and generate a new dynamic link for it. If provided with an id in the body, this will only refresh the token on that House Code.",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "requestBody" : {
+          "description" : "Optional field to only refresh a single House Code",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties": {
+                  "id" : {
+                    "type": "string",
+                    "example": "329opc8dahl3fh"
+                  }
+                }
+              }
+            }
+          },
+          "required" : false
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties": {
+                    "house_codes": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/HouseCode"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level to access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "415" : {
+            "description" : "The provided house code id does not match any code.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownHouseCodeId"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "The provided id was not in a supported format.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
     "/user/auth-rank" : {
       "get" : {
         "tags" : [ "user" ],
@@ -2695,6 +2810,15 @@
           "message" : {
             "type" : "string",
             "example" : "Unknown House"
+          }
+        }
+      },
+      "UnknownHouseCodeId" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "There is no House Code with the provided id. Make sure you use the Id field of the House Code and not the code field."
           }
         }
       },

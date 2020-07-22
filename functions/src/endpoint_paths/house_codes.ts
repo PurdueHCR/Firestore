@@ -72,7 +72,7 @@ house_codes_app.get("/", async( req,res) => {
  * @throws 400 - Unknown User
  * @throws 401 - Unauthorized
  * @throws 403 - Invalid Permissions
- * @throws 410 - Unknown House Code Id
+ * @throws 415 - Unknown House Code Id
  * @throws 426 - Incorrect Format
  * @throws 500 - Server Error
  */
@@ -84,6 +84,9 @@ house_codes_app.post("/refresh", async( req,res) => {
             verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.RHP])
             const id = parseInputForString(req.body.id)
             const code = await getHouseCodeById(id)
+            if(user.permissionLevel === UserPermissionLevel.RHP && code.house !== user.house){
+                throw APIResponse.InvalidPermissionLevel()
+            }
             await refreshHouseCode(code)
             res.status(APIResponse.SUCCESS_CODE).send({house_codes:[code]})
         }
