@@ -26,8 +26,90 @@
     "name" : "point_type"
   }, {
     "name" : "point_log"
+  },{
+    "name" : "house_codes"
   } ],
   "paths" : {
+
+    "/house_codes/" : {
+      "get" : {
+        "tags" : [ "house_codes" ],
+        "summary" : "Returns all house codes that is visible to the user.",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties": {
+                    "house_codes": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/HouseCode"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level to access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
     "/user/auth-rank" : {
       "get" : {
         "tags" : [ "user" ],
@@ -2118,6 +2200,31 @@
           "pointsPerResident" : {
             "type" : "number",
             "example" : 33.76
+          }
+        }
+      },
+      "HouseCode" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "example" : "4S1234"
+          },
+          "codeName" : {
+            "type" : "string",
+            "example" : "4S Resident"
+          },
+          "floorId" : {
+            "type" : "string",
+            "example" : "4S"
+          },
+          "House" : {
+            "type" : "string",
+            "example" : "Platinum"
+          },
+          "permissionLevel" : {
+            "type" : "integer",
+            "example" : 0
           }
         }
       },

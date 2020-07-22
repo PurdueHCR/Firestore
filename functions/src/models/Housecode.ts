@@ -35,12 +35,16 @@ export class HouseCode {
         return data
     }
 
-    static fromDocument(document: FirebaseFirestore.DocumentSnapshot): HouseCode {
+    static fromDocumentSnapshot(document: FirebaseFirestore.DocumentSnapshot): HouseCode {
         return this.fromData(document.id, document.data()!)
     }
 
-    static fromDocumentSnapshot(document: FirebaseFirestore.QueryDocumentSnapshot): HouseCode {
-        return this.fromData(document.id, document.data())
+    static fromQuerySnapshot(snapshot: FirebaseFirestore.QuerySnapshot): HouseCode[] {
+        const codes: HouseCode[] = []
+        for(const document of snapshot.docs){
+            codes.push(this.fromData(document.id, document.data() ))
+        }
+        return codes
     }
 
     private static fromData(doc_id: string, document: FirebaseFirestore.DocumentData):  HouseCode {

@@ -40,12 +40,17 @@ admin_app.use(cors({origin:true}));
 admin_app.use(firestoreTools.flutterReformat)
 admin_app.use(firestoreTools.validateFirebaseIdToken);
 
+let auth: any
+if(functions.config().email_auth === undefined){
+	auth = require("../../development_keys/email_auth.json")
+}
+else{
+	auth = functions.config().email_auth
+}
+//Setup the Sending Email Control
 const transporter = nodemailer.createTransport({
 	service: 'gmail',
-	auth: {
-		user: 'purduehcrcontact@gmail.com',
-		pass: 'Honors1!'
-	}
+	auth: auth
 })
 
 
