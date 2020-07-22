@@ -9,6 +9,7 @@ let get_events_func
 let db: firebase.firestore.Firestore
 
 let RESIDENT_ID = "RESIDENT"
+let PALLADIUM_RESIDENT_ID = "PALLADIUM_RESIDENT"
 let REC_ID = "REC"
 let RHP_ID = "RHP"
 let PRIV_RES = "PRIV_RES"
@@ -35,7 +36,8 @@ describe('event/get', () => {
         get_events_func = require('../../../src/endpoint_paths/index.ts').event
     
         // Create sample data for tests
-        await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0, {house_name:"Palladium"})
+        await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0)
+        await FirestoreDataFactory.setUser(db, PALLADIUM_RESIDENT_ID, 0, {house_name:"Palladium"})
         await FirestoreDataFactory.setUser(db, RHP_ID, 1)
         await FirestoreDataFactory.setUser(db, REC_ID, 2)
         await FirestoreDataFactory.setUser(db, FACULTY, 3)
@@ -64,9 +66,9 @@ describe('event/get', () => {
         })
     })
 
-    // Test if user has no events
+    // Test Palladium Resident
 
-    // Test Palladium user - Resident
+    // Test Resident
 
     // Test RHP
 

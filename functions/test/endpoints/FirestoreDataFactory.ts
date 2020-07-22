@@ -268,6 +268,23 @@ export class FirestoreDataFactory{
         })
     }
 
+    /**
+     * 
+     * @param db 
+     * @param creator_id
+     * @param eOpts 
+     */
+    static setEvent(db: firebase.firestore.Firestore, creator_id: string, eOpts:Options.EventOptions = Options.EVENT_DEFAULTS): Promise<firebase.firestore.DocumentReference> {
+        
+    }
+
+    /**
+     * Run this after events test to clean events
+     * @param db Test App Firestore instance
+     */
+    static async cleanEvents(db: firebase.firestore.Firestore) {
+        await FirestoreDataFactory.deleteCollection(db, "Events", 1)
+    }
 
     static async getCompetitionPointsStatus(db: firebase.firestore.Firestore, house:string, user_id:string): Promise<CompetitionPointStatus> {
         const user_doc = await db.collection("Users").doc(user_id).get()
@@ -304,14 +321,6 @@ export class FirestoreDataFactory{
         await FirestoreDataFactory.deleteCollection(db, "PointTypes",100)
         await FirestoreDataFactory.deleteCollection(db, "Rewards",100)
         await FirestoreDataFactory.deleteCollection(db, "Users",100)
-    }
-
-    /**
-     * Run this after events test to clean events
-     * @param db Test App Firestore instance
-     */
-    static async cleanEvents(db: firebase.firestore.Firestore) {
-        await FirestoreDataFactory.deleteCollection(db, "Events", 1)
     }
 
 
