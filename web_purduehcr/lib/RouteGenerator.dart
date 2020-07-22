@@ -14,6 +14,8 @@ import 'package:purduehcr_web/TokenTestPage/TokenTestPage.dart';
 
 import 'package:purduehcr_web/authentication/authentication.dart';
 
+import 'PointTypesPage/PointTypesPage.dart';
+
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final args = settings.arguments;
@@ -41,6 +43,8 @@ class RouteGenerator {
                   return HistoryPage();
                 case 'controls':
                   return ControlsPage();
+                case 'point_type_controls':
+                  return PointTypesControlPage();
                 case 'addpoints':
                   if(path.length == 3){
                     return HomePage(linkId: path[2],);

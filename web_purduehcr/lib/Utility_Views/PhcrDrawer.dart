@@ -12,10 +12,11 @@ const _DrawerOptions HISTORY = _DrawerOptions("House History","/house_history",I
 const _DrawerOptions TOKEN = _DrawerOptions("Token","/token",Icon(Icons.add));
 const _DrawerOptions LINKS = _DrawerOptions("Links", "/links", Icon(Icons.link));
 const _DrawerOptions CONTROLS = _DrawerOptions("Controls", "/controls", Icon(Icons.build));
+const _DrawerOptions POINT_TYPE_CONTROLS = _DrawerOptions("Point Categories", "/point_type_controls", Icon(Icons.list));
 
 const List<_DrawerOptions> RESIDENT_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, TOKEN];
 const List<_DrawerOptions> RHP_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, HANDLE_POINTS, LINKS, HISTORY];
-const List<_DrawerOptions> PROFESSIONAL_STAFF_LIST = [OVERVIEW, LINKS, HISTORY,CONTROLS];
+const List<_DrawerOptions> PROFESSIONAL_STAFF_LIST = [OVERVIEW, LINKS, HISTORY, POINT_TYPE_CONTROLS, CONTROLS];
 const List<_DrawerOptions> FHP_LIST = [OVERVIEW, LINKS];
 const List<_DrawerOptions> PRIVILEGED_USER_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, LINKS];
 const List<_DrawerOptions> EA_LIST = [OVERVIEW, LINKS];

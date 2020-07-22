@@ -127,7 +127,7 @@ pt_app.put('/', async (req, res) => {
 		}
 		if("residentsCanSubmit" in req.body){
 			console.log("Checking residentsCanSubmit")
-			pointType.residentCanSubmit = ParameterParser.parseInputForBoolean(req.body.residentsCanSubmit)
+			pointType.residentsCanSubmit = ParameterParser.parseInputForBoolean(req.body.residentsCanSubmit)
 		}
 		if("permissionLevel" in req.body){
 			console.log("Checking permissionlevle")
@@ -220,8 +220,10 @@ pt_app.post('/', async (req, res) => {
 			const value = ParameterParser.parseInputForNumber(req.body.value, 1)
 
 
-			await createPointType(description, enabled, name, residentCanSubmit, level, value)
-			throw APIResponse.Success()
+			
+			const type = await createPointType(description, enabled, name, residentCanSubmit, level, value)
+			res.status(APIResponse.SUCCESS_CODE).send({point_type: type})
+			
 		}
 
 	}

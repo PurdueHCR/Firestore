@@ -18,7 +18,7 @@ export async function getSubmittablePointTypes(user:User) : Promise<PointType[]>
 			try {
 				const pts = await getPointTypes()
 				pts.forEach((point_type) =>{
-					if (point_type.enabled && point_type.residentCanSubmit){
+					if (point_type.enabled && point_type.residentsCanSubmit){
 						user_pts.push(point_type)
 					}
 				})

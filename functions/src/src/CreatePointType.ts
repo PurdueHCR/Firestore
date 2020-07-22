@@ -12,7 +12,7 @@ import { PointType } from '../models/PointType'
  * @param level 
  * @param value 
  */
-export async function createPointType(description:string, enabled:boolean, name:string, residentsCanSubmit:boolean, level:number, value:number) {
+export async function createPointType(description:string, enabled:boolean, name:string, residentsCanSubmit:boolean, level:number, value:number): Promise<PointType> {
 
     const db = admin.firestore()
     const pointTypes = PointType.fromQuerySnapshot(await db.collection(HouseCompetition.POINT_TYPES_KEY).get())
@@ -24,8 +24,8 @@ export async function createPointType(description:string, enabled:boolean, name:
     else{
         id = (parseInt(pointTypes[pointTypes.length - 1].id) + 1).toString()
     }
-    console.log("USE ID: "+id)
     const pointType = new PointType(id,description,enabled, name, level, residentsCanSubmit, value)
     await db.collection(HouseCompetition.POINT_TYPES_KEY).doc(id).set(pointType.firestoreJson())
-
+    pointType.id = id
+    return pointType
 }
