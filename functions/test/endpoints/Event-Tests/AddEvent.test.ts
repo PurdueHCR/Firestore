@@ -3,7 +3,6 @@ import * as firebase from "@firebase/testing"
 import * as IntegrationMockFactory from '../IntegrationMockFactory'
 import * as request from 'supertest'
 import { FirestoreDataFactory } from '../FirestoreDataFactory'
-import { POINT_TYPE_DEFAULTS } from '../../OptionDeclarations'
 
 let add_event_func
 let db: firebase.firestore.Firestore
@@ -40,9 +39,9 @@ describe('event/add', () => {
         await FirestoreDataFactory.setUser(db, FACULTY, 3)
         await FirestoreDataFactory.setUser(db, PRIV_RES, 4)
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
-        await FirestoreDataFactory.setPointType(db, 1, POINT_TYPE_DEFAULTS)
-        await FirestoreDataFactory.setPointType(db, 2, {residents_can_submit:false})
-        await FirestoreDataFactory.setPointType(db, 3, {is_enabled:false})
+        await FirestoreDataFactory.setPointType(db, 1, {permission_level:3})
+        await FirestoreDataFactory.setPointType(db, 2, {residents_can_submit:false, permission_level:1})
+        await FirestoreDataFactory.setPointType(db, 3, {is_enabled:false, permission_level:3})
         await FirestoreDataFactory.setHouse(db, HOUSE_NAME)
         await FirestoreDataFactory.setHouseCode(db, HOUSE_CODE)
     })
@@ -186,8 +185,8 @@ describe('event/add', () => {
         })
     })
 
-    // Test unsubmittable point type
-    it('Test unsubmittable point type', async(done) => {
+    // Test incorrect permission point type for RHP
+    it('Test incorrect permission point type for RHP', async(done) => {
         let body = createDefaultEventBody()
         body['point_type_id'] = 2
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)

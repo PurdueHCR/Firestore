@@ -90,7 +90,7 @@ events_app.post('/add', async (req, res) => {
                                 UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.FACULTY]
             verifyUserHasCorrectPermission(user, valid_users)
             let type = await getPointTypeById(req.body.point_type_id)
-            if (!type.residentCanSubmit) {
+            if (!type.canUserGenerateLinks(user.permissionLevel)) {
                 const error = APIResponse.InsufficientPointTypePermissionForLink()
                 res.status(error.code).send(error.toJson())
                 return
