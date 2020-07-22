@@ -37,7 +37,7 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
       _linkBloc = new LinkBloc(config: config);
       _linkBloc.add(LinkInitialize());
     }
-  }
+}
 
   @override
   Widget buildMobileBody({BuildContext context, LinkState state}) {
