@@ -130,7 +130,7 @@ describe('POST house_codes/refresh', () =>{
     })
 
     it('Test Prof staff refreshes them all', async (done) => {
-        const res = factory.post(house_codes_func, ENDPOINT, {}, PROF_ID)
+        const res = factory.post(house_codes_func, ENDPOINT, null, PROF_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)

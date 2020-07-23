@@ -99,6 +99,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
                         title: Text("Purdue HCR"),
                         automaticallyImplyLeading: false,
                         leading: buildLeadingButton(DisplayType.desktop_large),
+                        actions: buildActions(DisplayType.desktop_large),
                       ),
                       Expanded(
                           child: child
@@ -140,6 +141,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
                         title: Text("Purdue HCR"),
                         automaticallyImplyLeading: false,
                         leading: buildLeadingButton(DisplayType.desktop_small),
+                        actions: buildActions(DisplayType.desktop_small),
                       ),
                       Expanded(
                           child: child
@@ -173,6 +175,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
             appBar: AppBar(
               title: Text("Purdue HCR"),
               leading: buildLeadingButton(DisplayType.mobile),
+              actions: buildActions(DisplayType.mobile),
             ),
             drawer: PhcrDrawer(this.drawerLabel),
             body: child,
@@ -226,6 +229,9 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
     return null;
   }
 
+  List<Widget> buildActions(DisplayType displayType){
+    return null;
+  }
 
 }
 

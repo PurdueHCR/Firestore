@@ -13,7 +13,7 @@ import { UserPermissionLevel, getUserPermissionLevelAsString } from '../models/U
  */
 export async function makeDynamicLinkForLink(link:Link): Promise<string> {
     let applinks
-    if(functions.config().applinks.key === undefined || functions.config().applinks.key === ""){
+    if(functions.config().applinks === undefined || functions.config().applinks.key === ""){
         applinks = require('../../development_keys/dynamic_link_keys.json')
     }
     else{
@@ -57,7 +57,7 @@ export async function makeDynamicLinkForLink(link:Link): Promise<string> {
 
 export async function makeDynamicLinkForHouseCode(houseCode:HouseCode){
     let applinks
-    if(functions.config().applinks.key === undefined || functions.config().applinks.key === ""){
+    if(functions.config().applinks === undefined || functions.config().applinks.key === ""){
         applinks = require('../../development_keys/dynamic_link_keys.json')
     }
     else{

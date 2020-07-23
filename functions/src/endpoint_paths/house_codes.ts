@@ -47,7 +47,10 @@ house_codes_app.get("/", async( req,res) => {
         const codes = await getViewableHouseCodes(user)
         codes.sort((a,b) => {
             if(a.permissionLevel === b.permissionLevel){
-                return (a.floorId >= b.floorId)?1:-1
+                if(a.permissionLevel === 0 || a.permissionLevel === 1 || a.permissionLevel === 4)
+                    return (a.floorId >= b.floorId)?1:-1
+                else 
+                    return a.codeName >= b.codeName ? 1: -1
             }
             else {
                 return a.permissionLevel - b.permissionLevel
@@ -79,7 +82,7 @@ house_codes_app.get("/", async( req,res) => {
 house_codes_app.post("/refresh", async( req,res) => {
     try{
 
-        if( "id" in req.body){
+        if( req.body !== undefined && "id" in req.body){
             const user = await getUser(req["user"]["user_id"])
             verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.RHP])
             const id = parseInputForString(req.body.id)
