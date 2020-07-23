@@ -16,6 +16,14 @@ export class Reward {
         this.requiredValue = requiredValue
     }
 
+    firestoreJson(){
+        const data = {}
+        data[Reward.FILE_NAME] = this.fileName
+        data[Reward.REQUIRED_PPR] = this.requiredPPR
+        data[Reward.REQUIRED_VALUE] = this.requiredValue
+        return data
+    }
+
     toString():String{
         return this.id+":"+this.requiredPPR.toString()
     }

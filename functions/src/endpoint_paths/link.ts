@@ -1,206 +1,188 @@
-import * as functions from 'firebase-functions';
-import * as admin from 'firebase-admin';
-import * as express from 'express';
-import {Link} from '../models/Link';
-import { HouseCompetition } from '../models/HouseCompetition';
-import { PointType } from '../models/PointType';
-import { User } from '../models/User';
+import * as functions from 'firebase-functions'
+import * as admin from 'firebase-admin'
+import * as express from 'express'
+import { APIResponse } from '../models/APIResponse'
+import { getUser } from '../src/GetUser'
+import { createLink } from '../src/CreateLink'
+import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
+import { getLinkById} from '../src/GetLinkById'
+import { UserPermissionLevel } from '../models/UserPermissionLevel'
+import { LinkUpdateOptions, updateLink } from '../src/UpdateLink'
 
 
 if(admin.apps.length === 0){
-	admin.initializeApp(functions.config().firebase);
+	admin.initializeApp(functions.config().firebase)
 }
-const db = admin.firestore();
-const links_app = express();
-const cors = require('cors');
-const links_main = express();
+const links_app = express()
+const cors = require('cors')
+const links_main = express()
 
-links_main.use(links_app);
-links_app.use(express.json());
-links_app.use(express.urlencoded({ extended: false }));
+links_main.use(links_app)
+links_app.use(express.json())
+links_app.use(express.urlencoded({ extended: false }))
 
-const firestoreTools = require('../firestoreTools');
+const firestoreTools = require('../firestoreTools')
 
-export const link_main = functions.https.onRequest(links_main);
+export const link_main = functions.https.onRequest(links_main)
 
-links_app.use(cors({origin:true}));
+links_app.use(cors({origin:true}))
 links_app.use(firestoreTools.flutterReformat)
-links_app.use(firestoreTools.validateFirebaseIdToken);
+links_app.use(firestoreTools.validateFirebaseIdToken)
 
 /**
- * Given a GET call to /link/getLink?id=XXXXXXX,
- *    use the id parameter to retrive and send that link
+ * Gets a link from an Id
+ * @query id - string id for the Link
+ * @throws 401 - Unauthorized
+ * @throws 408 - Link Doesn't Exist
+ * @throws 500 - Server Error
  */
-links_main.get('/getLink', (req, res) => {
+links_main.get('/', async (req, res) => {
 
-    if(req.query.id === null){
-        res.status(422).send("{\"message\": \"Missing required fields\"}");
+    if(!req.query.id || req.query.id === ""){
+        const error = APIResponse.MissingRequiredParameters()
+		res.status(error.code).send(error.toJson())
     }
     else{
-        db.collection(HouseCompetition.LINKS_KEY).doc(req.query.id as string).get().then(linkDoc =>{
-            if(linkDoc.exists){
-                const link = Link.fromSnapshotDocument(linkDoc);
-                res.status(200).send(link.toFirebaseJson())
+        try{
+            res.status(APIResponse.SUCCESS_CODE).send(await getLinkById(req.query.id as string))
+        }
+        catch(suberror){
+            if (suberror instanceof APIResponse){
+                res.status(suberror.code).send(suberror.toJson())
             }
-            else{
-                res.status(400).send("{\"message\": \"Could not find link\"}");
+            else {
+                console.log("FAILED WITH DB FROM link create ERROR: "+ suberror)
+                const apiResponse = APIResponse.ServerError()
+                res.status(apiResponse.code).send(apiResponse.toJson())
             }
-        })
-        .catch( err => {
-            res.status(500).send("{\"message\": \"Unknown Server Error\"}");
-        })
+        }
     }
-
-    //TODO
-    /*
-        1. Ensure that the query parameter exists
-        2. Using the value in the query parameter, get the link model in the database
-        3. Cast the document into the API Link Model
-        4. Send the document in the response
-        5. On unable to find, send 400
-        6. On server error, send 500
-    */
-
 
 })
 
 /**
- * 
+ * Creates a link model in the database
+ * @body single_use - Bool for link being single scan
+ * @body point_id - number that represents id of the Point Type
+ * @body description - string the description for the link
+ * @throws 400 - User not found
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permissions
+ * @throws 417 - Unkown Point type
+ * @throws 418 - Point Type Disabled
+ * @throws 422 - Missing Required Parameters
+ * @throws 430 - Insufficent Permissions for Point Type
+ * @throws 500 - Server Error
  */
-links_main.post('/create' ,(req, res) => {
+links_main.post('/create' ,async (req, res) => {
 
-    if(req.body["single_use"] === undefined || req.body["point_id"] === undefined || req.body["description"] === undefined){
-		res.status(422).send("{\"message\": \"Missing required parameters.\"}")
+    if(req.body["single_use"] === undefined || req.body["point_id"] === undefined || req.body["description"] === undefined || req.body["is_enabled"] === undefined){
+		const error = APIResponse.MissingRequiredParameters()
+		res.status(error.code).send(error.toJson())
     }
     else{
-        const blank_id = "";
-        const is_enabled = false;
-        const is_archived = false;
-        const user_id = req["user"]["user_id"];
-        const description = req.body["description"];
-        const point_id = parseInt(req.body["point_id"]);
-        const is_single_use = req.body["single_use"];
+        try{
+            const user_id = req["user"]["user_id"]
+            const description = req.body["description"]
+            const point_id = parseInt(req.body["point_id"])
+            const is_single_use = req.body["single_use"]
+            const is_enabled = req.body["is_enabled"]
 
-        db.collection(HouseCompetition.USERS_KEY).doc(req["user"]["user_id"]).get().then(userDoc => {
-            const user = User.fromDocumentSnapshot(userDoc);
-            db.collection(HouseCompetition.POINT_TYPES_KEY).doc(point_id.toString()).get().then(pointDoc => {
-                if(pointDoc.exists){
-                    const pointType = PointType.fromDocumentSnapshot(pointDoc);
-                    if(pointType.userCanGenerateQRCodes(user.permissionLevel)){
-                        const link = new Link(blank_id,is_archived,user_id, description, is_enabled, point_id, is_single_use);
-                        db.collection(HouseCompetition.LINKS_KEY).add(link.toFirebaseJson()).then(ref => {
-                            res.status(200).send("{\"message\": \"Success\"}");
-                        })
-                        .catch( err => {
-                            console.log("Could not create link: "+err)
-                            res.status(500).send("{\"message\": \"Unknown Server Error\"}");
-                        })
-                    }
-                    else{
-                        console.log("Invalid permissions. Point Type: "+pointType.name+", pt_permission: "+pointType.permissionLevel+", usr_permission: "+user.permissionLevel)
-                        res.status(412).send("{\"message\": \"Invalid Permission.\"}");
-                    }
-                }
-                else{
-                    console.log("Could not find Point Type Id")
-                    res.status(417).send("{\"message\": \"Could not find Point Type Id.\"}");
-                }
-                
-            })
-            .catch( err => {
-                console.log("Could not get point type: "+err)
-                res.status(500).send("{\"message\": \"Unknown Server Error\"}");
-            })
-        })
-        .catch( err => {
-            console.log("Could not get user: "+err)
-            res.status(500).send("{\"message\": \"Unknown Server Error\"}");
-        })
-
+            const user = await getUser(user_id)
+            const permissions = [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.FACULTY, UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.EXTERNAL_ADVISOR]
+            verifyUserHasCorrectPermission(user, permissions)
+            const link = await createLink(user,point_id, is_single_use, is_enabled, description)
+            res.status(APIResponse.SUCCESS_CODE).send(link)
+        }
+        catch(suberror){
+            if (suberror instanceof APIResponse){
+                res.status(suberror.code).send(suberror.toJson())
+            }
+            else {
+                console.log("FAILED WITH DB FROM link create ERROR: "+ suberror)
+                const apiResponse = APIResponse.ServerError()
+                res.status(apiResponse.code).send(apiResponse.toJson())
+            }
+        }
         
     }
 })
 
 /**
- * 
+ * Updates the link provided if the user is the owner
+ * @body link_id - stringid of the link to update
+ * @body archived - (Optional) bool for if the link is archived or not
+ * @body enabled - (Optional) bool for if the link is enabled or not
+ * @body description - (Optional) string for the description for the link
+ * @body single_use - (Optional) bool for if the link can only be scanned once
+ * @throws 401 - Unauthorized
+ * @throws 407 - Link Doesn't Belong to User
+ * @throws 408 - Link Doesn't Exist
+ * @throws 422 - Missing Required Parameters
+ * @throws 500 - Server Error
  */
-links_main.post('/update' ,(req, res) => {
-
+links_main.put('/update' ,async (req, res) => {
     //Ensure that the link id exists so that it can be updated
     if(req.body["link_id"] === undefined ){
-		res.status(422).send("{\"message\": \"Missing Link Id\"}");
+		const error = APIResponse.MissingRequiredParameters()
+		res.status(error.code).send(error.toJson())
     }
     else{
-        //Get the current data for the link. We need this to potentially update the point type
-        db.collection(HouseCompetition.LINKS_KEY).doc(req.body["link_id"]).get().then(linkDoc =>{
-            const link = Link.fromSnapshotDocument(linkDoc)
-
-            //Check to ensure that the link is owned by the updating user
-            if(link.creatorId !== req["user"]["user_id"]){
-                res.status(418).send("{\"message\": \"Link is not owned by current user.\"}")
+        let hasData = false
+        const data:LinkUpdateOptions = {}
+        if(req.body["archived"] !== undefined ){
+            console.log("Updating archived");
+            data.Archived = req.body["archived"]
+            hasData = true
+        }
+        if(req.body["enabled"] !== undefined ){
+            console.log("Updating enabled");
+            data.Enabled = req.body["enabled"]
+            hasData = true
+        }
+        if(req.body["description"] !== undefined ){
+            if(req.body["description"] === ""){
+                const error = APIResponse.IncorrectFormat()
+                res.status(error.code).send(error.toJson())
             }
             else{
-                console.log("CREATPR ID: "+link.creatorId);
-                console.log("user id: "+req["user"]["user_id"])
-                //Get the user
-                db.collection(HouseCompetition.USERS_KEY).doc(req["user"]["user_id"]).get().then(userDoc => {
-                    link.updateLinkFromData(req.body)
-
-                    const user = User.fromDocumentSnapshot(userDoc);
-                    //If the point id key exists, check permissions for point type
-                    if("point_id" in req.body){
-                        console.log("Must Update Point Id: "+req.body["point_id"])
-                        db.collection(HouseCompetition.POINT_TYPES_KEY).doc(req.body["point_id"].toString()).get().then(pointDoc => {
-                            console.log("Got From Point Id")
-                            if(pointDoc.exists){
-                                console.log("Exists")
-                                const pointType = PointType.fromDocumentSnapshot(pointDoc);
-                                if(pointType.userCanGenerateQRCodes(user.permissionLevel)){
-                                    db.collection(HouseCompetition.LINKS_KEY).doc(req.body["link_id"]).set(link.toFirebaseJson()).then(ref => {
-                                        res.status(200).send("{\"message\": \"Success\"}");
-                                    })
-                                    .catch( err => {
-                                        console.log("Could not set link: "+err)
-                                        res.status(500).send("{\"message\": \"Unknown Server Error\"}");
-                                    })
-                                }
-                                else{
-                                    res.status(412).send("{\"message\": \"Invalid Permission.\"}");
-                                }
-                            }
-                            else{
-                                res.status(417).send("{\"message\": \"Could not find Point Type Id.\"}");
-                            }
-                            
-                        })
-                        .catch( err => {
-                            console.log("Could not get point type inner: "+err)
-                            res.status(500).send("{\"message\": \"Unknown Server Error\"}");
-                        })
-                    }
-                    else{
-                        console.log("We here")
-                        //User doesnt need to update point type
-                        db.collection(HouseCompetition.LINKS_KEY).doc(req.body["link_id"]).set(link.toFirebaseJson()).then(ref => {
-                            res.status(200).send("{\"message\": \"Success\"}");
-                        })
-                        .catch( err => {
-                            console.log("Could not update link after: "+err)
-                            res.status(500).send("{\"message\": \"Unknown Server Error\"}");
-                        })
-                    }
-                    
-                })
-                .catch( err => {
-                    console.log("Could not get user here: "+err)
-                    res.status(500).send("{\"message\": \"Unknown Server Error\"}");
-                })
+                console.log("Updating description");
+                data.Description = req.body["description"]
+                hasData = true
             }
-        })
-        .catch( err => {
-            console.log("Could not get link initial: "+err)
-            res.status(500).send("{\"message\": \"Unknown Server Error\"}");
-        })
+        }
+        if(req.body["singleUse"] !== undefined ){
+            console.log("Updating single_use");
+            data.SingleUse = req.body["singleUse"]
+            hasData = true
+        }
+        if(hasData){
+            try{
+                const link = await getLinkById(req.body["link_id"])
+                if(link.creatorId !== req["user"]["user_id"]){
+                    const error = APIResponse.LinkDoesntBelongToUser()
+                    res.status(error.code).send(error.toJson())
+                }
+                else{
+                    await updateLink(req.body["link_id"] as string, data)
+                    res.status(APIResponse.SUCCESS_CODE).send(APIResponse.Success().toJson())
+                }
+            }
+            catch(suberror){
+                if (suberror instanceof APIResponse){
+                    res.status(suberror.code).send(suberror.toJson())
+                }
+                else {
+                    console.log("FAILED WITH DB FROM link create ERROR: "+ suberror)
+                    const apiResponse = APIResponse.ServerError()
+                    res.status(apiResponse.code).send(apiResponse.toJson())
+                }
+            }
+        }
+        else{
+            const error = APIResponse.MissingRequiredParameters()
+		    res.status(error.code).send(error.toJson())
+        }
 
     }
         

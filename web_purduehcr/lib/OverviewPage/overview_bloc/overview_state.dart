@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:purduehcr_web/Models/House.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
@@ -26,10 +27,11 @@ class ResidentOverviewLoaded extends OverviewState {
   final List<PointLog> logs;
   final Reward reward;
   final List<House> houses;
+  final Key key;
 
-  const ResidentOverviewLoaded({@required this.rank, @required this.logs, @required this.reward, @required this.houses});
+  const ResidentOverviewLoaded({@required this.rank, @required this.logs, @required this.reward, @required this.houses, this.key});
   @override
-  List<Object> get props => [rank, logs, reward, houses];
+  List<Object> get props => [rank, logs, reward, houses, key];
 }
 
 class OverviewError extends OverviewState {

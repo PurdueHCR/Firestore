@@ -24,6 +24,8 @@
     "name" : "reward"
   }, {
     "name" : "point_type"
+  }, {
+    "name" : "point_log"
   } ],
   "paths" : {
     "/user/auth-rank" : {
@@ -305,6 +307,16 @@
               }
             }
           },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
           "401" : {
             "description" : "Unauthorized: Confirm The Token Is Valid.",
             "content" : {
@@ -381,6 +393,297 @@
         }
       }
     },
+    "/user/submitLink" : {
+      "post" : {
+        "tags" : [ "user" ],
+        "summary" : "Submit a point through a link",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "Fields to submit a point log",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties": {
+                  "link_id": {
+                    "type" : "string",
+                    "example" : "kPW2Qq2Mvsjrb3Lk9ulL"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "The Point Log was successfully submitted for the resident and an approval request was sent to an RHP.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "The Point Log was successfully submitted and was automatically approved.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "408" : {
+            "description" : "There is no link with that Id",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LinkDoesntExist"
+                }
+              }
+            }
+          },
+          "412" : {
+            "description" : "House Competition is disabled.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CompetitionDisabled"
+                }
+              }
+            }
+          },
+          "418" : {
+            "description" : "Point Type is disabled.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDisabled"
+                }
+              }
+            }
+          },
+          "419" : {
+            "description" : "Users can not self submit this point type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeSelfSubmissionDisabled"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Required parameters are missing.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/user/links": {
+      "get" : {
+        "tags": [ "user"],
+        "summary": "Get all links created by the given user",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "responses": {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PointType"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  This user does not have the ability to create Links.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/points" : {
+      "get" : {
+        "tags" : [ "user" ],
+        "summary" : "Get submitted point logs for the user",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        },
+        {
+          "name" : "limit",
+          "in" : "query",
+          "required": false,
+          "style": "form",
+          "explode": false,
+          "schema" : {
+            "type": "integer"
+          }
+        }
+        ],
+      
+        "responses" : {
+          "200" : {
+            "description" : "Retrieved Point Logs",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties": {
+                    "points": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointLog"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level. Only Residents, RHPs, and Privileged Residents can get points",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
     "/competition/save-semester-points" : {
       "post" : {
         "tags" : [ "competition" ],
@@ -436,6 +739,16 @@
           "200" : {
             "description" : "Confirmation sent"
           },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
           "401" : {
             "description" : "Unauthorized: Confirm the token is valid."
           },
@@ -447,6 +760,179 @@
           },
           "500" : {
             "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/competition/history" : {
+      "get" : {
+        "tags" : [ "competition" ],
+        "summary" : "Endpoint for Professional Staff and RHPs to view the history of submissions in their house.",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        },{
+          "name" : "type",
+          "in" : "query",
+          "description" : "Type of search to perform. {'recent','user','point_type'}.",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "user"
+        },{
+          "name" : "last_name",
+          "in" : "query",
+          "description" : "Search term used for finding point submissions for users with the given last name. Required if the search type is 'user'.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Doe"
+        },{
+          "name" : "point_type_id",
+          "in" : "query",
+          "description" : "Id for the point type to get submissions for. (Only applies when the type is 'point_type'. This will only find point submissions which were handled.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer"
+          },
+          "example" : 2
+        },{
+          "name" : "date",
+          "in" : "query",
+          "description" : "Defines the date to get point submissions that occurred on or before. (Only applies when the type is 'recent'.)",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "8/24/2020"
+        },{
+          "name" : "startAt",
+          "in" : "query",
+          "description" : "Oldest date returned in the previous query. This is used for pagination.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "4/19/2020"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties": {
+                    "point_logs": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointLog"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing required parameters.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "423" : {
+            "description" : "Could not interpret the provided date",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDateFormat"
+                }
+              }
+            }
+          },
+          "425" : {
+            "description" : "The provided house name is incorrect.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownHouse"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "At least one of the parameters you provided was in an incorrect format.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
           }
         }
       }
@@ -473,9 +959,14 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/PointLog"
+                  "type" : "object",
+                  "properties": {
+                    "point_logs": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointLog"
+                      }
+                    }
                   }
                 }
               }
@@ -524,10 +1015,10 @@
         }
       }
     },
-    "/competition/residentProfile" : {
+    "/competition/userOverview" : {
       "get" : {
         "tags" : [ "competition" ],
-        "summary" : "Get All elements required for the resident profile",
+        "summary" : "Get the data that is most pertinent to the given user.",
         "parameters" : [ {
           "name" : "Authorization",
           "in" : "header",
@@ -542,11 +1033,19 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "User that corresponds to the Firebase Token",
+            "description" : "The data will populate the corresponding User Type field in the response. The other User Types will not exist in the response body.",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/UserCompetitionView"
+                  "type" : "object",
+                  "properties": {
+                    "resident": {
+                      "$ref" : "#/components/schemas/ResidentOverview"
+                    },
+                    "rhp": {
+                      "$ref" : "#/components/schemas/RHPOverview"
+                    }
+                  }
                 }
               }
             }
@@ -567,6 +1066,77 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/link/" : {
+      "get" : {
+        "tags" : [ "link" ],
+        "summary" : "Get a specific Link",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        },{
+          "name" : "id",
+          "in" : "query",
+          "description" : "Id  for the link",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "ed3rodsaw34fnbjdla"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Link"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "408" : {
+            "description" : "Link Doesnt Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LinkDoesntExist"
                 }
               }
             }
@@ -622,12 +1192,72 @@
               }
             }
           },
+          "400" : {
+            "description" : "User Doesn't exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
           "401" : {
             "description" : "Unauthorized: Confirm the token is valid.",
             "content" : {
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permissions. Residents can't create Links.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "417" : {
+            "description" : "Unknown Point Type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDoesNotExist"
+                }
+              }
+            }
+          },
+          "418" : {
+            "description" : "Point Type Disabled.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDisabled"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing Required Parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "430" : {
+            "description" : "User does not have high enough permissions to use this point type to create a link.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InsufficientPointTypePermissionForLink"
                 }
               }
             }
@@ -645,10 +1275,10 @@
         }
       }
     },
-    "/point_type/update" : {
+    "/link/update" : {
       "put" : {
-        "tags" : [ "point_type" ],
-        "summary" : "Update a Point Type",
+        "tags" : [ "link" ],
+        "summary" : "Update a Link",
         "parameters" : [ {
           "name" : "Authorization",
           "in" : "header",
@@ -662,7 +1292,184 @@
           "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
         } ],
         "requestBody" : {
-          "description" : "Body sent to update the Point Type. Only id is required. The other parameters are optional.",
+          "description" : "Body sent to update the link. Only id is required. The other parameters are optional.",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LinkUpdate"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "407" : {
+            "description" : "Link Doesn't Belong to User",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LinkDoesntBelongToUser"
+                }
+              }
+            }
+          },
+          "408" : {
+            "description" : "Link Doesn't Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LinkDoesntExist"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing required parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "Description Can not be empty",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/point_type/": {
+      "get" : {
+        "tags": [ "point_type"],
+        "summary": "Route for professional staff to get all point types",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "responses": {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties": {
+                    "point_types": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags": [ "point_type"],
+        "summary": "Route for professional staff to update a point type",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to update a point type. Id is the only required parameters",
           "content" : {
             "application/json" : {
               "schema" : {
@@ -672,7 +1479,7 @@
           },
           "required" : true
         },
-        "responses" : {
+        "responses": {
           "200" : {
             "description" : "Success",
             "content" : {
@@ -704,7 +1511,7 @@
             }
           },
           "403" : {
-            "description" : "Invalid Permission Level -  Only Professional Staf can edit point types",
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -713,8 +1520,127 @@
               }
             }
           },
+          "417" : {
+            "description" : "The Id provided for the point type was not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDoesNotExist"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "An id must be provided as well as at least one of the other parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
           "426" : {
-            "description" : "One or more fields provided were in an invalid format to save in the database",
+            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags": [ "point_type"],
+        "summary": "Route for professional staff to create a point type",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to update a point type. ",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PointTypeWithoutId"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses": {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointType"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "An id must be provided as well as at least one of the other parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -736,10 +1662,10 @@
         }
       }
     },
-    "/link/update" : {
-      "post" : {
-        "tags" : [ "link" ],
-        "summary" : "Update a Link",
+    "/point_type/submittable": {
+      "get" : {
+        "tags": [ "point_type"],
+        "summary": "Returns all the point types which can be used to create a submission for the given user",
         "parameters" : [ {
           "name" : "Authorization",
           "in" : "header",
@@ -752,24 +1678,99 @@
           },
           "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
         } ],
-        "requestBody" : {
-          "description" : "Body sent to update the link. Only id is required. The other parameters are optional.",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/Link"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
+        "responses": {
           "200" : {
             "description" : "Success",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Success"
+                  "type" : "object",
+                  "properties": {
+                    "point_types": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/point_type/linkable": {
+      "get" : {
+        "tags": [ "point_type"],
+        "summary": "Returns all the point types which can be used to create a link or QR code.",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "responses": {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties": {
+                    "point_types": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
                 }
               }
             }
@@ -860,6 +1861,177 @@
           },
           "500" : {
             "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/point_log/messages" : {
+      "post" : {
+        "tags" : [ "point_log" ],
+        "summary" : "Post a new message to the point log",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+          }
+        ],
+        "requestBody" : {
+          "description" : "Required parameters to post a message",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties": {
+                  "log_id" : {
+                    "type": "string",
+                    "example": "329opc8dahl3fh"
+                  },
+                  "message" : {
+                    "type": "string",
+                    "example": "Good Job on the submission"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Message Successfully Saved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "427" : {
+            "description" : "Can Not Post Message -  The user can not post a message to this point log",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CanNotPostMessage"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get" : {
+        "tags" : [ "point_log" ],
+        "summary" : "Get all messages for a point log in chronological order",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+          },{
+            "name" : "log_id",
+            "in" : "query",
+            "description" : "Id  for the point log",
+            "required" : true,
+            "style" : "form",
+            "explode" : true,
+            "schema" : {
+              "type" : "string"
+            },
+            "example" : "aljk3p890dchjvo2"
+          } 
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "Message Successfully Saved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This user can not view or edit Point log messages.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "413" : {
+            "description" : "Could not find the point log",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownPointLog"
+                }
+              }
+            }
+          },
+          "431" : {
+            "description" : "The User does not have permission to modify or view this point log.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CanNotAccessPointLog"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -969,19 +2141,19 @@
       "Link" : {
         "type" : "object",
         "properties" : {
-          "link_id" : {
+          "id" : {
             "type" : "integer",
             "example" : 1
           },
-          "is_enabled" : {
+          "enabled" : {
             "type" : "boolean",
             "example" : false
           },
-          "is_archived" : {
+          "archived" : {
             "type" : "boolean",
             "example" : false
           },
-          "creator_id" : {
+          "creatorId" : {
             "type" : "string",
             "example" : "124rfdsq23fas"
           },
@@ -989,11 +2161,48 @@
             "type" : "string",
             "example" : "House event on 2/26/2020"
           },
-          "point_id" : {
+          "pointId" : {
             "type" : "integer",
             "example" : 1
           },
-          "single_use" : {
+          "pointTypeName" : {
+            "type" : "string",
+            "example" : "Point Type for events"
+          },
+          "pointTypeDescription" : {
+            "type" : "string",
+            "example" : "You can submit this point for events."
+          },
+          "pointTypeValue" : {
+            "type" : "integer",
+            "example" : "100"
+          },
+          "singleUse" : {
+            "type" : "boolean",
+            "example" : false
+          }
+        }
+      },
+      "LinkUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "link_id" : {
+            "type" : "integer",
+            "example" : 1
+          },
+          "enabled" : {
+            "type" : "boolean",
+            "example" : false
+          },
+          "archived" : {
+            "type" : "boolean",
+            "example" : false
+          },
+          "description" : {
+            "type" : "string",
+            "example" : "House event on 2/26/2020"
+          },
+          "singleUse" : {
             "type" : "boolean",
             "example" : false
           }
@@ -1097,33 +2306,85 @@
             "type" : "string",
             "example" : "5"
           },
-          "Description" : {
+          "description" : {
             "type" : "string",
             "example" : "Attend a House Dinner"
           },
-          "Enabled" : {
+          "enabled" : {
             "type" : "boolean",
             "example" : true
           },
-          "Name" : {
+          "name" : {
             "type" : "string",
             "example" : "House Dinner"
           },
-          "PermissionLevel" : {
+          "permissionLevel" : {
             "type" : "number",
             "example" : 1
           },
-          "ResidentsCanSubmit" : {
+          "residentsCanSubmit" : {
             "type" : "boolean",
             "example" : true
           },
-          "Value" : {
+          "value" : {
             "type" : "number",
             "example" : 1
           }
         }
       },
-      "UserCompetitionView" : {
+      "PointTypeWithoutId" : {
+        "type" : "object",
+        "properties" : {
+          "description" : {
+            "type" : "string",
+            "example" : "Attend a House Dinner"
+          },
+          "enabled" : {
+            "type" : "boolean",
+            "example" : true
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "House Dinner"
+          },
+          "permissionLevel" : {
+            "type" : "number",
+            "example" : 1
+          },
+          "residentsCanSubmit" : {
+            "type" : "boolean",
+            "example" : true
+          },
+          "value" : {
+            "type" : "number",
+            "example" : 1
+          }
+        }
+      },
+      "ResidentOverview" : {
+        "type" : "object",
+        "properties" : {
+          "user_rank" : {
+            "$ref" : "#/components/schemas/UserRank"
+          },
+          "houses" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/House"
+            }
+          },
+          "next_reward" : {
+            "$ref" : "#/components/schemas/Reward"
+          },
+          "last_submissions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PointLog"
+            }
+          }
+        }
+      },
+      "RHPOverview" : {
         "type" : "object",
         "properties" : {
           "user_rank" : {
@@ -1195,6 +2456,24 @@
           }
         }
       },
+      "LinkDoesntBelongToUser" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "This Link doesnt belong to the user"
+          }
+        }
+      },
+      "LinkDoesntExist" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "This Link doesnt exist"
+          }
+        }
+      },
       "LinkAlreadySubmitted" : {
         "type" : "object",
         "properties" : {
@@ -1219,6 +2498,15 @@
           "message" : {
             "type" : "string",
             "example" : "House Competition Is Disabled"
+          }
+        }
+      },
+      "UnknownPointLog" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "Could not find Point Log"
           }
         }
       },
@@ -1312,6 +2600,34 @@
           }
         }
       },
+      "CanNotPostMessage" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "You can not post a message to this submission"
+          }
+        }
+      },
+      "InsufficientPointTypePermissionForLink" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "User does not have sufficient permissions to use that Point Type in a Link."
+          }
+        }
+      },
+      "CanNotAccessPointLog" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "This user does not have the corrent ownership or permission to access this point log."
+          }
+        }
+      },
+      
       "ServerError" : {
         "type" : "object",
         "properties" : {

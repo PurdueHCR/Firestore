@@ -105,10 +105,24 @@ assets/flutter-firebase-config.json
 #Ignore flutter env json files
 **/env/*.json
 
+#Ignore the compiled versions of the key.
+**/env/*.g.dart
+
+#Ignore api dev files
+/functions/development_keys/*
+!/functions/development_keys/README.md
+
 #ignore build files
-**/purduehcr_web/build/
+**/web_purduehcr/build/*
 
 #ignore most of public directory
 public/*
 !public/404.html
 !public/api/
+public/api/.*
+
+#unignore the jest config
+!functions/jest.config.json
+
+#VS Code workspaces
+*.code-workspace

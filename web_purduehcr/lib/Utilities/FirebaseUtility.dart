@@ -1,6 +1,4 @@
-import 'dart:convert';
 
-import 'package:firebase/firebase.dart' as fb;
 import 'package:firebase/firebase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,18 +6,14 @@ import 'package:purduehcr_web/Config.dart';
 
 
 class FirebaseUtility{
-
-  final Config config;
   static App app;
-  bool connectedToDatabase = false;
+  static bool connectedToDatabase = false;
 
-  FirebaseUtility(this.config);
 
-  Future<void> initializeFirebase(){
-    if(fb.apps.isEmpty && app == null){
-      debugPrint("No App, so initialize Firebase");
+  static Future<void> initializeFirebase(Config config){
+    if(apps.isEmpty ){
       try {
-        app = fb.initializeApp(
+        app = initializeApp(
             apiKey: config.apiKey,
             authDomain: config.authDomain,
             databaseURL: config.databaseURL,
@@ -29,7 +23,7 @@ class FirebaseUtility{
       catch (err){
         debugPrint("We are ignoring this error");
       }
-      return fb.auth().setPersistence(fb.Persistence.SESSION);
+      return auth().setPersistence(Persistence.SESSION);
     }
     else{
       return Future.value();
@@ -37,8 +31,8 @@ class FirebaseUtility{
   }
 
   ///Signs in the user and returns the token in the future
-  Future<void> signIn(String email, String password){
-    return initializeFirebase().then((_) async {
+  static Future<void> signIn(Config config, String email, String password){
+    return initializeFirebase(config).then((_) async {
       try{
         await FirebaseAuth.instance.signInWithEmailAndPassword(email:email, password: password);
       }
@@ -63,21 +57,37 @@ class FirebaseUtility{
           case "auth/operation-not-allowed":
             errorMessage = "Signing in with Email and Password is not enabled.";
             break;
+          case "auth/id-token-revoked":
+          case "auth/id-token-expired":
+            print("The app's auth token is expired. This is bad. Please contact the Honors College Development Committee about updating the auth token.");
+            errorMessage = "Uh oh, there was a problem. Please try again later.";
+            break;
           default:
-            errorMessage = error.toString();
+            print("There was an unknown problem with the connection to Google's server. If the problem persists, please send this code to the Honors College Development Committee: ${error.code}");
+            errorMessage = "Uh oh, there was a problem. Please try again later.";
+            break;
         }
         return Future.error(errorMessage);
       }
     });
   }
 
+  static Future createAccount(Config config, String email, String password){
+    return initializeFirebase(config).then((value) async {
+      try{
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+      }
+      catch(error){
+        return Future.error(error.code);
+      }
+    });
+  }
 
-  Future<String> getToken(BuildContext context){
-    return initializeFirebase().then((_){
-      return FirebaseAuth.instance.currentUser().then((user) {
-        return user.getIdToken(refresh: false).then((value) {
-          return Future.value(value.token);
-        });
+
+  static Future<String> getToken(){
+    return FirebaseAuth.instance.currentUser().then((user) {
+      return user.getIdToken(refresh: false).then((value) {
+        return Future.value(value.token);
       });
     });
   }

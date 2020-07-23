@@ -13,4 +13,9 @@ class Config {
 
   Config({this.env, this.apiKey, this.authDomain, this.databaseURL, this.projectId, this.storageBucket});
   factory Config.fromJson(Map<String, dynamic> json) => _$ConfigFromJson(json);
+
+  @override
+  String toString() {
+    return "ENV: "+env + " "+ projectId;
+  }
 }

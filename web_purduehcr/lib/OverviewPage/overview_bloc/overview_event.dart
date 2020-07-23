@@ -12,5 +12,12 @@ class OverviewLaunchedEvent extends OverviewEvent {
 
   @override
   List<Object> get props => [permissionLevel];
+}
 
+class ReloadOverview extends OverviewEvent {
+  final UserPermissionLevel permissionLevel;
+  ReloadOverview({@required this.permissionLevel});
+
+  @override
+  List<Object> get props => [permissionLevel];
 }

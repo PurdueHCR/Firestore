@@ -26,6 +26,10 @@ dependencies:
   json_annotation: ^3.0.1
   build_runner: ^1.10.0
   json_serializable: ^3.3.0
+  qr_flutter: ^3.1.0
+  charts_flutter: ^0.9.0
+  url_launcher: ^5.1.4
+  url_launcher_web: ^0.1.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -60,7 +64,6 @@ flutter:
   assets:
     - assets/main_icon.jpg
     - assets/main_icon.png
-    - assets/flutter-firebase-config.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

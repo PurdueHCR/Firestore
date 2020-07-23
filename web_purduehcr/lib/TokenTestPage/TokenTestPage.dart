@@ -1,36 +1,43 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
+import 'package:purduehcr_web/authentication/authentication.dart';
 import 'package:purduehcr_web/BasePage.dart';
-import 'package:purduehcr_web/ConfigWrapper.dart';
+
 import 'package:purduehcr_web/Utilities/FirebaseUtility.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 
 
 class TokenTestPage extends BasePage {
-  TokenTestPage({Key key}) : super(key: key);
+  TokenTestPage({Key key}) : super(key: key){
+    print("TOKEN");
+
+  }
 
   @override
   State<StatefulWidget> createState() {
-    return TokenTestPageState(drawerLabel: "Token");
+    return TokenTestPageState("Token");
   }
 
 }
 
-class TokenTestPageState extends BasePageState {
+class TokenTestPageState extends BasePageState<AuthenticationBloc, AuthenticationEvent, AuthenticationState> {
+  TokenTestPageState(String drawerLabel) : super(drawerLabel);
 
-  FirebaseUtility _firebaseUtility;
-
-  TokenTestPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel){
-    _firebaseUtility = FirebaseUtility(ConfigWrapper.of(context));
-  }
 
   @override
-  Widget buildDesktopBody() {
+  Widget buildLargeDesktopBody({BuildContext context, AuthenticationState state}) {
     return _buildBody();
   }
 
   @override
-  Widget buildMobileBody() {
+  Widget buildSmallDesktopBody({BuildContext context, AuthenticationState state}) {
+    return _buildBody();
+  }
+
+  @override
+  Widget buildMobileBody({BuildContext context, AuthenticationState state}) {
     return _buildBody();
   }
 
@@ -38,7 +45,7 @@ class TokenTestPageState extends BasePageState {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: FutureBuilder(
-        future: _firebaseUtility.getToken(context),
+        future: FirebaseUtility.getToken(),
         builder: (context, snapshot) {
           if(snapshot.connectionState != ConnectionState.done){
             return _buildLoading();
@@ -81,5 +88,23 @@ class TokenTestPageState extends BasePageState {
   Widget _buildLoading(){
     return LoadingWidget();
   }
+
+  @override
+  AuthenticationBloc getBloc() {
+    return authenticationBloc;
+  }
+
+  @override
+  bool isLoadingState(currentState) {
+    //Because we use the authentication bloc, we know that it will never be
+    //AuthenticationLoading at this point in the execution
+    return false;
+  }
+
+  @override
+  UserPermissionSet getAcceptedPermissionLevels() {
+    return AllPermissionsSet();
+  }
+
 
 }

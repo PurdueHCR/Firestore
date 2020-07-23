@@ -4,9 +4,8 @@ import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/RouteGenerator.dart';
 import 'package:bloc/bloc.dart';
 
-import 'package:purduehcr_web/BLoCs/authentication/authentication.dart';
+import 'package:purduehcr_web/authentication/authentication.dart';
 
-import 'User_Login_Creation/user_login_creation_bloc/ulc_repository.dart';
 
 
 class SimpleBlocDelegate extends BlocDelegate {
@@ -27,16 +26,14 @@ class PurdueHCR extends StatefulWidget {
 }
 
 class PurdueHCRState extends State<PurdueHCR>{
-
   AuthenticationBloc _authenticationBloc;
 
   @override
-  void initState() {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _authenticationBloc = AuthenticationBloc(config: ConfigWrapper.of(context));
     _authenticationBloc.add(AppStarted());
-    super.initState();
   }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider<AuthenticationBloc>(

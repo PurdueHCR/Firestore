@@ -5,7 +5,7 @@ import '../Config.dart';
 
 
 callCloudFunction(Config config, Method method, String path, {Map<String, dynamic> params, Map<String, dynamic> body}) async {
-  CloudFunctions target = CloudFunctions.instance;
+  CloudFunctions target = CloudFunctions(region: 'us-central1');
   if(config.env == "DEV"){
     target = target.useFunctionsEmulator(origin: "http://localhost:5001");
   }
@@ -14,8 +14,9 @@ callCloudFunction(Config config, Method method, String path, {Map<String, dynami
     "method":method.toString().split('.').last,
     "payload": body
   });
+
   if(result.data["message"] != null){
-    print("GOT API ERROR: "+result.data["message"]);
+    print("GOT API Message: "+result.data["message"]);
     String errorString = result.data["message"];
     throw new ApiError(int.parse(errorString.split(": ")[0]), errorString.split(": ")[1]);
   }
@@ -23,20 +24,22 @@ callCloudFunction(Config config, Method method, String path, {Map<String, dynami
 }
 
 String _serializeParams(Map<String, dynamic> params) {
+  print("serialize params: "+params.toString());
   if (params == null || params.isEmpty) {
     return "";
   }
   else {
     String queryString = "?";
     for (String key in params.keys) {
-      queryString += key + "+" + params[key].toString() + "&";
+      queryString += key + "=" + params[key].toString() + "&";
     }
-    return queryString.substring(0, queryString.length - 2);
+    return queryString.substring(0, queryString.length - 1);
   }
 }
 
 enum Method {
   GET,
   POST,
-  DELETE
+  DELETE,
+  PUT
 }

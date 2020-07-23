@@ -20,8 +20,25 @@ export class APIResponse{
         return this.code+": "+this.message
     }
 
+    /**
+     * 200 - Success
+     */
     static Success(): APIResponse {
         return new APIResponse(APIResponse.SUCCESS_CODE, "Success")
+    }
+
+    /**
+     * 201 - Success Awaits Approval
+     */
+    static SuccessAwaitsApproval(): APIResponse {
+        return new APIResponse(201, "Success")
+    }
+
+    /**
+     * 202 - Success And Approved
+     */
+    static SuccessAndApproved(): APIResponse {
+        return new APIResponse(202, "Success")
     }
 
     /**
@@ -57,8 +74,40 @@ export class APIResponse{
     }
 
     /**
+     * 405 - The The provided one time code is either invalid or has expired.
+     * Epired or Invlaid one time code
+     */
+    static InvalidOneTimeCode(): APIResponse {
+        return new APIResponse(405, "The provided one time code is either invalid or has expired.")
+    }
+
+    /**
+     * 406 - Link is Not Enabled
+     * The Link is not enabled. It must be turned on by the owner.
+     */
+    static LinkIsNotEnabled(): APIResponse {
+        return new APIResponse(407, "This link is not currently enabled. Talk to whoever gave you this link about enabling it.")
+    }
+
+    /**
+     * 407 - Link Does not belong to current user
+     * The Link/QR code does not belong to the current user so it can not be edited
+     */
+    static LinkDoesntBelongToUser(): APIResponse {
+        return new APIResponse(407, "The Link does not belong to the current user")
+    }
+
+    /**
+     * 408 - The Link does not exist
+     * The Link/QR-code id does not exist
+     */
+    static LinkDoesntExist(): APIResponse {
+        return new APIResponse(408, "The Link Could not be found")
+    }
+
+    /**
      * 409 - This Link Has Already Been Submitted
-     * The Link/QR code which was scanned is a single use code and this user has already scanned it
+     * The Link/QR-code which was scanned is a single use code and this user has already scanned it
      */
     static LinkAlreadySubmitted(): APIResponse {
         return new APIResponse(409, "This Link Has Already Been Submitted")
@@ -73,11 +122,43 @@ export class APIResponse{
     }
 
     /**
+     * 411 - Could Not Send Email
+     * There was an error sending the email
+     */
+    static CouldNotSendEmail(): APIResponse {
+        return new APIResponse(411, "Failed to send Email")
+    }
+
+    /**
      * 412 - House Competition Is Disabled
      * House Competition is disabled so the request may not be completed at this time
      */
     static CompetitionDisabled(): APIResponse {
         return new APIResponse(412, "House Competition Is Disabled")
+    }
+
+    /**
+     * 413 - Unknown PointLog
+     * The requested point cannot be found
+     */
+    static UnknownPointLog(): APIResponse {
+        return new APIResponse(413, "Unkown PointLog")
+    }
+
+    /**
+     * 414 - House Competition Must Be Disabled
+     * The House Competition must be disabled to perform this action
+     */
+    static CompetitionMustBeDisabled(): APIResponse {
+        return new APIResponse(414, "The House Competition must be disabled to perform this action")
+    }
+
+    /**
+     * 416 - PointLog Already Handled
+     * The PointLog is already in the requested approved/rejected state
+     */
+    static PointLogAlreadyHandled(): APIResponse {
+        return new APIResponse(416, "PointLog Already Handled")
     }
 
     /**
@@ -113,7 +194,7 @@ export class APIResponse{
     }
 
     /**
-     * 412 - User Already Exists
+     * 421 - User Already Exists
      * User with that ID already exists in the database
      */
     static UserAlreadyExists(): APIResponse {
@@ -158,6 +239,30 @@ export class APIResponse{
      */
     static IncorrectFormat(): APIResponse {
         return new APIResponse(426, "Data provided is in the incorrect format.")
+    }
+
+    /**
+     * 427 - Can Not Post Message
+     * The user can not post a message to this point log
+     */
+    static CanNotPostMessage(): APIResponse {
+        return new APIResponse(427, "You are not allowed to post a message to this submission.")
+    }
+    
+    /**
+     * 430 - Insufficient Permission Level For Create a Link with that Point Type
+     * The point type  
+     */
+    static InsufficientPointTypePermissionForLink(): APIResponse {
+        return new APIResponse(430, "User does not have sufficient permissions to use that Point Type in a Link.")
+    }
+
+    /**
+     * 431 - Can Not Access Point Log
+     * This user does not have the corrent ownership or permission to access this point log
+     */
+    static CanNotAccessPointLog(): APIResponse {
+        return new APIResponse(431, "This user does not have the corrent ownership or permission to access this point log.")
     }
 
     /**
