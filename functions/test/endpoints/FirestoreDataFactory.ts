@@ -306,6 +306,14 @@ export class FirestoreDataFactory{
         await FirestoreDataFactory.deleteCollection(db, "Users",100)
     }
 
+    /**
+     * Run this after events test to clean events
+     * @param db Test App Firestore instance
+     */
+    static async cleanEvents(db: firebase.firestore.Firestore) {
+        await FirestoreDataFactory.deleteCollection(db, "Events", 1)
+    }
+
 
     /**
      * Deletes a collection from the db using a batch processes

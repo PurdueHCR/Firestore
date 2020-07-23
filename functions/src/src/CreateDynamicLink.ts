@@ -20,7 +20,7 @@ export async function makeDynamicLinkForLink(link:Link): Promise<string> {
         applinks = functions.config().applinks
     }
     try{
-        let longLink = UrlBuilder(`${applinks.dynamic_link_url}`, {
+        const longLink = UrlBuilder(`${applinks.dynamic_link_url}`, {
             queryParams: {
                 link: `${applinks.main_app_url}`+"addpoints/"+link.id,
                 ibi: "DecodeProgramming.HCRPoint",
@@ -28,7 +28,7 @@ export async function makeDynamicLinkForLink(link:Link): Promise<string> {
                 afl: `${applinks.main_app_url}`+"addpoints/"+link.id,
                 ifl: `${applinks.main_app_url}`+"addpoints/"+link.id,
                 st: link.description,
-                sd: "Tap this link to get "+link.pointTypeValue + (link.pointTypeValue == 1)? " point!": " points!"
+                sd: "Tap this link to get "+link.pointTypeValue + (link.pointTypeValue === 1)? " point!": " points!"
             }
         });
 

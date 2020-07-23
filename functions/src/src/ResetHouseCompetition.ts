@@ -20,7 +20,7 @@ import { createUserFromModel } from "./CreateUser";
  * @throws 500 - Server Error 
  */
 export async function resetHouseCompetition(user:User){
-    var firebase_tools = require("firebase-tools");
+    const firebase_tools = require("firebase-tools");
 
     //Retrieve all the objects that should be repopulated
     const houses = await getAllHouses()
