@@ -154,7 +154,7 @@ users_app.post('/submitLink', async (req, res) => {
 	}
 	else{
 		try{
-			const link = await getLinkById(req.body.link_id !)
+			const link = await getLinkById(req.body.link_id)
 			const user = await getUser(req["user"]["user_id"])
 			verifyUserHasCorrectPermission(user, [UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP, UserPermissionLevel.PRIVILEGED_RESIDENT])
 			const didAddPoints = await submitLink(user,link)

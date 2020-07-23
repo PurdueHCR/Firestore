@@ -61,7 +61,7 @@ admin_app.get('/json_backup', async (req, res) => {
         verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
 
         houseCompetition.houses = HouseWithPointLog.fromQuerySnapshot(await db.collection(HouseCompetition.HOUSE_KEY).get())
-        for(let house of houseCompetition.houses){
+        for(const house of houseCompetition.houses){
             house.pointLogs = PointLog.fromQuerySnapshot(await db.collection(HouseCompetition.HOUSE_KEY).doc(house.id).collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).get())
         }
         houseCompetition.houseCodes = await getHouseCodes()

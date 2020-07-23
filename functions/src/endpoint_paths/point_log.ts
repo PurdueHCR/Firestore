@@ -71,7 +71,7 @@ logs_app.post('/handle', async (req, res) => {
 		res.status(error.code).send(error.toJson())
 	} else {
 
-		let should_approve = (req.body.approve == 'true');
+		const should_approve = (req.body.approve === 'true');
 		if(!should_approve && (!req.body.message || req.body.message === "")){
 			console.error("If approve is false, you must send a message.")
 			const error = APIResponse.MissingRequiredParameters()
