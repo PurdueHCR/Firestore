@@ -62,6 +62,7 @@ describe('GET competition/userOverview', () =>{
         //Create sample rewards
         await FirestoreDataFactory.setReward(db, {id:"T-Shirts", required_ppr: 5}) // Tshirts reard 5 ppr
         await FirestoreDataFactory.setReward(db)// Default Reward 100 ppr
+        await FirestoreDataFactory.createAllHouseCodes(db)
     })
 
     beforeEach(async() =>{
@@ -152,6 +153,7 @@ describe('GET competition/userOverview', () =>{
 
                 //Check last submissions
                 expect(res.body.rhp.last_submissions).toHaveLength(3)
+                expect(res.body.rhp.house_codes).toHaveLength(3)
                 
                 done();
             }

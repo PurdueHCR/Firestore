@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:purduehcr_web/Models/House.dart';
+import 'package:purduehcr_web/Models/HouseCode.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
 import 'package:purduehcr_web/Models/Reward.dart';
 import 'package:purduehcr_web/Models/UserRank.dart';
@@ -32,6 +33,19 @@ class ResidentOverviewLoaded extends OverviewState {
   const ResidentOverviewLoaded({@required this.rank, @required this.logs, @required this.reward, @required this.houses, this.key});
   @override
   List<Object> get props => [rank, logs, reward, houses, key];
+}
+
+class RHPOverviewLoaded extends OverviewState {
+  final UserRank rank;
+  final List<PointLog> logs;
+  final Reward reward;
+  final List<House> houses;
+  final List<HouseCode> houseCodes;
+  final Key key;
+
+  const RHPOverviewLoaded({@required this.rank, @required this.logs, @required this.reward, @required this.houses, @required this.houseCodes, this.key});
+  @override
+  List<Object> get props => [rank, logs, reward, houses, key, houseCodes];
 }
 
 class OverviewError extends OverviewState {

@@ -8,7 +8,7 @@ import { HouseCompetition } from '../models/HouseCompetition'
 import { PointLog } from '../models/PointLog'
 import { User } from '../models/User'
 import { APIResponse } from '../models/APIResponse'
-import { getResidentProfile } from '../src/GetUserProfiles'
+import { getResidentProfile, getRHPProfile } from '../src/GetUserProfiles'
 import { getUser } from '../src/GetUser'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
@@ -387,7 +387,7 @@ comp_app.get('/userOverview', async (req, res) => {
 		}
 		else if(user.permissionLevel === UserPermissionLevel.RHP){
 			//This is sufficient for the first version, but we will eventually want to add more to their home screen
-			const resident_profile = await getResidentProfile(user)
+			const resident_profile = await getRHPProfile(user)
 			res.status(APIResponse.SUCCESS_CODE).send({"rhp":resident_profile})
 		}
 		else if(user.permissionLevel === UserPermissionLevel.PRIVILEGED_RESIDENT){

@@ -13,8 +13,9 @@ class HouseCodeList extends StatefulWidget{
   final Function(BuildContext, HouseCode) onPressed;
   final Function( HouseCode) onSwipe;
   final bool searchable;
+  final bool shrinkWrap;
 
-  const HouseCodeList({Key key, @required this.houseCodes, @required this.onPressed, this.searchable = true, this.onSwipe}):super(key: key);
+  const HouseCodeList({Key key, @required this.houseCodes, @required this.onPressed, this.searchable = true, this.onSwipe, this.shrinkWrap = false}):super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -41,7 +42,7 @@ class _HouseCodeListState extends State<HouseCodeList>{
     }
     else{
       mainContent = ListView.builder(
-//        shrinkWrap: true,
+        shrinkWrap: widget.shrinkWrap,
         itemCount: visibleCodes.length,
         itemBuilder: (BuildContext context, int index){
           return Card(
@@ -96,6 +97,7 @@ class HouseCodeListTile extends StatelessWidget{
       child: ListTile(
           onTap: () => onTap(context, houseCode),
           title: Text(houseCode.codeName),
+          subtitle: Text(houseCode.house == null? "": houseCode.house),
           trailing: (houseCode.code == null)?
           SizedBox(
               width: 40,

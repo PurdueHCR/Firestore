@@ -81,7 +81,7 @@ class _HouseCodePageState extends BasePageState<HouseCodeBloc, HouseCodeEvent, H
         onPressed: (context, code){
           Clipboard.setData(ClipboardData(text: code.dynamicLink));
           final snackBar = SnackBar(
-            content: Text('Copied House Code Link to Clipboard'),
+            content: Text('Copied Link to Join House'),
           );
           Scaffold.of(context).showSnackBar(snackBar);
         },

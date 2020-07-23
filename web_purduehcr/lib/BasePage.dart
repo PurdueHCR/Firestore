@@ -52,7 +52,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
             color: Theme.of(context).backgroundColor,
             child: Center(
               child: SizedBox(
-                  width: 1000,
+                  width: getActiveAreaWidth(context),
                   child: Container(
                       color: Colors.white,
                       child: buildLargeDesktopBody()
@@ -74,7 +74,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
                     color: Theme.of(context).backgroundColor,
                     child: Center(
                       child: SizedBox(
-                        width: 1000,
+                        width: getActiveAreaWidth(context),
                         child: Container(
                           color: Colors.white,
                           child: buildLargeDesktopBody(context: context, state:state)
@@ -205,7 +205,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
     switch(displayTypeOf(context)){
       case DisplayType.desktop_large:
       case DisplayType.desktop_small:
-        return min(MediaQuery.of(context).size.width - 200, 1000);
+        return min(MediaQuery.of(context).size.width - 300, 1000);
       default:
         return MediaQuery.of(context).size.width;
     }
@@ -217,9 +217,9 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
   double getOptimalDialogWidth(BuildContext context){
     switch(displayTypeOf(context)){
       case DisplayType.desktop_large:
-        return min((MediaQuery.of(context).size.width - 200) * 0.5, 400);
+        return min((MediaQuery.of(context).size.width - 300) * 0.5, 400);
       case DisplayType.desktop_small:
-        return min(MediaQuery.of(context).size.width - 200, 400) ;
+        return min(MediaQuery.of(context).size.width - 300, 400) ;
       default:
         return MediaQuery.of(context).size.width;
     }

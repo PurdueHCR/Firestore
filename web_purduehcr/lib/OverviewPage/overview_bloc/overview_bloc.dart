@@ -18,8 +18,10 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState>{
     if(event is OverviewLaunchedEvent){
       try{
         yield await overviewRepository.getUserOverview(event.permissionLevel);
+        print("Done yielding!!");
       }
       catch(error){
+        print("Got error from overvview loading" +error.toString());
         yield OverviewError(error: error);
       }
     }
@@ -29,6 +31,7 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState>{
         yield await overviewRepository.getUserOverview(event.permissionLevel);
       }
       catch(error){
+        print("Got error from overvview loading" +error.toString());
         yield OverviewError(error: error);
       }
     }

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:purduehcr_web/Config.dart';
 import 'package:purduehcr_web/Models/House.dart';
+import 'package:purduehcr_web/Models/HouseCode.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
 import 'package:purduehcr_web/Models/Reward.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
@@ -55,7 +56,7 @@ class OverviewRepository {
   }
 
   ///Call the api to get the information for the resident overview
-  Future<ResidentOverviewLoaded> _getRHPOverview() async {
+  Future<RHPOverviewLoaded> _getRHPOverview() async {
     Map<String,dynamic> data = (await callCloudFunction(config, Method.GET, "competition/userOverview"));
     Map<String,dynamic> residentOverview = data["rhp"];
     UserRank rank = UserRank.fromJson(residentOverview["user_rank"]);
@@ -72,7 +73,13 @@ class OverviewRepository {
     houseList.forEach((element) {
       houses.add(House.fromJson(element));
     });
-    return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, key: UniqueKey());
+
+    Set<Map<String, dynamic>> houseCodeResponse = Set.from(residentOverview["house_codes"]);
+    List<HouseCode> houseCodes = new List();
+    houseCodeResponse.forEach((element) {
+      houseCodes.add(HouseCode.fromJson(element));
+    });
+    return RHPOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, houseCodes: houseCodes, key: UniqueKey());
   }
 
   ///Call the api to get the information for the resident overview

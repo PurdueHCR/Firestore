@@ -82,7 +82,7 @@ house_codes_app.get("/", async( req,res) => {
 house_codes_app.post("/refresh", async( req,res) => {
     try{
 
-        if( req.body !== undefined && "id" in req.body){
+        if( req.body !== undefined && req.body !== null && "id" in req.body){
             const user = await getUser(req["user"]["user_id"])
             verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.RHP])
             const id = parseInputForString(req.body.id)
