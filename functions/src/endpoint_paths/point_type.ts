@@ -101,7 +101,7 @@ pt_app.put('/', async (req, res) => {
 				console.error("Missing body")
 				throw APIResponse.MissingRequiredParameters()
 			}
-			else if(req.body.id == undefined || req.body.id === ""){
+			else if(req.body.id === undefined || req.body.id === ""){
 				console.error("Missing point type id")
 				throw APIResponse.MissingRequiredParameters()
 			}

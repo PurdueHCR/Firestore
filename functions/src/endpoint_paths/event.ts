@@ -10,7 +10,7 @@ import { getSystemPreferences } from '../src/GetSystemPreferences'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 
 // Made sure that the app is only initialized one time
-if (admin.apps.length == 0) {
+if (admin.apps.length === 0) {
     admin.initializeApp(functions.config().firebase)
 }
 
@@ -85,11 +85,11 @@ events_app.post('/add', async (req, res) => {
                 res.status(error.code).send(error.toJson())
                 return
             }
-            let user = await getUser(req["user"]["user_id"])
-            let valid_users = [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.EXTERNAL_ADVISOR,
+            const user = await getUser(req["user"]["user_id"])
+            const valid_users = [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.EXTERNAL_ADVISOR,
                                 UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.FACULTY]
             verifyUserHasCorrectPermission(user, valid_users)
-            let type = await getPointTypeById(req.body.point_type_id)
+            const type = await getPointTypeById(req.body.point_type_id)
             if (!type.canUserGenerateLinks(user.permissionLevel)) {
                 const error = APIResponse.InsufficientPointTypePermissionForLink()
                 res.status(error.code).send(error.toJson())
@@ -101,7 +101,7 @@ events_app.post('/add', async (req, res) => {
                 return
             }
             const event_date = new Date(req.body.date)
-            let today = new Date()
+            const today = new Date()
             // Must set today to earliest possible time so event_date set to today's date will not error
             today.setHours(0,0,0,0)
             if (event_date < today) {

@@ -14,7 +14,7 @@ export function parseInputForString(arg:any): string {
         throw APIResponse.IncorrectFormat()
     }
     else{
-        return arg as string
+        return arg
     }
 }
 
@@ -32,7 +32,7 @@ export function parseInputForBoolean(arg:any): boolean {
         return arg === 'true'
     }
     else if(arg === true || arg === false){
-        return arg as boolean
+        return arg
     }
     else{
         throw APIResponse.IncorrectFormat()
@@ -60,7 +60,7 @@ export function parseInputForNumber(arg:any, min:number = Number.MIN_SAFE_INTEGE
         return value
     }
     else if(typeof arg === 'number'){
-        const value = arg as number
+        const value = arg
         if( value < min || value > max){
             throw APIResponse.IncorrectFormat()
         }

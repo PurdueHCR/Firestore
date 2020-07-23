@@ -19,7 +19,7 @@ export async function getRecentHistory(house:string, date:Date, startAt?:Date): 
         ref = ref.startAfter(startAt)
     }
     const logQuerySnapshot = await ref.get()
-    let logs = PointLog.fromQuerySnapshot(logQuerySnapshot)
+    const logs = PointLog.fromQuerySnapshot(logQuerySnapshot)
     return logs
 }
 
@@ -39,7 +39,7 @@ export async function getHistoryFilterUser(house:string, name:string, startAt?:D
         ref = ref.startAfter(startAt)
     }
     const logQuerySnapshot = await ref.get()
-    let logs = PointLog.fromQuerySnapshot(logQuerySnapshot)
+    const logs = PointLog.fromQuerySnapshot(logQuerySnapshot)
     return logs
 }
 
@@ -59,6 +59,6 @@ export async function getHistoryFilterPointType(house:string, point_type_id:numb
         ref = ref.startAfter(startAt)
     }
     const logQuerySnapshot = await ref.get()
-    let logs = PointLog.fromQuerySnapshot(logQuerySnapshot)
+    const logs = PointLog.fromQuerySnapshot(logQuerySnapshot)
     return logs
 }

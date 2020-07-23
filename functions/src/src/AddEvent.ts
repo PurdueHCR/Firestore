@@ -21,11 +21,10 @@ import { PointType } from '../models/PointType'
  */
 
 export async function addEvent(name: string, details: string, date: Date, location: string,
-                                point_type: PointType, house: string, creator_id: string): Promise<void> {
-    let event = new Event(name, details, date, location, point_type.value, Number(point_type.id), point_type.name.toString(),
+                                point_type: PointType, house: string, creator_id: string) {
+    const event = new Event(name, details, date, location, point_type.value, Number(point_type.id), point_type.name.toString(),
                         point_type.description.toString(), house, creator_id, "")
     const db = admin.firestore()
-    let data = event.toFirestoreJson()
+    const data = event.toFirestoreJson()
     await db.collection(HouseCompetition.EVENTS_KEY).add(data)
-    Promise.resolve(true)
 }
