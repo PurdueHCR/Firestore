@@ -36,15 +36,15 @@ reward_app.use(firestoreTools.validateFirebaseIdToken)
  * @throws 420 - Unknown Reward
  * @throws 500 - ServerError
  */
-reward_app.get('/get', async (req, res) =>{
+reward_app.get('/', async (req, res) =>{
     try{
         if(req.query.id && req.query.id !== ""){
             const reward = await getRewardById(req.query.id as string)
-            res.status(APIResponse.SUCCESS_CODE).send(reward)
+            res.status(APIResponse.SUCCESS_CODE).send({"rewards":reward})
         }
         else {
             const rewards = await getAllRewards()
-            res.status(APIResponse.SUCCESS_CODE).send(rewards)
+            res.status(APIResponse.SUCCESS_CODE).send({"rewards":rewards})
         }
     }
     catch (error){

@@ -1995,7 +1995,7 @@
         }
       }
     },
-    "/reward/get" : {
+    "/reward/" : {
       "get" : {
         "tags" : [ "reward" ],
         "summary" : "If given an Id,  get the reward with that Id, otherwise get all the rewards",
@@ -2024,13 +2024,18 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "Rewards",
+            "description" : "Success",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/Reward"
+                  "type" : "object",
+                  "properties": {
+                    "rewards": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/Reward"
+                      }
+                    }
                   }
                 }
               }
