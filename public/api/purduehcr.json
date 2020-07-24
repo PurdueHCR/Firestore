@@ -2658,10 +2658,6 @@
           "requiredPPR" : {
             "type" : "number",
             "example" : 45
-          },
-          "requiredValue" : {
-            "type" : "number",
-            "example" : 4000
           }
         }
       },
@@ -3072,7 +3068,15 @@
           }
         }
       },
-      
+      "RewardAlreadyExists" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "A reward with that id already exists."
+          }
+        }
+      },
       "ServerError" : {
         "type" : "object",
         "properties" : {
