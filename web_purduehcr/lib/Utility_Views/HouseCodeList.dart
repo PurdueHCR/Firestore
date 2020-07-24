@@ -53,7 +53,7 @@ class _HouseCodeListState extends State<HouseCodeList>{
     }
 
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.max,
       children: [
         Visibility(
             visible: widget.searchable,

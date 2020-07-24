@@ -25,3 +25,9 @@ class RefreshCode extends HouseCodeEvent {
   List<Object> get props => [];
 }
 
+class HouseCodeHandledMessage extends HouseCodeEvent {
+  const HouseCodeHandledMessage();
+  @override
+  List<Object> get props => [];
+}
+

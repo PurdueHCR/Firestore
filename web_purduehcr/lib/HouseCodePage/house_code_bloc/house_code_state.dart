@@ -27,6 +27,12 @@ class RefreshingHouseCodes extends HouseCodeState {
   List<Object> get props => [];
 }
 
+class ErrorRefreshingHouseCodes extends HouseCodeState {
+  const ErrorRefreshingHouseCodes();
+  @override
+  List<Object> get props => [];
+}
+
 class HouseCodeLoadingError extends HouseCodeState {
   const HouseCodeLoadingError();
   @override

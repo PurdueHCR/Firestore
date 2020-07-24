@@ -20,7 +20,10 @@ class HouseCodeBloc extends Bloc<HouseCodeEvent, HouseCodeState>{
 
   @override
   Stream<HouseCodeState> mapEventToState( HouseCodeEvent event) async* {
-    if(event is HouseCodeInitialize){
+    if(event is HouseCodeHandledMessage){
+      yield HouseCodePageLoaded(state.houseCodes);
+    }
+    else if(event is HouseCodeInitialize){
       try{
         List<HouseCode> codes = await _houseCodeRepository.getHouseCodes();
         yield HouseCodePageLoaded(codes);
@@ -38,7 +41,7 @@ class HouseCodeBloc extends Bloc<HouseCodeEvent, HouseCodeState>{
       }
       catch(error){
         print("Error refreshing house codes: "+error.toString());
-        yield HouseCodeLoadingError();
+        yield ErrorRefreshingHouseCodes();
       }
     }
     else if(event is RefreshCode){
@@ -50,7 +53,7 @@ class HouseCodeBloc extends Bloc<HouseCodeEvent, HouseCodeState>{
       }
       catch(error){
         print("Error refreshing house codes: "+error.toString());
-        yield HouseCodeLoadingError();
+        yield ErrorRefreshingHouseCodes();
       }
     }
   }

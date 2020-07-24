@@ -53,6 +53,7 @@ class _HouseCodePageState extends BasePageState<HouseCodeBloc, HouseCodeEvent, H
   }
 
   Widget _buildBody(BuildContext context, HouseCodeState state) {
+    _handleSnackChatState(context, state);
     if(state is HouseCodeLoadingError){
       return Column(
         children: [
@@ -143,6 +144,21 @@ class _HouseCodePageState extends BasePageState<HouseCodeBloc, HouseCodeEvent, H
         },
       )
     ];
+  }
+
+  _handleSnackChatState(BuildContext context, HouseCodeState state){
+    if(state is ErrorRefreshingHouseCodes){
+      final snackBar = SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(
+            'There was an error refreshing the house codes. Please try again.'),
+      );
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) {
+        Scaffold.of(context).showSnackBar(snackBar);
+        _houseCodeBloc.add(HouseCodeHandledMessage());
+      });
+    }
   }
 
   @override

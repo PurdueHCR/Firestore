@@ -32,24 +32,26 @@ class _HouseCodeCardState extends State<HouseCodesCard>{
                       fontWeight: FontWeight.bold
                   ),
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.all(Radius.circular(4))
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                    child: HouseCodeList(
-                      shrinkWrap: true,
-                      searchable: false,
-                      houseCodes: widget.houseCodes,
-                      onPressed: (context, code){
-                        Clipboard.setData(ClipboardData(text: code.dynamicLink));
-                        final snackBar = SnackBar(
-                          content: Text('Copied Link to Join House'),
-                        );
-                        Scaffold.of(context).showSnackBar(snackBar);
-                      },
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.all(Radius.circular(4))
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                      child: HouseCodeList(
+                        shrinkWrap: true,
+                        searchable: false,
+                        houseCodes: widget.houseCodes,
+                        onPressed: (context, code){
+                          Clipboard.setData(ClipboardData(text: code.dynamicLink));
+                          final snackBar = SnackBar(
+                            content: Text('Copied Link to Join House'),
+                          );
+                          Scaffold.of(context).showSnackBar(snackBar);
+                        },
+                      ),
                     ),
                   ),
                 )

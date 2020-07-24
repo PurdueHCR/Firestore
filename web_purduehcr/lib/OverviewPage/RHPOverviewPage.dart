@@ -88,20 +88,16 @@ class _RHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
                 Expanded(
                     child: ConstrainedBox(
                         constraints: BoxConstraints(minHeight: 300, maxHeight: 300),
-                        child: Expanded(
-                          child: RecentSubmissionsCard(
-                            submissions: state.logs,
-                          ),
+                        child: RecentSubmissionsCard(
+                          submissions: state.logs,
                         )
                     )
                 ),
                 Expanded(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(minHeight: 300, maxHeight: 300),
-                    child: Expanded(
-                      child: HouseCodesCard(
-                        houseCodes: state.houseCodes,
-                      ),
+                    child: HouseCodesCard(
+                      houseCodes: state.houseCodes,
                     ),
                   ),
                 )
