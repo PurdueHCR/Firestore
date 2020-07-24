@@ -1,5 +1,5 @@
 import { HouseWithPointLog } from "./House"
-import { HouseCode } from "./Housecode"
+import { HouseCode } from "./HouseCode"
 import { PointType } from "./PointType"
 import { Reward } from "./Reward"
 import { Link } from "./Link"

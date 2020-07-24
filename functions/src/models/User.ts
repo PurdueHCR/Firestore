@@ -1,5 +1,5 @@
 import { PointLog} from './PointLog'
-import { HouseCode } from './Housecode'
+import { HouseCode } from './HouseCode'
 import { UserPermissionLevel } from './UserPermissionLevel'
 export class User {
 

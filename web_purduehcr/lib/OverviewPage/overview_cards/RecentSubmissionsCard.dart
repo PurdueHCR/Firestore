@@ -24,29 +24,22 @@ class RecentSubmissionsCardState extends State<RecentSubmissionsCard>{
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Flexible(
-                  flex: 1,
-                  child: Text("Recent Submissions",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold
-                    ),
+                Text("Recent Submissions",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold
                   ),
                 ),
-                Flexible(
-                  flex: 8,
+                Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-//                        border: Border.all(
-//                          color: Colors.black,
-//                          width: 2
-//                        ),
                         color: Colors.grey,
                         borderRadius: BorderRadius.all(Radius.circular(4))
                     ),
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
                       child: PointLogList(
+                        shrinkWrap: true,
                         searchable: false,
                         pointLogs: widget.submissions,
                         onPressed: (context, log) => print("Tap"),
