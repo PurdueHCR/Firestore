@@ -21,7 +21,7 @@
   }, {
     "name" : "link"
   }, {
-    "name" : "reward"
+    "name" : "rewards"
   }, {
     "name" : "point_type"
   }, {
@@ -1995,9 +1995,9 @@
         }
       }
     },
-    "/reward/" : {
+    "/rewards/" : {
       "get" : {
-        "tags" : [ "reward" ],
+        "tags" : [ "rewards" ],
         "summary" : "If given an Id,  get the reward with that Id, otherwise get all the rewards",
         "parameters" : [ {
           "name" : "Authorization",

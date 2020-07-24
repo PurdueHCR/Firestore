@@ -22,7 +22,7 @@ describe('GET reward/', () =>{
         IntegrationMockFactory.mockFirebaseAdmin()
         db = IntegrationMockFactory.getDb()
 
-        rewards_func = require('../../../src/endpoint_paths/index.ts').reward
+        rewards_func = require('../../../src/endpoint_paths/index.ts').rewards
 
         await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0, {house_name:"Platinum", floor_id:"4N"})
         await FirestoreDataFactory.setUser(db, RHP_ID, 1, {house_name:"Platinum", floor_id:"4N"})
