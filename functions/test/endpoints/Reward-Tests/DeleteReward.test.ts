@@ -17,7 +17,7 @@ const FIRST_REWARD = "First_Rewards"
 let db:firebase.firestore.Firestore
 
 //Test Suite GetUser
-describe('GET reward/', () =>{
+describe('DELETE reward/', () =>{
 
     beforeAll(async () => {
         IntegrationMockFactory.mockFirebaseAdmin()
@@ -82,7 +82,7 @@ describe('GET reward/', () =>{
             else{
                 expect(res.status).toBe(200)
                 const rewardDocs = (await db.collection("Rewards").get()).docs
-                expect(rewardDocs).toHaveLength(3)
+                expect(rewardDocs).toHaveLength(2)
                 await FirestoreDataFactory.setReward(db, {id:FIRST_REWARD, required_ppr:10})
                 done()
             }

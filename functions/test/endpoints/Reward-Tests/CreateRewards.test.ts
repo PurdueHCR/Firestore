@@ -111,7 +111,7 @@ describe('POST reward/', () =>{
     })
 
     it('Negative requiredppr results in bad format', async (done) => {
-        const body: RewardCreateBody = {id:FIRST_REWARD, requiredPPR:-1}
+        const body: RewardCreateBody = {id:FIRST_REWARD, requiredPPR:-1, fileName:"ASDF"}
         const res = factory.post(rewards_func, ENDPOINT, body,  PROF_ID)
         res.end(async function (err, res) {
             if(err){
@@ -135,22 +135,6 @@ describe('POST reward/', () =>{
             }
             else{
                 expect(res.status).toBe(426)
-                const rewardDocs = (await db.collection("Rewards").get()).docs
-                expect(rewardDocs).toHaveLength(3)
-                done()
-            } 
-        })
-    })
-
-    it('Test number as id still returns unknown reward', async (done) => {
-        const body = {id:4, requiredPPR:14}
-        const res = factory.post(rewards_func, ENDPOINT, body,  PROF_ID)
-        res.end(async function (err, res) {
-            if(err){
-                done(err)
-            }
-            else{
-                expect(res.status).toBe(420)
                 const rewardDocs = (await db.collection("Rewards").get()).docs
                 expect(rewardDocs).toHaveLength(3)
                 done()
@@ -192,7 +176,7 @@ describe('POST reward/', () =>{
     })
 
     it('Test Professional staff results in success', async (done) => {
-        const body: RewardCreateBody = {id:FIRST_REWARD, requiredPPR:14, fileName:"NEW FILE"}
+        const body: RewardCreateBody = {id:"NEW REWARD", requiredPPR:14, fileName:"NEW FILE"}
         const res = factory.post(rewards_func, ENDPOINT, body,  PROF_ID)
         res.end(async function (err, res) {
             if(err){
@@ -200,13 +184,13 @@ describe('POST reward/', () =>{
             }
             else{
                 expect(res.status).toBe(200)
-                expect(res.body.id).toBe(FIRST_REWARD)
+                expect(res.body.id).toBe("NEW REWARD")
                 expect(res.body.requiredPPR).toBe(14)
                 expect(res.body.fileName).toBe("NEW FILE")
-                const rewardDoc = (await db.collection("Rewards").doc(FIRST_REWARD).get()).data()!
+                const rewardDoc = (await db.collection("Rewards").doc("NEW REWARD").get()).data()!
                 expect(rewardDoc.RequiredPPR).toBe(14)
                 expect(rewardDoc.FileName).toBe("NEW FILE")
-                await db.collection("Rewards").doc(FIRST_REWARD).delete()
+                await db.collection("Rewards").doc("NEW REWARD").delete()
                 done()
             } 
         })
@@ -261,7 +245,7 @@ describe('POST reward/', () =>{
     })
 
     it('Test add a reward with the same id results in RewardAlreadyExists', async (done) => {
-        const body: RewardCreateBody = {id:FIRST_REWARD, requiredPPR:14, fileName:"NEW FILE"}
+        const body: RewardCreateBody = {id:"First_Rewards", requiredPPR:14, fileName:"NEW FILE"}
         const res = factory.post(rewards_func, ENDPOINT, body,  PROF_ID)
         res.end(async function (err, res) {
             if(err){
