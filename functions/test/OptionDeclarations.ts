@@ -211,7 +211,8 @@ export declare type UserOptions = {
     house_name?:string,
     last?:string,
     semester_points?:number,
-    total_points?:number
+    total_points?:number,
+    enabled?:boolean
 }
 
 export const USER_DEFAULTS:UserOptions = {
@@ -220,7 +221,8 @@ export const USER_DEFAULTS:UserOptions = {
     total_points: 0,
     semester_points: 0,
     house_name: "Platinum",
-    floor_id: "4N"
+    floor_id: "4N",
+    enabled: true
 }
 
 ///----------------------------------------------------------------

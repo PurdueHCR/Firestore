@@ -25,7 +25,7 @@ describe('GET user/search', () =>{
         user_func = require('../../../src/endpoint_paths/index.ts').user
 
         await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0, {last:"B"})
-        await FirestoreDataFactory.setUser(db, RHP_ID, 1, {last:"LASTEDNAME"})
+        await FirestoreDataFactory.setUser(db, RHP_ID, 1, {last:"LASTEDNAM"})
         await FirestoreDataFactory.setUser(db, PROF_ID, 2)
         await FirestoreDataFactory.setUser(db, FHP_ID, 3)
         await FirestoreDataFactory.setUser(db, PRIV_RES, 4)
@@ -212,7 +212,7 @@ describe('GET user/search', () =>{
     })
 
     it('Test search for entire name', (done) => {
-        const query = {term:"LASTEDNAME"}
+        const query = {term:"LASTEDNAM"}
         const res = factory.get(user_func, ENDPOINT, PROF_ID, query )
         res.end(function (err, res) {
             if(err){
@@ -221,7 +221,7 @@ describe('GET user/search', () =>{
             else{
                 expect(res.status).toBe(200)
                 expect(res.body.users).toHaveLength(1)
-                expect(res.body.users[0].lastName).toBe("LASTEDNAME")
+                expect(res.body.users[0].lastName).toBe("LASTEDNAM")
                 done()
             }
         })
