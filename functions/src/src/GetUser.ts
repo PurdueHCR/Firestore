@@ -47,7 +47,10 @@ export async function searchForUsers(name:string, perviousName:string = ""): Pro
 		return users
 	}
 	else{
-		const userQuerySnapshot = await db.collection("Users").where("LastName", "==",name).orderBy("LastName", "asc").limit(25).startAfter(perviousName).get()
+		let firstLetter = name.charCodeAt(name.length - 1)
+		firstLetter += 1
+		let lastLetter = name.substr(0, name.length - 2) + String.fromCharCode(firstLetter)
+		const userQuerySnapshot = await db.collection("Users").where("LastName", ">=",name).where("LastName","<",lastLetter).orderBy("LastName", "asc").limit(25).startAfter(perviousName).get()
 		const users = User.fromQuerySnapshot(userQuerySnapshot)
 		return users
 	}

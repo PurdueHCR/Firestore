@@ -4,7 +4,7 @@ enum UserPermissionLevel {
   PROFESSIONAL_STAFF,
   FHP,  //Faculty Honors Preceptor
   PRIVILEGED_RESIDENT,
-  EXTERNAL_ADVISER, // External Adviser to the competition
+  EXTERNAL_ADVISER // External Adviser to the competition
 }
 class UserPermissionLevelConverter{
   static UserPermissionLevel fromNum(num value){
@@ -22,6 +22,23 @@ class UserPermissionLevelConverter{
       default:
         return UserPermissionLevel.RESIDENT;
     }
+  }
+  static String convertPermissionToString(UserPermissionLevel permissionLevel){
+    switch(permissionLevel){
+      case UserPermissionLevel.RESIDENT:
+        return "Resident";
+      case UserPermissionLevel.RHP:
+        return "RHP";
+      case UserPermissionLevel.PROFESSIONAL_STAFF:
+        return "Professional Staff";
+      case UserPermissionLevel.FHP:
+        return "House Adviser";
+      case UserPermissionLevel.PRIVILEGED_RESIDENT:
+        return "Privileged Resident";
+      case UserPermissionLevel.EXTERNAL_ADVISER:
+        return "External Adviser";
+    }
+    return null;
   }
 }
 

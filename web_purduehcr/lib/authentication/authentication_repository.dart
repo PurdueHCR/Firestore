@@ -19,7 +19,7 @@ class AuthenticationRepository {
   }
 
   Future<User> getUser() async {
-    Map<String, dynamic> userMap = await callCloudFunction(config, Method.GET, "user/get");
+    Map<String, dynamic> userMap = await callCloudFunction(config, Method.GET, "user/");
     return User.fromJson(userMap);
   }
 }

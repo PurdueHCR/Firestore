@@ -31,6 +31,7 @@ class AuthenticationBloc
         yield Authenticated(user);
       }
       catch(error){
+        print("Uh oh. There was an error");
         yield Unauthenticated();
       }
     }

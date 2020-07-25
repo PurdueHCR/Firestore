@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/ControlsPage/ControlsPage.dart';
+import 'package:purduehcr_web/FindUsersPage/FindUsersPage.dart';
 import 'package:purduehcr_web/HandlePointsPage/HandlePointsPage.dart';
 import 'package:purduehcr_web/HistoryPage/HistoryPage.dart';
 import 'package:purduehcr_web/HouseCodePage/HouseCodePage.dart';
@@ -48,6 +49,8 @@ class RouteGenerator {
                   return PointTypesControlPage();
                 case 'house_codes':
                   return HouseCodePage();
+                case 'find_users':
+                  return FindUsersPage();
                 case 'addpoints':
                   if(path.length == 3){
                     return HomePage(linkId: path[2],);

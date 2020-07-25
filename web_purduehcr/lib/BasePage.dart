@@ -42,9 +42,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
 
   @override
   Widget build(BuildContext context) {
-
     switch (displayTypeOf(context)){
-
       case DisplayType.desktop_large:
         Widget child;
         if(getBloc() == null){

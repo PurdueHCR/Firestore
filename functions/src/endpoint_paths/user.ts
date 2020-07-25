@@ -398,13 +398,15 @@ users_app.put('/', async (req,res) => {
 						if(req.body.house !== modifiedUser.house){
 							if("floorId" in req.body){
 								//TODO remove the user from the current house
-								const house = await getHouseByName(req.body.house)
-								if( house.floorIds.indexOf(req.body.floorId) === -1){
+								const houseId = ParameterParser.parseInputForString(req.body.house)
+								const house = await getHouseByName(houseId)
+								const floorId = ParameterParser.parseInputForString(req.body.floorId)
+								if( house.floorIds.indexOf(floorId) === -1){
 									throw APIResponse.InvalidFloorId()
 								}
 								else{
-									modifiedUser.house = ParameterParser.parseInputForString(req.body.house)
-									modifiedUser.floorId = req.body.floorId
+									modifiedUser.house = house.id
+									modifiedUser.floorId = floorId
 									modifiedUser.semesterPoints = 0
 									modifiedUser.totalPoints = 0
 								}
@@ -418,12 +420,12 @@ users_app.put('/', async (req,res) => {
 					else if("floorId" in req.body){
 						//TODO remove the user from the current house
 						const house = await getHouseByName(modifiedUser.house)
-						if( house.floorIds.indexOf(req.body.floorId) === -1){
+						const floorId = ParameterParser.parseInputForString(req.body.floorId)
+						if( house.floorIds.indexOf(floorId) === -1){
 							throw APIResponse.InvalidFloorId()
 						}
 						else{
-							modifiedUser.house = ParameterParser.parseInputForString(req.body.house)
-							modifiedUser.floorId = req.body.floorId
+							modifiedUser.floorId = floorId
 						}
 					}
 					await updateUser(modifiedUser)
@@ -453,13 +455,15 @@ users_app.put('/', async (req,res) => {
 						if(req.body.house !== modifiedUser.house){
 							if("floorId" in req.body){
 								//TODO remove the user from the current house
-								const house = await getHouseByName(req.body.house)
-								if( house.floorIds.indexOf(req.body.floorId) === -1){
+								const houseId = ParameterParser.parseInputForString(req.body.house)
+								const house = await getHouseByName(houseId)
+								const floorId = ParameterParser.parseInputForString(req.body.floorId)
+								if( house.floorIds.indexOf(floorId) === -1){
 									throw APIResponse.InvalidFloorId()
 								}
 								else{
-									modifiedUser.house = ParameterParser.parseInputForString(req.body.house)
-									modifiedUser.floorId = req.body.floorId
+									modifiedUser.house = house.id
+									modifiedUser.floorId = floorId
 									modifiedUser.semesterPoints = 0
 									modifiedUser.totalPoints = 0
 								}
@@ -473,11 +477,12 @@ users_app.put('/', async (req,res) => {
 					else if("floorId" in req.body){
 						//TODO remove the user from the current house
 						const house = await getHouseByName(modifiedUser.house)
-						if( house.floorIds.indexOf(req.body.floorId) === -1){
+						const floorId = ParameterParser.parseInputForString(req.body.floorId)
+						if( house.floorIds.indexOf(floorId) === -1){
 							throw APIResponse.InvalidFloorId()
 						}
 						else{
-							modifiedUser.floorId = req.body.floorId
+							modifiedUser.floorId = floorId
 						}
 					}
 					await updateUser(modifiedUser)
