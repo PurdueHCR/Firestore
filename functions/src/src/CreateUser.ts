@@ -63,7 +63,7 @@ export async function createUser(user_id: string, code: string, first_name: stri
 export async function createUserFromModel(user_id: string, user:User): Promise<void> {
     const db = admin.firestore()
     try{
-        await db.collection(HouseCompetition.USERS_KEY).doc(user_id).set(user.toJson())
+        await db.collection(HouseCompetition.USERS_KEY).doc(user_id).set(user.toFirestoreJson())
         return Promise.resolve()
     }
     catch (error){

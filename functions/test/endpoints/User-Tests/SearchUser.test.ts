@@ -31,8 +31,10 @@ describe('GET user/search', () =>{
         await FirestoreDataFactory.setUser(db, PRIV_RES, 4)
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
 
-        for(let i = 0; i < 30; i ++){
+        for(let i = 0; i < 10; i ++){
             await FirestoreDataFactory.setUser(db, "A"+i.toString(), 0, {last: "A"+i.toString()})
+            await FirestoreDataFactory.setUser(db, "AB"+i.toString(), 0, {last: "AB"+i.toString()})
+            await FirestoreDataFactory.setUser(db, "AC"+i.toString(), 0, {last: "AC"+i.toString()})
         }
 
     })
@@ -59,7 +61,7 @@ describe('GET user/search', () =>{
                 done(err)
             }
             else{
-                expect(res.status).toBe(422)
+                expect(res.status).toBe(426)
                 done()
             }
         })
@@ -147,15 +149,38 @@ describe('GET user/search', () =>{
                 expect(res.status).toBe(200)
                 expect(res.body.users).toHaveLength(25)
                 expect(res.body.users[0].lastName).toBe("A0")
-                expect(res.body.users[24].lastName).toBe("A24")
+                expect(res.body.users[1].lastName).toBe("A1")
+                expect(res.body.users[2].lastName).toBe("A2")
+                expect(res.body.users[3].lastName).toBe("A3")
+                expect(res.body.users[4].lastName).toBe("A4")
+                expect(res.body.users[5].lastName).toBe("A5")
+                expect(res.body.users[6].lastName).toBe("A6")
+                expect(res.body.users[7].lastName).toBe("A7")
+                expect(res.body.users[8].lastName).toBe("A8")
+                expect(res.body.users[9].lastName).toBe("A9")
+                expect(res.body.users[10].lastName).toBe("AB0")
+                expect(res.body.users[11].lastName).toBe("AB1")
+                expect(res.body.users[12].lastName).toBe("AB2")
+                expect(res.body.users[13].lastName).toBe("AB3")
+                expect(res.body.users[14].lastName).toBe("AB4")
+                expect(res.body.users[15].lastName).toBe("AB5")
+                expect(res.body.users[16].lastName).toBe("AB6")
+                expect(res.body.users[17].lastName).toBe("AB7")
+                expect(res.body.users[18].lastName).toBe("AB8")
+                expect(res.body.users[19].lastName).toBe("AB9")
+                expect(res.body.users[20].lastName).toBe("AC0")
+                expect(res.body.users[21].lastName).toBe("AC1")
+                expect(res.body.users[22].lastName).toBe("AC2")
+                expect(res.body.users[23].lastName).toBe("AC3")
+                expect(res.body.users[24].lastName).toBe("AC4")
                 done()
             }
         })
     })
 
     it('Test term is a single letter and uses pagination', (done) => {
-        const query = {term: "A", previousName:"A24"}
-        const res = factory.get(user_func, ENDPOINT, RESIDENT_ID, query )
+        const query = {term: "A", previousName:"AC4"}
+        const res = factory.get(user_func, ENDPOINT, PROF_ID, query )
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -163,8 +188,8 @@ describe('GET user/search', () =>{
             else{
                 expect(res.status).toBe(200)
                 expect(res.body.users).toHaveLength(5)
-                expect(res.body.users[0].lastName).toBe("A25")
-                expect(res.body.users[4].lastName).toBe("A29")
+                expect(res.body.users[0].lastName).toBe("AC5")
+                expect(res.body.users[4].lastName).toBe("AC9")
                 done()
             }
         })
@@ -172,7 +197,7 @@ describe('GET user/search', () =>{
 
     it('Test term is single letter but doesnt return other letters', (done) => {
         const query = {term:"B"}
-        const res = factory.get(user_func, ENDPOINT, RESIDENT_ID, query )
+        const res = factory.get(user_func, ENDPOINT, PROF_ID, query )
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -188,7 +213,7 @@ describe('GET user/search', () =>{
 
     it('Test search for entire name', (done) => {
         const query = {term:"LASTEDNAME"}
-        const res = factory.get(user_func, ENDPOINT, RESIDENT_ID, query )
+        const res = factory.get(user_func, ENDPOINT, PROF_ID, query )
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -204,7 +229,7 @@ describe('GET user/search', () =>{
 
     it('Test search for entire name but no names exist', (done) => {
         const query = {term:"NO EXAMPLE"}
-        const res = factory.get(user_func, ENDPOINT, RESIDENT_ID, query )
+        const res = factory.get(user_func, ENDPOINT, PROF_ID, query )
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -219,7 +244,7 @@ describe('GET user/search', () =>{
 
     it('Test search for entire name with pagination past expected', (done) => {
         const query = {term:"LASTEDNAME", previousName:"LASTEDNAMED"}
-        const res = factory.get(user_func, ENDPOINT, RESIDENT_ID, query )
+        const res = factory.get(user_func, ENDPOINT, PROF_ID, query )
         res.end(function (err, res) {
             if(err){
                 done(err)

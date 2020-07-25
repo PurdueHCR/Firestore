@@ -27,6 +27,7 @@ export declare type HouseCodeOptions = {
     floor_id?: string,
     house?: string,
     permission_level?: number
+    
 }
 
 export const HOUSE_CODE_DEFAULTS:HouseCodeOptions = {
@@ -45,12 +46,14 @@ export declare type HouseOptions = {
     color?: string
     num_residents?: number
     total_points?: number
+    floor_ids?: string[]
 }
 
 export const HOUSE_DEFAULTS:HouseOptions = {
     color: "#5AC0C7",
     total_points: 20,
-    num_residents: 200
+    num_residents: 200,
+    floor_ids: ["4N", "4@"]
 }
 
 ///----------------------------------------------------------------

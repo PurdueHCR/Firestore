@@ -1,5 +1,5 @@
-import { UserWithPoints } from "./User"
 import { PointLog } from "./PointLog"
+
 
 export class House {
     
@@ -7,18 +7,21 @@ export class House {
     static COLOR = "Color"
     static NUMBER_OF_RESIDENTS = "NumberOfResidents"
     static TOTAL_POINTS =  "TotalPoints"
+    static FLOOR_IDS = "FloorIds"
 
     color: string
     numberOfResidents: number
     totalPoints: number
     id:string
     pointsPerResident: number
+    floorIds: string[]
 
-    constructor(color:string, numberOfResidents: number, totalPoints: number, id: string){
+    constructor(color:string, numberOfResidents: number, totalPoints: number, floorIds: string[], id: string){
         this.color = color
         this.numberOfResidents = numberOfResidents
         this.totalPoints = totalPoints
         this.id = id
+        this.floorIds = floorIds
         this.pointsPerResident = totalPoints/numberOfResidents
     }
 
@@ -27,6 +30,7 @@ export class House {
         data[House.COLOR] = this.color
         data[House.NUMBER_OF_RESIDENTS] = this.numberOfResidents
         data[House.TOTAL_POINTS] = this.totalPoints
+        data[House.FLOOR_IDS] = this.floorIds
         return data
     }
 
@@ -55,6 +59,7 @@ export class House {
         let color: string
         let numberOfResidents: number
         let totalPoints: number
+        let floorIds: string[]
         const id = doc_id
 
         if( House.COLOR in document){
@@ -77,29 +82,37 @@ export class House {
         else{
             totalPoints = -1;
         }
-        return new House(color, numberOfResidents, totalPoints, id)
-    }
-}
 
-export class HouseWithUser extends House {
-    users: UserWithPoints[] = []
-
-    getUser(id:string){
-        let i = 0;
-        while( i < this.users.length){
-            if(this.users[i].id === id){
-                return this.users[i]
-            }
-            i++
+        if(House.FLOOR_IDS in document){
+            floorIds = document[House.FLOOR_IDS]
+        }
+        else{
+            floorIds = []
         }
 
-        return null
-    }
-
-    addUser(pl:PointLog){
-        this.users.push(pl.createUser())
+        return new House(color, numberOfResidents, totalPoints, floorIds, id)
     }
 }
+
+// export class HouseWithUser extends House {
+//     users: UserWithPoints[] = []
+
+//     getUser(id:string){
+//         let i = 0;
+//         while( i < this.users.length){
+//             if(this.users[i].id === id){
+//                 return this.users[i]
+//             }
+//             i++
+//         }
+
+//         return null
+//     }
+
+//     addUser(pl:PointLog){
+//         this.users.push(pl.createUser())
+//     }
+// }
 
 export class HouseWithPointLog extends House{
     pointLogs: PointLog[] = []

@@ -256,7 +256,14 @@ export class APIResponse{
     static CanNotPostMessage(): APIResponse {
         return new APIResponse(427, "You are not allowed to post a message to this submission.")
     }
-    
+
+    /**
+     * 428 - Invalid Floor Id
+     * The floor id does not exist with the house that the user belongs to.
+     */
+    static InvalidFloorId(): APIResponse {
+        return new APIResponse(428, "The floor id does not exist with the house that the user belongs to.")
+    }
     /**
      * 430 - Insufficient Permission Level For Create a Link with that Point Type
      * The point type  
