@@ -281,6 +281,14 @@ export class APIResponse{
     }
 
     /**
+     * 470 - Reward Already Exists
+     * A reward with that id already exists.
+     */
+    static RewardAlreadyExists(): APIResponse {
+        return new APIResponse(470, "A reward with that id already exists.")
+    }
+
+    /**
      * 500 - Server Error
      * Unknown Firebase Firestore error
      */
