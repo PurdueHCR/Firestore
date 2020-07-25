@@ -398,7 +398,188 @@
         }
       }
     },
-    "/user/get" : {
+    "/user/search" : {
+      "get" : {
+        "tags" : [ "user" ],
+        "summary" : "Search for a user whose last name starts with the provided term. This is an endpoint for Professional staff only.",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        }, {
+          "name" : "term",
+          "in" : "query",
+          "description" : "The begining of the last name of the user to find.",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "A"
+        },
+        {
+          "name" : "previousName",
+          "in" : "query",
+          "description" : "The last name of the last resident returned in the previous request to support pagination.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Aardvark"
+        }
+       ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties": {
+                    "users": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/User"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User who made the request does not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level to access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/" : {
+      "put": {
+        "tags" : [ "user" ],
+        "summary" : "Update the user model.",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to update the user. If an id is not provided, it will update the current user's information. Otherwise, it will use the provided id to update a user. A resident can only update the first and last name. RHP's can do that and update the house and floor id. Professional staff can update those and the permission level.",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UserUpdate"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Update was successfully completed.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "The calling user doesnt exist or the user with the given id doesn't exist.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level to access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
       "get" : {
         "tags" : [ "user" ],
         "summary" : "Get the user model for the provided Firebase Token.",
@@ -2286,6 +2467,35 @@
           "totalPoints" : {
             "type" : "integer",
             "example" : 325
+          },
+          "permissionLevel" : {
+            "type" : "integer",
+            "example" : 0
+          }
+        }
+      },
+      "UserUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "example" : "23p9vd123iohfds09aserh"
+          },
+          "firstName" : {
+            "type" : "string",
+            "example" : "Mitch"
+          },
+          "lastName" : {
+            "type" : "string",
+            "example" : "Daniels"
+          },
+          "floorId" : {
+            "type" : "string",
+            "example" : "4N"
+          },
+          "house" : {
+            "type" : "string",
+            "example" : "Platinum"
           },
           "permissionLevel" : {
             "type" : "integer",
