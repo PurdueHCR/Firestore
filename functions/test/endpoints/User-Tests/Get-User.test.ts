@@ -8,7 +8,7 @@ const RESIDENT_ID = "RESIDENT"
 let db:firebase.firestore.Firestore
 
 //Test Suite GetUser
-describe('user/get', () =>{
+describe('user/', () =>{
 
     beforeAll(async () => {
         IntegrationMockFactory.mockFirebaseAdmin()
@@ -21,7 +21,7 @@ describe('user/get', () =>{
 
     //Test Unknown User
     it('Unknown User', (done) => {
-        const res = factory.get(user_func, "/get", "BADID")
+        const res = factory.get(user_func, "/", "BADID")
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -35,7 +35,7 @@ describe('user/get', () =>{
 
     //Test Unknown User
     it('Bad Token', (done) => {
-        const res = factory.get(user_func, "/get", "INVALIDID")
+        const res = factory.get(user_func, "/", "INVALIDID")
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -49,7 +49,7 @@ describe('user/get', () =>{
 
     //Test that it successfully gets a user
     it('Success Get User', (done) =>{
-        const res = factory.get(user_func, "/get", RESIDENT_ID)
+        const res = factory.get(user_func, "/", RESIDENT_ID)
         res.end(function (err, res) {
             if(err){
                 done(err)

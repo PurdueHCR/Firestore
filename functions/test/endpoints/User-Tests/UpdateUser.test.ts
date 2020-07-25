@@ -187,7 +187,7 @@ describe('PUT user/', () =>{
                 expect(user.FirstName).toBe("NEW_FIRST")
                 expect(user.LastName).toBe("NEW_LAST")
                 expect(user.House).toBe("Copper")
-                expect(user["Permission Level"]).toBe(1)
+                expect(user["Permission Level"]).toBe(0)
                 expect(user.FloorID).toBe("2N")
                 expect(user.Enabled).toBe(true)
                 done()

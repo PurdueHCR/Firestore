@@ -387,52 +387,15 @@ users_app.put('/', async (req,res) => {
 			verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.RHP])
 			if(user.permissionLevel === UserPermissionLevel.RHP){
 				if(("firstName" in req.body || "lastName" in req.body || "house" in req.body || "floorId" in req.body)){
-					const user = await getUser(req.body.id)
+					const modifiedUser = await getUser(req.body.id)
 					if("firstName" in req.body){
-						user.firstName = ParameterParser.parseInputForString(req.body.firstName)
+						modifiedUser.firstName = ParameterParser.parseInputForString(req.body.firstName)
 					}
 					if("lastName" in req.body){
-						user.lastName = ParameterParser.parseInputForString(req.body.lastName)
+						modifiedUser.lastName = ParameterParser.parseInputForString(req.body.lastName)
 					}
 					if("house" in req.body ){
-						if("floorId" in req.body){
-							//TODO VERIFY HOUSE IN FLOOR ID
-							//TODO remove the user from the current house
-							user.house = ParameterParser.parseInputForString(req.body.house)
-						}
-						else{
-							throw APIResponse.InvalidFloorId()
-						}
-					}
-					else if("floorId" in req.body){
-						//TODO VERIFY HOUSE IN FLOOR ID
-						//TODO remove the user from the current house
-					}
-					await updateUser(user)
-					throw APIResponse.Success()
-				}
-				else{
-					throw APIResponse.MissingRequiredParameters()
-				}
-			}
-			else if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
-				if(("firstName" in req.body || "lastName" in req.body || "house" in req.body || "floorId" in req.body || "permissionLevel" in req.body || "enabled" in req.body)){
-					const user = await getUser(req.body.id)
-					if("firstName" in req.body){
-						user.firstName = ParameterParser.parseInputForString(req.body.firstName)
-					}
-					if("lastName" in req.body){
-						user.lastName = ParameterParser.parseInputForString(req.body.lastName)
-					}
-					if("permissionLevel" in req.body){
-						user.permissionLevel = ParameterParser.parseInputForNumber(req.body.permissionLevel)
-					}
-					if("enabled" in req.body){
-						user.enabled = ParameterParser.parseInputForBoolean(req.body.enabled)
-					}
-
-					if("house" in req.body ){
-						if(req.body.house !== user.house){
+						if(req.body.house !== modifiedUser.house){
 							if("floorId" in req.body){
 								//TODO remove the user from the current house
 								const house = await getHouseByName(req.body.house)
@@ -440,10 +403,10 @@ users_app.put('/', async (req,res) => {
 									throw APIResponse.InvalidFloorId()
 								}
 								else{
-									user.house = ParameterParser.parseInputForString(req.body.house)
-									user.floorId = req.body.floorId
-									user.semesterPoints = 0
-									user.totalPoints = 0
+									modifiedUser.house = ParameterParser.parseInputForString(req.body.house)
+									modifiedUser.floorId = req.body.floorId
+									modifiedUser.semesterPoints = 0
+									modifiedUser.totalPoints = 0
 								}
 								
 							}
@@ -454,16 +417,70 @@ users_app.put('/', async (req,res) => {
 					}
 					else if("floorId" in req.body){
 						//TODO remove the user from the current house
-						const house = await getHouseByName(user.house)
+						const house = await getHouseByName(modifiedUser.house)
 						if( house.floorIds.indexOf(req.body.floorId) === -1){
 							throw APIResponse.InvalidFloorId()
 						}
 						else{
-							user.house = ParameterParser.parseInputForString(req.body.house)
-							user.floorId = req.body.floorId
+							modifiedUser.house = ParameterParser.parseInputForString(req.body.house)
+							modifiedUser.floorId = req.body.floorId
 						}
 					}
-					await updateUser(user)
+					await updateUser(modifiedUser)
+					throw APIResponse.Success()
+				}
+				else{
+					throw APIResponse.MissingRequiredParameters()
+				}
+			}
+			else if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+				if(("firstName" in req.body || "lastName" in req.body || "house" in req.body || "floorId" in req.body || "permissionLevel" in req.body || "enabled" in req.body)){
+					const modifiedUser = await getUser(req.body.id)
+					if("firstName" in req.body){
+						modifiedUser.firstName = ParameterParser.parseInputForString(req.body.firstName)
+					}
+					if("lastName" in req.body){
+						modifiedUser.lastName = ParameterParser.parseInputForString(req.body.lastName)
+					}
+					if("permissionLevel" in req.body){
+						modifiedUser.permissionLevel = ParameterParser.parseInputForNumber(req.body.permissionLevel, 0,5)
+					}
+					if("enabled" in req.body){
+						modifiedUser.enabled = ParameterParser.parseInputForBoolean(req.body.enabled)
+					}
+
+					if("house" in req.body ){
+						if(req.body.house !== modifiedUser.house){
+							if("floorId" in req.body){
+								//TODO remove the user from the current house
+								const house = await getHouseByName(req.body.house)
+								if( house.floorIds.indexOf(req.body.floorId) === -1){
+									throw APIResponse.InvalidFloorId()
+								}
+								else{
+									modifiedUser.house = ParameterParser.parseInputForString(req.body.house)
+									modifiedUser.floorId = req.body.floorId
+									modifiedUser.semesterPoints = 0
+									modifiedUser.totalPoints = 0
+								}
+								
+							}
+							else{
+								throw APIResponse.InvalidFloorId()
+							}
+						}
+					}
+					else if("floorId" in req.body){
+						//TODO remove the user from the current house
+						const house = await getHouseByName(modifiedUser.house)
+						if( house.floorIds.indexOf(req.body.floorId) === -1){
+							throw APIResponse.InvalidFloorId()
+						}
+						else{
+							modifiedUser.floorId = req.body.floorId
+						}
+					}
+					await updateUser(modifiedUser)
 					throw APIResponse.Success()
 				}
 				else{
