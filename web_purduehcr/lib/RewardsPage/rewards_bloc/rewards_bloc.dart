@@ -21,7 +21,10 @@ class RewardsBloc extends Bloc<RewardsEvent, RewardsState>{
 
   @override
   Stream<RewardsState> mapEventToState( RewardsEvent event) async* {
-    if(event is RewardsInitialize){
+    if(event is RewardHandleMessage){
+      yield RewardsPageLoaded(state.rewards);
+    }
+    else if(event is RewardsInitialize){
       try{
           List<Reward> rewards = await _rewardsRepository.getRewards();
           yield RewardsPageLoaded(rewards);
@@ -50,37 +53,56 @@ class RewardsBloc extends Bloc<RewardsEvent, RewardsState>{
     }
     else if(event is UpdateReward){
       try{
+        await _rewardsRepository.updateReward(event.reward, name: event.name, fileName: event.fileName, downloadURL: event.downloadURL, pointsPerResident: event.pointsPerResident);
+        print("Update returned when it should have thrown 200");
         yield UpdateRewardsError(state.rewards);
       }
       on ApiError catch(error){
         if(error.errorCode == 200){
+          if(event.name != null){
+            event.reward.name = event.name;
+          }
+          if(event.fileName != null){
+            event.reward.fileName = event.fileName;
+          }
+          if(event.downloadURL != null){
+            event.reward.downloadURL = event.downloadURL;
+          }
+          if(event.pointsPerResident != null){
+            event.reward.requiredPPR = event.pointsPerResident;
+          }
           yield RewardsPageLoaded(state.rewards);
         }
         else{
-          print("Got error in creating a reward: "+error.toString());
+          print("Got error in update a reward: "+error.toString());
+          yield UpdateRewardsError(state.rewards);
         }
       }
       catch (error){
         print("Got error in initializing RewardsPage: "+error);
-        yield CreateRewardsError(state.rewards);
+        yield UpdateRewardsError(state.rewards);
       }
     }
     else if(event is DeleteReward){
       try{
-        print("DELTE REWARD IS UNIMPLEMENTED");
+        print("Trying delete");
+        await _rewardsRepository.deleteReward(event.reward);
         yield DeleteRewardsError(state.rewards);
       }
       on ApiError catch(error){
         if(error.errorCode == 200){
-          yield RewardsPageLoaded(state.rewards);
+          print("Delete Success");
+          state.rewards.remove(event.reward);
+          yield DeleteRewardSuccess(state.rewards);
         }
         else{
           print("Got error in creating a reward: "+error.toString());
+          yield DeleteRewardsError(state.rewards);
         }
       }
       catch (error){
         print("Got error in initializing RewardsPage: "+error);
-        yield CreateRewardsError(state.rewards);
+        yield DeleteRewardsError(state.rewards);
       }
     }
   }

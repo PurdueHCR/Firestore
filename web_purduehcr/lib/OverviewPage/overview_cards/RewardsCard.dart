@@ -54,7 +54,7 @@ class RewardsCardState extends State<RewardsCard>{
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
-                  child: Image.network(widget.reward.rewardDownloadURL)
+                  child: Image.network(widget.reward.downloadURL)
                 ),
               ),
             ],

@@ -26,13 +26,18 @@ class CreateReward extends RewardsEvent {
   final String fileName;
   const CreateReward({this.name, this.pointsPerResident, this.fileName, this.downloadURL});
   @override
-  List<Object> get props => [name, pointsPerResident, downloadURL];
+  List<Object> get props => [name, pointsPerResident, downloadURL, this.fileName];
 }
 
 class UpdateReward extends RewardsEvent {
-  const UpdateReward();
+  final Reward reward;
+  final String name;
+  final double pointsPerResident;
+  final String downloadURL;
+  final String fileName;
+  const UpdateReward(this.reward, {this.name, this.pointsPerResident, this.fileName, this.downloadURL});
   @override
-  List<Object> get props => [];
+  List<Object> get props => [reward, name, pointsPerResident, downloadURL, fileName];
 }
 
 class RewardHandleMessage extends RewardsEvent {

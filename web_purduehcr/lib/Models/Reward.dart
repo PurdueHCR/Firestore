@@ -4,34 +4,28 @@ import 'package:meta/meta.dart';
 
 class Reward{
 
-  static const String API_NAME_KEY = "name";
-  static const String API_REQUIRED_PPR_KEY = "requiredPPR";
-  static const String API_DOWNLOAD_KEY = "downloadURL";
+  static const String ID = "id";
+  static const String NAME = "name";
+  static const String REQUIRED_PPR = "requiredPPR";
+  static const String DOWNLOAD_RUL = "downloadURL";
+  static const String FILE_NAMe = "fileName";
 
   String name;
-//  String fileName;
+  String fileName;
   double requiredPPR;
-  String rewardDownloadURL = "";
+  String downloadURL = "";
+  String id;
 
-  Reward({@required this.name,@required this.requiredPPR, @required this.rewardDownloadURL});
-//  {
-//    fb.storage().ref(this.fileName).getDownloadURL().then((value) => rewardDownloadURL = value);
-//  }
+  Reward({@required this.name,@required this.requiredPPR, @required this.downloadURL, this.fileName, this.id});
 
-//  Future<Uri> getDownloadURL(){
-//    if(this.rewardDownloadURL == null){
-//      return Future.delayed(Duration(milliseconds: 100)).then((val)=> getDownloadURL());
-//    }
-//    else{
-//      return Future.value(rewardDownloadURL);
-//    }
-//  }
 
   factory Reward.fromJson(Map<String,dynamic> json) {
     return Reward(
-      name: json[API_NAME_KEY],
-      requiredPPR : json[API_REQUIRED_PPR_KEY],
-      rewardDownloadURL:  json[API_DOWNLOAD_KEY]
+      id: json[ID],
+      name: json[NAME],
+      requiredPPR : json[REQUIRED_PPR],
+      downloadURL:  json[DOWNLOAD_RUL],
+      fileName: json[FILE_NAMe]
     );
   }
 

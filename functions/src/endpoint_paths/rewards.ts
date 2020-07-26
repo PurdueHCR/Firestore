@@ -81,7 +81,7 @@ reward_app.get('/', async (req, res) =>{
 reward_app.put('/', async (req, res) =>{
     try{
         if(req.body === undefined || req.body === null || req.body.id === undefined || req.body.id === "" || 
-		! ("name" in req.body || "requiredPPR" in req.body || "downloadURL" in req.body )){
+		! ("name" in req.body || "requiredPPR" in req.body || "downloadURL" in req.body || "fileName" in req.body)){
 			if(req.body === undefined || req.body === null){
 				console.error("Missing body")
 				throw APIResponse.MissingRequiredParameters()
@@ -109,8 +109,11 @@ reward_app.put('/', async (req, res) =>{
         if("downloadURL" in req.body){
             reward.downloadURL = ParameterParser.parseInputForString(req.body.downloadURL)
         }
+        if("fileName" in req.body){
+            reward.fileName = ParameterParser.parseInputForString(req.body.fileName)
+        }
         await RewardFunctions.updateReward(reward)
-        res.status(APIResponse.SUCCESS_CODE).send(reward)
+        throw APIResponse.Success()
 
     }
     catch (error){
@@ -176,7 +179,7 @@ reward_app.post('/', async (req, res) =>{
 
 /**
  * Delete a reward
- * @param  query.id
+ * @param  body.id
  * @throws 400 - Unknown User
  * @throws 401 - Unauthorized
  * @throws 403 - Invalid Permission
@@ -185,13 +188,13 @@ reward_app.post('/', async (req, res) =>{
  */
 reward_app.delete('/', async (req, res) =>{
     try{
-        if(req.query === undefined || req.query === null || !("id" in req.query)){
-			if(req.query === undefined || req.query === null){
+        if(req.body === undefined || req.body === null || !("id" in req.body)){
+			if(req.body === undefined || req.body === null){
 				console.error("Missing body")
 				throw APIResponse.MissingRequiredParameters()
 			}
-			else if(!("id" in req.query)){
-				console.error("Missing point type id")
+			else if(!("id" in req.body)){
+				console.error("Missing reward id")
 				throw APIResponse.MissingRequiredParameters()
 			}
 			else{
@@ -202,7 +205,7 @@ reward_app.delete('/', async (req, res) =>{
 
         const user = await getUser(req["user"]["user_id"])
         verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
-        const id = ParameterParser.parseInputForString(req.query.id)
+        const id = ParameterParser.parseInputForString(req.body.id)
         const reward = await RewardFunctions.getRewardById(id)
 
         await RewardFunctions.deleteReward(reward)

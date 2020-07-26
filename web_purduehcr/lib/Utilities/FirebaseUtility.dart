@@ -3,6 +3,7 @@ import 'package:firebase/firebase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/Config.dart';
+import 'package:firebase/firebase.dart' as fb;
 
 
 class FirebaseUtility{
@@ -95,6 +96,10 @@ class FirebaseUtility{
 
   static Future<void> logout(){
     return FirebaseAuth.instance.signOut();
+  }
+
+  static Future deleteImageFromStorage(String filePath){
+    return fb.storage().ref('/').child(filePath).delete();
   }
 
 }

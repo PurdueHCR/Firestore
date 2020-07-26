@@ -44,6 +44,12 @@ class UpdateRewardsError extends RewardsState {
   List<Object> get props => [UniqueKey()];
 }
 
+class DeleteRewardSuccess extends RewardsState {
+  const DeleteRewardSuccess(List<Reward> rewards): super(rewards:rewards);
+  @override
+  List<Object> get props => [UniqueKey()];
+}
+
 class DeleteRewardsError extends RewardsState {
   const DeleteRewardsError(List<Reward> rewards): super(rewards:rewards);
   @override

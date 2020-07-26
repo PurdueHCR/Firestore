@@ -90,7 +90,7 @@ class RewardListTile extends StatelessWidget{
       trailing: Text("${reward.requiredPPR}"),
       leading: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Image.network(reward.rewardDownloadURL)
+        child: Image.network(reward.downloadURL)
       ),
     );
   }

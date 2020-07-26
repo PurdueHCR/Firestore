@@ -59,7 +59,8 @@ class _RewardCreationFormState extends State<RewardCreationForm> {
         stream: _uploadTask?.onStateChanged,
         builder: (context, snapshot) {
           final event = snapshot?.data;
-          if(snapshot.connectionState == ConnectionState.done && event?.state == fb.TaskState.SUCCESS){
+          //Don't check for fb.TaskSTate.SUCCESS because success is not yieled before Connection is DONE
+          if(snapshot.connectionState == ConnectionState.done){
             WidgetsBinding.instance.addPostFrameCallback((_) async {
               String url = (await _uploadTask.snapshot.ref.getDownloadURL()).toString();
               isUploading = false;
