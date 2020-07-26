@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/RewardsPage/rewards_bloc/rewards.dart';
+import 'package:purduehcr_web/Utilities/UploadNotifier.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:firebase/firebase.dart' as fb;
 
@@ -26,6 +27,7 @@ class _RewardCreationFormState extends State<RewardCreationForm> {
 
   TextEditingController nameController = TextEditingController();
   TextEditingController pprController = TextEditingController();
+  UploadNotifier uploadNotifier = UploadNotifier();
 
   Config config;
 
@@ -33,10 +35,8 @@ class _RewardCreationFormState extends State<RewardCreationForm> {
   String ppr = "0";
   bool isUploading = false;
   bool isLoading = false;
-  Image image;
-  File imageFile;
-  String fileName;
   fb.UploadTask _uploadTask;
+  Image image;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -58,36 +58,52 @@ class _RewardCreationFormState extends State<RewardCreationForm> {
       return StreamBuilder<fb.UploadTaskSnapshot>(
         stream: _uploadTask?.onStateChanged,
         builder: (context, snapshot) {
-
-          if(snapshot.connectionState == ConnectionState.done){
+          final event = snapshot?.data;
+          if(snapshot.connectionState == ConnectionState.done && event?.state == fb.TaskState.SUCCESS){
             WidgetsBinding.instance.addPostFrameCallback((_) async {
               String url = (await _uploadTask.snapshot.ref.getDownloadURL()).toString();
               isUploading = false;
               isLoading = true;
               _rewardsBloc.add(CreateReward(
                   name: nameController.text,
-                  fileName: fileName,
+                  fileName: uploadNotifier.fileName,
                   pointsPerResident: int.parse(pprController.text),
                   downloadURL: url));
             });
-            return LoadingWidget();
-          }
-
-          final event = snapshot?.data;
-
-          // Default as 0
-          double progressPercent = event != null
-              ? event.bytesTransferred / event.totalBytes * 100
-              : 0;
-
-          if (progressPercent == 100) {
-            return Text('Successfully uploaded file 🎊');
-          } else if (progressPercent == 0) {
-            return SizedBox();
-          } else {
-            return CircularProgressIndicator(
-              value: progressPercent,
+            return SizedBox(
+              width: 100,
+              height: 100,
+              child: Column(
+                children: [
+                  Expanded(child: LoadingWidget()),
+                  Expanded(child: Text("Saving Reward"))
+                ],
+              ),
             );
+          }
+          else{
+            switch (event?.state) {
+              case fb.TaskState.RUNNING:
+                return SizedBox(
+                  width: 100,
+                  height: 100,
+                  child: Column(
+                    children: [
+                      Expanded(child: LoadingWidget()),
+                      Expanded(child: Text("Uploading Image"))
+                    ],
+                  ),
+                );
+              case fb.TaskState.SUCCESS:
+                return Text('Success 🎊');
+
+              case fb.TaskState.ERROR:
+                return Text('Has error 😢');
+
+              default:
+              // Show empty when not uploading
+                return SizedBox();
+            }
           }
         },
       );
@@ -114,6 +130,10 @@ class _RewardCreationFormState extends State<RewardCreationForm> {
                       return Column(
                         children: [
                           Visibility(
+                            visible: uploadNotifier.errorText != null,
+                            child: Center(child:Text( uploadNotifier.errorText != null? uploadNotifier.errorText : ""))
+                          ),
+                          Visibility(
                             visible: image != null,
                             child: Center(child: image != null ? Container( width: 100, height:100, child: image) : Text('No Image Selected ...')
                             ),
@@ -121,8 +141,13 @@ class _RewardCreationFormState extends State<RewardCreationForm> {
                           Center(
                             child: RaisedButton(
                               child: Text("Select Image"),
-                              onPressed: () async{
-                                startFilePickerWeb();
+                              onPressed: (){
+                                uploadNotifier.startFilePickerWeb();
+                                uploadNotifier.addListener(() {
+                                  setState(() {
+                                    image = uploadNotifier.image;
+                                  });
+                                });
                               },
                             ),
                           ),
@@ -194,7 +219,7 @@ class _RewardCreationFormState extends State<RewardCreationForm> {
                               print("Did validate");
                               setState(() {
                                 isUploading = true;
-                                uploadToFirebase();
+                                _uploadTask = uploadNotifier.uploadToFirebase();
                               });
                             }
                           },
@@ -208,54 +233,4 @@ class _RewardCreationFormState extends State<RewardCreationForm> {
       );
     }
   }
-
-//  stuff(){
-//    _rewardsBloc.add(CreateReward(
-//        name: nameController.text,
-//        pointsPerResident: int.parse(pprController.text),
-//        image: image
-//    ));
-//  }
-
-  Uint8List uploadedImage;
-
-  startFilePickerWeb() async {
-    InputElement uploadInput = FileUploadInputElement();
-    uploadInput.click();
-
-    uploadInput.onChange.listen((e) {
-      // read file content as dataURL
-      final files = uploadInput.files;
-      if (files.length == 1) {
-        final file = files[0];
-        FileReader reader = FileReader();
-
-        reader.onLoadEnd.listen((e) {
-          //Here I send the image to my Provider
-          setState(() {
-            image = Image.memory(reader.result);
-            imageFile = file;
-          });
-        });
-
-        reader.onError.listen((fileEvent) {
-          print("Some Error occured while reading the file");
-        });
-
-        reader.readAsArrayBuffer(file);
-      }
-    });
-  }
-
-  uploadToFirebase() async {
-    fileName = '${DateTime.now()}.'+imageFile.type.split('/')[1];
-    setState(() {
-      _uploadTask = fb
-          .storage()
-          .ref('/')
-          .child(fileName)
-          .put(imageFile);
-    });
-  }
-
 }
