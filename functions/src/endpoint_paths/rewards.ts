@@ -7,7 +7,6 @@ import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermi
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import * as RewardFunctions from '../src/RewardFunctions'
 import * as ParameterParser from '../src/ParameterParser'
-import { Reward } from '../models/Reward'
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
@@ -67,7 +66,10 @@ reward_app.get('/', async (req, res) =>{
 
 /**
  * Update a reward
- * @param  body.id
+ * @param body.id
+ * @param body.requiredPPR
+ * @param body.downloadURL
+ * @param body.name
  * @throws 400 - Unknown User
  * @throws 401 - Unauthorized
  * @throws 403 - Invalid Permission
@@ -79,7 +81,7 @@ reward_app.get('/', async (req, res) =>{
 reward_app.put('/', async (req, res) =>{
     try{
         if(req.body === undefined || req.body === null || req.body.id === undefined || req.body.id === "" || 
-		! ("fileName" in req.body || "requiredPPR" in req.body )){
+		! ("name" in req.body || "requiredPPR" in req.body || "downloadURL" in req.body )){
 			if(req.body === undefined || req.body === null){
 				console.error("Missing body")
 				throw APIResponse.MissingRequiredParameters()
@@ -98,11 +100,14 @@ reward_app.put('/', async (req, res) =>{
         verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
         const id = ParameterParser.parseInputForString(req.body.id)
         const reward = await RewardFunctions.getRewardById(id)
-        if("fileName" in req.body){
-            reward.fileName = ParameterParser.parseInputForString(req.body.fileName)
+        if("name" in req.body){
+            reward.name = ParameterParser.parseInputForString(req.body.fileName)
         }
         if("requiredPPR" in req.body){
             reward.requiredPPR = ParameterParser.parseInputForNumber(req.body.requiredPPR, 1)
+        }
+        if("downloadURL" in req.body){
+            reward.downloadURL = ParameterParser.parseInputForString(req.body.downloadURL)
         }
         await RewardFunctions.updateReward(reward)
         res.status(APIResponse.SUCCESS_CODE).send(reward)
@@ -123,7 +128,10 @@ reward_app.put('/', async (req, res) =>{
 
 /**
  * create a reward
- * @param  body.id
+ * @param body.id
+ * @param body.requiredPPR
+ * @param body.downloadURL
+ * @param body.name
  * @throws 400 - Unknown User
  * @throws 401 - Unauthorized
  * @throws 403 - Invalid Permission
@@ -134,7 +142,7 @@ reward_app.put('/', async (req, res) =>{
  */
 reward_app.post('/', async (req, res) =>{
     try{
-        if(req.body === undefined || req.body === null || !("id" in req.body && "fileName" in req.body && "requiredPPR" in req.body )){
+        if(req.body === undefined || req.body === null || !( "fileName" in req.body && "requiredPPR" in req.body && "downloadURL" in req.body && "name" in req.body )){
 			if(req.body === undefined || req.body === null){
 				console.error("Missing body")
 				throw APIResponse.MissingRequiredParameters()
@@ -147,22 +155,12 @@ reward_app.post('/', async (req, res) =>{
 
         const user = await getUser(req["user"]["user_id"])
         verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
-        const id = ParameterParser.parseInputForString(req.body.id)
-        try{
-            await RewardFunctions.getRewardById(id)
-            throw APIResponse.RewardAlreadyExists()
-        }
-        catch(error){
-            if(error instanceof APIResponse && error.code === 420){
-                const ppr = ParameterParser.parseInputForNumber(req.body.requiredPPR, 1)
-                const fileName = ParameterParser.parseInputForString(req.body.fileName)
-                const reward = new Reward(id, fileName, ppr)
-                await RewardFunctions.createReward(reward)
-                res.status(APIResponse.SUCCESS_CODE).send(reward)
-            }
-            else 
-                throw error
-        }
+        const ppr = ParameterParser.parseInputForNumber(req.body.requiredPPR, 1)
+        const name = ParameterParser.parseInputForString(req.body.name)
+        const fileName = ParameterParser.parseInputForString(req.body.fileName)
+        const downloadURL = ParameterParser.parseInputForString(req.body.downloadURL)
+        const reward = await RewardFunctions.createReward(name, fileName, downloadURL,ppr)
+        res.status(APIResponse.SUCCESS_CODE).send(reward)
     }
     catch (error){
         if( error instanceof APIResponse){

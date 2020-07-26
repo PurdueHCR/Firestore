@@ -1,22 +1,30 @@
 export class Reward {
 
-    static FILE_NAME = "FileName"
     static REQUIRED_PPR = "RequiredPPR"
+    static NAME = "Name"
+    static DOWNLOAD_URL = "DownloadURL"
+    static FILE_NAME = "FileName"
 
     id: string
+    name: string
     fileName: string
     requiredPPR: number
+    downloadURL: string
 
-    constructor(id: string, fileName: string, requiredPPR: number){
+    constructor(id: string, name: string, fileName: string, requiredPPR: number, downloadURL: string){
         this.id = id
-        this.fileName = fileName
         this.requiredPPR = requiredPPR
+        this.name = name
+        this.fileName = fileName
+        this.downloadURL = downloadURL
     }
 
     firestoreJson(){
         const data = {}
-        data[Reward.FILE_NAME] = this.fileName
         data[Reward.REQUIRED_PPR] = this.requiredPPR
+        data[Reward.NAME] = this.name
+        data[Reward.DOWNLOAD_URL] = this.downloadURL
+        data[Reward.FILE_NAME] = this.fileName
         return data
     }
 
@@ -38,12 +46,16 @@ export class Reward {
 
     private static fromData(document: FirebaseFirestore.DocumentData, doc_id: string): Reward {
         const id = doc_id
-        let fileName: string
         let requiredPPR: number
+        let name: string
+        let downloadURL: string
+        let fileName: string
 
-        fileName = document[Reward.FILE_NAME];
+        fileName = document[Reward.FILE_NAME]
         requiredPPR = document[Reward.REQUIRED_PPR]
-        return new Reward(id, fileName, requiredPPR)
+        name = document[Reward.NAME]
+        downloadURL = document[Reward.DOWNLOAD_URL]
+        return new Reward(id, name, fileName, requiredPPR, downloadURL)
     }
 
 }

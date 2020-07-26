@@ -11,7 +11,7 @@ import { House } from "../models/House";
  */
 export async function setRewards(rewards:Reward[]){
     for (const reward of rewards){
-        await createReward(reward)
+        await setReward(reward)
     }
 }
 
@@ -19,10 +19,27 @@ export async function setRewards(rewards:Reward[]){
  * Create a new reward. Do not use this function for updating a point type
  * @param reward Rewards to set in database
  */
-export async function createReward(reward:Reward){
+export async function setReward(reward:Reward){
     //We take the entire model when creating this reward because we know what the id will be at the time of creation, so it can be placed in the reward model.
     const db = admin.firestore()
     await db.collection(HouseCompetition.REWARDS_KEY).doc(reward.id.toString()).set(reward.firestoreJson())
+}
+
+/**
+ * Create a new reward. Do not use this function for updating a point type
+ * @param reward Rewards to set in database
+ */
+export async function createReward( name:string, fileName:string, downloadURL:string, ppr:number ): Promise<Reward>{
+    //We take the entire model when creating this reward because we know what the id will be at the time of creation, so it can be placed in the reward model.
+    const db = admin.firestore()
+    const body = {
+        Name:name,
+        DownloadURL:downloadURL,
+        RequiredPPR:ppr,
+        FileName:fileName
+    }
+    const doc = await db.collection(HouseCompetition.REWARDS_KEY).add(body)
+    return new Reward(doc.id, name, fileName, ppr,downloadURL)
 }
 
 /**

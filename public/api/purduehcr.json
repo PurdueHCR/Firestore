@@ -2385,7 +2385,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/PointType"
+                  "$ref" : "#/components/schemas/Reward"
                 }
               }
             }
@@ -2963,6 +2963,10 @@
           "fileName" : {
             "type" : "string",
             "example" : "IceCream.png"
+          },
+          "downloadURL" : {
+            "type" : "string",
+            "example" : "www.url.com/download"
           },
           "requiredPPR" : {
             "type" : "number",

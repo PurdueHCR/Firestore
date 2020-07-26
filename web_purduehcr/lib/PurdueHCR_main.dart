@@ -43,7 +43,7 @@ class PurdueHCRState extends State<PurdueHCR>{
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        initialRoute: '/find_users',
+        initialRoute: '/rewards',
         onGenerateRoute: (settings) => RouteGenerator.generateRoute(settings),
       ),
     );

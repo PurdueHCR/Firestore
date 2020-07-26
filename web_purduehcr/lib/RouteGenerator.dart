@@ -11,6 +11,7 @@ import 'package:purduehcr_web/Account_Login_Creation/JoinHousePage.dart';
 import 'package:purduehcr_web/MyPointsPage/MyPointsPage.dart';
 import 'package:purduehcr_web/OverviewPage/OverviewPage.dart';
 import 'package:purduehcr_web/Account_Login_Creation/LogInPage.dart';
+import 'package:purduehcr_web/RewardsPage/RewardsPage.dart';
 import 'package:purduehcr_web/SubmitPointsPage/SubmitPointsPage.dart';
 import 'package:purduehcr_web/TokenTestPage/TokenTestPage.dart';
 
@@ -51,6 +52,8 @@ class RouteGenerator {
                   return HouseCodePage();
                 case 'find_users':
                   return FindUsersPage();
+                case 'rewards':
+                  return RewardsPage();
                 case 'addpoints':
                   if(path.length == 3){
                     return HomePage(linkId: path[2],);
