@@ -33,16 +33,16 @@ describe('DELETE reward/', () =>{
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
 
 
-        await FirestoreDataFactory.setReward(db, {id:FIRST_REWARD, required_ppr:10})
-        await FirestoreDataFactory.setReward(db, {id:"Second_Rewards", required_ppr:20})
-        await FirestoreDataFactory.setReward(db, {id:"Third_Rewards", required_ppr:30})
+        await FirestoreDataFactory.setReward(db, "First_Rewards", {required_ppr:10})
+        await FirestoreDataFactory.setReward(db, "Second_Rewards",{required_ppr:20})
+        await FirestoreDataFactory.setReward(db, "Third_Rewards", {required_ppr:30})
 
     })
 
     
-    it('Test resident results in success', async (done) => {
-        const query = {id: FIRST_REWARD}
-        const res = factory.deleteCommand(rewards_func, ENDPOINT, RESIDENT_ID, query)
+    it('Test resident results in error', async (done) => {
+        const body = {id: FIRST_REWARD}
+        const res = factory.deleteCommand(rewards_func, ENDPOINT, RESIDENT_ID, body)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -57,8 +57,8 @@ describe('DELETE reward/', () =>{
     })
 
     it('Test rhp results in success', async (done) => {
-        const query = {id: FIRST_REWARD}
-        const res = factory.deleteCommand(rewards_func, ENDPOINT, RHP_ID, query)
+        const body = {id: FIRST_REWARD}
+        const res = factory.deleteCommand(rewards_func, ENDPOINT, RHP_ID, body)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -73,8 +73,8 @@ describe('DELETE reward/', () =>{
     })
 
     it('Test Professional staff results in success', async (done) => {
-        const query = {id: FIRST_REWARD}
-        const res = factory.deleteCommand(rewards_func, ENDPOINT, PROF_ID, query)
+        const body = {id: FIRST_REWARD}
+        const res = factory.deleteCommand(rewards_func, ENDPOINT, PROF_ID, body)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -83,15 +83,15 @@ describe('DELETE reward/', () =>{
                 expect(res.status).toBe(200)
                 const rewardDocs = (await db.collection("Rewards").get()).docs
                 expect(rewardDocs).toHaveLength(2)
-                await FirestoreDataFactory.setReward(db, {id:FIRST_REWARD, required_ppr:10})
+                await FirestoreDataFactory.setReward(db, FIRST_REWARD, {required_ppr:10})
                 done()
             }
         })
     })
 
     it('Test FHP results in success', async (done) => {
-        const query = {id: FIRST_REWARD}
-        const res = factory.deleteCommand(rewards_func, ENDPOINT, FACULTY, query)
+        const body = {id: FIRST_REWARD}
+        const res = factory.deleteCommand(rewards_func, ENDPOINT, FACULTY, body)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -106,8 +106,8 @@ describe('DELETE reward/', () =>{
     })
 
     it('Test PRIV REs results in success', async (done) => {
-        const query = {id: FIRST_REWARD}
-        const res = factory.deleteCommand(rewards_func, ENDPOINT, PRIV_RES, query)
+        const body = {id: FIRST_REWARD}
+        const res = factory.deleteCommand(rewards_func, ENDPOINT, PRIV_RES, body)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -122,8 +122,8 @@ describe('DELETE reward/', () =>{
     })
 
     it('Test ea results in success', async (done) => {
-        const query = {id: FIRST_REWARD}
-        const res = factory.deleteCommand(rewards_func, ENDPOINT, EA_ID, query)
+        const body = {id: FIRST_REWARD}
+        const res = factory.deleteCommand(rewards_func, ENDPOINT, EA_ID, body)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -138,8 +138,8 @@ describe('DELETE reward/', () =>{
     })
 
     it('Nonexistant id returns unknown reward', async (done) => {
-        const query = {id: "unknown"}
-        const res = factory.deleteCommand(rewards_func, ENDPOINT, PROF_ID, query)
+        const body = {id: "unknown"}
+        const res = factory.deleteCommand(rewards_func, ENDPOINT, PROF_ID, body)
         res.end(async function (err, res) {
             if(err){
                 done(err)

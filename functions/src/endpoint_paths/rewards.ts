@@ -101,7 +101,7 @@ reward_app.put('/', async (req, res) =>{
         const id = ParameterParser.parseInputForString(req.body.id)
         const reward = await RewardFunctions.getRewardById(id)
         if("name" in req.body){
-            reward.name = ParameterParser.parseInputForString(req.body.fileName)
+            reward.name = ParameterParser.parseInputForString(req.body.name)
         }
         if("requiredPPR" in req.body){
             reward.requiredPPR = ParameterParser.parseInputForNumber(req.body.requiredPPR, 1)

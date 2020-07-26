@@ -49,9 +49,8 @@ export function get(func: functions.HttpsFunction, path: string, token: string, 
  * @param path path after the function. For example if you try to call "/user/get" the path should be "/get"
  * @param token The token for the user. If you use the IntegrationMockFactory to mock firebase-admin, then the token should be the id of the user
  */
-export function deleteCommand(func: functions.HttpsFunction, path: string, token: string, params: any = {}): request.Test{
-  console.log("Checking "+path+convertQueryParams(params))
-  const httpRequest = request(func).delete(path+convertQueryParams(params));
+export function deleteCommand(func: functions.HttpsFunction, path: string, token: string, body: any = {}): request.Test{
+  const httpRequest = request(func).delete(path).send(body).type('form')
   httpRequest.set("Authorization", "Bearer "+token)
   httpRequest.set('Content-Type', 'application/x-www-form-urlencoded')
   return httpRequest;

@@ -17,9 +17,11 @@ const FIRST_REWARD = "First_Rewards"
 let db:firebase.firestore.Firestore
 
 declare type RewardUpdateBody = {
-    id?:string,
-    fileName?:string,
-    requiredPPR?:number,
+    id?: string
+    fileName?:string
+    requiredPPR?:number
+    name?: string
+    downloadURL?: string
 }
 
 
@@ -40,14 +42,14 @@ describe('PUT reward/', () =>{
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
 
 
-        await FirestoreDataFactory.setReward(db, {id:FIRST_REWARD, required_ppr:10})
-        await FirestoreDataFactory.setReward(db, {id:"Second_Rewards", required_ppr:20})
-        await FirestoreDataFactory.setReward(db, {id:"Third_Rewards", required_ppr:30})
+        await FirestoreDataFactory.setReward(db, FIRST_REWARD, {required_ppr:10})
+        await FirestoreDataFactory.setReward(db, "Second_Rewards",{required_ppr:20})
+        await FirestoreDataFactory.setReward(db, "Third_Rewards", {required_ppr:30})
 
     })
 
     it('No id returns Missing required parameters', async (done) => {
-        const body = {requiredPPR:14}
+        const body:RewardUpdateBody = {fileName:"FILE.png", requiredPPR:14, name:"NAME", downloadURL:"Name.png"}
         const res = factory.put(rewards_func, ENDPOINT, body,  PROF_ID)
         res.end(async function (err, res) {
             if(err){
@@ -172,7 +174,7 @@ describe('PUT reward/', () =>{
     })
 
     it('Test Professional staff results in success', async (done) => {
-        const body: RewardUpdateBody = {id:FIRST_REWARD, requiredPPR:14, fileName:"NEW FILE"}
+        const body: RewardUpdateBody = {id:FIRST_REWARD, requiredPPR:14, fileName:"NEW FILE", name:"NEW NAME", downloadURL:"NEW_DOWNLOAD.url"}
         const res = factory.put(rewards_func, ENDPOINT, body,  PROF_ID)
         res.end(async function (err, res) {
             if(err){
@@ -181,9 +183,11 @@ describe('PUT reward/', () =>{
             else{
                 expect(res.status).toBe(200)
                 const rewardDoc = (await db.collection("Rewards").doc(FIRST_REWARD).get()).data()!
+                expect(rewardDoc.DownloadURL).toBe("NEW_DOWNLOAD.url")
+                expect(rewardDoc.Name).toBe("NEW NAME",)
                 expect(rewardDoc.RequiredPPR).toBe(14)
                 expect(rewardDoc.FileName).toBe("NEW FILE")
-                await FirestoreDataFactory.setReward(db, {id:FIRST_REWARD, required_ppr:10})
+                await FirestoreDataFactory.setReward(db, FIRST_REWARD, { required_ppr:10})
                 done()
             } 
         })

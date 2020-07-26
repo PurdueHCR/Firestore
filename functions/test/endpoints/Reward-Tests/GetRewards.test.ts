@@ -32,9 +32,9 @@ describe('GET reward/', () =>{
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
 
 
-        await FirestoreDataFactory.setReward(db, {id:"First_Rewards", required_ppr:10})
-        await FirestoreDataFactory.setReward(db, {id:"Second_Rewards", required_ppr:20})
-        await FirestoreDataFactory.setReward(db, {id:"Third_Rewards", required_ppr:30})
+        await FirestoreDataFactory.setReward(db, "First_Rewards", {required_ppr:10})
+        await FirestoreDataFactory.setReward(db, "Second_Rewards",{required_ppr:20})
+        await FirestoreDataFactory.setReward(db, "Third_Rewards", {required_ppr:30})
 
     })
 

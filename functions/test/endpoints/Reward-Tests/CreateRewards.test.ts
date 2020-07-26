@@ -17,9 +17,10 @@ const FIRST_REWARD = "NEW_REWARD"
 let db:firebase.firestore.Firestore
 
 declare type RewardCreateBody = {
-    id?:string,
     fileName?:string,
     requiredPPR?:number,
+    name?:string,
+    downloadURL?:string
 }
 
 
@@ -40,30 +41,14 @@ describe('POST reward/', () =>{
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
 
 
-        await FirestoreDataFactory.setReward(db, {id:"First_Rewards", required_ppr:10})
-        await FirestoreDataFactory.setReward(db, {id:"Second_Rewards", required_ppr:20})
-        await FirestoreDataFactory.setReward(db, {id:"Third_Rewards", required_ppr:30})
+        await FirestoreDataFactory.setReward(db, "First_Rewards", {required_ppr:10})
+        await FirestoreDataFactory.setReward(db, "Second_Rewards",{required_ppr:20})
+        await FirestoreDataFactory.setReward(db, "Third_Rewards", {required_ppr:30})
 
-    })
-
-    it('No id returns Missing required parameters', async (done) => {
-        const body: RewardCreateBody = {requiredPPR:14, fileName:"FILENAME"}
-        const res = factory.post(rewards_func, ENDPOINT, body,  PROF_ID)
-        res.end(async function (err, res) {
-            if(err){
-                done(err)
-            }
-            else{
-                expect(res.status).toBe(422)
-                const rewardDocs = (await db.collection("Rewards").get()).docs
-                expect(rewardDocs).toHaveLength(3)
-                done()
-            } 
-        })
     })
 
     it('No filename returns Missing required parameters', async (done) => {
-        const body: RewardCreateBody = {id:FIRST_REWARD, requiredPPR:14}
+        const body: RewardCreateBody = {requiredPPR:14, name:FIRST_REWARD, downloadURL:FIRST_REWARD}
         const res = factory.post(rewards_func, ENDPOINT, body,  PROF_ID)
         res.end(async function (err, res) {
             if(err){
@@ -79,7 +64,39 @@ describe('POST reward/', () =>{
     })
 
     it('No requiredPPR returns Missing required parameters', async (done) => {
-        const body: RewardCreateBody = {id:FIRST_REWARD, fileName:"FILENAME"}
+        const body: RewardCreateBody = {fileName:"FILENAME", name:FIRST_REWARD, downloadURL:FIRST_REWARD}
+        const res = factory.post(rewards_func, ENDPOINT, body,  PROF_ID)
+        res.end(async function (err, res) {
+            if(err){
+                done(err)
+            }
+            else{
+                expect(res.status).toBe(422)
+                const rewardDocs = (await db.collection("Rewards").get()).docs
+                expect(rewardDocs).toHaveLength(3)
+                done()
+            } 
+        })
+    })
+
+    it('No name returns Missing required parameters', async (done) => {
+        const body: RewardCreateBody = { fileName:"FILENAME", requiredPPR:12, downloadURL:FIRST_REWARD}
+        const res = factory.post(rewards_func, ENDPOINT, body,  PROF_ID)
+        res.end(async function (err, res) {
+            if(err){
+                done(err)
+            }
+            else{
+                expect(res.status).toBe(422)
+                const rewardDocs = (await db.collection("Rewards").get()).docs
+                expect(rewardDocs).toHaveLength(3)
+                done()
+            } 
+        })
+    })
+
+    it('No downloadURL returns Missing required parameters', async (done) => {
+        const body: RewardCreateBody = {fileName:"FILENAME", requiredPPR:12, name:FIRST_REWARD}
         const res = factory.post(rewards_func, ENDPOINT, body,  PROF_ID)
         res.end(async function (err, res) {
             if(err){
@@ -95,7 +112,7 @@ describe('POST reward/', () =>{
     })
 
     it('requiredppr as a string results in bad format', async (done) => {
-        const body = {id:FIRST_REWARD, requiredPPR:"BAD_ID", fileName:"ASDF"}
+        const body = {fileName:"FILENAME", requiredPPR:"BAD_ID", name:FIRST_REWARD, downloadURL:FIRST_REWARD}
         const res = factory.post(rewards_func, ENDPOINT, body,  PROF_ID)
         res.end(async function (err, res) {
             if(err){
@@ -111,7 +128,7 @@ describe('POST reward/', () =>{
     })
 
     it('Negative requiredppr results in bad format', async (done) => {
-        const body: RewardCreateBody = {id:FIRST_REWARD, requiredPPR:-1, fileName:"ASDF"}
+        const body: RewardCreateBody = { fileName:"FILENAME", requiredPPR:-1, name:FIRST_REWARD, downloadURL:FIRST_REWARD}
         const res = factory.post(rewards_func, ENDPOINT, body,  PROF_ID)
         res.end(async function (err, res) {
             if(err){
@@ -127,7 +144,7 @@ describe('POST reward/', () =>{
     })
 
     it('0 requiredppr results in bad format', async (done) => {
-        const body: RewardCreateBody = {id:FIRST_REWARD, requiredPPR:0, fileName:"ASDF"}
+        const body: RewardCreateBody = {fileName:"FILENAME", requiredPPR:0, name:FIRST_REWARD, downloadURL:FIRST_REWARD}
         const res = factory.post(rewards_func, ENDPOINT, body,  PROF_ID)
         res.end(async function (err, res) {
             if(err){
@@ -144,7 +161,7 @@ describe('POST reward/', () =>{
 
     
     it('Test resident results in Invalid Permissions', async (done) => {
-        const body: RewardCreateBody = {id:FIRST_REWARD, requiredPPR:14, fileName:"asdf"}
+        const body: RewardCreateBody = {fileName:"FILENAME", requiredPPR:14, name:FIRST_REWARD, downloadURL:FIRST_REWARD}
         const res = factory.post(rewards_func, ENDPOINT, body, RESIDENT_ID)
         res.end(async function (err, res) {
             if(err){
@@ -160,7 +177,7 @@ describe('POST reward/', () =>{
     })
 
     it('Test rhp results in Invalid Permissions', async (done) => {
-        const body: RewardCreateBody = {id:FIRST_REWARD, requiredPPR:14, fileName:"ASDF"}
+        const body: RewardCreateBody = { fileName:"FILENAME", requiredPPR:14, name:FIRST_REWARD, downloadURL:FIRST_REWARD}
         const res = factory.post(rewards_func, ENDPOINT, body,  RHP_ID)
         res.end(async function (err, res) {
             if(err){
@@ -176,7 +193,11 @@ describe('POST reward/', () =>{
     })
 
     it('Test Professional staff results in success', async (done) => {
-        const body: RewardCreateBody = {id:"NEW REWARD", requiredPPR:14, fileName:"NEW FILE"}
+        const fileName = "FILENAME.png"
+        const ppr = 14
+        const name = "NEW REWARD NAME"
+        const downloadURL = "NEW_REWARD.png"
+        const body: RewardCreateBody = {fileName:fileName, requiredPPR:ppr, name:name, downloadURL:downloadURL}
         const res = factory.post(rewards_func, ENDPOINT, body,  PROF_ID)
         res.end(async function (err, res) {
             if(err){
@@ -184,20 +205,21 @@ describe('POST reward/', () =>{
             }
             else{
                 expect(res.status).toBe(200)
-                expect(res.body.id).toBe("NEW REWARD")
-                expect(res.body.requiredPPR).toBe(14)
-                expect(res.body.fileName).toBe("NEW FILE")
-                const rewardDoc = (await db.collection("Rewards").doc("NEW REWARD").get()).data()!
-                expect(rewardDoc.RequiredPPR).toBe(14)
-                expect(rewardDoc.FileName).toBe("NEW FILE")
-                await db.collection("Rewards").doc("NEW REWARD").delete()
+                const rewardDocs = (await db.collection("Rewards").where("Name","==",name).get())
+                expect(rewardDocs.docs).toHaveLength(1)
+                const rewardDoc = rewardDocs.docs[0].data()
+                expect(rewardDoc.DownloadURL).toBe(downloadURL)
+                expect(rewardDoc.Name).toBe(name)
+                expect(rewardDoc.RequiredPPR).toBe(ppr)
+                expect(rewardDoc.FileName).toBe(fileName)
+                await db.collection("Rewards").doc(rewardDocs.docs[0].id).delete()
                 done()
             } 
         })
     })
 
     it('Test FHP results in Invalid Permissions', async (done) => {
-        const body: RewardCreateBody = {id:FIRST_REWARD, requiredPPR:14, fileName:"ASDF"}
+        const body: RewardCreateBody = { fileName:"FILENAME", requiredPPR:14, name:FIRST_REWARD, downloadURL:FIRST_REWARD}
         const res = factory.post(rewards_func, ENDPOINT, body,  FACULTY)
         res.end(async function (err, res) {
             if(err){
@@ -213,7 +235,7 @@ describe('POST reward/', () =>{
     })
 
     it('Test PRIV REs results in Invalid Permissions', async (done) => {
-        const body: RewardCreateBody = {id:FIRST_REWARD, requiredPPR:14, fileName:"ASDF"}
+        const body: RewardCreateBody = { fileName:"FILENAME", requiredPPR:14, name:FIRST_REWARD, downloadURL:FIRST_REWARD}
         const res = factory.post(rewards_func, ENDPOINT, body,  PRIV_RES)
         res.end(async function (err, res) {
             if(err){
@@ -229,7 +251,7 @@ describe('POST reward/', () =>{
     })
 
     it('Test ea results in Invalid Permissions', async (done) => {
-        const body: RewardCreateBody = {id:FIRST_REWARD, requiredPPR:14, fileName:"ASDF"}
+        const body: RewardCreateBody = { fileName:"FILENAME", requiredPPR:14, name:FIRST_REWARD, downloadURL:FIRST_REWARD}
         const res = factory.post(rewards_func, ENDPOINT, body,  EA_ID)
         res.end(async function (err, res) {
             if(err){
@@ -237,22 +259,6 @@ describe('POST reward/', () =>{
             }
             else{
                 expect(res.status).toBe(403)
-                const rewardDocs = (await db.collection("Rewards").get()).docs
-                expect(rewardDocs).toHaveLength(3)
-                done()
-            } 
-        })
-    })
-
-    it('Test add a reward with the same id results in RewardAlreadyExists', async (done) => {
-        const body: RewardCreateBody = {id:"First_Rewards", requiredPPR:14, fileName:"NEW FILE"}
-        const res = factory.post(rewards_func, ENDPOINT, body,  PROF_ID)
-        res.end(async function (err, res) {
-            if(err){
-                done(err)
-            }
-            else{
-                expect(res.status).toBe(470)
                 const rewardDocs = (await db.collection("Rewards").get()).docs
                 expect(rewardDocs).toHaveLength(3)
                 done()

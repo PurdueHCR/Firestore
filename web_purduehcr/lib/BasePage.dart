@@ -249,17 +249,17 @@ class UnimplementedPageState extends BasePageState{
 
   @override
   Widget buildLargeDesktopBody({BuildContext context, state}) {
-    return Text("Unimplemented");
+    return Center(child: Text("Unimplemented"));
   }
 
   @override
   Widget buildSmallDesktopBody({BuildContext context, state}) {
-    return Text("Unimplemented");
+    return Center(child: Text("Unimplemented"));
   }
 
   @override
   Widget buildMobileBody({BuildContext context, state}) {
-    return Text("Unimplemented");
+    return Center(child: Text("Unimplemented"));
   }
 
   @override
