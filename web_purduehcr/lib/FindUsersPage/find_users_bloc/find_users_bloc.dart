@@ -53,7 +53,6 @@ class FindUsersBloc extends Bloc<FindUsersEvent, FindUsersState>{
       }
       on ApiError catch(apiError){
         if(apiError.errorCode == 200){
-          print("SUCCESS: update Point type success");
           if(event.first != null){
             event.user.firstName = event.first;
           }

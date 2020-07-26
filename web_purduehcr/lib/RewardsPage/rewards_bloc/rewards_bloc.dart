@@ -85,13 +85,11 @@ class RewardsBloc extends Bloc<RewardsEvent, RewardsState>{
     }
     else if(event is DeleteReward){
       try{
-        print("Trying delete");
         await _rewardsRepository.deleteReward(event.reward);
         yield DeleteRewardsError(state.rewards);
       }
       on ApiError catch(error){
         if(error.errorCode == 200){
-          print("Delete Success");
           state.rewards.remove(event.reward);
           yield DeleteRewardSuccess(state.rewards);
         }

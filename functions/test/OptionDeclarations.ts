@@ -53,7 +53,7 @@ export const HOUSE_DEFAULTS:HouseOptions = {
     color: "#5AC0C7",
     total_points: 20,
     num_residents: 200,
-    floor_ids: ["4N", "4@"]
+    floor_ids: ["4N", "4S"]
 }
 
 ///----------------------------------------------------------------

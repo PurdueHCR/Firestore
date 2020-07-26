@@ -70,6 +70,7 @@ reward_app.get('/', async (req, res) =>{
  * @param body.requiredPPR
  * @param body.downloadURL
  * @param body.name
+ * @param body.fileName
  * @throws 400 - Unknown User
  * @throws 401 - Unauthorized
  * @throws 403 - Invalid Permission
@@ -131,7 +132,7 @@ reward_app.put('/', async (req, res) =>{
 
 /**
  * create a reward
- * @param body.id
+ * @param body.fileName
  * @param body.requiredPPR
  * @param body.downloadURL
  * @param body.name
@@ -140,7 +141,6 @@ reward_app.put('/', async (req, res) =>{
  * @throws 403 - Invalid Permission
  * @throws 422 - Missing Required Parameter
  * @throws 426 - Incorrect Data Format
- * @throws 470 - Reward already exists
  * @throws 500 - ServerError
  */
 reward_app.post('/', async (req, res) =>{

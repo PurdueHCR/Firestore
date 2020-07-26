@@ -50,7 +50,6 @@ class FindUsersRepository {
     if(enabled != null){
       body[User.ENABLED] = enabled;
     }
-    print("SENDING: "+body.toString());
     await callCloudFunction(config, Method.PUT, "user/", body: body);
   }
 

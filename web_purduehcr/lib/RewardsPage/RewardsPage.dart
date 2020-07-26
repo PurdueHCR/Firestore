@@ -184,10 +184,8 @@ class _RewardsPageState
             Text('There was an error updating the reward. Please try again.'),
       );
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        print("Do add post fram now");
         Scaffold.of(context).showSnackBar(snackBar);
         _rewardsBloc.add(RewardHandleMessage());
-        print("Do done post frame now");
       });
     }
     else if (state is DeleteRewardSuccess) {

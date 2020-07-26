@@ -296,7 +296,9 @@ users_app.get('/points', async (req, res) => {
 
 /**
  * Gets all links that a user created
- * @throws 
+ * @throws 400 -  Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 500 - Server Error
  */
 users_app.get('/links', async (req,res) => {
 	try {
@@ -317,6 +319,17 @@ users_app.get('/links', async (req,res) => {
 })
 
 
+/**
+ * Search for a user whose last name starts with the given term
+ * @param query.term String term to search for
+ * @param query.previousName The last name of the last user returned by a query with the same term
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permissions
+ * @throws 422 - Missing required Parameters
+ * @throws 426 - Invalid Format
+ * @throws 500 - Server Error
+ */
 users_app.get('/search', async (req,res) => {
 	try{
 		if(req.query === undefined || req.query === null || !("term" in req.query)){
@@ -339,11 +352,11 @@ users_app.get('/search', async (req,res) => {
 		const lastName = ParameterParser.parseInputForString(req.query.term)
 		if("previousName" in req.query){
 			const users = await searchForUsers(lastName, ParameterParser.parseInputForString(req.query.previousName))
-			res.status(200).send({users: users})
+			res.status(APIResponse.SUCCESS_CODE).send({users: users})
 		}
 		else{
 			const users = await searchForUsers(lastName)
-			res.status(200).send({users: users})
+			res.status(APIResponse.SUCCESS_CODE).send({users: users})
 		}
 	}
 	catch(error) {
@@ -358,6 +371,25 @@ users_app.get('/search', async (req,res) => {
 	}
 })
 
+/**
+ * Update the user model with the given fields. Every user can update their own first and last name, but only rhps and prof staff can change other aspects of the user
+ * @param body.id - Id of the user to update. If the id is null, the current user will be updated
+ * @param body.firstName - New first name for the user
+ * @param body.lastName - New last name for the user
+ * @param body.house - house name for the user. Must be an existing hosue
+ * @param body.floorId - new floor id for the user. Must match an existing floor id
+ * @param body.permissionLevel - new permission level for the user
+ * @param body.enabled - bool for if the user is enabled or not
+ * 
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permission
+ * @throws 422 - Missing Required Parameter
+ * @throws 425 - Uknown Hosue
+ * @throws 426 - Invalid Format
+ * @throws 428 - Invalid Floor Id
+ * @throws 500 - Server Error
+ */
 users_app.put('/', async (req,res) => {
 	try{
 		if(req.body === undefined || req.body === null ){

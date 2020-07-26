@@ -176,10 +176,4 @@ export class PointLog {
         return data
     }
 
-
-    // createUser(){
-    //     const usr = new UserWithPoints(this.residentFirstName, "","",this.residentLastName,0,0,0,this.residentId)
-    //     usr.addPointLog(this)
-    //     return usr;
-    // }
 }

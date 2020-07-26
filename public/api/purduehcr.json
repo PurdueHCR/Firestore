@@ -487,6 +487,26 @@
               }
             }
           },
+          "422" : {
+            "description" : "Missing Required Parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "Invalid Data Format. Make sure Strings are not null or empty.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
           "500" : {
             "description" : "Server Error",
             "content" : {
@@ -564,6 +584,46 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing Required Parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "425" : {
+            "description" : "The house provided does not exist.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownHouse"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "Invalid Data Format. Make sure Strings are not null or empty and numbers are not negative. Permission Level must be in the correct range.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "428" : {
+            "description" : "The provided floor id does not exist for the house.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidFloorId"
                 }
               }
             }
@@ -2958,7 +3018,7 @@
         "properties" : {
           "id" : {
             "type" : "string",
-            "example" : "Ice Cream"
+            "example" : "aslk3tasytre2"
           },
           "fileName" : {
             "type" : "string",
@@ -2967,6 +3027,10 @@
           "downloadURL" : {
             "type" : "string",
             "example" : "www.url.com/download"
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "Ice Cream Party"
           },
           "requiredPPR" : {
             "type" : "number",
@@ -3351,6 +3415,15 @@
           "message" : {
             "type" : "string",
             "example" : "Data provided is in the incorrect format."
+          }
+        }
+      },
+      "InvalidFloorId" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "The provided floor id does not exist on the house."
           }
         }
       },

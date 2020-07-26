@@ -94,25 +94,6 @@ export class House {
     }
 }
 
-// export class HouseWithUser extends House {
-//     users: UserWithPoints[] = []
-
-//     getUser(id:string){
-//         let i = 0;
-//         while( i < this.users.length){
-//             if(this.users[i].id === id){
-//                 return this.users[i]
-//             }
-//             i++
-//         }
-
-//         return null
-//     }
-
-//     addUser(pl:PointLog){
-//         this.users.push(pl.createUser())
-//     }
-// }
 
 export class HouseWithPointLog extends House{
     pointLogs: PointLog[] = []
