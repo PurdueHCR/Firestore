@@ -10,6 +10,9 @@ export class HouseCompetition {
 
     static EVENTS_KEY = "Events"
     static HOUSE_KEY = "House"
+    static HOUSE_DETAILS_KEY = "Details"
+    static HOUSE_DETAILS_RANK_DOC = "Rank"
+    static HOUSE_DETAILS_POINT_TYPES_DOC = "PointTypes"
     static HOUSE_COLLECTION_POINTS_KEY = "Points"
     static HOUSE_COLLECTION_POINTS_COLLECTION_MESSAGES_KEY = "Messages"
     static HOUSE_CODES_KEY = "HouseCodes"

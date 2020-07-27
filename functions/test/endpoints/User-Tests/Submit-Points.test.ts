@@ -304,10 +304,10 @@ describe('user/submitpoint', async () =>{
     // **NOTE: Update to this test because documenbtID should not do anything for this endpoint
     it('Privileged Resident Submission Success with documentID Provided', async(done) => {
         const date = new Date()
-        const descr = "Privileged resident Submission Success test"
+        const descr = "Privileged Resident Submission Success with documentID Provided"
         console.log(date.toString())
         var docID = PRIV_RES + HOUSE_CODE
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, {"point_type_id":1, "date_occurred":"4/1/2020", "description":"test", "document_id":docID}, PRIV_RES)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, {"point_type_id":1, "date_occurred":"4/1/2020", "description":descr, "document_id":docID}, PRIV_RES)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -316,6 +316,7 @@ describe('user/submitpoint', async () =>{
                 expect(res.status).toBe(202)
 
                 let documents = await db.collection("House").doc(HOUSE_NAME).collection("Points").where("Description","==",descr).limit(1).get()
+                expect(documents.docs).toHaveLength(1)
                 expect(documents.docs[0].data().ApprovedOn).toBeUndefined()
                 expect(new Date(documents.docs[0].data().DateOccurred.seconds)).toBeTruthy()
                 expect(documents.docs[0].data().DateSubmitted).toBeTruthy()

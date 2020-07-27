@@ -55,6 +55,7 @@ export async function submitPoint(user: User, log: UnsubmittedPointLog, document
 							log.approveLog()
 							log.id = documentId
 							was_approved = true
+							console.log("HAS ID")
 							
 							//If a document ID is provided, check if the id exists, and if not, set in database
 							const doc = await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house)
@@ -69,6 +70,8 @@ export async function submitPoint(user: User, log: UnsubmittedPointLog, document
 
 						}
 						else {
+
+							console.log("NO ID")
 							//No document id, so create new document in database
 							if (was_approved === false) {
 								log.rhpNotifications++
@@ -87,10 +90,51 @@ export async function submitPoint(user: User, log: UnsubmittedPointLog, document
 						return Promise.reject(new APIResponse(500, "Server Error"))
 					}
 
+					console.log("Got here")
+					await db.runTransaction(async (transaction) => {
+						console.log("In transaction")
+						const docRef = db.collection(HouseCompetition.HOUSE_KEY).doc(user.house).collection(HouseCompetition.HOUSE_DETAILS_KEY).doc(HouseCompetition.HOUSE_DETAILS_POINT_TYPES_DOC)
+						console.log("In docRef")
+						const doc = await transaction.get(docRef)
+						if(doc.exists){
+							console.log("Doc exits but checking id: "+pointType.id)
+
+							if(pointType.id in doc.data()!){
+								console.log("id exists exist in: "+JSON.stringify(doc.data()!))
+								const housePointTypeUpdate = {}
+								housePointTypeUpdate[pointType.id] = {submitted: doc.data()![pointType.id].submitted + 1}
+								console.log("Point Type create")
+								transaction.update(docRef, housePointTypeUpdate);
+							}
+							else{
+								console.log("id does exist")
+								const housePointTypeUpdate = {}
+								housePointTypeUpdate[pointType.id]= {name: pointType.name, submitted: 1, approved: 0}
+								console.log("Point Type Update")
+								transaction.update(docRef, housePointTypeUpdate);
+							}
+						}
+						else{
+							console.log("doc doesnt exist")
+							const housePointTypeUpdate = {}
+							housePointTypeUpdate[pointType.id]= {name: pointType.name, submitted: 1, approved: 0}
+							transaction.set(docRef,housePointTypeUpdate)
+						}
+						
+					  }
+					);
+
+					// const housePointTypeUpdate = {}
+					// housePointTypeUpdate[pointType.id] = {submitted:admin.firestore.FieldValue.increment(1)}
+					// console.log("MAP: "+JSON.stringify(housePointTypeUpdate))
+					// await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house).collection(HouseCompetition.HOUSE_DETAILS_KEY).doc(HouseCompetition.HOUSE_DETAILS_POINT_TYPES_DOC).update(housePointTypeUpdate)
+					// console.log("Updated pt")
+					// throw APIResponse.Unauthorized()
+
 					//If the log is automatically approved, add points to the user and the house
 					if(was_approved){
 						await submitPointLogMessage(user.house, log, PointLogMessage.getPreaprovedMessage(), true)
-						await addPoints(pointType.value, user.house, user.id)
+						await addPoints(pointType, user.house, user.id)
 						return Promise.resolve(true)
 					}
 					else {
