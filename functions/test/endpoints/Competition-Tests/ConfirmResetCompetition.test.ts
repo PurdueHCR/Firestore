@@ -269,6 +269,16 @@ describe('GET competition/confirmResetCompetition', () =>{
 
                 const pointlog = await db.collection("House").doc("Platinum").collection("Points").get()
                 expect(pointlog.docs.length).toBe(0)
+
+                //Confirm user rank doc is there
+                const houseUserRanks = await db.collection("House").doc("Platinum").collection("Details").doc("Rank").get()
+                expect(houseUserRanks.exists).toBeTruthy()
+
+                //Confirm point type doc is there
+                const housePointTypeCount = await db.collection("House").doc("Platinum").collection("Details").doc("PointTypes").get()
+                expect(housePointTypeCount.exists).toBeTruthy()
+                expect(Object.keys(housePointTypeCount.data()!)).toHaveLength(10)
+
                 done()
             }
         })
