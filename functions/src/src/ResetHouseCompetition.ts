@@ -1,18 +1,9 @@
 import { APIResponse } from "../models/APIResponse"
 import * as functions from 'firebase-functions'
-// import { getSystemPreferences } from "./GetSystemPreferences";
-// import { getPointTypes } from "./GetPointTypes";
 import { getAllHouses } from "./GetHouses";
-// import { getAllRewards } from "./GetReward";
-// import { getHouseCodes } from "./GetHouseCodes";
-// import { setSystemPreferences } from "./SetSystemPreference";
-// import { setPointTypes } from "./SetPointTypes";
-// import { setRewards } from "./SetRewards";
 import { setHouses } from "./SetHouses";
-// import { setHouseCodes } from "./SetHouseCodes";
 import { User } from "../models/User";
 import { createUserFromModel } from "./CreateUser";
-// import { getPointTypes } from "./GetPointTypes";
 
 
 /**
@@ -23,8 +14,8 @@ export async function resetHouseCompetition(user:User){
     const firebase_tools = require("firebase-tools");
 
     //Retrieve all the objects that should be repopulated
+    //We save this, because the delete below is recursive but we want to save the top level document
     const houses = await getAllHouses()
-    // const pts = await getPointTypes()
 
     let fb:{token:string}
         if(functions.config().fb.token === undefined || functions.config().fb.token === ""){
@@ -63,7 +54,6 @@ export async function resetHouseCompetition(user:User){
     //Repopulate the models
     await setHouses(houses)
     await createUserFromModel(user.id, user)
-    // await setPointTypes(pts)
 
 
 }

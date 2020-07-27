@@ -1,12 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/Models/PointType.dart';
 import 'package:purduehcr_web/Models/PointTypePermissionLevel.dart';
 import 'package:purduehcr_web/PointTypesPage/point_type_control_bloc/point_type_control.dart';
-import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 
 class PointTypeEditForm extends StatefulWidget{
 

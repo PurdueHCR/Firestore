@@ -42,9 +42,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
 
   @override
   Widget build(BuildContext context) {
-
     switch (displayTypeOf(context)){
-
       case DisplayType.desktop_large:
         Widget child;
         if(getBloc() == null){
@@ -251,17 +249,17 @@ class UnimplementedPageState extends BasePageState{
 
   @override
   Widget buildLargeDesktopBody({BuildContext context, state}) {
-    return Text("Unimplemented");
+    return Center(child: Text("Unimplemented"));
   }
 
   @override
   Widget buildSmallDesktopBody({BuildContext context, state}) {
-    return Text("Unimplemented");
+    return Center(child: Text("Unimplemented"));
   }
 
   @override
   Widget buildMobileBody({BuildContext context, state}) {
-    return Text("Unimplemented");
+    return Center(child: Text("Unimplemented"));
   }
 
   @override

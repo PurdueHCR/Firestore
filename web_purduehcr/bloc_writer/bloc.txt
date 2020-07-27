@@ -15,12 +15,18 @@ class $Bloc extends Bloc<$Event, $State>{
   }
 
   @override
-  $State get initialState => $Initial();
+  $State get initialState => $PageLoading();
 
   @override
   Stream<$State> mapEventToState( $Event event) async* {
     if(event is $Initialize){
-      yield $Initial();
+      try{
+          yield $PageLoaded();
+      }
+      catch (error){
+          print("Got error in initializing $Page: "+error);
+          yield $PageInitializeError();
+      }
     }
   }
 

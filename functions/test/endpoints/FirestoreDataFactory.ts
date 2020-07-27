@@ -57,7 +57,8 @@ export class FirestoreDataFactory{
         return db.collection("House").doc(id).set({
             "Color":(hOpts.color !== undefined)? hOpts.color: Options.HOUSE_DEFAULTS.color,
             "NumberOfResidents":(hOpts.num_residents !== undefined)? hOpts.num_residents: Options.HOUSE_DEFAULTS.num_residents,
-            "TotalPoints":(hOpts.total_points !== undefined)? hOpts.total_points: Options.HOUSE_DEFAULTS.total_points
+            "TotalPoints":(hOpts.total_points !== undefined)? hOpts.total_points: Options.HOUSE_DEFAULTS.total_points,
+            "FloorIds":(hOpts.floor_ids !== undefined)? hOpts.floor_ids: Options.HOUSE_DEFAULTS.floor_ids
         })
     }
 
@@ -260,11 +261,13 @@ export class FirestoreDataFactory{
      * @param db  - Test App Firestore instance (Usually from authedApp())
      * @param rOpts - Optional parameters for the Reward
      */
-    static setReward(db: firebase.firestore.Firestore, rOpts:Options.RewardOptions = Options.REWARD_DEFAULTS): Promise<void> {
-        return db.collection("Rewards").doc((rOpts.id)?rOpts.id:Options.REWARD_DEFAULTS.id).set({
-            FileName:(rOpts.id !== undefined)?rOpts.id+".png":Options.REWARD_DEFAULTS.id+".png",
+    static setReward(db: firebase.firestore.Firestore, id:string, rOpts:Options.RewardOptions = Options.REWARD_DEFAULTS): Promise<void> {
+        return db.collection("Rewards").doc(id).set({
+            FileName:(rOpts.file_name !== undefined)?rOpts.file_name:Options.REWARD_DEFAULTS.file_name,
             RequiredPPR:(rOpts.required_ppr !== undefined)?rOpts.required_ppr:Options.REWARD_DEFAULTS.required_ppr,
-            RequiredValue:(rOpts.required_value !== undefined)?rOpts.required_value:Options.REWARD_DEFAULTS.required_value
+            Name:(rOpts.name !== undefined)?rOpts.name:Options.REWARD_DEFAULTS.name,
+            DownloadURL:(rOpts.downloadURL !== undefined)?rOpts.downloadURL:Options.REWARD_DEFAULTS.downloadURL,
+
         })
     }
 

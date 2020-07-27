@@ -54,17 +54,7 @@ class RewardsCardState extends State<RewardsCard>{
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
-                  child: FutureBuilder(
-                    future: widget.reward.getDownloadURL(),
-                    builder: (context, snapshot){
-                      if(snapshot.connectionState == ConnectionState.none && !snapshot.hasData){
-                        return LoadingWidget();
-                      }
-                      else{
-                        return Image.network((snapshot.data as Uri).toString());
-                      }
-                    },
-                  ),
+                  child: Image.network(widget.reward.downloadURL)
                 ),
               ),
             ],

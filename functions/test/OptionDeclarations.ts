@@ -27,6 +27,7 @@ export declare type HouseCodeOptions = {
     floor_id?: string,
     house?: string,
     permission_level?: number
+    
 }
 
 export const HOUSE_CODE_DEFAULTS:HouseCodeOptions = {
@@ -45,12 +46,14 @@ export declare type HouseOptions = {
     color?: string
     num_residents?: number
     total_points?: number
+    floor_ids?: string[]
 }
 
 export const HOUSE_DEFAULTS:HouseOptions = {
     color: "#5AC0C7",
     total_points: 20,
-    num_residents: 200
+    num_residents: 200,
+    floor_ids: ["4N", "4S"]
 }
 
 ///----------------------------------------------------------------
@@ -161,15 +164,18 @@ export const POINT_TYPE_DEFAULTS:PointTypeOptions = {
 ///------------------------- Reward Options -----------------------
 
 export declare type RewardOptions = {
-    id?: string
-    required_ppr?: number,
-    required_value?: number
+    required_ppr?: number
+    file_name?: string
+    name?: string
+    downloadURL?:string
 }
 
 export const REWARD_DEFAULTS:RewardOptions = {
-    id: "Pizza Party",
     required_ppr: 100,
-    required_value: 20000
+    file_name: "EMPTY_FILE_NAME",
+    name:"COOL REWARD",
+    downloadURL:"DOWNLOAD_URL"
+
 }
 
 ///----------------------------------------------------------------
@@ -208,7 +214,8 @@ export declare type UserOptions = {
     house_name?:string,
     last?:string,
     semester_points?:number,
-    total_points?:number
+    total_points?:number,
+    enabled?:boolean
 }
 
 export const USER_DEFAULTS:UserOptions = {
@@ -217,7 +224,8 @@ export const USER_DEFAULTS:UserOptions = {
     total_points: 0,
     semester_points: 0,
     house_name: "Platinum",
-    floor_id: "4N"
+    floor_id: "4N",
+    enabled: true
 }
 
 ///----------------------------------------------------------------

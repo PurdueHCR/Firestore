@@ -53,7 +53,7 @@ describe('GET competition/confirmResetCompetition', () =>{
         }
 
         for(let i = 0; i < 5; i++){
-            await FirestoreDataFactory.setReward(db, {id: "ITEM "+i.toString()})
+            await FirestoreDataFactory.setReward(db, "ITEM "+i.toString())
         }
 
         for(let i = 0; i < 10; i++){

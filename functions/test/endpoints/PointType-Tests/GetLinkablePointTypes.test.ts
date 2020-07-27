@@ -132,7 +132,8 @@ describe('point_types/linkable', () =>{
     })
 
     //After all of the tests are done, make sure to delete the test firestore app
-    afterAll(()=>{
+    afterAll(async ()=>{
+        await FirestoreDataFactory.cleanDatabase(db)
         Promise.all(firebase.apps().map(app => app.delete()))
     })
 
