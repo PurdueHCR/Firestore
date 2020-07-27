@@ -6,8 +6,6 @@
 ///   Name:           Date:        Description:
 ///-----------------------------------------------------------------
 
-import { User } from "./User"
-
 
 export class RankArray {
     users:UserScore[]
@@ -16,29 +14,28 @@ export class RankArray {
         this.users = users
     }
 
-    incrementUser(user:User, increment:number){
-        const userScore = this.users.find((item) => item.residentId === user.id)
-        if(userScore === undefined || userScore == null){
-            this.users.push(new UserScore(user.id, user.firstName, user.lastName, user.totalPoints + increment, user.semesterPoints + increment))
-        }
-        else{
-            userScore.totalPoints += increment
-            userScore.semesterPoints += increment
-        }
-        
-
+    getYearlyRank() : UserScore[]{
+        this.users.sort((a,b)=>a.totalPoints-b.totalPoints)
+        return this.users
     }
 
-    toFirestoreJson():any{
-        const map = {}
-        map["users"] = this.users.map((obj)=> {return Object.assign({}, obj)})
-        return map
+    getSemesterRank() : UserScore[]{
+        this.users.sort((a,b)=>a.semesterPoints-b.semesterPoints)
+        return this.users
     }
+
 
     static fromDocumentSnapshot(document: FirebaseFirestore.DocumentSnapshot): RankArray{
         const users:UserScore[] = []
-        for(const user of document.data()!.users){
-            users.push(new UserScore(user.residentId, user.firstName, user.lastName, user.totalPoints, user.semesterPoints))
+        if(document.exists){
+            for(const user of document.data()!.users){
+                users.push(new UserScore(user.residentId, user.firstName, user.lastName, user.totalPoints, user.semesterPoints))
+            }
+            Object.keys(document.data()!).forEach((key:string)=>{
+                const user = document.data()![key]
+                users.push(new UserScore(key, user.firstName, user.lastName, user.totalPoints, user.semesterPoints))
+            })
+            users.sort((a,b) => a.totalPoints - b.totalPoints)
         }
         return new RankArray(users)
     }

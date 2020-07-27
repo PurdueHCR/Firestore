@@ -164,7 +164,7 @@ describe('GET competition/userOverview', () =>{
     })
 
     //Test if user is RHP, REC, FHP, NHAS
-    it('Test REC', async(done) => {
+    it.skip('Test REC', async(done) => {
         //Test with resident
         const res: request.Test = factory.get(competition_func,USER_OVERVIEW,REC_ID)
         res.end(async function(err, res){

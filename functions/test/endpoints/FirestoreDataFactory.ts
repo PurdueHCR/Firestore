@@ -48,18 +48,71 @@ export class FirestoreDataFactory{
     }
 
     /**
-     * Create or set the value for a house with the given id
+     * Create or set the value for a house with the given id and create empty details documents
      * @param db - Test App Firestore instance (Usually from authedApp())
      * @param id - Name of the house
      * @param hOpts  - Optional Parameters for the house. Will be set to default if field isnt provided
      */
-    static setHouse(db: firebase.firestore.Firestore, id: string, hOpts:Options.HouseOptions = Options.HOUSE_DEFAULTS): Promise<void> {
-        return db.collection("House").doc(id).set({
+    static async setHouse(db: firebase.firestore.Firestore, id: string, hOpts:Options.HouseOptions = Options.HOUSE_DEFAULTS){
+        await db.collection("House").doc(id).set({
             "Color":(hOpts.color !== undefined)? hOpts.color: Options.HOUSE_DEFAULTS.color,
             "NumberOfResidents":(hOpts.num_residents !== undefined)? hOpts.num_residents: Options.HOUSE_DEFAULTS.num_residents,
             "TotalPoints":(hOpts.total_points !== undefined)? hOpts.total_points: Options.HOUSE_DEFAULTS.total_points,
             "FloorIds":(hOpts.floor_ids !== undefined)? hOpts.floor_ids: Options.HOUSE_DEFAULTS.floor_ids
         })
+
+        await db.collection("House").doc(id).collection("Details").doc("Rank").set({})
+        await db.collection("House").doc(id).collection("Details").doc("PointTypes").set({})
+    }
+
+    /**
+     * 
+     * @param db - Test App Firestore instance (Usually from authedApp())
+     * @param houseId - Id of the house to add the user rank to
+     * @param userId - id of the user 
+     * @param first - first name of the user
+     * @param last - last name of the user
+     * @param totalPoints - total points of the user
+     * @param semesterPoints - semester points of the user
+     */
+    static async setUserHouseRank(db: firebase.firestore.Firestore, houseId: string, userId:string, first:string, last:string, totalPoints: number, semesterPoints:number){
+        const userHouseRankDoc = await db.collection("House").doc(houseId).collection("Details").doc("Rank").get()
+        if(userHouseRankDoc.exists){
+            const updateData = {}
+            updateData[userId] = {
+                firstName: first,
+                lastName: last,
+                totalPoints: totalPoints,
+                semesterPoints: semesterPoints
+            }
+            await db.collection("House").doc(houseId).collection("Details").doc("Rank").update(updateData)
+        }
+        else{
+            throw Error("You havent created the detail docs yet when preparing the test")
+        }
+    }
+
+    /**
+     * 
+     * @param db - Test App Firestore instance (Usually from authedApp())
+     * @param houseId - Id of the house to add the point type count to
+     * @param pointTypeId - Id for the point type
+     * @param name - Name of the point type
+     * @param submitted - number of submissions received
+     * @param approved - number approved
+     */
+    static async setHousePointTypeDetails(db: firebase.firestore.Firestore, houseId: string, pointTypeId: number, name:string, submitted: number, approved: number){
+        const pointTypesDoc = await db.collection("House").doc(houseId).collection("Details").doc("PointTypes").get()
+        if(pointTypesDoc.exists){
+            const data = {name: name, submitted: submitted, approved: approved}
+            const map = {}
+            map[pointTypeId.toString()] = data
+
+            await db.collection("House").doc(houseId).collection("Details").doc("PointTypes").update(map)
+        }
+        else{
+            throw Error("You havent created the detail docs yet when preparing the test")
+        }
     }
 
     static setHouseCode(db: firebase.firestore.Firestore, id: string, cOpts:Options.HouseCodeOptions = Options.HOUSE_CODE_DEFAULTS): Promise<void> {

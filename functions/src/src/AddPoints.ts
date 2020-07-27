@@ -4,7 +4,6 @@ import { House } from '../models/House'
 import { User } from '../models/User'
 import { APIResponse } from '../models/APIResponse'
 import { PointType } from '../models/PointType'
-import { RankArray } from '../models/RankArray'
 
 /**
  * Increment points for the house and the user (if provided) in the database
@@ -33,55 +32,67 @@ export async function addPoints(pointType: PointType, house_name: string, user_i
 			const house = House.fromDocumentSnapshot(houseSnapshot)
 
 			const housePointTypesSnapshot = await transaction.get(db.collection(HouseCompetition.HOUSE_KEY).doc(house_name).collection(HouseCompetition.HOUSE_DETAILS_KEY).doc(HouseCompetition.HOUSE_DETAILS_POINT_TYPES_DOC))
-			
+			if(!housePointTypesSnapshot.exists){
+				console.error("There is no House/Detials/PointType document. Please make sure that one exists")
+				throw APIResponse.ServerError()
+			}
 
-			//If a user id was provided, get the user
-			let user: User | null = null
+			//If a user id was provided,
 			if(user_id && user_id !== ""){
-				const userDocument = await transaction.get(db.collection(HouseCompetition.USERS_KEY).doc(user_id))
-				user = User.fromDocumentSnapshot(userDocument)
+				//Get the user
+				const user = User.fromDocumentSnapshot((await transaction.get(db.collection(HouseCompetition.USERS_KEY).doc(user_id))))
+
+				//get the house user rank data
 				const rankArraySnapshot = await transaction.get(db.collection(HouseCompetition.HOUSE_KEY).doc(house_name).collection(HouseCompetition.HOUSE_DETAILS_KEY).doc(HouseCompetition.HOUSE_DETAILS_RANK_DOC))
-				if(rankArraySnapshot.exists){
-					const rankArray = RankArray.fromDocumentSnapshot(rankArraySnapshot)
-					rankArray.incrementUser(user,rounded_points)
-					transaction.update(db.collection(HouseCompetition.HOUSE_KEY).doc(house_name).collection(HouseCompetition.HOUSE_DETAILS_KEY).doc(HouseCompetition.HOUSE_DETAILS_RANK_DOC), rankArray.toFirestoreJson())
+				
+				//Update the user model and post update
+				user.totalPoints += rounded_points
+				user.semesterPoints += rounded_points
+				transaction.update(db.collection(HouseCompetition.USERS_KEY).doc(user_id), user.toPointUpdateJson())
+				
+				//Update the House User Rank model
+				let userRankDoc = rankArraySnapshot.data()![user_id]
+				if(userRankDoc === undefined){
+					userRankDoc = {
+						firstName: user.firstName,
+						lastName: user.lastName,
+						totalPoints: user.totalPoints,
+						semesterPoints: user.semesterPoints
+					}
 				}
 				else{
-					const rankArray = new RankArray([])
-					rankArray.incrementUser(user,rounded_points)
-					console.log("Rank Array: "+JSON.stringify(rankArray.toFirestoreJson()))
-					transaction.set(db.collection(HouseCompetition.HOUSE_KEY).doc(house_name).collection(HouseCompetition.HOUSE_DETAILS_KEY).doc(HouseCompetition.HOUSE_DETAILS_RANK_DOC), rankArray.toFirestoreJson())
+					userRankDoc.totalPoints = user.totalPoints
+					userRankDoc.semesterPoints = user.semesterPoints
 				}
+				
+
+				//Create format for update and post update
+				const userRankUpdateData = {}
+				userRankUpdateData[user_id] = userRankDoc
+				transaction.update(db.collection(HouseCompetition.HOUSE_KEY).doc(house_name).collection(HouseCompetition.HOUSE_DETAILS_KEY).doc(HouseCompetition.HOUSE_DETAILS_RANK_DOC), userRankUpdateData)
 			}
 
-			// const housePointTypes = housePointTypesSnapshot.data()!
 
-			// const newPointTypeCount = housePointTypes[pointType.id].approved + 1
+			// Update the House Point Type Submission List
+			const housePointTypeData = housePointTypesSnapshot.data()!
+			if(!(pointType.id in housePointTypeData)){
+				console.error("The point type id does not exist in the House/Details/PointTypes document. It should at this point exist because submitting a point adds it to the document if it doesnt already exist. If this is a test, make sure you call FirestoreDataFactory.setHousePointTypeDetails")
+				throw APIResponse.ServerError()
+			}
 
-			if(housePointTypesSnapshot.exists){
-				const housePointTypeUpdate = {}
-				const housePointTypeData = housePointTypesSnapshot.data()!
-				housePointTypeUpdate[pointType.id] = {approved: housePointTypeData[pointType.id].approved + 1}
-					
-				transaction.update(db.collection(HouseCompetition.HOUSE_KEY).doc(house_name).collection(HouseCompetition.HOUSE_DETAILS_KEY).doc(HouseCompetition.HOUSE_DETAILS_POINT_TYPES_DOC),housePointTypeUpdate )
-			}
-			else{
-				const housePointTypeUpdate = {}
-				housePointTypeUpdate[pointType.id] = {approved: 1}
-				transaction.set(db.collection(HouseCompetition.HOUSE_KEY).doc(house_name).collection(HouseCompetition.HOUSE_DETAILS_KEY).doc(HouseCompetition.HOUSE_DETAILS_POINT_TYPES_DOC),housePointTypeUpdate )
-			}
+			//Increment the approved count for this point type by 1
+			housePointTypeData[pointType.id].approved += 1 * ((increment) ? 1 : -1)
+
+			const housePointTypeUpdate = {}
+			housePointTypeUpdate[pointType.id] = housePointTypeData[pointType.id]
+				
+			transaction.update(db.collection(HouseCompetition.HOUSE_KEY).doc(house_name).collection(HouseCompetition.HOUSE_DETAILS_KEY).doc(HouseCompetition.HOUSE_DETAILS_POINT_TYPES_DOC),housePointTypeUpdate )
 			
 
 			//Add points to the house and update in database
 			house.totalPoints  += rounded_points
 			transaction.update(db.collection(HouseCompetition.HOUSE_KEY).doc(house_name), house.toPointUpdateJson())
 
-			//If user id was provided, add points to user and update in database
-			if(user_id && user_id !== "" && user !== null){
-				user.totalPoints += rounded_points
-				user.semesterPoints += rounded_points
-				transaction.update(db.collection(HouseCompetition.USERS_KEY).doc(user_id), user.toPointUpdateJson())
-			}
 
 		})
 		//Resolve the promise

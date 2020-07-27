@@ -8,7 +8,7 @@ import { HouseCompetition } from '../models/HouseCompetition'
 import { PointLog } from '../models/PointLog'
 import { User } from '../models/User'
 import { APIResponse } from '../models/APIResponse'
-import { getResidentProfile, getRHPProfile } from '../src/GetUserProfiles'
+import { getResidentProfile, getRHPProfile, getProfessionalStaffProfile } from '../src/GetUserProfiles'
 import { getUser } from '../src/GetUser'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
@@ -389,6 +389,11 @@ comp_app.get('/userOverview', async (req, res) => {
 			//This is sufficient for the first version, but we will eventually want to add more to their home screen
 			const resident_profile = await getRHPProfile(user)
 			res.status(APIResponse.SUCCESS_CODE).send({"rhp":resident_profile})
+		}
+		else if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+			//This is sufficient for the first version, but we will eventually want to add more to their home screen
+			const prof_staff_profile = await getProfessionalStaffProfile(user)
+			res.status(APIResponse.SUCCESS_CODE).send({"professional_staff":prof_staff_profile})
 		}
 		else if(user.permissionLevel === UserPermissionLevel.PRIVILEGED_RESIDENT){
 			//This is sufficient for the first version, but we will eventually want to add more to their home screen

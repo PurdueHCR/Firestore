@@ -8,6 +8,8 @@ import { getPointLogsForUser } from "./GetPointLogsForUser"
 import { User } from "../models/User"
 import { verifyUserHasCorrectPermission } from "./VerifyUserHasCorrectPermission"
 import { getViewableHouseCodes } from "./GetHouseCodes"
+import { getRankArray } from "./GetRankArray"
+import { getHousePointTypeHistory } from "./GetHousePointTypeHistory"
 
 /**
  * Gets all information for the overview page if user is resident
@@ -98,5 +100,36 @@ export declare type RHPProfile = {
     next_reward?: any,
 	last_submissions?: any[],
 	house_codes?: any[],
+	houses?: any[]
+}
+
+/**
+ * Gets all information for the overview page if user is resident
+ *  *** and temporaryly, rhp and privileged res
+ * @param user User for which to get profile
+ * @throws 403 - Invalid permissions
+ * @throws 500 - Server Error
+ */
+export async function getProfessionalStaffProfile(user:User): Promise<ProfessionalStaffProfile>{
+	verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
+	const data:ProfessionalStaffProfile = {}
+	const housesModels = await getAllHouses()
+	data.houses = []
+	for(const houseModel of housesModels){
+		//Convert the house into a JSON model
+		const house = Object.assign({}, houseModel) as any
+		const rankArray = await getRankArray(houseModel)
+		const pointTypes = await getHousePointTypeHistory(houseModel)
+		house.yearlyRank = rankArray.getYearlyRank()
+		house.semesterRank = rankArray.getSemesterRank()
+		house.submissions = pointTypes.housePointTypes
+		data.houses.push(house)
+	}
+	
+	return data
+}
+
+
+export declare type ProfessionalStaffProfile = {
 	houses?: any[]
 }
