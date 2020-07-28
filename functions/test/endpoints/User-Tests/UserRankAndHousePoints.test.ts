@@ -53,6 +53,8 @@ describe('', async () =>{
         point_log_func = require('../../../src/endpoint_paths/index.ts').point_log
 
 
+        await FirestoreDataFactory.setSystemPreference(db)
+
         await FirestoreDataFactory.setUser(db, PLATINUM_RESIDENT_DONT_GET_DELETED, 0, {house_name:PLATINUM, first:"DONT GET", last:"DELETED", total_points:99, semester_points:99})
 
         await FirestoreDataFactory.setUser(db, PLATINUM_RESIDENT_1_ID, 0, {house_name:PLATINUM})
@@ -80,44 +82,50 @@ describe('', async () =>{
         
         //Test 2
         await FirestoreDataFactory.setUserHouseRank(db, PLATINUM, PLATINUM_RHP_1_ID, "PLATINUM", "RHP_1", 20, 18)
-        await FirestoreDataFactory.setHousePointTypeDetails(db, PLATINUM, 2, "Point Type Id 2", 26, 19)
         await FirestoreDataFactory.setPointType(db, 2, {name:"Point Type Id 2", value: 10})
+        await FirestoreDataFactory.setHousePointTypeDetails(db, PLATINUM, 2, "Point Type Id 2", 26, 19)
 
         //Test 3
+        await FirestoreDataFactory.setPointType(db, 3, {name:"Point Type Id 3", value: 20})
         await FirestoreDataFactory.setUserHouseRank(db, PLATINUM, PLATINUM_RESIDENT_2_ID, "PLATINUM_RES", "2", 2, 2)
         await FirestoreDataFactory.setPointLog(db, PLATINUM, PLATINUM_RESIDENT_2_ID, false, {id: UNHANDLED_TO_APPROVE, point_type_id: 3})
         await FirestoreDataFactory.setHousePointTypeDetails(db, PLATINUM, 3, "Point Type Id 3", 3, 2)
-        await FirestoreDataFactory.setPointType(db, 3, {name:"Point Type Id 3", value: 20})
+        
 
         //Test 4
+        await FirestoreDataFactory.setPointType(db, 4, {name:"Point Type Id 4", value: 30})
         await FirestoreDataFactory.setUserHouseRank(db, PLATINUM, PLATINUM_RESIDENT_3_ID, "PLATINUM_RES", "3", 3, 3)
         await FirestoreDataFactory.setPointLog(db, PLATINUM, PLATINUM_RESIDENT_3_ID, false, {id: UNHANDLED_TO_REJECT, point_type_id: 4})
         await FirestoreDataFactory.setHousePointTypeDetails(db, PLATINUM, 4, "Point Type Id 4", 4, 4)
-        await FirestoreDataFactory.setPointType(db, 4, {name:"Point Type Id 4", value: 30})
+        
 
         //Test 5
+        await FirestoreDataFactory.setPointType(db, 5, {name:"Point Type Id 5", value: 40})
         await FirestoreDataFactory.setUserHouseRank(db, PLATINUM, PLATINUM_RESIDENT_4_ID, "PLATINUM_RES", "4", 4, 4)
         await FirestoreDataFactory.setPointLog(db, PLATINUM, PLATINUM_RESIDENT_4_ID, true, {id: REJECTED_TO_APPROVE, point_type_id: 5, approved: false})
         await FirestoreDataFactory.setHousePointTypeDetails(db, PLATINUM, 5, "Point Type Id 5", 5, 4)
-        await FirestoreDataFactory.setPointType(db, 5, {name:"Point Type Id 5", value: 40})
+        
 
         //Test 6
+        await FirestoreDataFactory.setPointType(db, 6, {name:"Point Type Id 6", value: 50})
         await FirestoreDataFactory.setUserHouseRank(db, PLATINUM, PLATINUM_RESIDENT_5_ID, "PLATINUM_RES", "5", 5, 5)
         await FirestoreDataFactory.setPointLog(db, PLATINUM, PLATINUM_RESIDENT_5_ID, true, {id: APPROVED_TO_APPROVE, point_type_id: 6, approved: true})
         await FirestoreDataFactory.setHousePointTypeDetails(db, PLATINUM, 6, "Point Type Id 6", 6, 6)
-        await FirestoreDataFactory.setPointType(db, 6, {name:"Point Type Id 6", value: 50})
+        
 
         //Test 7
+        await FirestoreDataFactory.setPointType(db, 7, {name:"Point Type Id 7", value: 60})
         await FirestoreDataFactory.setUserHouseRank(db, PLATINUM, PLATINUM_RESIDENT_6_ID, "PLATINUM_RES", "6", 66, 66)
         await FirestoreDataFactory.setPointLog(db, PLATINUM, PLATINUM_RESIDENT_6_ID, true, {id: APPROVED_TO_REJECT, point_type_id: 7, approved: true})
         await FirestoreDataFactory.setHousePointTypeDetails(db, PLATINUM, 7, "Point Type Id 7", 7, 7)
-        await FirestoreDataFactory.setPointType(db, 7, {name:"Point Type Id 7", value: 60})
+        
 
         //Test 7
+        await FirestoreDataFactory.setPointType(db, 8, {name:"Point Type Id 8", value: 70})
         await FirestoreDataFactory.setUserHouseRank(db, PLATINUM, PLATINUM_RESIDENT_7_ID, "PLATINUM_RES", "7", 7, 7)
         await FirestoreDataFactory.setPointLog(db, PLATINUM, PLATINUM_RESIDENT_7_ID, true, {id: REJECTED_TO_REJECT, point_type_id: 8, approved: false})
         await FirestoreDataFactory.setHousePointTypeDetails(db, PLATINUM, 8, "Point Type Id 8", 8, 7)
-        await FirestoreDataFactory.setPointType(db, 8, {name:"Point Type Id 8", value: 70})
+        
 
         //Initialize required docs
         // Houses
@@ -125,10 +133,6 @@ describe('', async () =>{
         // System preferences
         // Users
 
-    })
-
-    beforeEach(async () => {
-        await FirestoreDataFactory.setSystemPreference(db)
     })
 
     it('Test submit new point type without approval adds to only house point types', async(done) =>{

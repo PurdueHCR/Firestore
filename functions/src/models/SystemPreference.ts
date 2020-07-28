@@ -7,6 +7,7 @@ export class SystemPreference {
     static IS_COMPETITION_ENABLED = "isHouseEnabled"
     static IS_COMPETITION_VISIBLE = "isCompetitionVisible"
     static SUGGESTED_POINT_IDS = "suggestedPointIDs"
+    static HOUSE_IDS = "houseIDs"
 
     id: string
     androidVersion: string
@@ -16,8 +17,9 @@ export class SystemPreference {
     isCompetitionEnabled: Boolean
     suggestedPointIds: string
     isCompetitionVisible: Boolean
+    houseIds: string[]
 
-    constructor(id:string, androidVersion: string,  competitionDisabledMessage: string, iosVersion: string, competitionHiddenMessage:string, isCompetitionEnabled: Boolean, suggestedPointIds: string, isCompetitionVisible: Boolean){
+    constructor(id:string, androidVersion: string,  competitionDisabledMessage: string, iosVersion: string, competitionHiddenMessage:string, isCompetitionEnabled: Boolean, suggestedPointIds: string, isCompetitionVisible: Boolean, houseIds: string[]){
         this.id = id
         this.androidVersion = androidVersion
         this.competitionDisabledMessage = competitionDisabledMessage
@@ -26,6 +28,7 @@ export class SystemPreference {
         this.isCompetitionEnabled = isCompetitionEnabled
         this.suggestedPointIds = suggestedPointIds
         this.isCompetitionVisible = isCompetitionVisible
+        this.houseIds = houseIds
     }
 
     updateFirebaseJson(){
@@ -34,6 +37,7 @@ export class SystemPreference {
         data[SystemPreference.COMPETITION_HIDDEN_MESSAGE] = this.competitionHiddenMessage
         data[SystemPreference.IS_COMPETITION_ENABLED] = this.isCompetitionEnabled
         data[SystemPreference.IS_COMPETITION_VISIBLE] = this.isCompetitionVisible
+        data[SystemPreference.HOUSE_IDS] = this.houseIds
         return data
     }
 
@@ -46,15 +50,16 @@ export class SystemPreference {
         data[SystemPreference.IS_COMPETITION_ENABLED] = this.isCompetitionEnabled
         data[SystemPreference.IS_COMPETITION_VISIBLE] = this.isCompetitionVisible
         data[SystemPreference.SUGGESTED_POINT_IDS] = this.suggestedPointIds
+        data[SystemPreference.HOUSE_IDS] = this.houseIds
         return data
     }
 
     static fromDocument(document: FirebaseFirestore.DocumentSnapshot): SystemPreference{
         let id: string
         let androidVersion: string
-        // let oneTimeCode: string
         let competitionDisabledMessage: string
         let competitionHiddenMessage: string
+        let houseIds: string[]
         let iosVersion: string
         let isCompetitionEnabled: Boolean
         let suggestedPointIds: string
@@ -109,6 +114,14 @@ export class SystemPreference {
         else{
             suggestedPointIds = "";
         }
-        return new SystemPreference(id, androidVersion, competitionDisabledMessage, iosVersion, competitionHiddenMessage, isCompetitionEnabled, suggestedPointIds, isCompetitionVisible);
+
+        if( SystemPreference.HOUSE_IDS in document.data()!){
+            houseIds = document.data()![SystemPreference.HOUSE_IDS]
+        }
+        else{
+            houseIds = []
+        }
+
+        return new SystemPreference(id, androidVersion, competitionDisabledMessage, iosVersion, competitionHiddenMessage, isCompetitionEnabled, suggestedPointIds, isCompetitionVisible, houseIds);
     }
 }

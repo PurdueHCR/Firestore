@@ -130,7 +130,7 @@ pt_app.put('/', async (req, res) => {
 		if("value" in req.body){
 			pointType.value = ParameterParser.parseInputForNumber(req.body.value, 1)
 		}
-
+		console.log("Updating point type")
 		await updatePointType(pointType)
 		throw APIResponse.Success()
 

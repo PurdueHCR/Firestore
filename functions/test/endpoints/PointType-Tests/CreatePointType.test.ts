@@ -55,6 +55,8 @@ describe('point_type/', () =>{
         await FirestoreDataFactory.setUser(db, FHP_ID, 3)
         await FirestoreDataFactory.setUser(db, PRIV_RESIDENT_ID, 4)
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
+        await FirestoreDataFactory.setAllHouses(db)
+        await FirestoreDataFactory.setSystemPreference(db)
 
     })
 
@@ -304,6 +306,12 @@ describe('point_type/', () =>{
                 expect(pt_docs[1].data().PermissionLevel).toBe(PERMISSION)
                 expect(pt_docs[1].data().ResidentsCanSubmit).toBe(CANSUBMIT)
                 expect(pt_docs[1].data().Value).toBe(VALUE)
+
+                const housePointTypeCategory = await db.collection("House").doc("Platinum").collection("Details").doc("PointTypes").get()
+                expect(housePointTypeCategory.data()!["2"].name).toBe(NAME)
+                expect(housePointTypeCategory.data()!["2"].submitted).toBe(0)
+                expect(housePointTypeCategory.data()!["2"].approved).toBe(0)
+
                 await db.collection("PointTypes").doc("1").delete()
                 await db.collection("PointTypes").doc("2").delete()
                 done()
@@ -332,6 +340,10 @@ describe('point_type/', () =>{
                 expect(pt_docs[3].data().PermissionLevel).toBe(PERMISSION)
                 expect(pt_docs[3].data().ResidentsCanSubmit).toBe(CANSUBMIT)
                 expect(pt_docs[3].data().Value).toBe(VALUE)
+                const housePointTypeCategory = await db.collection("House").doc("Platinum").collection("Details").doc("PointTypes").get()
+                expect(housePointTypeCategory.data()!["37"].name).toBe(NAME)
+                expect(housePointTypeCategory.data()!["37"].submitted).toBe(0)
+                expect(housePointTypeCategory.data()!["37"].approved).toBe(0)
                 await db.collection("PointTypes").doc("1").delete()
                 await db.collection("PointTypes").doc("4").delete()
                 await db.collection("PointTypes").doc("36").delete()

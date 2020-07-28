@@ -26,7 +26,8 @@ export class FirestoreDataFactory{
             "iOS_Version":(spOpts.ios_version !== undefined)?spOpts.ios_version:Options.SYSTEM_PREFERENCES_DEFAULTS.ios_version,
             "isCompetitionVisible":(spOpts.is_competition_visible !== undefined)?spOpts.is_competition_visible:Options.SYSTEM_PREFERENCES_DEFAULTS.is_competition_visible,
             "isHouseEnabled": (spOpts.is_house_enabled !== undefined)?spOpts.is_house_enabled:Options.SYSTEM_PREFERENCES_DEFAULTS.is_house_enabled,
-            "suggestedPointIDs": (spOpts.suggested_point_ids !== undefined)?spOpts.suggested_point_ids:Options.SYSTEM_PREFERENCES_DEFAULTS.suggested_point_ids
+            "suggestedPointIDs": (spOpts.suggested_point_ids !== undefined)?spOpts.suggested_point_ids:Options.SYSTEM_PREFERENCES_DEFAULTS.suggested_point_ids,
+            "houseIDs":(spOpts.houseIds !== undefined)?spOpts.houseIds:Options.SYSTEM_PREFERENCES_DEFAULTS.houseIds
         })
     }
 
@@ -36,7 +37,13 @@ export class FirestoreDataFactory{
      * @param id - ID number for the point type
      * @param ptopts - Optional Parameters for the point type. Will be set to default if field isnt provided
      */
-    static setPointType(db: firebase.firestore.Firestore, id: number, ptopts:Options.PointTypeOptions = Options.POINT_TYPE_DEFAULTS): Promise<void>{
+    static async setPointType(db: firebase.firestore.Firestore, id: number, ptopts:Options.PointTypeOptions = Options.POINT_TYPE_DEFAULTS): Promise<void>{
+        await FirestoreDataFactory.setHousePointTypeDetails(db,"Copper", id,((ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name)!, 0,0)
+        await FirestoreDataFactory.setHousePointTypeDetails(db,"Palladium", id,((ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name)!, 0,0)
+        await FirestoreDataFactory.setHousePointTypeDetails(db,"Platinum", id,((ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name)!, 0,0)
+        await FirestoreDataFactory.setHousePointTypeDetails(db,"Silver", id,((ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name)!, 0,0)
+        await FirestoreDataFactory.setHousePointTypeDetails(db,"Titanium", id,((ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name)!, 0,0)
+        
         return db.collection("PointTypes").doc(id.toString()).set({
             "Description":(ptopts.description !== undefined)? ptopts.description: Options.POINT_TYPE_DEFAULTS.description,
             "Name":(ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name,
@@ -130,12 +137,12 @@ export class FirestoreDataFactory{
      * @param db - Test App Firestore instance (Usually from authedApp())
      * @param houseOpts - Optional Parameters for each of the houses. Will be set to defaults if not provided
      */
-    static async setAllHouses(db: firebase.firestore.Firestore, houseOpts:Options.AllHousesOptions){
-        await this.setHouse(db,"Copper",houseOpts.copper)
-        await this.setHouse(db,"Palladium",houseOpts.palladium)
-        await this.setHouse(db,"Platinum", houseOpts.platinum)
-        await this.setHouse(db,"Silver", houseOpts.silver)
-        await this.setHouse(db,"Titanium",houseOpts.titanium)
+    static async setAllHouses(db: firebase.firestore.Firestore, houseOpts:Options.AllHousesOptions = Options.ALL_HOUSE_DEFAULTS){
+        await this.setHouse(db,"Copper", (houseOpts.copper !== undefined) ? houseOpts.copper : Options.ALL_HOUSE_DEFAULTS.copper)
+        await this.setHouse(db,"Palladium", (houseOpts.palladium !== undefined) ? houseOpts.palladium : Options.ALL_HOUSE_DEFAULTS.palladium)
+        await this.setHouse(db,"Platinum", (houseOpts.platinum !== undefined) ? houseOpts.platinum : Options.ALL_HOUSE_DEFAULTS.platinum)
+        await this.setHouse(db,"Silver", (houseOpts.silver !== undefined) ? houseOpts.silver : Options.ALL_HOUSE_DEFAULTS.silver)
+        await this.setHouse(db,"Titanium", (houseOpts.titanium !== undefined) ? houseOpts.titanium : Options.ALL_HOUSE_DEFAULTS.titanium)
     }
 
     /**
