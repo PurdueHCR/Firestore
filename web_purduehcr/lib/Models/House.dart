@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:meta/meta.dart';
+import 'package:purduehcr_web/Models/HousePointTypeCount.dart';
 import 'package:purduehcr_web/Models/UserScore.dart';
 
 class House{
@@ -11,8 +12,10 @@ class House{
   static const ID_KEY = "id";
   static const POINTS_PER_RESIDENTS_KEY = "pointsPerResident";
   static const DOWNLOAD_URL = "downloadURL";
+  static const DESCRIPTION = "description";
   static const YEAR_RANK = "yearRank";
   static const SEMESTER_RANK = "semesterRank";
+  static const SUBMISSIONS = "submissions";
 
 
   String name;
@@ -21,19 +24,22 @@ class House{
   int numberOfResidents;
   int totalPoints;
   String downloadURL;
+  String description;
   List<UserScore> overallScores;
   List<UserScore> semesterScores;
+  List<HousePointTypeCount> submissions;
 
   House({@required this.name, @required this.pointsPerResident,
     @required this.color, @required this.numberOfResidents,
-    @required this.totalPoints, @required this.downloadURL,
-    this.overallScores, this.semesterScores});
+    @required this.totalPoints, @required this.downloadURL, @required this.description,
+    this.overallScores, this.semesterScores, this.submissions});
 
 
   factory House.fromJson(Map<String, dynamic> json){
 
     List<UserScore> yearScores = new List();
     List<UserScore> semesterScores = new List();
+    List<HousePointTypeCount> submissions = new List();
 
     if(json.containsKey(YEAR_RANK)){
       Set<Map<String, dynamic>> yearRankList = Set.from(json[YEAR_RANK]);
@@ -42,7 +48,13 @@ class House{
         yearScores.add(UserScore.fromJson(element));
       });
     }
+    if(json.containsKey(SUBMISSIONS)){
+      Set<Map<String, dynamic>> submissionsList = Set.from(json[SUBMISSIONS]);
 
+      submissionsList.forEach((element) {
+        submissions.add(HousePointTypeCount.fromJson(element));
+      });
+    }
 
     if(json.containsKey(SEMESTER_RANK)){
       Set<Map<String, dynamic>> semesterRankList = Set.from(json[SEMESTER_RANK]);
@@ -59,8 +71,10 @@ class House{
       numberOfResidents: (json[NUMBER_RESIDENTS_KEY] != null )?json[NUMBER_RESIDENTS_KEY]: -1,
       totalPoints: (json[TOTAL_POINTS_KEY] != null )?json[TOTAL_POINTS_KEY]: -1,
       downloadURL: json[DOWNLOAD_URL],
+      description: json[DESCRIPTION],
       overallScores: yearScores,
-      semesterScores: semesterScores
+      semesterScores: semesterScores,
+      submissions: submissions
     );
   }
 

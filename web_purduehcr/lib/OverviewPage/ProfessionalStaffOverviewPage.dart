@@ -7,6 +7,7 @@ import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/OverviewPage/overview_bloc/overview.dart';
 import 'package:purduehcr_web/OverviewPage/overview_cards/HouseCompetitionCard.dart';
 import 'package:purduehcr_web/OverviewPage/overview_cards/HouseDescription.dart';
+import 'package:purduehcr_web/OverviewPage/overview_cards/HousePointTypeSubmissionsCard.dart';
 import 'package:purduehcr_web/OverviewPage/overview_cards/ProfileCard.dart';
 import 'package:purduehcr_web/OverviewPage/overview_cards/RecentSubmissionsCard.dart';
 import 'package:purduehcr_web/OverviewPage/overview_cards/RewardsCard.dart';
@@ -118,6 +119,13 @@ class _ProfessionalStaffOverviewPageState extends BasePageState<OverviewBloc, Ov
                   ),
                 )
               ],
+            ),
+            ConstrainedBox(
+              constraints: BoxConstraints( maxHeight: 300),
+              child: HousePointTypeSubmissionsCard(
+                key: ObjectKey(_selectedHouse),
+                submissions: _selectedHouse.submissions,
+              ),
             )
           ],
         ),
@@ -139,8 +147,36 @@ class _ProfessionalStaffOverviewPageState extends BasePageState<OverviewBloc, Ov
   }
 
   Widget _buildBody(OverviewState state){
-    if(state is ResidentOverviewLoaded){
-      ResidentOverviewLoaded residentData = state;
+    if(state is ProfessionalStaffLoaded){
+      if(_selectedHouse == null)
+        _selectedHouse = state.houses[0];
+
+      List<Widget> buttons = [];
+      for(House house in state.houses){
+        if(house == _selectedHouse){
+          buttons.add(RaisedButton(
+            color: house.getHouseColor(),
+            child: Text(house.name),
+            onPressed: (){
+              setState(() {
+                _selectedHouse = house;
+              });
+            },
+          ));
+        }
+        else{
+          buttons.add(OutlineButton(
+            color: house.getHouseColor(),
+            child: Text(house.name),
+            onPressed: (){
+              setState(() {
+                _selectedHouse = house;
+              });
+            },
+          ));
+        }
+      }
+
       return SingleChildScrollView(
         child: Column(
           children: [
@@ -148,9 +184,34 @@ class _ProfessionalStaffOverviewPageState extends BasePageState<OverviewBloc, Ov
               width: getActiveAreaWidth(context),
               height: getActiveAreaWidth(context) * 0.3,
               child:HouseCompetitionCard(
-                houses: residentData.houses,
+                houses: state.houses,
               ),
             ),
+            Wrap(
+              children: buttons,
+            ),
+            ConstrainedBox(
+              constraints: BoxConstraints( maxHeight: 300),
+              child: HouseDescription(
+                house: _selectedHouse,
+                permissionLevel: authState.user.permissionLevel,
+              ),
+            ),
+            ConstrainedBox(
+              constraints: BoxConstraints( maxHeight: 300),
+              child: UserScoreCard(
+                yearScores: _selectedHouse.overallScores,
+                semesterScores: _selectedHouse.semesterScores,
+                key: ObjectKey(_selectedHouse),
+              ),
+            ),
+            ConstrainedBox(
+              constraints: BoxConstraints( maxHeight: 300),
+              child: HousePointTypeSubmissionsCard(
+                key: ObjectKey(_selectedHouse),
+                submissions: _selectedHouse.submissions,
+              ),
+            )
           ],
         ),
       );

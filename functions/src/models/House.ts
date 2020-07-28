@@ -9,23 +9,25 @@ export class House {
     static TOTAL_POINTS =  "TotalPoints"
     static FLOOR_IDS = "FloorIds"
     static DOWNLOAD_URL = "DownloadURL"
+    static DESCRIPTION = "Description"
 
     color: string
     numberOfResidents: number
     totalPoints: number
     id:string
     pointsPerResident: number
+    description: string
     downloadURL: string
     floorIds: string[]
 
-    constructor(color:string, numberOfResidents: number, totalPoints: number, floorIds: string[], id: string, downloadURL:string){
+    constructor(color:string, numberOfResidents: number, totalPoints: number, floorIds: string[], id: string, downloadURL:string, description:string){
         this.color = color
         this.numberOfResidents = numberOfResidents
         this.totalPoints = totalPoints
         this.id = id
         this.floorIds = floorIds
         this.pointsPerResident = totalPoints/numberOfResidents
-
+        this.description = description
         this.downloadURL = downloadURL
     }
 
@@ -36,6 +38,7 @@ export class House {
         data[House.TOTAL_POINTS] = this.totalPoints
         data[House.FLOOR_IDS] = this.floorIds
         data[House.DOWNLOAD_URL] = this.downloadURL
+        data[House.DESCRIPTION] = this.description
         return data
     }
 
@@ -65,6 +68,7 @@ export class House {
         let numberOfResidents: number
         let totalPoints: number
         let floorIds: string[]
+        let description: string
         let downloadURL: string
         const id = doc_id
 
@@ -103,7 +107,14 @@ export class House {
             downloadURL = ""
         }
 
-        return new House(color, numberOfResidents, totalPoints, floorIds, id, downloadURL)
+        if(House.DESCRIPTION in document){
+            description = document[House.DESCRIPTION]
+        }
+        else{
+            description = ""
+        }
+
+        return new House(color, numberOfResidents, totalPoints, floorIds, id, downloadURL, description)
     }
 }
 

@@ -34,28 +34,39 @@ class _UserScoreCardState extends State<UserScoreCard>{
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("House Leader board"),
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                RaisedButton(
-                  child: Text("Overall"),
-                  onPressed: (){
-                    setState(() {
-                      _selectedList = widget.yearScores;
-                    });
-                  },
-                ),
-                RaisedButton(
-                  child: Text("Semester"),
-                  onPressed: (){
-                    setState(() {
-                      _selectedList = widget.semesterScores;
-                    });
-                  },
-                )
-              ],
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text("House Leader board",
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold
+                  )
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  RaisedButton(
+                    child: Text("Overall"),
+                    onPressed: (){
+                      setState(() {
+                        _selectedList = widget.yearScores;
+                      });
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text("Semester"),
+                    onPressed: (){
+                      setState(() {
+                        _selectedList = widget.semesterScores;
+                      });
+                    },
+                  )
+                ],
+              ),
             ),
             Flexible(
               fit: FlexFit.loose,
@@ -73,11 +84,26 @@ class _UserScoreCardState extends State<UserScoreCard>{
                             shrinkWrap: true,
                             itemCount: _selectedList.length,
                               itemBuilder: (BuildContext context, index){
-                                return ListTile(
-                                  title: Text(_selectedList[index].firstName +" "+ _selectedList[index].lastName),
-                                  trailing: Text((_selectedList == widget.yearScores)?_selectedList[index].totalPoints.toString():_selectedList[index].semesterPoints.toString() ),
-                                );
-                              }
+                              return Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 4,horizontal: 8),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Flexible(
+                                        flex: 5,
+                                        child: Text((index+1).toString()+". " +_selectedList[index].firstName +" "+ _selectedList[index].lastName),
+                                      ),
+                                      Flexible(
+                                        flex: 1,
+                                        child: Text((_selectedList == widget.yearScores)?_selectedList[index].totalPoints.toString():_selectedList[index].semesterPoints.toString() ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
                           ),
                         ),
                       ),

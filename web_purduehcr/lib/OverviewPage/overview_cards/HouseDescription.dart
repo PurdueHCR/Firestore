@@ -22,32 +22,96 @@ class _HouseDescription extends State<HouseDescription>{
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Column(
-        children: [
-          SizedBox(
-            width: 100,
-            height: 100,
-            child: Image.network(widget.house.downloadURL),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: Image.network(widget.house.downloadURL),
+                  ),
+                ],
+              ),
+              Text("Description",
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold
+                  )
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(widget.house.description),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 8, 4, 0),
+                child: Text("Details",
+                    style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold
+                  )
+                ),
+              ),
+              Container(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                  child: Column(
+                    children: [
+                      Visibility(
+                        visible: widget.permissionLevel == UserPermissionLevel.PROFESSIONAL_STAFF,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Number of Residents"),
+                            Text(widget.house.numberOfResidents.toString())
+                          ],
+                        ),
+                      ),
+                      Visibility(
+                        visible: widget.permissionLevel == UserPermissionLevel.PROFESSIONAL_STAFF,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Total Points"),
+                            Text(widget.house.totalPoints.toString())
+                          ],
+                        ),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Points Per Resident: "),
+                          Text(widget.house.pointsPerResident.toString())
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Visibility(
+                visible: widget.permissionLevel == UserPermissionLevel.PROFESSIONAL_STAFF,
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    RaisedButton(
+                      child: Text("Give Award"),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          Text("Description"),
-          Text("Create a description for all of the houses"),
-          Text("Details"),
-          Visibility(
-            visible: widget.permissionLevel == UserPermissionLevel.PROFESSIONAL_STAFF,
-            child: Text("Num Res: "+widget.house.numberOfResidents.toString()),
-          ),
-          Visibility(
-            visible: widget.permissionLevel == UserPermissionLevel.PROFESSIONAL_STAFF,
-            child: Text("Total Points: "+widget.house.totalPoints.toString()),
-          ),
-          Text("Points Per Resident: "+widget.house.pointsPerResident.toString()),
-          Visibility(
-            visible: widget.permissionLevel == UserPermissionLevel.PROFESSIONAL_STAFF,
-            child: RaisedButton(
-              child: Text("Give Award"),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
