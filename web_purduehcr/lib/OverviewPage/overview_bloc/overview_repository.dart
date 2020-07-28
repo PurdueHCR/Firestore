@@ -27,6 +27,7 @@ class OverviewRepository {
       case UserPermissionLevel.PRIVILEGED_RESIDENT:
       return _getPrivilegeResidentOverview();
       case UserPermissionLevel.PROFESSIONAL_STAFF:
+        return _getProfessionalStaffLoaded();
       case UserPermissionLevel.FHP:
       case UserPermissionLevel.EXTERNAL_ADVISER:
       default:
@@ -102,4 +103,18 @@ class OverviewRepository {
     });
     return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, key: UniqueKey());
   }
+
+  Future<ProfessionalStaffLoaded> _getProfessionalStaffLoaded() async {
+    Map<String,dynamic> data = (await callCloudFunction(config, Method.GET, "competition/userOverview"));
+    Map<String,dynamic> residentOverview = data["professional_staff"];
+
+
+    Set<Map<String, dynamic>> houseList = Set.from(residentOverview["houses"]);
+    List<House> houses = new List();
+    houseList.forEach((element) {
+      houses.add(House.fromJson(element));
+    });
+    return ProfessionalStaffLoaded(houses: houses);
+  }
+
 }

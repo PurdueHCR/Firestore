@@ -163,7 +163,7 @@ describe('GET competition/userOverview', () =>{
     })
 
     //Test if user is RHP, REC, FHP, NHAS
-    it.skip('Test REC', async(done) => {
+    it('Test REC', async(done) => {
         //Test with resident
         const res: request.Test = factory.get(competition_func,USER_OVERVIEW,REC_ID)
         res.end(async function(err, res){
@@ -171,7 +171,24 @@ describe('GET competition/userOverview', () =>{
                 done(err)
             }
             else{
-                expect(res.status).toBe(403)
+                expect(res.status).toBe(200)
+
+                //Check houses
+                expect(res.body.professional_staff.houses[0].id).toBe("Platinum")
+                expect(res.body.professional_staff.houses[0].pointsPerResident).toBe(10)
+                expect(res.body.professional_staff.houses[0].yearlyRank).toBeDefined()
+                expect(res.body.professional_staff.houses[0].semesterRank).toBeDefined()
+                expect(res.body.professional_staff.houses[0].submissions).toBeDefined()
+                expect(res.body.professional_staff.houses[1].id).toBe("Titanium")
+                expect(res.body.professional_staff.houses[1].pointsPerResident).toBe(8)
+                expect(res.body.professional_staff.houses[2].id).toBe("Silver")
+                expect(res.body.professional_staff.houses[2].pointsPerResident).toBe(3)
+                expect(res.body.professional_staff.houses[3].id).toBe("Palladium")
+                expect(res.body.professional_staff.houses[3].pointsPerResident).toBe(1)
+                expect(res.body.professional_staff.houses[4].id).toBe("Copper")
+                expect(res.body.professional_staff.houses[4].pointsPerResident).toBe(0)
+
+                
                 done()
             }
         })

@@ -15,12 +15,12 @@ export class RankArray {
     }
 
     getYearlyRank() : UserHouseRank[]{
-        this.users.sort((a,b)=>a.totalPoints-b.totalPoints)
+        this.users.sort((a,b)=>b.totalPoints-a.totalPoints)
         return this.users
     }
 
     getSemesterRank() : UserHouseRank[]{
-        this.users.sort((a,b)=>a.semesterPoints-b.semesterPoints)
+        this.users.sort((a,b)=>b.semesterPoints-a.semesterPoints)
         return this.users
     }
 
@@ -28,14 +28,12 @@ export class RankArray {
     static fromDocumentSnapshot(document: FirebaseFirestore.DocumentSnapshot): RankArray{
         const users:UserHouseRank[] = []
         if(document.exists){
-            for(const user of document.data()!.users){
-                users.push(new UserHouseRank(user.residentId, user.firstName, user.lastName, user.totalPoints, user.semesterPoints))
-            }
+            console.log("PArsing: "+JSON.stringify(document.data()!))
             Object.keys(document.data()!).forEach((key:string)=>{
                 const user = document.data()![key]
                 users.push(new UserHouseRank(key, user.firstName, user.lastName, user.totalPoints, user.semesterPoints))
             })
-            users.sort((a,b) => a.totalPoints - b.totalPoints)
+            users.sort((a,b) => b.totalPoints - a.totalPoints)
         }
         return new RankArray(users)
     }

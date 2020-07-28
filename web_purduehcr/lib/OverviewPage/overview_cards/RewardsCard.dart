@@ -48,7 +48,7 @@ class RewardsCardState extends State<RewardsCard>{
                 child: new CircularProgressIndicator(
                   strokeWidth: 10,
                   valueColor: new AlwaysStoppedAnimation<Color>(widget.house.getHouseColor()),
-                  value: widget.house.pontsPerResident/ widget.reward.requiredPPR,
+                  value: widget.house.pointsPerResident/ widget.reward.requiredPPR,
                 ),
               ),
               Center(
@@ -81,7 +81,7 @@ class RewardsCardState extends State<RewardsCard>{
           padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
           child: Column(
             children: [
-              Text(widget.house.pontsPerResident.toString()+ " / "+widget.reward.requiredPPR.toString()),
+              Text(widget.house.pointsPerResident.toString()+ " / "+widget.reward.requiredPPR.toString()),
               Text("Points Per Resident", maxLines: null,),
             ],
           ),

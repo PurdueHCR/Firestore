@@ -120,7 +120,7 @@ export async function getProfessionalStaffProfile(user:User): Promise<Profession
 		const house = Object.assign({}, houseModel) as any
 		const rankArray = await getRankArray(houseModel)
 		const pointTypes = await getHousePointTypeHistory(houseModel)
-		house.yearlyRank = rankArray.getYearlyRank()
+		house.yearRank = rankArray.getYearlyRank()
 		house.semesterRank = rankArray.getSemesterRank()
 		house.submissions = pointTypes.housePointTypes
 		data.houses.push(house)

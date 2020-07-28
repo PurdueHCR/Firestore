@@ -8,21 +8,25 @@ export class House {
     static NUMBER_OF_RESIDENTS = "NumberOfResidents"
     static TOTAL_POINTS =  "TotalPoints"
     static FLOOR_IDS = "FloorIds"
+    static DOWNLOAD_URL = "DownloadURL"
 
     color: string
     numberOfResidents: number
     totalPoints: number
     id:string
     pointsPerResident: number
+    downloadURL: string
     floorIds: string[]
 
-    constructor(color:string, numberOfResidents: number, totalPoints: number, floorIds: string[], id: string){
+    constructor(color:string, numberOfResidents: number, totalPoints: number, floorIds: string[], id: string, downloadURL:string){
         this.color = color
         this.numberOfResidents = numberOfResidents
         this.totalPoints = totalPoints
         this.id = id
         this.floorIds = floorIds
         this.pointsPerResident = totalPoints/numberOfResidents
+
+        this.downloadURL = downloadURL
     }
 
     firestoreJson() {
@@ -31,6 +35,7 @@ export class House {
         data[House.NUMBER_OF_RESIDENTS] = this.numberOfResidents
         data[House.TOTAL_POINTS] = this.totalPoints
         data[House.FLOOR_IDS] = this.floorIds
+        data[House.DOWNLOAD_URL] = this.downloadURL
         return data
     }
 
@@ -60,6 +65,7 @@ export class House {
         let numberOfResidents: number
         let totalPoints: number
         let floorIds: string[]
+        let downloadURL: string
         const id = doc_id
 
         if( House.COLOR in document){
@@ -90,7 +96,14 @@ export class House {
             floorIds = []
         }
 
-        return new House(color, numberOfResidents, totalPoints, floorIds, id)
+        if(House.DOWNLOAD_URL in document){
+            downloadURL = document[House.DOWNLOAD_URL]
+        }
+        else{
+            downloadURL = ""
+        }
+
+        return new House(color, numberOfResidents, totalPoints, floorIds, id, downloadURL)
     }
 }
 

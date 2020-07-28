@@ -134,7 +134,7 @@ describe('getAllRewards', () =>{
 describe('Get Next Reward for House', () => {
 
     test('Test Get First Reward', async() => {
-        let house = new House.House("#000000", 100, 0, ["2N","2S"],"Copper")
+        let house = new House.House("#000000", 100, 0, ["2N","2S"],"Copper", "url")
         let result = await GetReward.getNextRewardForHouse(house)
         expect(result.fileName).toBe(lowReward.data.FileName)
         expect(result.id).toBe(lowReward.id)
@@ -143,7 +143,7 @@ describe('Get Next Reward for House', () => {
 
     test('Test Get Middle Reward', async() => {
         const ppr: number = middleReward.data.RequiredPPR * 100 - 10
-        let house = new House.House("#000000", 100, ppr, ["2N","2S"],"Copper")
+        let house = new House.House("#000000", 100, ppr, ["2N","2S"],"Copper", "url")
         let result = await GetReward.getNextRewardForHouse(house)
         expect(result.fileName).toBe(middleReward.data.FileName)
         expect(result.id).toBe(middleReward.id)
@@ -152,7 +152,7 @@ describe('Get Next Reward for House', () => {
 
     test('Test Surpass all rewards', async() => {
         const ppr:number = highReward.data.RequiredPPR * 200
-        let house = new House.House("#000000", 100, ppr, ["2N","2S"],"Copper")
+        let house = new House.House("#000000", 100, ppr, ["2N","2S"],"Copper", "url")
         let result = await GetReward.getNextRewardForHouse(house)
         expect(result.fileName).toBe(highReward.data.FileName)
         expect(result.id).toBe(highReward.id)
