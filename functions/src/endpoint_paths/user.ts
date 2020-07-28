@@ -14,12 +14,12 @@ import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { getUserLinks } from '../src/GetUserLinks'
 import { getLinkById } from '../src/GetLinkById'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
-import { updateUser } from '../src/UpdateUser'
+import { updateUser, removeUserFromHouse } from '../src/UpdateUser'
 import * as ParameterParser from '../src/ParameterParser'
 import { getHouseByName } from '../src/GetHouses'
 
 if(admin.apps.length === 0){
-	admin.initializeApp(functions.config().firebase)
+	admin.initializeApp(functions.config().firestore)
 }
 
 const users_app = express()
@@ -437,6 +437,7 @@ users_app.put('/', async (req,res) => {
 									throw APIResponse.InvalidFloorId()
 								}
 								else{
+									await removeUserFromHouse(modifiedUser)
 									modifiedUser.house = house.id
 									modifiedUser.floorId = floorId
 									modifiedUser.semesterPoints = 0
@@ -494,6 +495,7 @@ users_app.put('/', async (req,res) => {
 									throw APIResponse.InvalidFloorId()
 								}
 								else{
+									await removeUserFromHouse(modifiedUser)
 									modifiedUser.house = house.id
 									modifiedUser.floorId = floorId
 									modifiedUser.semesterPoints = 0
