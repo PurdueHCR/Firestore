@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
+import 'package:purduehcr_web/Models/House.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 
 abstract class OverviewEvent extends Equatable {
@@ -20,4 +21,23 @@ class ReloadOverview extends OverviewEvent {
 
   @override
   List<Object> get props => [permissionLevel];
+}
+
+class GrantAward extends OverviewEvent {
+  final String description;
+  final House house;
+  final double pointsPerResident;
+
+  GrantAward(this.description, this.house, this.pointsPerResident);
+
+  @override
+  List<Object> get props => [description, house, pointsPerResident];
+
+}
+
+class HandleGrantAwardMessage extends OverviewEvent {
+  HandleGrantAwardMessage();
+
+  @override
+  List<Object> get props => [];
 }

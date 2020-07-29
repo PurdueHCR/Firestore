@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/BasePage.dart';
 import 'package:purduehcr_web/Models/House.dart';
 import 'package:purduehcr_web/Models/User.dart';
@@ -54,6 +55,7 @@ class _ProfessionalStaffOverviewPageState extends BasePageState<OverviewBloc, Ov
 
   @override
   Widget buildLargeDesktopBody({BuildContext context, OverviewState state}) {
+    checkForMessage(context, state);
     if(state is ProfessionalStaffLoaded){
       if(_selectedHouse == null)
         _selectedHouse = state.houses[0];
@@ -101,16 +103,19 @@ class _ProfessionalStaffOverviewPageState extends BasePageState<OverviewBloc, Ov
               children: [
                 Expanded(
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: 300, maxHeight: 300),
-                    child: HouseDescription(
-                      house: _selectedHouse,
-                      permissionLevel: authState.user.permissionLevel,
+                    constraints: BoxConstraints(minHeight: 350, maxHeight: 350),
+                    child: BlocProvider(
+                      builder: (BuildContext context) => _overviewBloc,
+                      child: HouseDescription(
+                        house: _selectedHouse,
+                        permissionLevel: authState.user.permissionLevel,
+                      ),
                     ),
                   ),
                 ),
                 Expanded(
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: 300, maxHeight: 300),
+                    constraints: BoxConstraints(minHeight: 350, maxHeight: 350),
                     child: UserScoreCard(
                       yearScores: _selectedHouse.overallScores,
                       semesterScores: _selectedHouse.semesterScores,
@@ -147,6 +152,7 @@ class _ProfessionalStaffOverviewPageState extends BasePageState<OverviewBloc, Ov
   }
 
   Widget _buildBody(OverviewState state){
+    checkForMessage(context, state);
     if(state is ProfessionalStaffLoaded){
       if(_selectedHouse == null)
         _selectedHouse = state.houses[0];
@@ -192,9 +198,12 @@ class _ProfessionalStaffOverviewPageState extends BasePageState<OverviewBloc, Ov
             ),
             ConstrainedBox(
               constraints: BoxConstraints( maxHeight: 300),
-              child: HouseDescription(
-                house: _selectedHouse,
-                permissionLevel: authState.user.permissionLevel,
+              child: BlocProvider(
+                builder: (BuildContext context) => _overviewBloc,
+                child: HouseDescription(
+                  house: _selectedHouse,
+                  permissionLevel: authState.user.permissionLevel,
+                ),
               ),
             ),
             ConstrainedBox(
@@ -229,6 +238,37 @@ class _ProfessionalStaffOverviewPageState extends BasePageState<OverviewBloc, Ov
   @override
   OverviewBloc getBloc() {
     return _overviewBloc;
+  }
+
+  checkForMessage(BuildContext context, OverviewState state){
+    if(state is GrantAwardSuccess){
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pop();
+      });
+      final snackBar = SnackBar(
+        backgroundColor: Colors.green,
+        content:
+        Text('The award was successfully added!'),
+      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Scaffold.of(context).showSnackBar(snackBar);
+        _overviewBloc.add(HandleGrantAwardMessage());
+      });
+    }
+    else if(state is GrantAwardError){
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pop();
+      });
+      final snackBar = SnackBar(
+        backgroundColor: Colors.red,
+        content:
+        Text('There was a problem adding the award. Please refresh and try again.'),
+      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Scaffold.of(context).showSnackBar(snackBar);
+        _overviewBloc.add(HandleGrantAwardMessage());
+      });
+    }
   }
 
 

@@ -63,3 +63,15 @@ class OverviewError extends OverviewState {
   @override
   List<Object> get props => [error];
 }
+
+class GrantAwardSuccess extends ProfessionalStaffLoaded {
+  const GrantAwardSuccess(List<House> houses): super(houses:houses);
+  @override
+  List<Object> get props => [houses];
+}
+
+class GrantAwardError extends ProfessionalStaffLoaded {
+  const GrantAwardError(List<House> houses): super(houses:houses);
+  @override
+  List<Object> get props => [houses];
+}

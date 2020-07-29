@@ -117,4 +117,12 @@ class OverviewRepository {
     return ProfessionalStaffLoaded(houses: houses);
   }
 
+  grantHouseAward(String house, String description, double pointsPerResident) async {
+    Map<String, dynamic> body = new Map();
+    body["house"] = house;
+    body["description"] = description;
+    body["ppr"] = pointsPerResident;
+    await callCloudFunction(config, Method.POST, "competition/houseAward", body: body);
+  }
+
 }

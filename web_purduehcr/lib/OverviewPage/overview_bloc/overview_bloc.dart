@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:purduehcr_web/Config.dart';
+import 'package:purduehcr_web/Models/ApiError.dart';
 import 'package:purduehcr_web/OverviewPage/overview_bloc/overview_repository.dart';
 import 'overview.dart';
 class OverviewBloc extends Bloc<OverviewEvent, OverviewState>{
@@ -34,6 +35,28 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState>{
         print("Got error from overvview loading" +error.toString());
         yield OverviewError(error: error);
       }
+    }
+
+    else if(event is GrantAward){
+      ProfessionalStaffLoaded currentState = state as ProfessionalStaffLoaded;
+      try{
+        await overviewRepository.grantHouseAward(event.house.name, event.description, event.pointsPerResident);
+        yield GrantAwardError(currentState.houses);
+      }
+      on ApiError catch(error){
+        if(error.errorCode == 200){
+            event.house.totalPoints += (event.house.numberOfResidents * event.pointsPerResident) as int;
+            event.house.pointsPerResident += event.pointsPerResident;
+            yield GrantAwardSuccess(currentState.houses);
+        }
+        else
+          yield GrantAwardError(currentState.houses);
+      }
+      catch(error){
+        print("Got error from granting award" +error.toString());
+        yield GrantAwardError(currentState.houses);
+      }
+
     }
   }
 
