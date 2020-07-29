@@ -45,7 +45,7 @@ export async function getViewableHouseCodes(user:User): Promise<HouseCode[]>{
  * Get a house code with the following id
  * @param id Id of the housecode to find
  * @returns HouseCode with the given Id
- * @throws 410 - House Code does not exist
+ * @throws 415 - House Code does not exist
  */
 export async function getHouseCodeById(id:string): Promise<HouseCode>{
     const db = admin.firestore()
@@ -55,6 +55,28 @@ export async function getHouseCodeById(id:string): Promise<HouseCode>{
     }
     else{
         throw APIResponse.UnknownHouseCodeId()
+    }
+    
+}
+
+/**
+ * Get a house code with the following id
+ * @param id Id of the housecode to find
+ * @returns HouseCode with the given Id
+ * @throws 415 - House Code does not exist
+ */
+export async function getHouseCodeByCode(code:string): Promise<HouseCode>{
+    const db = admin.firestore()
+    const documentQuerySnapshot = await db.collection(HouseCompetition.HOUSE_CODES_KEY).where("Code","==",code).get()
+    if(documentQuerySnapshot.docs.length === 1){
+        return HouseCode.fromQuerySnapshot(documentQuerySnapshot)[0]
+    }
+    else if(documentQuerySnapshot.docs.length === 0){
+        throw APIResponse.UnknownHouseCodeId()
+    }
+    else{
+        console.error("Multple house codes have the same code")
+        throw APIResponse.ServerError()
     }
     
 }

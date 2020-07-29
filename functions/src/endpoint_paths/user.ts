@@ -70,26 +70,29 @@ users_app.get('/auth-rank',  async (req, res) => {
  * @throws 	500 - ServerError
  */
 users_app.post('/create', async (req, res) => {
-	//req["user"] is assigned in the FirebaseTools after user is authenticated
-	if(req.query.first === null || req.query.last === null || req.query.code === null){
-		const error = APIResponse.MissingRequiredParameters()
-		res.status(error.code).send(error.toJson())
-	}
-	else{
-		try{
-			const success = await createUser(req["user"]["user_id"], req.query.code as string, req.query.first as string, req.query.last as string)
-			res.status(success.code).send(success.toJson())
+	console.log("Entered Create")
+	try{
+		if(req.body === undefined || req.body === null){
+			throw APIResponse.MissingRequiredParameters()
 		}
-		catch(suberror){
-            if (suberror instanceof APIResponse){
-                res.status(suberror.code).send(suberror.toJson())
-            }
-            else {
-                console.log("FAILED WITH DB FROM user ERROR: "+ suberror)
-                const apiResponse = APIResponse.ServerError()
-                res.status(apiResponse.code).send(apiResponse.toJson())
-            }
-        }
+		const first = ParameterParser.parseInputForString(req.body.first)
+		const last = ParameterParser.parseInputForString(req.body.last)
+		const code = ParameterParser.parseInputForString(req.body.code)
+		console.log("Has parameters")
+		const success = await createUser(req["user"]["user_id"], code, first, last)
+		console.log("Created USER!!")
+		const user = await getUser(req["user"]["user_id"])
+		res.status(success.code).send(user)
+	}
+	catch(suberror){
+		if (suberror instanceof APIResponse){
+			res.status(suberror.code).send(suberror.toJson())
+		}
+		else {
+			console.log("FAILED WITH DB FROM user ERROR: "+ suberror)
+			const apiResponse = APIResponse.ServerError()
+			res.status(apiResponse.code).send(apiResponse.toJson())
+		}
 	}
 	
 })

@@ -26,4 +26,13 @@ class LoggedIn extends AuthenticationEvent {
 
 }
 
+class CreatedAccount extends AuthenticationEvent {
+  final User user;
+  const CreatedAccount(this.user);
+
+  @override
+  List<Object> get props => [];
+
+}
+
 class LoggedOut extends AuthenticationEvent {}

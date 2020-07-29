@@ -33,18 +33,19 @@ class _AccountPageState extends State<AccountPage> {
   @override
   void initState() {
     _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
-    window.console.log("Init State");
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _loginBloc = AccountBloc(
-      config: ConfigWrapper.of(context),
-      authenticationBloc: _authenticationBloc,
-    );
-    _loginBloc.add(AccountInitialize());
+    if(_loginBloc == null){
+      _loginBloc = AccountBloc(
+        config: ConfigWrapper.of(context),
+        authenticationBloc: _authenticationBloc,
+      );
+      _loginBloc.add(AccountInitialize());
+    }
   }
 
   @override

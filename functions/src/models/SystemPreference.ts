@@ -8,6 +8,8 @@ export class SystemPreference {
     static IS_COMPETITION_VISIBLE = "isCompetitionVisible"
     static SUGGESTED_POINT_IDS = "suggestedPointIDs"
     static HOUSE_IDS = "houseIDs"
+    static DEFAULT_IMAGE_URL = "DefaultImageURL"
+    static DEFAULT_IMAGE_NAME = "DefaultImageName"
 
     id: string
     androidVersion: string
@@ -17,9 +19,13 @@ export class SystemPreference {
     isCompetitionEnabled: Boolean
     suggestedPointIds: string
     isCompetitionVisible: Boolean
+    defaultImageURL: string
+    defaultImageName: string
     houseIds: string[]
 
-    constructor(id:string, androidVersion: string,  competitionDisabledMessage: string, iosVersion: string, competitionHiddenMessage:string, isCompetitionEnabled: Boolean, suggestedPointIds: string, isCompetitionVisible: Boolean, houseIds: string[]){
+    constructor(id:string, androidVersion: string,  competitionDisabledMessage: string, iosVersion: string, competitionHiddenMessage:string, 
+        isCompetitionEnabled: Boolean, suggestedPointIds: string, isCompetitionVisible: Boolean, houseIds: string[], defaultImageURL: string,
+        defaultImageName: string){
         this.id = id
         this.androidVersion = androidVersion
         this.competitionDisabledMessage = competitionDisabledMessage
@@ -29,6 +35,8 @@ export class SystemPreference {
         this.suggestedPointIds = suggestedPointIds
         this.isCompetitionVisible = isCompetitionVisible
         this.houseIds = houseIds
+        this.defaultImageName = defaultImageName
+        this.defaultImageURL = defaultImageURL
     }
 
     updateFirebaseJson(){
@@ -38,19 +46,16 @@ export class SystemPreference {
         data[SystemPreference.IS_COMPETITION_ENABLED] = this.isCompetitionEnabled
         data[SystemPreference.IS_COMPETITION_VISIBLE] = this.isCompetitionVisible
         data[SystemPreference.HOUSE_IDS] = this.houseIds
+        data[SystemPreference.DEFAULT_IMAGE_NAME] = this.defaultImageName
+        data[SystemPreference.DEFAULT_IMAGE_URL] = this.defaultImageURL
         return data
     }
 
     firebaseJson(){
-        const data= {}
+        const data = this.updateFirebaseJson()
         data[SystemPreference.ANDROID_VERSION] = this.androidVersion
-        data[SystemPreference.COMPETITION_DISABLED_MESSAGE] = this.competitionDisabledMessage
-        data[SystemPreference.COMPETITION_HIDDEN_MESSAGE] = this.competitionHiddenMessage
         data[SystemPreference.IOS_VERSION] = this.iosVersion
-        data[SystemPreference.IS_COMPETITION_ENABLED] = this.isCompetitionEnabled
-        data[SystemPreference.IS_COMPETITION_VISIBLE] = this.isCompetitionVisible
         data[SystemPreference.SUGGESTED_POINT_IDS] = this.suggestedPointIds
-        data[SystemPreference.HOUSE_IDS] = this.houseIds
         return data
     }
 
@@ -64,6 +69,8 @@ export class SystemPreference {
         let isCompetitionEnabled: Boolean
         let suggestedPointIds: string
         let isCompetitionVisible: Boolean
+        let defaultImageURL: string
+        let defaultImageName: string
         id = document.id;
 
         if( SystemPreference.ANDROID_VERSION in document.data()!){
@@ -122,6 +129,20 @@ export class SystemPreference {
             houseIds = []
         }
 
-        return new SystemPreference(id, androidVersion, competitionDisabledMessage, iosVersion, competitionHiddenMessage, isCompetitionEnabled, suggestedPointIds, isCompetitionVisible, houseIds);
+        if(SystemPreference.DEFAULT_IMAGE_NAME in document.data()!){
+            defaultImageName = document.data()![SystemPreference.DEFAULT_IMAGE_NAME]
+        }
+        else{
+            defaultImageName = ""
+        }
+
+        if(SystemPreference.DEFAULT_IMAGE_URL in document.data()!){
+            defaultImageURL = document.data()![SystemPreference.DEFAULT_IMAGE_URL]
+        }
+        else{
+            defaultImageURL = ""
+        }
+
+        return new SystemPreference(id, androidVersion, competitionDisabledMessage, iosVersion, competitionHiddenMessage, isCompetitionEnabled, suggestedPointIds, isCompetitionVisible, houseIds, defaultImageURL, defaultImageName);
     }
 }

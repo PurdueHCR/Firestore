@@ -17,6 +17,17 @@ const validateFirebaseIdToken = async (req, res , next) => {
   		return
 	}
 
+	if(req.path === '/preview' && !req.headers.authorization){
+		next()
+		return
+	}
+
+	if(req.path === '/settings' && !req.headers.authorization){
+		next()
+		return
+	}
+
+
   	if ((!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) &&
       	!(req.cookies && req.cookies.__session)) {
     	console.error('No Firebase ID token was passed as a Bearer token in the Authorization header.',

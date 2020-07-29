@@ -8,14 +8,11 @@ import 'package:purduehcr_web/HandlePointsPage/HandlePointsPage.dart';
 import 'package:purduehcr_web/HistoryPage/HistoryPage.dart';
 import 'package:purduehcr_web/HouseCodePage/HouseCodePage.dart';
 import 'package:purduehcr_web/LinkPage/LinkPage.dart';
-import 'package:purduehcr_web/Account_Login_Creation/CreateAccountPage.dart';
-import 'package:purduehcr_web/Account_Login_Creation/JoinHousePage.dart';
 import 'package:purduehcr_web/MyPointsPage/MyPointsPage.dart';
-import 'package:purduehcr_web/OverviewPage/OverviewPage.dart';
-import 'package:purduehcr_web/Account_Login_Creation/LogInPage.dart';
 import 'package:purduehcr_web/RewardsPage/RewardsPage.dart';
 import 'package:purduehcr_web/SubmitPointsPage/SubmitPointsPage.dart';
 import 'package:purduehcr_web/TokenTestPage/TokenTestPage.dart';
+import 'package:purduehcr_web/UserCreation/UserCreationPage.dart';
 
 import 'package:purduehcr_web/authentication/authentication.dart';
 
@@ -75,7 +72,17 @@ class RouteGenerator {
               return Center(
                 child: Text("Initializing"),
               );
-            } else {
+            }
+            else if (state is AuthenticatedButNoUser) {
+              print("Going to user creation page");
+              return UserCreationPage();
+            }
+            else if(state is ConnectionErrorState) {
+              return Center(
+                child: Text("There was an error connection to the server. Please refresh the page."),
+              );
+            }
+            else {
               return AccountPage();
             }
           });

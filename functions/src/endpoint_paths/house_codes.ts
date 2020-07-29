@@ -5,9 +5,10 @@ import { getUser } from '../src/GetUser';
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission';
 import { UserPermissionLevel } from '../models/UserPermissionLevel';
 import { APIResponse } from '../models/APIResponse';
-import { getViewableHouseCodes, getHouseCodeById } from '../src/GetHouseCodes';
+import { getViewableHouseCodes, getHouseCodeById, getHouseCodeByCode } from '../src/GetHouseCodes';
 import { refreshHouseCode, refreshHouseCodes } from '../src/RefreshHouseCode';
-import { parseInputForString } from '../src/ParameterParser'
+import *  as ParameterParser from '../src/ParameterParser'
+import { getHouseByName } from '../src/GetHouses';
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
@@ -85,7 +86,7 @@ house_codes_app.post("/refresh", async( req,res) => {
         if( req.body !== undefined && req.body !== null && "id" in req.body){
             const user = await getUser(req["user"]["user_id"])
             verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.RHP])
-            const id = parseInputForString(req.body.id)
+            const id = ParameterParser.parseInputForString(req.body.id)
             const code = await getHouseCodeById(id)
             if(user.permissionLevel === UserPermissionLevel.RHP && code.house !== user.house){
                 throw APIResponse.InvalidPermissionLevel()
@@ -111,6 +112,34 @@ house_codes_app.post("/refresh", async( req,res) => {
     }
     catch (error) {
         if (error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        } else {
+            console.log("FAILED TO GET HOUSE CODES WITH ERROR: "+ error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+    }
+})
+
+house_codes_app.get("/preview", async(req,res) => {
+    try{
+        if(req.query === undefined || req.query === null){
+            throw APIResponse.MissingRequiredParameters()
+        }
+        const code = ParameterParser.parseInputForString(req.query.code)
+        const response:any = {}
+        
+        const houseCode = await getHouseCodeByCode(code)
+        response.houseCode = houseCode
+        if(houseCode.house !== undefined && houseCode.house !== ""){
+            const house = await getHouseByName(houseCode.house)
+            response.house = house
+        }
+        res.status(APIResponse.SUCCESS_CODE).send(response)
+    }
+    catch (error) {
+        if (error instanceof APIResponse){
+            console.error("GOT API ERROR: "+error.toString() )
             res.status(error.code).send(error.toJson())
         } else {
             console.log("FAILED TO GET HOUSE CODES WITH ERROR: "+ error.toString())

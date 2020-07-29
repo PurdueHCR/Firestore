@@ -25,84 +25,90 @@ class _LoginCardState extends State<LoginCard>{
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
       child: Card(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.fromLTRB(16, 25, 0, 0),
-              child: Text(
-                "Log in",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 32
-                ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.fromLTRB(16, 25, 0, 0),
+                child: Text(
+                  "Log in",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 32
+                  ),
 
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Enter your email address'
                 ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: TextField(
-                obscureText: true,
-                controller: passwordController,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Enter your password'
+              Padding(
+                padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: TextField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Enter your email address'
+                  ),
                 ),
               ),
-            ),
-            Visibility(
-                visible:  widget.error.isNotEmpty,
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: Text(widget.error,
-                    style: TextStyle(
-                        color: Colors.red
+              Padding(
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: TextField(
+                  obscureText: true,
+                  controller: passwordController,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Enter your password'
+                  ),
+                ),
+              ),
+              Visibility(
+                  visible:  widget.error.isNotEmpty,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Text(widget.error,
+                      style: TextStyle(
+                          color: Colors.red
+                      ),
+                    ),
+                  )
+              ),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                      child: RaisedButton(
+                        onPressed: (){
+                          widget.handleEvent(CreateAccountInitialize());
+                        },
+                        child: Text("Create an account"),
+                      ),
                     ),
                   ),
-                )
-            ),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-
-                Padding(
-                  padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                  child: RaisedButton(
-                    onPressed: (){
-                      widget.handleEvent(CreateAccountInitialize());
-                    },
-                    child: Text("Create an account"),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                  child: RaisedButton(
-                    onPressed: () {
-                      widget.handleEvent(Login(email: emailController.text, password: passwordController.text));
-                    },
-                    child:  Text("Log In"),
-                  ),
-                )
-              ],
-            ),
-            FlatButton(
-              onPressed: () { print("Forgot Password"); },
-              child: Text("Forgot Password"),
-            )
-          ],
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                      child: RaisedButton(
+                        onPressed: () {
+                          widget.handleEvent(Login(email: emailController.text, password: passwordController.text));
+                        },
+                        child:  Text("Log In"),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              FlatButton(
+                onPressed: () { print("Forgot Password"); },
+                child: Text("Forgot Password"),
+              )
+            ],
+          ),
         ),
       ),
     );
