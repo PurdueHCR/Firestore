@@ -35,6 +35,7 @@ describe('GET competition/userOverview', () =>{
         //Get the User function from the index to test
         competition_func = require('../../../src/endpoint_paths/index.ts').competition
 
+        await FirestoreDataFactory.setSystemPreference(db)  
         //Create 6 sample residents
         await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0, {total_points: 1, semester_points: 1})
         for(let i =0; i < 5; i++){
@@ -68,10 +69,6 @@ describe('GET competition/userOverview', () =>{
         await FirestoreDataFactory.createAllHouseCodes(db)
     })
 
-    beforeEach(async() =>{
-        // Reset the House competition sys preferences
-        await FirestoreDataFactory.setSystemPreference(db)  
-    })
 
 
     //Test if competition is hidden
@@ -92,6 +89,7 @@ describe('GET competition/userOverview', () =>{
                 expect(Object.getOwnPropertyNames(res.body.resident.next_reward)).toHaveLength(0)
                 expect(res.body.resident.houses).toHaveLength(0)
                 expect(res.body.resident.last_submissions).toHaveLength(5)
+                await FirestoreDataFactory.setSystemPreference(db, {is_competition_visible:true})
                 done()
             }
         })
@@ -112,6 +110,7 @@ describe('GET competition/userOverview', () =>{
             }
             else{
                 expect(res.status).toBe(200)
+                await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled:true})
                 done()
             }
         })
@@ -172,7 +171,24 @@ describe('GET competition/userOverview', () =>{
                 done(err)
             }
             else{
-                expect(res.status).toBe(403)
+                expect(res.status).toBe(200)
+
+                //Check houses
+                expect(res.body.professional_staff.houses[0].id).toBe("Platinum")
+                expect(res.body.professional_staff.houses[0].pointsPerResident).toBe(10)
+                expect(res.body.professional_staff.houses[0].yearRank).toBeDefined()
+                expect(res.body.professional_staff.houses[0].semesterRank).toBeDefined()
+                expect(res.body.professional_staff.houses[0].submissions).toBeDefined()
+                expect(res.body.professional_staff.houses[1].id).toBe("Titanium")
+                expect(res.body.professional_staff.houses[1].pointsPerResident).toBe(8)
+                expect(res.body.professional_staff.houses[2].id).toBe("Silver")
+                expect(res.body.professional_staff.houses[2].pointsPerResident).toBe(3)
+                expect(res.body.professional_staff.houses[3].id).toBe("Palladium")
+                expect(res.body.professional_staff.houses[3].pointsPerResident).toBe(1)
+                expect(res.body.professional_staff.houses[4].id).toBe("Copper")
+                expect(res.body.professional_staff.houses[4].pointsPerResident).toBe(0)
+
+                
                 done()
             }
         })

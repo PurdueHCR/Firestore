@@ -26,7 +26,8 @@ export class FirestoreDataFactory{
             "iOS_Version":(spOpts.ios_version !== undefined)?spOpts.ios_version:Options.SYSTEM_PREFERENCES_DEFAULTS.ios_version,
             "isCompetitionVisible":(spOpts.is_competition_visible !== undefined)?spOpts.is_competition_visible:Options.SYSTEM_PREFERENCES_DEFAULTS.is_competition_visible,
             "isHouseEnabled": (spOpts.is_house_enabled !== undefined)?spOpts.is_house_enabled:Options.SYSTEM_PREFERENCES_DEFAULTS.is_house_enabled,
-            "suggestedPointIDs": (spOpts.suggested_point_ids !== undefined)?spOpts.suggested_point_ids:Options.SYSTEM_PREFERENCES_DEFAULTS.suggested_point_ids
+            "suggestedPointIDs": (spOpts.suggested_point_ids !== undefined)?spOpts.suggested_point_ids:Options.SYSTEM_PREFERENCES_DEFAULTS.suggested_point_ids,
+            "houseIDs":(spOpts.houseIds !== undefined)?spOpts.houseIds:Options.SYSTEM_PREFERENCES_DEFAULTS.houseIds
         })
     }
 
@@ -36,7 +37,13 @@ export class FirestoreDataFactory{
      * @param id - ID number for the point type
      * @param ptopts - Optional Parameters for the point type. Will be set to default if field isnt provided
      */
-    static setPointType(db: firebase.firestore.Firestore, id: number, ptopts:Options.PointTypeOptions = Options.POINT_TYPE_DEFAULTS): Promise<void>{
+    static async setPointType(db: firebase.firestore.Firestore, id: number, ptopts:Options.PointTypeOptions = Options.POINT_TYPE_DEFAULTS): Promise<void>{
+        await FirestoreDataFactory.setHousePointTypeDetails(db,"Copper", id,((ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name)!, 0,0)
+        await FirestoreDataFactory.setHousePointTypeDetails(db,"Palladium", id,((ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name)!, 0,0)
+        await FirestoreDataFactory.setHousePointTypeDetails(db,"Platinum", id,((ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name)!, 0,0)
+        await FirestoreDataFactory.setHousePointTypeDetails(db,"Silver", id,((ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name)!, 0,0)
+        await FirestoreDataFactory.setHousePointTypeDetails(db,"Titanium", id,((ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name)!, 0,0)
+        
         return db.collection("PointTypes").doc(id.toString()).set({
             "Description":(ptopts.description !== undefined)? ptopts.description: Options.POINT_TYPE_DEFAULTS.description,
             "Name":(ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name,
@@ -48,18 +55,73 @@ export class FirestoreDataFactory{
     }
 
     /**
-     * Create or set the value for a house with the given id
+     * Create or set the value for a house with the given id and create empty details documents
      * @param db - Test App Firestore instance (Usually from authedApp())
      * @param id - Name of the house
      * @param hOpts  - Optional Parameters for the house. Will be set to default if field isnt provided
      */
-    static setHouse(db: firebase.firestore.Firestore, id: string, hOpts:Options.HouseOptions = Options.HOUSE_DEFAULTS): Promise<void> {
-        return db.collection("House").doc(id).set({
+    static async setHouse(db: firebase.firestore.Firestore, id: string, hOpts:Options.HouseOptions = Options.HOUSE_DEFAULTS){
+        await db.collection("House").doc(id).set({
             "Color":(hOpts.color !== undefined)? hOpts.color: Options.HOUSE_DEFAULTS.color,
             "NumberOfResidents":(hOpts.num_residents !== undefined)? hOpts.num_residents: Options.HOUSE_DEFAULTS.num_residents,
             "TotalPoints":(hOpts.total_points !== undefined)? hOpts.total_points: Options.HOUSE_DEFAULTS.total_points,
-            "FloorIds":(hOpts.floor_ids !== undefined)? hOpts.floor_ids: Options.HOUSE_DEFAULTS.floor_ids
+            "FloorIds":(hOpts.floor_ids !== undefined)? hOpts.floor_ids: Options.HOUSE_DEFAULTS.floor_ids,
+            "DownloadUR":(hOpts.downloadURL !== undefined)? hOpts.downloadURL: Options.HOUSE_DEFAULTS.downloadURL,
+            "Description": (hOpts.description !== undefined)? hOpts.description: Options.HOUSE_DEFAULTS.description
         })
+
+        await db.collection("House").doc(id).collection("Details").doc("Rank").set({})
+        await db.collection("House").doc(id).collection("Details").doc("PointTypes").set({})
+    }
+
+    /**
+     * 
+     * @param db - Test App Firestore instance (Usually from authedApp())
+     * @param houseId - Id of the house to add the user rank to
+     * @param userId - id of the user 
+     * @param first - first name of the user
+     * @param last - last name of the user
+     * @param totalPoints - total points of the user
+     * @param semesterPoints - semester points of the user
+     */
+    static async setUserHouseRank(db: firebase.firestore.Firestore, houseId: string, userId:string, first:string, last:string, totalPoints: number, semesterPoints:number){
+        const userHouseRankDoc = await db.collection("House").doc(houseId).collection("Details").doc("Rank").get()
+        if(userHouseRankDoc.exists){
+            const updateData = {}
+            updateData[userId] = {
+                firstName: first,
+                lastName: last,
+                totalPoints: totalPoints,
+                semesterPoints: semesterPoints
+            }
+            await db.collection("House").doc(houseId).collection("Details").doc("Rank").update(updateData)
+        }
+        else{
+            throw Error("You havent created the detail docs yet when preparing the test")
+        }
+    }
+
+    /**
+     * 
+     * @param db - Test App Firestore instance (Usually from authedApp())
+     * @param houseId - Id of the house to add the point type count to
+     * @param pointTypeId - Id for the point type
+     * @param name - Name of the point type
+     * @param submitted - number of submissions received
+     * @param approved - number approved
+     */
+    static async setHousePointTypeDetails(db: firebase.firestore.Firestore, houseId: string, pointTypeId: number, name:string, submitted: number, approved: number){
+        const pointTypesDoc = await db.collection("House").doc(houseId).collection("Details").doc("PointTypes").get()
+        if(pointTypesDoc.exists){
+            const data = {name: name, submitted: submitted, approved: approved}
+            const map = {}
+            map[pointTypeId.toString()] = data
+
+            await db.collection("House").doc(houseId).collection("Details").doc("PointTypes").update(map)
+        }
+        else{
+            throw Error("You havent created the detail docs yet when preparing the test")
+        }
     }
 
     static setHouseCode(db: firebase.firestore.Firestore, id: string, cOpts:Options.HouseCodeOptions = Options.HOUSE_CODE_DEFAULTS): Promise<void> {
@@ -77,12 +139,12 @@ export class FirestoreDataFactory{
      * @param db - Test App Firestore instance (Usually from authedApp())
      * @param houseOpts - Optional Parameters for each of the houses. Will be set to defaults if not provided
      */
-    static async setAllHouses(db: firebase.firestore.Firestore, houseOpts:Options.AllHousesOptions){
-        await this.setHouse(db,"Copper",houseOpts.copper)
-        await this.setHouse(db,"Palladium",houseOpts.palladium)
-        await this.setHouse(db,"Platinum", houseOpts.platinum)
-        await this.setHouse(db,"Silver", houseOpts.silver)
-        await this.setHouse(db,"Titanium",houseOpts.titanium)
+    static async setAllHouses(db: firebase.firestore.Firestore, houseOpts:Options.AllHousesOptions = Options.ALL_HOUSE_DEFAULTS){
+        await this.setHouse(db,"Copper", (houseOpts.copper !== undefined) ? houseOpts.copper : Options.ALL_HOUSE_DEFAULTS.copper)
+        await this.setHouse(db,"Palladium", (houseOpts.palladium !== undefined) ? houseOpts.palladium : Options.ALL_HOUSE_DEFAULTS.palladium)
+        await this.setHouse(db,"Platinum", (houseOpts.platinum !== undefined) ? houseOpts.platinum : Options.ALL_HOUSE_DEFAULTS.platinum)
+        await this.setHouse(db,"Silver", (houseOpts.silver !== undefined) ? houseOpts.silver : Options.ALL_HOUSE_DEFAULTS.silver)
+        await this.setHouse(db,"Titanium", (houseOpts.titanium !== undefined) ? houseOpts.titanium : Options.ALL_HOUSE_DEFAULTS.titanium)
     }
 
     /**

@@ -17,6 +17,50 @@ export declare type AllHousesOptions = {
     titanium?:HouseOptions
 }
 
+export const ALL_HOUSE_DEFAULTS: AllHousesOptions = {
+    copper: {
+        color: "#5AC0C7",
+        total_points: 20,
+        num_residents: 200,
+        floor_ids: ["2N", "2S"],
+        downloadURL: "DOWNLOAD_URL",
+        description: "This is a pretty amazing house. Kudos if you are in the house."
+    },
+    palladium: {
+        color: "#5AC0C7",
+        total_points: 20,
+        num_residents: 200,
+        floor_ids: ["3N", "3S"],
+        downloadURL: "DOWNLOAD_URL",
+        description: "This is a pretty amazing house. Kudos if you are in the house."
+    },
+    platinum: {
+        color: "#5AC0C7",
+        total_points: 20,
+        num_residents: 200,
+        floor_ids: ["4N", "4S"],
+        downloadURL: "DOWNLOAD_URL",
+        description: "This is a pretty amazing house. Kudos if you are in the house."
+    },
+    silver: {
+        color: "#5AC0C7",
+        total_points: 20,
+        num_residents: 200,
+        floor_ids: ["5N", "5S"],
+        downloadURL: "DOWNLOAD_URL",
+        description: "This is a pretty amazing house. Kudos if you are in the house."
+    },
+    titanium: {
+        color: "#5AC0C7",
+        total_points: 20,
+        num_residents: 200,
+        floor_ids: ["6N", "6S"],
+        downloadURL: "DOWNLOAD_URL",
+        description: "This is a pretty amazing house. Kudos if you are in the house."
+    }
+
+}
+
 ///----------------------------------------------------------------
 
 ///------------------------ House Code OPTIONS -------------------
@@ -46,14 +90,18 @@ export declare type HouseOptions = {
     color?: string
     num_residents?: number
     total_points?: number
+    downloadURL?: string
     floor_ids?: string[]
+    description?: string
 }
 
 export const HOUSE_DEFAULTS:HouseOptions = {
     color: "#5AC0C7",
     total_points: 20,
     num_residents: 200,
-    floor_ids: ["4N", "4S"]
+    floor_ids: ["4N", "4S"],
+    downloadURL: "DOWNLOAD_URL",
+    description: "This is a pretty amazing house. Kudos if you are in the house."
 }
 
 ///----------------------------------------------------------------
@@ -191,6 +239,7 @@ export declare type SystemPreferenceOptions = {
     is_competition_visible?: boolean
     is_house_enabled?: boolean
     suggested_point_ids?: string
+    houseIds?: string[]
 };
 
 export const SYSTEM_PREFERENCES_DEFAULTS:SystemPreferenceOptions = {
@@ -202,6 +251,7 @@ export const SYSTEM_PREFERENCES_DEFAULTS:SystemPreferenceOptions = {
     is_competition_visible: true,
     is_house_enabled: true,
     suggested_point_ids: "1,2,3,4",
+    houseIds: ["Copper","Palladium","Platinum","Silver","Titanium"]
 }
 
 ///----------------------------------------------------------------

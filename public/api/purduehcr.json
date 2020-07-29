@@ -1122,6 +1122,120 @@
         }
       }
     },
+    "/competition/houseAward" : {
+      "post" : {
+        "tags" : [ "competition" ],
+        "summary" : "Give a Points Per Resident award to the house specified. This is only for Professional staff",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "requestBody" : {
+          "description" : "Fields to give award to a house",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties": {
+                  "house": {
+                    "type" : "string",
+                    "example" : "Platinum"
+                  },
+                  "ppr": {
+                    "type" : "number",
+                    "example" : 10
+                  },
+                  "description": {
+                    "type" : "string",
+                    "example" : "First Place in the Summer Competition"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Retrieved Point Logs",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level. Only Residents, RHPs, and Privileged Residents can get points",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing Required Parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "Invalid Format in Data",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/competition/save-semester-points" : {
       "post" : {
         "tags" : [ "competition" ],

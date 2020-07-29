@@ -33,6 +33,8 @@ describe('user/submitpoint', async () =>{
         user_func = require('../../../src/endpoint_paths/index.ts').user
 
         //Create sample data for the tests
+        await FirestoreDataFactory.setSystemPreference(db)
+        await FirestoreDataFactory.setAllHouses(db)
         await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0)
         await FirestoreDataFactory.setUser(db, RHP_ID, 1)
         await FirestoreDataFactory.setUser(db, REC_ID, 2)
@@ -40,15 +42,14 @@ describe('user/submitpoint', async () =>{
         await FirestoreDataFactory.setUser(db, PRIV_RES, 4)
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
         await FirestoreDataFactory.setPointType(db, 1)
+        await FirestoreDataFactory.setPointType(db, 4)
+        await FirestoreDataFactory.setPointType(db, 5)
+        await FirestoreDataFactory.setPointType(db, 6)
         await FirestoreDataFactory.setPointType(db, 2, {residents_can_submit: false})
         await FirestoreDataFactory.setPointType(db, 3, {is_enabled:false})
-        await FirestoreDataFactory.setHouse(db, HOUSE_NAME)
         await FirestoreDataFactory.setHouseCode(db, HOUSE_CODE)
     })
 
-    beforeEach(async () => {
-        await FirestoreDataFactory.setSystemPreference(db)
-    })
 
     //Test if no body is provided
     it('Missing Body', async(done) => {
@@ -163,12 +164,13 @@ describe('user/submitpoint', async () =>{
     it('Competition Disabled',  async(done) => {
         await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled: false})
         const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,"test",( new Date()).toString()), RESIDENT_ID)
-        res.end(function (err, res) {
+        res.end(async function (err, res) {
             if(err){
                 done(err)
             }
             else{
                 expect(res.status).toBe(412)
+                await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled: true})
                 done()
             }
         })
@@ -213,7 +215,17 @@ describe('user/submitpoint', async () =>{
                 expect(documents.docs[0].data().ResidentId).toEqual(RESIDENT_ID)
                 expect(documents.docs[0].data().ResidentLastName).toEqual("TEST_LAST")
                 expect(documents.docs[0].data().ResidentNotifications).toEqual(0)
-                done();
+
+
+                const pointTypeDoc = await db.collection("House").doc(HOUSE_NAME).collection("Details").doc("PointTypes").get()
+                expect(pointTypeDoc.exists).toBeTruthy()
+                const pointType = pointTypeDoc.data()!["1"]
+                expect(pointType).toBeDefined()
+                expect(pointType.submitted).toBe(1)
+                expect(pointType.approved).toBe(0)
+                expect(pointType.name).toBeDefined()
+                
+                done()
             }
         })
     })
@@ -228,7 +240,7 @@ describe('user/submitpoint', async () =>{
         await FirestoreDataFactory.setHouse(db, HOUSE_NAME, {total_points: prevScore})
         await FirestoreDataFactory.setUser(db, RHP_ID, 1, {total_points: prevUserPoints, semester_points: semPoints, house_name: HOUSE_NAME})
 
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,descr,date.toString()), RHP_ID)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(4,descr,date.toString()), RHP_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -244,7 +256,7 @@ describe('user/submitpoint', async () =>{
                 expect(documents.docs[0].data().DateSubmitted).toBeTruthy()
                 expect(documents.docs[0].data().Description).toEqual(descr)
                 expect(documents.docs[0].data().FloorID).toEqual("4N")
-                expect(documents.docs[0].data().PointTypeID).toEqual(1)
+                expect(documents.docs[0].data().PointTypeID).toEqual(4)
                 expect(documents.docs[0].data().RHPNotifications).toEqual(0)
                 expect(documents.docs[0].data().ResidentFirstName).toEqual("TEST_FIRST")
                 expect(documents.docs[0].data().ResidentId).toEqual(RHP_ID)
@@ -265,6 +277,23 @@ describe('user/submitpoint', async () =>{
                 expect(messageDocs.docs[0].data().SenderLastName).toBe("")
                 expect(messageDocs.docs[0].data().SenderPermissionLevel).toBe(1)
 
+                const userRankDocSnapshot = await db.collection("House").doc(HOUSE_NAME).collection("Details").doc("Rank").get()
+                expect(userRankDocSnapshot.exists).toBeTruthy()
+                const userRankDoc = (userRankDocSnapshot).data()!
+                const userScore = userRankDoc[RHP_ID]
+                expect(userScore.totalPoints).toBe(prevUserPoints + 1)
+                expect(userScore.semesterPoints).toBe(semPoints + 1)
+                expect(userScore.firstName).toBeDefined()
+                expect(userScore.lastName).toBeDefined()
+
+                const pointTypeDoc = await db.collection("House").doc(HOUSE_NAME).collection("Details").doc("PointTypes").get()
+                expect(pointTypeDoc.exists).toBeTruthy()
+                const pointType = pointTypeDoc.data()!["4"]
+                expect(pointType).toBeDefined()
+                expect(pointType.submitted).toBe(1)
+                expect(pointType.approved).toBe(1)
+                expect(pointType.name).toBeDefined()
+
                 done();
             }
         })
@@ -275,7 +304,7 @@ describe('user/submitpoint', async () =>{
         const date = new Date()
         const descr = "Privileged resident Submission Success test"
         console.log(date.toString())
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,descr,date.toString()), PRIV_RES)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(5,descr,date.toString()), PRIV_RES)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -289,12 +318,21 @@ describe('user/submitpoint', async () =>{
                 expect(documents.docs[0].data().DateSubmitted).toBeTruthy()
                 expect(documents.docs[0].data().Description).toEqual(descr)
                 expect(documents.docs[0].data().FloorID).toEqual("4N")
-                expect(documents.docs[0].data().PointTypeID).toEqual(-1)
+                expect(documents.docs[0].data().PointTypeID).toEqual(-5)
                 expect(documents.docs[0].data().RHPNotifications).toEqual(1)
                 expect(documents.docs[0].data().ResidentFirstName).toEqual("TEST_FIRST")
                 expect(documents.docs[0].data().ResidentId).toEqual(PRIV_RES)
                 expect(documents.docs[0].data().ResidentLastName).toEqual("TEST_LAST")
                 expect(documents.docs[0].data().ResidentNotifications).toEqual(0)
+
+                const pointTypeDoc = await db.collection("House").doc(HOUSE_NAME).collection("Details").doc("PointTypes").get()
+                expect(pointTypeDoc.exists).toBeTruthy()
+                const pointType = pointTypeDoc.data()!["5"]
+                expect(pointType).toBeDefined()
+                expect(pointType.submitted).toBe(1)
+                expect(pointType.approved).toBe(0)
+                expect(pointType.name).toBeDefined()
+
                 done();
             }
         })
@@ -304,10 +342,10 @@ describe('user/submitpoint', async () =>{
     // **NOTE: Update to this test because documenbtID should not do anything for this endpoint
     it('Privileged Resident Submission Success with documentID Provided', async(done) => {
         const date = new Date()
-        const descr = "Privileged resident Submission Success test"
+        const descr = "Privileged Resident Submission Success with documentID Provided"
         console.log(date.toString())
         var docID = PRIV_RES + HOUSE_CODE
-        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, {"point_type_id":1, "date_occurred":"4/1/2020", "description":"test", "document_id":docID}, PRIV_RES)
+        const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, {"point_type_id":6, "date_occurred":"4/1/2020", "description":descr, "document_id":docID}, PRIV_RES)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -316,17 +354,26 @@ describe('user/submitpoint', async () =>{
                 expect(res.status).toBe(202)
 
                 let documents = await db.collection("House").doc(HOUSE_NAME).collection("Points").where("Description","==",descr).limit(1).get()
+                expect(documents.docs).toHaveLength(1)
                 expect(documents.docs[0].data().ApprovedOn).toBeUndefined()
                 expect(new Date(documents.docs[0].data().DateOccurred.seconds)).toBeTruthy()
                 expect(documents.docs[0].data().DateSubmitted).toBeTruthy()
                 expect(documents.docs[0].data().Description).toEqual(descr)
                 expect(documents.docs[0].data().FloorID).toEqual("4N")
-                expect(documents.docs[0].data().PointTypeID).toEqual(-1)
+                expect(documents.docs[0].data().PointTypeID).toEqual(-6)
                 expect(documents.docs[0].data().RHPNotifications).toEqual(1)
                 expect(documents.docs[0].data().ResidentFirstName).toEqual("TEST_FIRST")
                 expect(documents.docs[0].data().ResidentId).toEqual(PRIV_RES)
                 expect(documents.docs[0].data().ResidentLastName).toEqual("TEST_LAST")
                 expect(documents.docs[0].data().ResidentNotifications).toEqual(0)
+
+                const pointTypeDoc = await db.collection("House").doc(HOUSE_NAME).collection("Details").doc("PointTypes").get()
+                expect(pointTypeDoc.exists).toBeTruthy()
+                const pointType = pointTypeDoc.data()!["6"]
+                expect(pointType).toBeDefined()
+                expect(pointType.submitted).toBe(1)
+                expect(pointType.approved).toBe(0)
+                expect(pointType.name).toBeDefined()
                 done();
             }
         })
@@ -365,6 +412,7 @@ describe('user/submitpoint', async () =>{
             }
         })
     })
+
 
     //After all of the tests are done, make sure to delete the test firestore app
     afterAll(async ()=>{

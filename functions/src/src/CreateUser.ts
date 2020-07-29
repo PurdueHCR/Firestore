@@ -54,7 +54,7 @@ export async function createUser(user_id: string, code: string, first_name: stri
 }
 
 /**
- * Create a user in the database
+ * Create a user in the database and add to house user rank if applicable
  * 
  * @param user_id   id of the user to created
  * @param user      User data to be set in the database
@@ -64,6 +64,10 @@ export async function createUserFromModel(user_id: string, user:User): Promise<v
     const db = admin.firestore()
     try{
         await db.collection(HouseCompetition.USERS_KEY).doc(user_id).set(user.toFirestoreJson())
+        if(user.isParticipantInCompetition()){
+            const userHouseRank = user.getHouseRankModel()
+            await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house).collection(HouseCompetition.HOUSE_DETAILS_KEY).doc(HouseCompetition.HOUSE_DETAILS_RANK_DOC).update(userHouseRank)
+        }
         return Promise.resolve()
     }
     catch (error){

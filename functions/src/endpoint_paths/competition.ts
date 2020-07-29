@@ -8,7 +8,7 @@ import { HouseCompetition } from '../models/HouseCompetition'
 import { PointLog } from '../models/PointLog'
 import { User } from '../models/User'
 import { APIResponse } from '../models/APIResponse'
-import { getResidentProfile, getRHPProfile } from '../src/GetUserProfiles'
+import { getResidentProfile, getRHPProfile, getProfessionalStaffProfile } from '../src/GetUserProfiles'
 import { getUser } from '../src/GetUser'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
@@ -18,6 +18,8 @@ import { updateSystemPreferences } from '../src/SetSystemPreference'
 import { saveAndResetSemester } from '../src/SaveAndResetSemester'
 import {verifyOneTimeCode, generateOneTimeCode} from '../src/OTCGenerator'
 import {resetHouseCompetition} from '../src/ResetHouseCompetition'
+import * as ParameterParser from '../src/ParameterParser'
+import { grantHouseAward } from '../src/GrantHouseAward'
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
@@ -371,6 +373,39 @@ comp_app.get('/getUnhandledPoints', async (req, res) => {
 })
 
 /**
+ * Post a new house Award
+ */
+comp_app.post('/houseAward', async (req, res) => {
+	try{
+		if(req.body === undefined || req.body === null){
+			throw APIResponse.MissingRequiredParameters()
+		}
+
+		const house_name = ParameterParser.parseInputForString(req.body.house)
+		const ppr = ParameterParser.parseInputForNumber(req.body.ppr, 1)
+		const description = ParameterParser.parseInputForString(req.body.description)
+
+
+		const user = await getUser(req["user"]["user_id"])
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
+
+		await grantHouseAward(house_name, ppr, description)
+		
+		throw APIResponse.Success()
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.error("Unknown Error: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
+})
+
+/**
  * Get the data that is most pertinent to the given user.
  * 
  * @throws 400 - Unknown User
@@ -389,6 +424,11 @@ comp_app.get('/userOverview', async (req, res) => {
 			//This is sufficient for the first version, but we will eventually want to add more to their home screen
 			const resident_profile = await getRHPProfile(user)
 			res.status(APIResponse.SUCCESS_CODE).send({"rhp":resident_profile})
+		}
+		else if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+			//This is sufficient for the first version, but we will eventually want to add more to their home screen
+			const prof_staff_profile = await getProfessionalStaffProfile(user)
+			res.status(APIResponse.SUCCESS_CODE).send({"professional_staff":prof_staff_profile})
 		}
 		else if(user.permissionLevel === UserPermissionLevel.PRIVILEGED_RESIDENT){
 			//This is sufficient for the first version, but we will eventually want to add more to their home screen

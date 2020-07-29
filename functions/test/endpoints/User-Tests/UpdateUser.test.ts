@@ -50,6 +50,10 @@ describe('PUT user/', () =>{
         await FirestoreDataFactory.setUser(db, OTHER_RES_2, 0, {first:"OTHER__2RESIDENT_FIRST", last:"OTHER_2_RESIDENT_LAST", floor_id:"4N",house_name:"Platinum"})
         await FirestoreDataFactory.setUser(db, OTHER_RES_3, 0, {first:"OTHER__3RESIDENT_FIRST", last:"OTHER_3_RESIDENT_LAST", floor_id:"4N",house_name:"Platinum", total_points: 10, semester_points:10})
 
+        await FirestoreDataFactory.setUserHouseRank(db, "Platinum", OTHER_RES, "OTHER_RESIDENT_FIRST", "OTHER_RESIDENT_LAST", 0,0)
+        await FirestoreDataFactory.setUserHouseRank(db, "Platinum", OTHER_RES_2, "OTHER__2RESIDENT_FIRST", "OTHER_2_RESIDENT_LAST", 0,0)
+        await FirestoreDataFactory.setUserHouseRank(db, "Platinum", OTHER_RES_3, "OTHER__3RESIDENT_FIRST", "OTHER_3_RESIDENT_LAST", 10,10)
+
     })
     
     it('Test resident only updates first and last name of themselves', (done) => {
@@ -68,6 +72,13 @@ describe('PUT user/', () =>{
                 expect(user["Permission Level"]).toBe(0)
                 expect(user.FloorID).toBe("4N")
                 expect(user.Enabled).toBe(true)
+
+                const userRankDoc = (await db.collection("House").doc("Platinum").collection("Details").doc("Rank").get()).data()!
+
+                //Confirm tested user
+                const userScore = userRankDoc[RESIDENT_ID]
+                expect(userScore.firstName).toBe("NEW_FIRST")
+                expect(userScore.lastName).toBe("NEW_LAST")
                 done()
             }
         })
@@ -89,6 +100,14 @@ describe('PUT user/', () =>{
                 expect(user["Permission Level"]).toBe(1)
                 expect(user.FloorID).toBe("4N")
                 expect(user.Enabled).toBe(true)
+
+                const userRankDoc = (await db.collection("House").doc("Platinum").collection("Details").doc("Rank").get()).data()!
+
+                //Confirm tested user
+                const userScore = userRankDoc[RHP_ID]
+                expect(userScore.firstName).toBe("NEW_FIRST")
+                expect(userScore.lastName).toBe("NEW_LAST")
+
                 done()
             }
         })
@@ -150,6 +169,14 @@ describe('PUT user/', () =>{
                 expect(user["Permission Level"]).toBe(4)
                 expect(user.FloorID).toBe("4N")
                 expect(user.Enabled).toBe(true)
+
+                const userRankDoc = (await db.collection("House").doc("Platinum").collection("Details").doc("Rank").get()).data()!
+
+                //Confirm tested user
+                const userScore = userRankDoc[PRIV_RES]
+                expect(userScore.firstName).toBe("NEW_FIRST")
+                expect(userScore.lastName).toBe("NEW_LAST")
+
                 done()
             }
         })
@@ -190,6 +217,20 @@ describe('PUT user/', () =>{
                 expect(user["Permission Level"]).toBe(0)
                 expect(user.FloorID).toBe("2N")
                 expect(user.Enabled).toBe(true)
+
+                const userRankDoc = (await db.collection("House").doc("Copper").collection("Details").doc("Rank").get()).data()!
+
+                //Confirm tested user
+                const userScore = userRankDoc[OTHER_RES]
+                expect(userScore.firstName).toBe("NEW_FIRST")
+                expect(userScore.lastName).toBe("NEW_LAST")
+
+                const platRankDoc = (await db.collection("House").doc("Platinum").collection("Details").doc("Rank").get()).data()!
+
+                //Confirm tested user
+                const platUser = platRankDoc[OTHER_RES]
+                expect(platUser).toBeUndefined()
+
                 done()
             }
         })
@@ -213,6 +254,20 @@ describe('PUT user/', () =>{
                 expect(user.TotalPoints).toBe(0)
                 expect(user.SemesterPoints).toBe(0)
                 expect(user.Enabled).toBe(false)
+
+                const userRankDoc = (await db.collection("House").doc("Copper").collection("Details").doc("Rank").get()).data()!
+
+                //Confirm tested user
+                const userScore = userRankDoc[OTHER_RES_2]
+                expect(userScore.firstName).toBe("NEW_FIRST")
+                expect(userScore.lastName).toBe("NEW_LAST")
+
+                const platRankDoc = (await db.collection("House").doc("Platinum").collection("Details").doc("Rank").get()).data()!
+
+                //Confirm tested user
+                const platUser = platRankDoc[OTHER_RES_2]
+                expect(platUser).toBeUndefined()
+
                 done()
             }
         })

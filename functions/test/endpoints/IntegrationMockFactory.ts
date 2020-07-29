@@ -11,7 +11,9 @@ export function mockFirebaseAdmin(db: firebase.firestore.Firestore = getDb()){
             return db
         }
         firestore.Timestamp = admin.firestore.Timestamp
-    
+        firestore.FieldValue = {
+            delete: () => firebase.firestore.FieldValue.delete()
+        }
         return {
             apps: {
                 length: 1
@@ -38,7 +40,8 @@ export function mockFirebaseAdmin(db: firebase.firestore.Firestore = getDb()){
             },
         
             //Mocks admin.firestore() Which is often saved as db
-            firestore: firestore,
+            firestore: firestore
+            
     
         }
     })

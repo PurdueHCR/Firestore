@@ -48,10 +48,30 @@ class RHPOverviewLoaded extends OverviewState {
   List<Object> get props => [rank, logs, reward, houses, key, houseCodes];
 }
 
+class ProfessionalStaffLoaded extends OverviewState {
+  final List<House> houses;
+
+  const ProfessionalStaffLoaded({@required this.houses});
+  @override
+  List<Object> get props => [houses];
+}
+
 class OverviewError extends OverviewState {
   final Error error;
   const OverviewError({@required this.error});
 
   @override
   List<Object> get props => [error];
+}
+
+class GrantAwardSuccess extends ProfessionalStaffLoaded {
+  const GrantAwardSuccess(List<House> houses): super(houses:houses);
+  @override
+  List<Object> get props => [houses];
+}
+
+class GrantAwardError extends ProfessionalStaffLoaded {
+  const GrantAwardError(List<House> houses): super(houses:houses);
+  @override
+  List<Object> get props => [houses];
 }

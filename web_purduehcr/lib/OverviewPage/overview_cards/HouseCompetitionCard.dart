@@ -38,7 +38,7 @@ class HouseCompetitionCardState extends State<HouseCompetitionCard>{
         id: 'House Competition',
         colorFn: (House house, __) => Color.fromHex(code: house.color),
         domainFn: (House house, _) => house.name,
-        measureFn: (House house, _) => house.pontsPerResident,
+        measureFn: (House house, _) => house.pointsPerResident,
         data: rankedHouses,
       )
     ];

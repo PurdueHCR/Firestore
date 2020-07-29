@@ -1,6 +1,7 @@
 import { PointLog} from './PointLog'
 import { HouseCode } from './HouseCode'
 import { UserPermissionLevel } from './UserPermissionLevel'
+import { UserHouseRank } from './RankArray'
 export class User {
 
     static FIRST_NAME = "FirstName"
@@ -56,6 +57,13 @@ export class User {
         return this.permissionLevel === UserPermissionLevel.RESIDENT || 
             this.permissionLevel === UserPermissionLevel.RHP || 
             this.permissionLevel === UserPermissionLevel.PRIVILEGED_RESIDENT
+    }
+
+    /**
+     * Retrieve a model to use to update House/Details/UserRank
+     */
+    getHouseRankModel(): UserHouseRank {
+        return new UserHouseRank(this.id, this.firstName, this.lastName, this.totalPoints,this.semesterPoints)
     }
 
     /**

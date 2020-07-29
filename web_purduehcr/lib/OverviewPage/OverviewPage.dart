@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purduehcr_web/OverviewPage/ProfessionalStaffOverviewPage.dart';
 import 'package:purduehcr_web/OverviewPage/RHPOverviewPage.dart';
 import 'package:purduehcr_web/authentication/authentication.dart';
 import 'package:purduehcr_web/BasePage.dart';
@@ -22,10 +23,10 @@ class HomePage extends StatelessWidget {
       case UserPermissionLevel.RHP:
         return RHPOverviewPage(linkId: linkId,);
       case UserPermissionLevel.PROFESSIONAL_STAFF:
+        return ProfessionalStaffOverviewPage();
       case UserPermissionLevel.FHP:
       case UserPermissionLevel.EXTERNAL_ADVISER:
       default:
-        print("Unimplemented");
         return UnimplementedPage(drawerLabel: "Overview");
     }
   }
