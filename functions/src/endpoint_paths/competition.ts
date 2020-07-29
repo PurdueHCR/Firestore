@@ -18,6 +18,8 @@ import { updateSystemPreferences } from '../src/SetSystemPreference'
 import { saveAndResetSemester } from '../src/SaveAndResetSemester'
 import {verifyOneTimeCode, generateOneTimeCode} from '../src/OTCGenerator'
 import {resetHouseCompetition} from '../src/ResetHouseCompetition'
+import * as ParameterParser from '../src/ParameterParser'
+import { grantHouseAward } from '../src/GrantHouseAward'
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
@@ -357,6 +359,39 @@ comp_app.get('/getUnhandledPoints', async (req, res) => {
 		}
 		
 		res.status(APIResponse.SUCCESS_CODE).send({point_logs:logs})
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.error("Unknown Error: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
+})
+
+/**
+ * Post a new house Award
+ */
+comp_app.post('/houseAward', async (req, res) => {
+	try{
+		if(req.body === undefined || req.body === null){
+			throw APIResponse.MissingRequiredParameters()
+		}
+
+		const house_name = ParameterParser.parseInputForString(req.body.house)
+		const ppr = ParameterParser.parseInputForNumber(req.body.ppr, 1)
+		const description = ParameterParser.parseInputForString(req.body.description)
+
+
+		const user = await getUser(req["user"]["user_id"])
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
+
+		await grantHouseAward(house_name, ppr, description)
+		
+		throw APIResponse.Success()
 	}
 	catch (error){
         if( error instanceof APIResponse){

@@ -66,7 +66,8 @@ export class FirestoreDataFactory{
             "NumberOfResidents":(hOpts.num_residents !== undefined)? hOpts.num_residents: Options.HOUSE_DEFAULTS.num_residents,
             "TotalPoints":(hOpts.total_points !== undefined)? hOpts.total_points: Options.HOUSE_DEFAULTS.total_points,
             "FloorIds":(hOpts.floor_ids !== undefined)? hOpts.floor_ids: Options.HOUSE_DEFAULTS.floor_ids,
-            "DownloadUR":(hOpts.downloadURL !== undefined)? hOpts.downloadURL: Options.HOUSE_DEFAULTS.downloadURL
+            "DownloadUR":(hOpts.downloadURL !== undefined)? hOpts.downloadURL: Options.HOUSE_DEFAULTS.downloadURL,
+            "Description": (hOpts.description !== undefined)? hOpts.description: Options.HOUSE_DEFAULTS.description
         })
 
         await db.collection("House").doc(id).collection("Details").doc("Rank").set({})

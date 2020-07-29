@@ -31,19 +31,29 @@ export async function getAllHouses() : Promise<House[]> {
  * @throws 500 - ServerError
  */
 export async function getHouseByName(name: string) : Promise<House> {
-	try {
-        const db = admin.firestore()
-		const houseDocumentSnapshot = await db.collection(HouseCompetition.HOUSE_KEY).doc(name).get()
-		if(!houseDocumentSnapshot.exists){
-			return Promise.reject(APIResponse.UnknownHouse())
-		}
-		else{
-			const house = House.fromDocumentSnapshot(houseDocumentSnapshot)
-			return Promise.resolve(house)
-		}
+	const db = admin.firestore()
+	const houseDocumentSnapshot = await db.collection(HouseCompetition.HOUSE_KEY).doc(name).get()
+	if(!houseDocumentSnapshot.exists){
+		throw APIResponse.UnknownHouse()
 	}
-	catch (err) {
-		console.log("GET House by name Error: " + err)
-		return Promise.reject(APIResponse.ServerError())
+	else{
+		return House.fromDocumentSnapshot(houseDocumentSnapshot)
+	}
+}
+
+/**
+ * Get a House from its Name
+ * 
+ * @param name The name of the house to retrieve
+ * @throws 425 - UnknownHouse
+ * @throws 500 - ServerError
+ */
+export async function getHouseByNameWithTransaction(db: FirebaseFirestore.Firestore ,transaction: FirebaseFirestore.Transaction,name: string) : Promise<House> {
+	const houseDocumentSnapshot = await transaction.get(db.collection(HouseCompetition.HOUSE_KEY).doc(name))
+	if(!houseDocumentSnapshot.exists){
+		throw APIResponse.UnknownHouse()
+	}
+	else{
+		return House.fromDocumentSnapshot(houseDocumentSnapshot)
 	}
 }

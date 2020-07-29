@@ -33,6 +33,8 @@ describe('user/submitpoint', async () =>{
         user_func = require('../../../src/endpoint_paths/index.ts').user
 
         //Create sample data for the tests
+        await FirestoreDataFactory.setSystemPreference(db)
+        await FirestoreDataFactory.setAllHouses(db)
         await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0)
         await FirestoreDataFactory.setUser(db, RHP_ID, 1)
         await FirestoreDataFactory.setUser(db, REC_ID, 2)
@@ -45,13 +47,9 @@ describe('user/submitpoint', async () =>{
         await FirestoreDataFactory.setPointType(db, 6)
         await FirestoreDataFactory.setPointType(db, 2, {residents_can_submit: false})
         await FirestoreDataFactory.setPointType(db, 3, {is_enabled:false})
-        await FirestoreDataFactory.setHouse(db, HOUSE_NAME)
         await FirestoreDataFactory.setHouseCode(db, HOUSE_CODE)
     })
 
-    beforeEach(async () => {
-        await FirestoreDataFactory.setSystemPreference(db)
-    })
 
     //Test if no body is provided
     it('Missing Body', async(done) => {
@@ -166,12 +164,13 @@ describe('user/submitpoint', async () =>{
     it('Competition Disabled',  async(done) => {
         await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled: false})
         const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, createPointLogBody(1,"test",( new Date()).toString()), RESIDENT_ID)
-        res.end(function (err, res) {
+        res.end(async function (err, res) {
             if(err){
                 done(err)
             }
             else{
                 expect(res.status).toBe(412)
+                await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled: true})
                 done()
             }
         })

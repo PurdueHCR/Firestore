@@ -1,4 +1,5 @@
 import { PointLog } from "./PointLog"
+import { HouseAward } from "./HouseAward"
 
 
 export class House {
@@ -10,6 +11,7 @@ export class House {
     static FLOOR_IDS = "FloorIds"
     static DOWNLOAD_URL = "DownloadURL"
     static DESCRIPTION = "Description"
+    static HOUSE_AWARDS = "HouseAwards"
 
     color: string
     numberOfResidents: number
@@ -18,9 +20,10 @@ export class House {
     pointsPerResident: number
     description: string
     downloadURL: string
+    houseAwards: HouseAward[]
     floorIds: string[]
 
-    constructor(color:string, numberOfResidents: number, totalPoints: number, floorIds: string[], id: string, downloadURL:string, description:string){
+    constructor(color:string, numberOfResidents: number, totalPoints: number, floorIds: string[], id: string, downloadURL:string, description:string, houseAwards: HouseAward[]){
         this.color = color
         this.numberOfResidents = numberOfResidents
         this.totalPoints = totalPoints
@@ -29,6 +32,7 @@ export class House {
         this.pointsPerResident = totalPoints/numberOfResidents
         this.description = description
         this.downloadURL = downloadURL
+        this.houseAwards = houseAwards
     }
 
     firestoreJson() {
@@ -39,6 +43,7 @@ export class House {
         data[House.FLOOR_IDS] = this.floorIds
         data[House.DOWNLOAD_URL] = this.downloadURL
         data[House.DESCRIPTION] = this.description
+        data[House.HOUSE_AWARDS] = this.houseAwards
         return data
     }
 
@@ -48,7 +53,18 @@ export class House {
     toPointUpdateJson() {
         const data = {}
         data[House.TOTAL_POINTS] = this.totalPoints
+        const houseAwards:any[] = []
+        this.houseAwards.forEach((item) => {
+            houseAwards.push(item.toFirestoreJson())
+        })
+        data[House.HOUSE_AWARDS] = houseAwards
+        console.log(JSON.stringify(houseAwards))
         return data
+    }
+
+    grantHouseAward(ppr:number, description: string){
+        this.totalPoints += this.numberOfResidents * ppr
+        this.houseAwards.push(new HouseAward(description, ppr))
     }
 
     static fromDocumentSnapshot(document: FirebaseFirestore.DocumentSnapshot): House{
@@ -70,6 +86,7 @@ export class House {
         let floorIds: string[]
         let description: string
         let downloadURL: string
+        let houseAwards: HouseAward[]
         const id = doc_id
 
         if( House.COLOR in document){
@@ -114,7 +131,14 @@ export class House {
             description = ""
         }
 
-        return new House(color, numberOfResidents, totalPoints, floorIds, id, downloadURL, description)
+        if(House.HOUSE_AWARDS in document){
+            houseAwards = HouseAward.fromHouseData(document[House.HOUSE_AWARDS])
+        }
+        else{
+            houseAwards = []
+        }
+
+        return new House(color, numberOfResidents, totalPoints, floorIds, id, downloadURL, description, houseAwards)
     }
 }
 

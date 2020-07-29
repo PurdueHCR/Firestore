@@ -176,7 +176,7 @@ describe('GET competition/userOverview', () =>{
                 //Check houses
                 expect(res.body.professional_staff.houses[0].id).toBe("Platinum")
                 expect(res.body.professional_staff.houses[0].pointsPerResident).toBe(10)
-                expect(res.body.professional_staff.houses[0].yearlyRank).toBeDefined()
+                expect(res.body.professional_staff.houses[0].yearRank).toBeDefined()
                 expect(res.body.professional_staff.houses[0].semesterRank).toBeDefined()
                 expect(res.body.professional_staff.houses[0].submissions).toBeDefined()
                 expect(res.body.professional_staff.houses[1].id).toBe("Titanium")
