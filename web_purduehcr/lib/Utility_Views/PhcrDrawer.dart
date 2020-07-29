@@ -6,14 +6,23 @@ import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 
 const _DrawerOptions OVERVIEW = _DrawerOptions("Overview","/",Icon(Icons.account_circle));
 const _DrawerOptions SUBMIT_POINTS = _DrawerOptions("Submit Points","/submit_points",Icon(Icons.add));
+const _DrawerOptions HANDLE_POINTS = _DrawerOptions("Handle Points","/handle_points",Icon(Icons.message));
+const _DrawerOptions MY_POINTS = _DrawerOptions("My Points","/my_points",Icon(Icons.list));
+const _DrawerOptions HISTORY = _DrawerOptions("House History","/house_history",Icon(Icons.history));
 const _DrawerOptions TOKEN = _DrawerOptions("Token","/token",Icon(Icons.add));
+const _DrawerOptions LINKS = _DrawerOptions("Links", "/links", Icon(Icons.link));
+const _DrawerOptions CONTROLS = _DrawerOptions("Controls", "/controls", Icon(Icons.build));
+const _DrawerOptions POINT_TYPE_CONTROLS = _DrawerOptions("Point Categories", "/point_type_controls", Icon(Icons.list));
+const _DrawerOptions HOUSE_CODES = _DrawerOptions("House Codes", "/house_codes", Icon(Icons.home));
+const _DrawerOptions FIND_USERS = _DrawerOptions("Find Users", "/find_users", Icon(Icons.search));
+const _DrawerOptions REWARDS = _DrawerOptions("Rewards", "/rewards", Icon(Icons.cake));
 
-const List<_DrawerOptions> RESIDENT_LIST = [OVERVIEW,SUBMIT_POINTS,TOKEN];
-const List<_DrawerOptions> RHP_LIST = [OVERVIEW,SUBMIT_POINTS];
-const List<_DrawerOptions> PROFESSIONAL_STAFF_LIST = [OVERVIEW];
-const List<_DrawerOptions> FHP_LIST = [OVERVIEW];
-const List<_DrawerOptions> PRIVILEGED_USER_LIST = [OVERVIEW,SUBMIT_POINTS];
-const List<_DrawerOptions> NHAS_LIST = [OVERVIEW];
+const List<_DrawerOptions> RESIDENT_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, TOKEN];
+const List<_DrawerOptions> RHP_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, HANDLE_POINTS, LINKS, HISTORY];
+const List<_DrawerOptions> PROFESSIONAL_STAFF_LIST = [OVERVIEW, LINKS, HISTORY, HOUSE_CODES, POINT_TYPE_CONTROLS, REWARDS, FIND_USERS, CONTROLS];
+const List<_DrawerOptions> FHP_LIST = [OVERVIEW, LINKS];
+const List<_DrawerOptions> PRIVILEGED_USER_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, LINKS];
+const List<_DrawerOptions> EA_LIST = [OVERVIEW, LINKS];
 
 class PhcrDrawer extends Drawer {
 
@@ -41,11 +50,11 @@ class PhcrDrawer extends Drawer {
       case UserPermissionLevel.FHP:
         selectedList = FHP_LIST;
         break;
-      case UserPermissionLevel.PRIVILEGED_USER:
+      case UserPermissionLevel.PRIVILEGED_RESIDENT:
         selectedList = PRIVILEGED_USER_LIST;
         break;
-      case UserPermissionLevel.NHAS:
-        selectedList = NHAS_LIST;
+      case UserPermissionLevel.EXTERNAL_ADVISER:
+        selectedList = EA_LIST;
         break;
     }
     return Drawer(
@@ -79,7 +88,7 @@ class PhcrDrawer extends Drawer {
               }
               else if(index == selectedList.length + 2 - 1){
                 return FlatButton(
-                    child: Text("Loggout"),
+                    child: Text("Log out"),
                     onPressed: (){
                       BlocProvider.of<AuthenticationBloc>(context).add(LoggedOut());
                     }

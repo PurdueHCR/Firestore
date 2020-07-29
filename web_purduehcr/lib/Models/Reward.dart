@@ -4,25 +4,28 @@ import 'package:meta/meta.dart';
 
 class Reward{
 
-  static const String API_NAME_KEY = "id";
-  static const String API_REQUIRED_PPR_KEY = "requiredPPR";
-  static const String API_PATH_KEY = "fileName";
+  static const String ID = "id";
+  static const String NAME = "name";
+  static const String REQUIRED_PPR = "requiredPPR";
+  static const String DOWNLOAD_RUL = "downloadURL";
+  static const String FILE_NAMe = "fileName";
 
   String name;
   String fileName;
   double requiredPPR;
+  String downloadURL = "";
+  String id;
 
-  Reward({@required this.name,@required this.requiredPPR, @required this.fileName});
+  Reward({@required this.name,@required this.requiredPPR, @required this.downloadURL, this.fileName, this.id});
 
-  Future<Uri> getDownloadURL(){
-    return fb.storage().ref(this.fileName).getDownloadURL();
-  }
 
   factory Reward.fromJson(Map<String,dynamic> json) {
     return Reward(
-      name: json[API_NAME_KEY],
-      requiredPPR : json[API_REQUIRED_PPR_KEY],
-        fileName:  json[API_PATH_KEY]
+      id: json[ID],
+      name: json[NAME],
+      requiredPPR : json[REQUIRED_PPR],
+      downloadURL:  json[DOWNLOAD_RUL],
+      fileName: json[FILE_NAMe]
     );
   }
 

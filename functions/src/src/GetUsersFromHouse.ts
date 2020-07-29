@@ -7,7 +7,7 @@ import { APIResponse } from '../models/APIResponse'
  * Get all users from a house
  * 
  * @param house_name name of the house
- * @throws ServerError
+ * @throws 500 - ServerError
  */
 export async function getUsersFromHouse(house_name: string) : Promise<User[]> {
 	try {
@@ -16,7 +16,7 @@ export async function getUsersFromHouse(house_name: string) : Promise<User[]> {
         return Promise.resolve(users)
 	}
 	catch (err) {
-		console.log("GET USER ERROR: " + err)
+		console.log("GET USER from house ERROR: " + err)
 		return Promise.reject(APIResponse.ServerError())
 	}
 }

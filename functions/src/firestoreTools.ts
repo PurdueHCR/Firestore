@@ -6,30 +6,16 @@ import * as admin from 'firebase-admin'
 // `Authorization: Bearer <Firebase ID Token>`.
 // when decoded successfully, the ID Token content will be added as `req.user`.
 const validateFirebaseIdToken = async (req, res , next) => {
-	if(req.path === '/getLink'){
-		next()
-		return
-	}
-
-	if(req.path === '/getPointTypes'){
-		next()
-		return
-	}
 	
-	if(req.path === '/secret-semester-points-set'){
+	if(req.path === '/confirmEndSemester'){
     	next()
   		return
 	}
 
-	if(req.path === '/secret-reset-house-competition'){
+	if(req.path === '/confirmResetCompetition'){
     	next()
   		return
 	}
-	  
-	if(req.path === '/rank'){
-    		next()
-  		return
-  	}
 
   	if ((!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) &&
       	!(req.cookies && req.cookies.__session)) {
@@ -63,7 +49,7 @@ const validateFirebaseIdToken = async (req, res , next) => {
     	next()
     	return
   	} catch (error) {
-    	console.error('Error while verifying Firebase ID token: ', idToken, " ", error)
+    	console.error('\u001b[43;1mError while verifying Firebase Token: TOKEN IS INVALID OR HAS EXPIRED. PLEASE GET A NEW TOKEN\u001b[0m')
     	const apiError = APIResponse.Unauthorized()
     	res.status(apiError.code).send(apiError.toJson())
     	return

@@ -1,36 +1,30 @@
 import * as admin from 'firebase-admin'
 import { HouseCompetition } from '../models/HouseCompetition'
-import { APIResponse } from '../models/APIResponse'
+import { PointType } from '../models/PointType'
+import { getSystemPreferences } from './GetSystemPreferences'
 
-/**
- * 
- * @param point_id    ID of the point to update
- * @param fields    document fields to udpate
- * 
- * @throws 	410 - HouseCodeDoesNotExist
- * @throws  417 - UnknownPointType
- * @throws 	500 - ServerError
- */
-export async function updatePointType(point_id: string, fields: JSON): Promise<APIResponse> {
 
-    // if (fields.json.length == 0) {
-    //     console.log("It thinks it does not exist.\n")
-    //     return Promise.resolve(APIResponse.Success())
-    // }
+export async function updatePointType(pointType: PointType) {
+    console.log("Update this point type")
     const db = admin.firestore()
-    try {
-        const doc = await db.collection(HouseCompetition.POINT_TYPES_KEY).doc(point_id).get()
-        if (doc.exists) {
-            await db.collection(HouseCompetition.POINT_TYPES_KEY).doc(point_id).update(fields)
-            return Promise.resolve(APIResponse.Success())
-        } else {
-            return Promise.resolve(APIResponse.UnknownPointType())
-        }
-    }
-    catch (error) { 
-        console.log("SERVER ERROR on update point_type: " + error)
-        const apiResponse = APIResponse.ServerError()
-        return Promise.reject(apiResponse)
+    await db.collection(HouseCompetition.POINT_TYPES_KEY).doc(pointType.id).update(pointType.firestoreJson())
+
+    const systemPreferences = await getSystemPreferences()
+    for(const house of systemPreferences.houseIds){
+        console.log("Doing house: "+house+" and putting "+pointType.name+" into "+pointType.id)
+        await db.runTransaction(async (transaction) => {
+            console.log("Enter transaction")
+            const housePointTypeSubmissionsRef = db.collection(HouseCompetition.HOUSE_KEY).doc(house).collection(HouseCompetition.HOUSE_DETAILS_KEY).doc(HouseCompetition.HOUSE_DETAILS_POINT_TYPES_DOC)
+            const hptsDoc = await transaction.get(housePointTypeSubmissionsRef)
+            const pointTypeUpdate = {}
+            pointTypeUpdate[pointType.id] = {
+                name:pointType.name,
+                submitted: hptsDoc.data()![pointType.id].submitted,
+                approved: hptsDoc.data()![pointType.id].approved
+            }
+            transaction.update(housePointTypeSubmissionsRef, pointTypeUpdate)
+        })
+        
     }
 
 }

@@ -34,7 +34,7 @@ export async function createUser(user_id: string, code: string, first_name: stri
             for( const houseCode of houseCodes){
                 if(houseCode.code === code){
                     const user = User.fromCode(first_name,  last_name, user_id, houseCode)
-                    await _createUser(user_id, user)
+                    await createUserFromModel(user_id, user)
                     const success = APIResponse.Success()
                     return Promise.resolve(success)
                 }
@@ -54,16 +54,20 @@ export async function createUser(user_id: string, code: string, first_name: stri
 }
 
 /**
- * Create a user in the database
+ * Create a user in the database and add to house user rank if applicable
  * 
  * @param user_id   id of the user to created
  * @param user      User data to be set in the database
  * @throws           ServerError
  */
-async function _createUser(user_id: string, user:User): Promise<void> {
+export async function createUserFromModel(user_id: string, user:User): Promise<void> {
     const db = admin.firestore()
     try{
-        await db.collection(HouseCompetition.USERS_KEY).doc(user_id).set(user.toJson())
+        await db.collection(HouseCompetition.USERS_KEY).doc(user_id).set(user.toFirestoreJson())
+        if(user.isParticipantInCompetition()){
+            const userHouseRank = user.getHouseRankModel()
+            await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house).collection(HouseCompetition.HOUSE_DETAILS_KEY).doc(HouseCompetition.HOUSE_DETAILS_RANK_DOC).update(userHouseRank)
+        }
         return Promise.resolve()
     }
     catch (error){

@@ -8,23 +8,34 @@ import { PointLogMessage } from '../models/PointLogMessage'
 import { addPoints } from './AddPoints'
 import { PointLog } from '../models/PointLog'
 import { MessageType } from '../models/MessageType'
+import { getSystemPreferences } from './GetSystemPreferences'
+import { PointType } from '../models/PointType'
 
 const REJECTED_STRING = "DENIED: "
 
 /**
  * 
- * @param approver_id       ID of user updating the point
+ * @param approver_id   ID of user updating the point
  * @param document_id   ID of PointLog to approve/reject
  * @param approve       Boolean to approve/reject the PointLog   
+ * @param rejectionMessage String message to post or rejection cause
  * 
- * @throws  403 - InvalidPermissionLevel
- * @throws  413 - UnknownPointLog
+ * @throws 403 - InvalidPermissionLevel
+ * @throws 412 - House Competition Disabled
+ * @throws 413 - UnknownPointLog
+ * @throws 416 - PointLogAlreadyHandled
+ * @throws 500 - Server Error
  */
-export async function updatePointLogStatus(approve: boolean, approver_id: string, document_id: string): Promise<Boolean> {
+export async function updatePointLogStatus(approve: boolean, approver_id: string, document_id: string, rejectionMessage?:string): Promise<boolean> {
     
+    const system_preferences = await getSystemPreferences()
+    if (!system_preferences.isCompetitionEnabled) {
+        return Promise.reject(APIResponse.CompetitionDisabled())
+    }
+
     const user = await getUser(approver_id)
-    if (user.permissionLevel != UserPermissionLevel.RHP) {
-        return Promise.reject(APIResponse.InvalidPermissionLevel)
+    if (user.permissionLevel !== UserPermissionLevel.RHP) {
+        return Promise.reject(APIResponse.InvalidPermissionLevel())
     }
     const db = admin.firestore()
     try {
@@ -33,11 +44,11 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
         const doc = await doc_ref.get()
         if (!doc.exists) {
             // PointLog could not be found
-            return Promise.reject(APIResponse.UnknownPointLog)
+            return Promise.reject(APIResponse.UnknownPointLog())
         } else {
 
-            let log = PointLog.fromDocumentSnapshot(doc)
-            let resident_id = (await getUser(log.residentId)).id
+            const log = PointLog.fromDocumentSnapshot(doc)
+            const resident_id = (await getUser(log.residentId)).id
 
             let already_handled = true
             if (log.pointTypeId < 0) {
@@ -47,18 +58,15 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
             }
             const point_type_doc = await db.collection(HouseCompetition.POINT_TYPES_KEY)
                                     .doc(log.pointTypeId.toString()).get()
-            console.log(point_type_doc)
-            const point_value = point_type_doc.data["Value"]
-            // Warning: this may not be the correct value
-            console.log("Point value is:", point_value)
+            const pointType = PointType.fromDocumentSnapshot(point_type_doc)
 
-            let message_end = " the point request."
+            const message_end = " the point request."
             let message_beginning = user.firstName + " " + user.lastName
 
             // If reject check to know if need to subtract points
             if (!approve) {
                 if (log.description.includes(REJECTED_STRING)) {
-                    let response = APIResponse.PointLogAlreadyHandled()
+                    const response = APIResponse.PointLogAlreadyHandled()
                     return Promise.reject(response)
                 } else {
                     log.description = REJECTED_STRING + log.description
@@ -66,30 +74,34 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                     await doc_ref.set(log.toFirebaseJSON())
                     if (already_handled) {
                         // Log has previously been approved so it is safe to subtract points
-                        await addPoints(-1*(parseInt(point_value)), user.house, resident_id)
+                        await addPoints(pointType, user.house, resident_id, false)
                     }
                     message_beginning += " rejected" + message_end
-                    let messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.REJECT, user.firstName, user.lastName, UserPermissionLevel.RHP)
-                    await submitPointLogMessage(user.house, log, messageObj)
+                    const messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.REJECT, user.firstName, user.lastName, UserPermissionLevel.RHP)
+                    await submitPointLogMessage(user.house, log, messageObj, true)
+
+                    if(rejectionMessage !== undefined){
+                        const rejetMessage = new PointLogMessage(new Date(), rejectionMessage, MessageType.COMMENT, user.firstName, user.lastName, UserPermissionLevel.RHP)
+                        await submitPointLogMessage(user.house, log, rejetMessage, true)
+                    }
                 }
             } else {
                 if (log.description.includes(REJECTED_STRING) || !already_handled) {
                     // Either log was previously rejected and points must be added back
                     // or log has never been added and points need to be added
                     if (log.description.includes(REJECTED_STRING)) {
-                        log.description.slice(0, REJECTED_STRING.length)                    
+                        log.description = log.description.slice(REJECTED_STRING.length)                    
                     }
                     log.approveLog(user)
                     await doc_ref.set(log.toFirebaseJSON())
-                    //await addPoints(parseInt(point_value), user.house, resident_id)
-                    await addPoints(5, user.house, resident_id)
+                    await addPoints(pointType, user.house, resident_id)
                     // Add message of approval/rejection
                     message_beginning += " approved" + message_end
-                    let messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.APPROVE, user.firstName, user.lastName, UserPermissionLevel.RHP)
-                    await submitPointLogMessage(user.house, log, messageObj)
+                    const messageObj = new PointLogMessage(new Date(), message_beginning, MessageType.APPROVE, user.firstName, user.lastName, UserPermissionLevel.RHP)
+                    await submitPointLogMessage(user.house, log, messageObj, true)
                 } else {
                     // Log has already been approved so points should not be added
-                    let response = APIResponse.PointLogAlreadyHandled()
+                    const response = APIResponse.PointLogAlreadyHandled()
                     return Promise.reject(response)
                 }
             }

@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
@@ -33,6 +31,7 @@ class AuthenticationBloc
         yield Authenticated(user);
       }
       catch(error){
+        print("Uh oh. There was an error");
         yield Unauthenticated();
       }
     }
@@ -46,7 +45,7 @@ class AuthenticationBloc
         yield AuthenticatedButNoUser();
       }
       catch(error){
-        window.console.log("Failed to get User model. $error");
+        print("Failed to get User model. $error");
         yield Unauthenticated();
       }
 

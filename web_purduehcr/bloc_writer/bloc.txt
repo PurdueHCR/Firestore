@@ -1,0 +1,37 @@
+import 'dart:async';
+import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:purduehcr_web/Config.dart';
+import './#.dart';
+
+
+class $Bloc extends Bloc<$Event, $State>{
+  $Repository _#Repository;
+  final Config config;
+
+  $Bloc({ @required this.config})  :
+        assert(config != null){
+    this._#Repository = new $Repository(config);
+  }
+
+  @override
+  $State get initialState => $PageLoading();
+
+  @override
+  Stream<$State> mapEventToState( $Event event) async* {
+    if(event is $Initialize){
+      try{
+          yield $PageLoaded();
+      }
+      catch (error){
+          print("Got error in initializing $Page: "+error);
+          yield $PageInitializeError();
+      }
+    }
+  }
+
+  @override
+  void onError(Object error, StackTrace stacktrace) {
+    super.onError(error, stacktrace);
+  }
+}

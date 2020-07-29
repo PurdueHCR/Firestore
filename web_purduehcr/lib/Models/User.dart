@@ -3,13 +3,14 @@ import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 
 class User {
 
-  static const String FIRST_NAME = "FirstName";
-  static const String FLOOR_ID ="FloorID";
-  static const String HOUSE = "House";
-  static const String LAST_NAME = "LastName";
-  static const String PERMISSION_LEVEL = "Permission Level";
-  static const String SEMESTER_POINTS = "SemesterPoints";
-  static const String TOTAL_POINTS = "TotalPoints";
+  static const String FIRST_NAME = "firstName";
+  static const String FLOOR_ID ="floorId";
+  static const String HOUSE = "house";
+  static const String LAST_NAME = "lastName";
+  static const String PERMISSION_LEVEL = "permissionLevel";
+  static const String SEMESTER_POINTS = "semesterPoints";
+  static const String TOTAL_POINTS = "totalPoints";
+  static const String ENABLED = "enabled";
 
   String firstName = "";
   String lastName = "";
@@ -19,11 +20,12 @@ class User {
   num totalPoints = 0;
   UserPermissionLevel permissionLevel = UserPermissionLevel.RESIDENT;
   String id = "";
+  bool enabled = true;
   Uri houseDownloadURL;
 
 
   User(this.firstName,this.lastName,this.floorId,
-      this.house,this.semesterPoints, this.totalPoints,this.permissionLevel,
+      this.house,this.semesterPoints, this.totalPoints,this.permissionLevel, this.enabled,
       this.id){
     fb.storage().ref(this.house.toLowerCase()+".png").getDownloadURL().then((value) => houseDownloadURL = value);
   }
@@ -45,8 +47,9 @@ class User {
     String house = data[HOUSE];
     int semesterPoints = data[SEMESTER_POINTS];
     int totalPoints = data[TOTAL_POINTS];
+    bool enabled = data[ENABLED];
     UserPermissionLevel permissionLevel = UserPermissionLevelConverter.fromNum(data[PERMISSION_LEVEL]);
-    return new User(firstName, lastName, floorId, house, semesterPoints, totalPoints, permissionLevel, id);
+    return new User(firstName, lastName, floorId, house, semesterPoints, totalPoints, permissionLevel, enabled, id);
   }
 
   @override

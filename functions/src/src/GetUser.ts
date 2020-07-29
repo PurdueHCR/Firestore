@@ -30,3 +30,30 @@ export async function getUser(id: string) : Promise<User> {
 	}
 	
 }
+
+/**
+ * Search for users by their last name
+ * @param name Name to search for
+ * @param perviousName Last name returned for pagination
+ */
+export async function searchForUsers(name:string, previousName:string = ""): Promise<User[]>{
+	const db = admin.firestore()
+	if(name.length == 1){
+		let firstLetter = name.charCodeAt(0)
+		firstLetter += 1
+		let lastLetter = String.fromCharCode(firstLetter)
+		const userQuerySnapshot = await db.collection("Users").where("LastName", ">=",name).where("LastName","<",lastLetter).orderBy("LastName", "asc").limit(25).startAfter(previousName).get()
+		const users = User.fromQuerySnapshot(userQuerySnapshot)
+		return users
+	}
+	else{
+		let firstLetter = name.charCodeAt(name.length - 1)
+		firstLetter += 1
+		let lastLetter = name.substr(0, name.length - 2) + String.fromCharCode(firstLetter)
+		const userQuerySnapshot = await db.collection("Users").where("LastName", ">=",name).where("LastName","<",lastLetter).orderBy("LastName", "asc").limit(25).startAfter(previousName).get()
+		const users = User.fromQuerySnapshot(userQuerySnapshot)
+		return users
+	}
+	
+	
+}

@@ -128,7 +128,9 @@ describe('point_types/submittable', () =>{
     })
 
     //After all of the tests are done, make sure to delete the test firestore app
-    afterAll(()=>{
+    //After all of the tests are done, make sure to delete the test firestore app
+    afterAll(async ()=>{
+        await FirestoreDataFactory.cleanDatabase(db)
         Promise.all(firebase.apps().map(app => app.delete()))
     })
 

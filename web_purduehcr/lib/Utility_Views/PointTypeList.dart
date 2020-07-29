@@ -38,7 +38,7 @@ class _PointTypeListState extends State<PointTypeList>{
       mainContent = ListView.builder(
         itemCount: visibleTypes.length,
         itemBuilder: (BuildContext context, int index){
-          return PointTypeListTile(pointType: visibleTypes[index], onTap: widget.onPressed);
+          return Card(child: PointTypeListTile(pointType: visibleTypes[index], onTap: widget.onPressed));
         },
       );
     }
@@ -89,7 +89,37 @@ class PointTypeListTile extends StatelessWidget{
       onTap: () => onTap(context, pointType),
       title: Text(pointType.name),
       subtitle: Text(pointType.description),
+      trailing: Column(
+        children: [
+          Text(pointType.value.toInt().toString()),
+          Text("Points")
+        ],
+      ),
     );
   }
   
+}
+
+class PointTypeComponentsListTile extends StatelessWidget{
+  final String name;
+  final String description;
+  final int points;
+
+  const PointTypeComponentsListTile({Key key, @required this.name, @required this.description, @required this.points}):
+        assert(name != null), assert(description != null), assert(points != null),  super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(name),
+      subtitle: Text(description),
+      trailing: Column(
+        children: [
+          Text(points.toString()),
+          Text("Points")
+        ],
+      ),
+    );
+  }
+
 }

@@ -1,0 +1,24 @@
+import 'package:equatable/equatable.dart';
+
+abstract class $State extends Equatable{
+  const $State();
+}
+
+
+class $PageLoading extends $State {
+  const $PageLoading();
+  @override
+  List<Object> get props => [];
+}
+
+class $PageLoaded extends $State {
+  const $PageLoaded();
+  @override
+  List<Object> get props => [];
+}
+
+class $PageInitializeError extends $State {
+  const $PageInitializeError();
+  @override
+  List<Object> get props => [];
+}

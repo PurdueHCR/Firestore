@@ -1,7 +1,7 @@
-import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/authentication/authentication.dart';
 import 'package:purduehcr_web/BasePage.dart';
 
@@ -11,21 +11,20 @@ import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 
 class TokenTestPage extends BasePage {
   TokenTestPage({Key key}) : super(key: key){
-    window.console.log("TOKEN");
+    print("TOKEN");
 
   }
 
   @override
   State<StatefulWidget> createState() {
-    return TokenTestPageState(drawerLabel: "Token");
+    return TokenTestPageState("Token");
   }
 
 }
 
 class TokenTestPageState extends BasePageState<AuthenticationBloc, AuthenticationEvent, AuthenticationState> {
+  TokenTestPageState(String drawerLabel) : super(drawerLabel);
 
-
-  TokenTestPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
 
   @override
   Widget buildLargeDesktopBody({BuildContext context, AuthenticationState state}) {
@@ -101,5 +100,11 @@ class TokenTestPageState extends BasePageState<AuthenticationBloc, Authenticatio
     //AuthenticationLoading at this point in the execution
     return false;
   }
+
+  @override
+  UserPermissionSet getAcceptedPermissionLevels() {
+    return AllPermissionsSet();
+  }
+
 
 }

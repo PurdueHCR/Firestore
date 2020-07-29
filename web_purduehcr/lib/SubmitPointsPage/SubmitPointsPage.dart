@@ -1,9 +1,9 @@
-import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/BasePage.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/Models/PointType.dart';
+import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/SubmitPointsPage/PointSubmissionForm.dart';
 import 'package:purduehcr_web/SubmitPointsPage/submit_points_bloc/submit_points.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
@@ -14,7 +14,7 @@ import '../Config.dart';
 class SubmitPointsPage extends BasePage{
   @override
   State<StatefulWidget> createState() {
-    return _SubmitPointsPageState(drawerLabel: "Submit Points");
+    return _SubmitPointsPageState("Submit Points");
   }
 
 }
@@ -24,14 +24,20 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
   SubmitPointBloc _submitPointBloc;
   PointType _selectedPointType;
 
-  _SubmitPointsPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
+  _SubmitPointsPageState(String drawerLabel) : super(drawerLabel);
+
+
+
+
 
   @override
-  void initState() {
-    super.initState();
-    Config config = ConfigWrapper.of(context);
-    _submitPointBloc = new SubmitPointBloc(config);
-    _submitPointBloc.add(SubmitPointInitialize());
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if(_submitPointBloc == null){
+      Config config = ConfigWrapper.of(context);
+      _submitPointBloc = new SubmitPointBloc(config);
+      _submitPointBloc.add(SubmitPointInitialize());
+    }
   }
 
   @override
@@ -108,7 +114,7 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
   }
 
   _onSubmit(String description,DateTime dateOccurred,int pointTypeId) async {
-    window.console.log("Submit Point: $description, ${dateOccurred.toString()}, ${pointTypeId.toString()}");
+    print("Submit Point: $description, ${dateOccurred.toString()}, ${pointTypeId.toString()}");
     _submitPointBloc.add(SubmitPoint(
         description: description,
         dateOccurred: dateOccurred,
@@ -118,7 +124,7 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
 
   _onChangeState(BuildContext context, SubmitPointState state){
     if(state is SubmissionSuccess){
-      window.console.log("On change state success");
+      print("On change state success");
       if(state.shouldDismissDialog){
         Navigator.pop(context);
       }
@@ -126,12 +132,17 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
         backgroundColor: Colors.green,
         content: Text('Submission Recorded'),
       );
-      Scaffold.of(context).showSnackBar(snackBar);
-      _submitPointBloc.add(SubmitPointDisplayedMessage());
-      _selectedPointType = null;
+
+      //This is not a good way to do this, but if you can find a better way to do this
+      // and running in debug doesn't throw an error, please change it
+      Future.delayed(Duration(seconds: 1), (){
+        Scaffold.of(context).showSnackBar(snackBar);
+        _selectedPointType = null;
+        _submitPointBloc.add(SubmitPointDisplayedMessage());
+      });
     }
     else if(state is SubmissionError){
-      window.console.log("On change state error");
+      print("On change state error");
       if(state.shouldDismissDialog){
         Navigator.pop(context);
       }
@@ -139,11 +150,21 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
         backgroundColor: Colors.red,
         content: Text('Could not record submission'),
       );
-      Scaffold.of(context).showSnackBar(snackBar);
-      _submitPointBloc.add(SubmitPointDisplayedMessage());
-      _selectedPointType = null;
+
+      //This is not a good way to do this, but if you can find a better way to do this
+      // and running in debug doesn't throw an error, please change it
+      Future.delayed(Duration(seconds: 1), (){
+        Scaffold.of(context).showSnackBar(snackBar);
+        _submitPointBloc.add(SubmitPointDisplayedMessage());
+        _selectedPointType = null;
+      });
 
     }
+  }
+
+  @override
+  UserPermissionSet getAcceptedPermissionLevels() {
+    return CompetitionParticipantsSet();
   }
 
 }

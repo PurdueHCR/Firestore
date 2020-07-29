@@ -11,7 +11,7 @@ enum DisplayType {
 }
 
 const _desktopBreakpoint = 700.0;
-const _smallDesktopMaxWidth = 900.0;
+const _smallDesktopMaxWidth = 1050.0;
 
 /// Returns the [DisplayType] for the current screen. This app only supports
 /// mobile and desktop layouts, and as such we only have one breakpoint.
@@ -26,6 +26,7 @@ DisplayType displayTypeOf(BuildContext context) {
     return DisplayType.mobile;
   }
 }
+
 
 /// Returns a boolean if we are in a display of [DisplayType.desktop]. Used to
 /// build adaptive and responsive layouts.

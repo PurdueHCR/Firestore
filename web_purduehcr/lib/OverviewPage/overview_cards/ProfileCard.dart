@@ -19,55 +19,71 @@ class ProfileCardState extends State<ProfileCard>{
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Column(
-                children: <Widget>[
-                  Container(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            buildLeftWidget(),
+            createHouseImage(),
+            buildRightWidget()
+          ],
+        ),
+      )
+
+    );
+  }
+
+  Widget buildLeftWidget(){
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(widget.user.totalPoints.toString() + " Points")
+      ],
+    );
+  }
+
+  Widget buildRightWidget(){
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text("#"+widget.userRank.houseRank.toString()+" Overall"),
+        Text("#"+ widget.userRank.semesterRank.toString()+" Semester"),
+      ],
+    );
+  }
+
+  Widget createHouseImage(){
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Container(
+            width: 100,
+            height: 100,
+            child: FutureBuilder(
+              future: widget.user.getHouseDownloadURL(),
+              builder: (context, snapshot){
+                if(snapshot.connectionState == ConnectionState.none && !snapshot.hasData){
+                  return Image.asset('assets/main_icon.png',
+                    height: 100,
+                    width: 100,);
+                }
+                else{
+                  return Container(
                     width: 100,
                     height: 100,
-                    child: FutureBuilder(
-                      future: widget.user.getHouseDownloadURL(),
-                      builder: (context, snapshot){
-                        if(snapshot.connectionState == ConnectionState.none && !snapshot.hasData){
-                          return Image.asset('assets/main_icon.png',
-                            height: 100,
-                            width: 100,);
-                        }
-                        else{
-                          return Container(
-                            width: 100,
-                            height: 100,
-                            child: Image.network((snapshot.data as Uri).toString()),
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                  Text("Platinum - 4N")
-                ],
-              ),
-              Container(
-                width: 100,
-                height: 100,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(widget.user.firstName +" "+widget.user.lastName),
-                    Text(widget.user.totalPoints.toString() + " Points")
-                  ],
-                ),
-              ),
-            ],
-          ),
-          Text("#"+widget.userRank.houseRank.toString()+" Overall      #"+ widget.userRank.semesterRank.toString()+" Semester")
-        ],
-      )
+                    child: Image.network((snapshot.data as Uri).toString()),
+                  );
+                }
+              },
+            )
+        ),
+        Text("Platinum - 4N")
+      ],
     );
   }
 }

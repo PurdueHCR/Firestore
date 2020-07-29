@@ -7,76 +7,96 @@ export class Link {
     static ENABLED = "Enabled";
     static POINT_ID = "PointID";
     static SINGLE_USE = "SingleUse"
+    static POINT_TYPE_NAME = "PointTypeName";
+    static POINT_TYPE_DESCRIPTION = "PointTypeDescription"
+    static POINT_TYPE_VALUE = "PointTypeValue"
+    static DYNAMIC_LINK = "DynamicLink"
+    static CLAIMED_COUNT = "ClaimedCount"
 
-    id: String
+    id: string
     archived: Boolean
-    creatorId: String
-    description: String
+    creatorId: string
+    description: string
     enabled: Boolean
     pointId: number
+    pointTypeName: string
+    pointTypeDescription: string
+    pointTypeValue: number
     singleUse: Boolean
+    dynamicLink: string
+    claimedCount:number
 
-    constructor(id: String, archived: Boolean, creatorId: String, description: String, 
-        enabled: Boolean, pointId: number, singleUse: Boolean){
+    constructor(id: string, archived: Boolean, creatorId: string, claimedCount: number, description: string, 
+        enabled: Boolean, pointId: number, pointTypeName: string, pointTypeDescription: string, pointTypeValue: number, singleUse: Boolean, dynamicLink:string = ""){
         this.id = id
         this.archived = archived
         this.creatorId = creatorId
+        this.claimedCount = claimedCount
         this.description = description
         this.enabled = enabled
         this.pointId = pointId
         this.singleUse = singleUse
+        this.pointTypeName = pointTypeName
+        this.pointTypeDescription = pointTypeDescription
+        this.pointTypeValue = pointTypeValue
+        this.dynamicLink = dynamicLink
     }
 
     public toFirebaseJson(){
-        const map = {};
-        map[Link.ARCHIVED] = this.archived;
-        map[Link.CREATOR_ID] = this.creatorId;
-        map[Link.DESCRIPTION] = this.description;
-        map[Link.ENABLED] = this.enabled;
-        map[Link.POINT_ID] = this.pointId;
-        map[Link.SINGLE_USE] = this.singleUse;
+        const map = {}
+        map[Link.ARCHIVED] = this.archived
+        map[Link.CREATOR_ID] = this.creatorId
+        map[Link.CLAIMED_COUNT] = this.claimedCount
+        map[Link.DESCRIPTION] = this.description
+        map[Link.ENABLED] = this.enabled
+        map[Link.POINT_ID] = this.pointId
+        map[Link.SINGLE_USE] = this.singleUse
+        map[Link.POINT_TYPE_NAME] = this.pointTypeName
+        map[Link.POINT_TYPE_DESCRIPTION] = this.pointTypeDescription
+        map[Link.POINT_TYPE_VALUE] = this.pointTypeValue
+        map[Link.DYNAMIC_LINK] = this.dynamicLink
         return map;
     }
 
-    public updateLinkFromData(data: any){
-        if("is_archived" in data){
-            this.archived = data["is_archived"]
-        }
-        if("is_enabled" in data){
-            this.enabled = data["is_enabled"]
-        }
-        if("creator_id" in data){
-            this.creatorId = data["creator_id"]
-        }
-        if("description" in data){
-            this.description = data["description"]
-        }
-        if("point_id" in data){
-            this.pointId = data["point_id"]
-        }
-        if("single_use" in data){
-            this.singleUse = data["single_use"]
-        }
+    public updateDynamicLinkJson(){
+        const map = {}
+        map[Link.DYNAMIC_LINK] = this.dynamicLink
+        return map;
+    }
+
+    public updateClaimedCountJson(){
+        const map = {}
+        map[Link.CLAIMED_COUNT] = this.claimedCount
+        return map;
     }
     
 
-    public static fromQuerySnapshotDocument(document: FirebaseFirestore.QueryDocumentSnapshot) {
-        return this.fromDocumentData(document.id, document.data())
+    public static fromQuerySnapshot(snapshot: FirebaseFirestore.QuerySnapshot): Link[] {
+        const links: Link[] = []
+        for( const document of snapshot.docs){
+            links.push(this.fromDocumentData( document.id, document.data()))
+        }
+        return links;
     }
 
-    public static fromSnapshotDocument(document: FirebaseFirestore.DocumentSnapshot) {
+    public static fromSnapshotDocument(document: FirebaseFirestore.DocumentSnapshot): Link {
         
         return this.fromDocumentData(document.id, document.data()!)
     }
 
-    private static fromDocumentData(docId: string, document: FirebaseFirestore.DocumentData){
-        let id: String
+    private static fromDocumentData(docId: string, document: FirebaseFirestore.DocumentData) : Link{
+        let id: string
         let archived: Boolean
-        let creatorId: String
-        let description: String
+        let creatorId: string
+        let claimedCount: number
+        let description: string
         let enabled: Boolean
         let pointId: number
+        let pointTypeName: string
+        let pointTypeDescription: string
+        let pointTypeValue: number
         let singleUse: Boolean
+        let dynamicLink: string
 
         id = docId;
         if(Link.ARCHIVED in document) {
@@ -91,6 +111,13 @@ export class Link {
         }
         else {
             creatorId = ""
+        }
+
+        if(Link.CLAIMED_COUNT in document) {
+            claimedCount = document[Link.CLAIMED_COUNT]
+        }
+        else{
+            claimedCount = 0
         }
 
         if(Link.DESCRIPTION in document) {
@@ -120,6 +147,36 @@ export class Link {
         else {
             singleUse = false;
         }
-        return new Link(id, archived, creatorId, description, enabled, pointId, singleUse);
+
+        if(Link.POINT_TYPE_NAME in document) {
+            pointTypeName = document[Link.POINT_TYPE_NAME]
+        }
+        else{
+            pointTypeName = "Undefined"
+        }
+
+        if(Link.POINT_TYPE_DESCRIPTION in document) {
+            pointTypeDescription = document[Link.POINT_TYPE_DESCRIPTION]
+        }
+        else{
+            pointTypeDescription = "Undefined"
+        }
+
+        if(Link.POINT_TYPE_VALUE in document) {
+            pointTypeValue = document[Link.POINT_TYPE_VALUE]
+        }
+        else{
+            pointTypeValue = -1
+        }
+
+        if(Link.DYNAMIC_LINK in document) {
+            dynamicLink = document[Link.DYNAMIC_LINK]
+        }
+        else{
+            dynamicLink = "Undefined"
+        }
+
+
+        return new Link(id, archived, creatorId, claimedCount, description, enabled, pointId, pointTypeName, pointTypeDescription, pointTypeValue, singleUse, dynamicLink);
     }
 }

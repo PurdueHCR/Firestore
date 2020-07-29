@@ -20,8 +20,25 @@ export class APIResponse{
         return this.code+": "+this.message
     }
 
+    /**
+     * 200 - Success
+     */
     static Success(): APIResponse {
         return new APIResponse(APIResponse.SUCCESS_CODE, "Success")
+    }
+
+    /**
+     * 201 - Success Awaits Approval
+     */
+    static SuccessAwaitsApproval(): APIResponse {
+        return new APIResponse(201, "Success")
+    }
+
+    /**
+     * 202 - Success And Approved
+     */
+    static SuccessAndApproved(): APIResponse {
+        return new APIResponse(202, "Success")
     }
 
     /**
@@ -57,8 +74,40 @@ export class APIResponse{
     }
 
     /**
+     * 405 - The The provided one time code is either invalid or has expired.
+     * Epired or Invlaid one time code
+     */
+    static InvalidOneTimeCode(): APIResponse {
+        return new APIResponse(405, "The provided one time code is either invalid or has expired.")
+    }
+
+    /**
+     * 406 - Link is Not Enabled
+     * The Link is not enabled. It must be turned on by the owner.
+     */
+    static LinkIsNotEnabled(): APIResponse {
+        return new APIResponse(407, "This link is not currently enabled. Talk to whoever gave you this link about enabling it.")
+    }
+
+    /**
+     * 407 - Link Does not belong to current user
+     * The Link/QR code does not belong to the current user so it can not be edited
+     */
+    static LinkDoesntBelongToUser(): APIResponse {
+        return new APIResponse(407, "The Link does not belong to the current user")
+    }
+
+    /**
+     * 408 - The Link does not exist
+     * The Link/QR-code id does not exist
+     */
+    static LinkDoesntExist(): APIResponse {
+        return new APIResponse(408, "The Link Could not be found")
+    }
+
+    /**
      * 409 - This Link Has Already Been Submitted
-     * The Link/QR code which was scanned is a single use code and this user has already scanned it
+     * The Link/QR-code which was scanned is a single use code and this user has already scanned it
      */
     static LinkAlreadySubmitted(): APIResponse {
         return new APIResponse(409, "This Link Has Already Been Submitted")
@@ -70,6 +119,14 @@ export class APIResponse{
      */
     static HouseCodeDoesNotExist(): APIResponse {
         return new APIResponse(410, "House Code Does Not Exist")
+    }
+
+    /**
+     * 411 - Could Not Send Email
+     * There was an error sending the email
+     */
+    static CouldNotSendEmail(): APIResponse {
+        return new APIResponse(411, "Failed to send Email")
     }
 
     /**
@@ -86,6 +143,22 @@ export class APIResponse{
      */
     static UnknownPointLog(): APIResponse {
         return new APIResponse(413, "Unkown PointLog")
+    }
+
+    /**
+     * 414 - House Competition Must Be Disabled
+     * The House Competition must be disabled to perform this action
+     */
+    static CompetitionMustBeDisabled(): APIResponse {
+        return new APIResponse(414, "The House Competition must be disabled to perform this action")
+    }
+
+    /**
+     * 415 - Unknown House Code Id
+     * There is no House Code with the provided id. Make sure you use the Id field of the House Code and not the code field.
+     */
+    static UnknownHouseCodeId(): APIResponse {
+        return new APIResponse(415, "There is no House Code with the provided id. Make sure you use the Id field of the House Code and not the code field.")
     }
 
     /**
@@ -174,6 +247,45 @@ export class APIResponse{
      */
     static IncorrectFormat(): APIResponse {
         return new APIResponse(426, "Data provided is in the incorrect format.")
+    }
+
+    /**
+     * 427 - Can Not Post Message
+     * The user can not post a message to this point log
+     */
+    static CanNotPostMessage(): APIResponse {
+        return new APIResponse(427, "You are not allowed to post a message to this submission.")
+    }
+
+    /**
+     * 428 - Invalid Floor Id
+     * The floor id does not exist with the house that the user belongs to.
+     */
+    static InvalidFloorId(): APIResponse {
+        return new APIResponse(428, "The floor id does not exist with the house that the user belongs to.")
+    }
+    /**
+     * 430 - Insufficient Permission Level For Create a Link with that Point Type
+     * The point type  
+     */
+    static InsufficientPointTypePermissionForLink(): APIResponse {
+        return new APIResponse(430, "User does not have sufficient permissions to use that Point Type in a Link.")
+    }
+
+    /**
+     * 431 - Can Not Access Point Log
+     * This user does not have the corrent ownership or permission to access this point log
+     */
+    static CanNotAccessPointLog(): APIResponse {
+        return new APIResponse(431, "This user does not have the corrent ownership or permission to access this point log.")
+    }
+
+    /**
+     * 470 - Reward Already Exists
+     * A reward with that id already exists.
+     */
+    static RewardAlreadyExists(): APIResponse {
+        return new APIResponse(470, "A reward with that id already exists.")
     }
 
     /**

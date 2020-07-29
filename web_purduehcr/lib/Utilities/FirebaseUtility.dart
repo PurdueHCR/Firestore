@@ -1,11 +1,9 @@
 
-import 'dart:html';
-
-import 'package:firebase/firebase.dart' as fb;
 import 'package:firebase/firebase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/Config.dart';
+import 'package:firebase/firebase.dart' as fb;
 
 
 class FirebaseUtility{
@@ -14,10 +12,9 @@ class FirebaseUtility{
 
 
   static Future<void> initializeFirebase(Config config){
-    if(fb.apps.isEmpty ){
-      debugPrint("No App, so initialize Firebase");
+    if(apps.isEmpty ){
       try {
-        app = fb.initializeApp(
+        app = initializeApp(
             apiKey: config.apiKey,
             authDomain: config.authDomain,
             databaseURL: config.databaseURL,
@@ -27,7 +24,7 @@ class FirebaseUtility{
       catch (err){
         debugPrint("We are ignoring this error");
       }
-      return fb.auth().setPersistence(fb.Persistence.SESSION);
+      return auth().setPersistence(Persistence.SESSION);
     }
     else{
       return Future.value();
@@ -41,7 +38,6 @@ class FirebaseUtility{
         await FirebaseAuth.instance.signInWithEmailAndPassword(email:email, password: password);
       }
       catch(error){
-        window.console.log("Sign in error code: ${error.code}");
         String errorMessage;
         switch (error.code) {
           case "auth/invalid-email":
@@ -62,8 +58,15 @@ class FirebaseUtility{
           case "auth/operation-not-allowed":
             errorMessage = "Signing in with Email and Password is not enabled.";
             break;
+          case "auth/id-token-revoked":
+          case "auth/id-token-expired":
+            print("The app's auth token is expired. This is bad. Please contact the Honors College Development Committee about updating the auth token.");
+            errorMessage = "Uh oh, there was a problem. Please try again later.";
+            break;
           default:
-            errorMessage = error.toString();
+            print("There was an unknown problem with the connection to Google's server. If the problem persists, please send this code to the Honors College Development Committee: ${error.code}");
+            errorMessage = "Uh oh, there was a problem. Please try again later.";
+            break;
         }
         return Future.error(errorMessage);
       }
@@ -110,6 +113,10 @@ class FirebaseUtility{
 
   static Future<void> logout(){
     return FirebaseAuth.instance.signOut();
+  }
+
+  static Future deleteImageFromStorage(String filePath){
+    return fb.storage().ref('/').child(filePath).delete();
   }
 
 }

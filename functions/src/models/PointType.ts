@@ -10,23 +10,34 @@ export class PointType{
     static RESIDENTS_CAN_SUBMIT = "ResidentsCanSubmit"
     static VALUE = "Value"
 
-    id: String
-    description: String
-    enabled: Boolean
-    name: String
+    id: string
+    description: string
+    enabled: boolean
+    name: string
     permissionLevel: LinkCreatablePermissionLevel
-    residentCanSubmit: Boolean
+    residentsCanSubmit: boolean
     value: number
 
-    constructor(id: String, description: String, enabled: Boolean, name: String, permissionLevel: LinkCreatablePermissionLevel,
-         residentsCanSubmit: Boolean, value: number){
+    constructor(id: string, description: string, enabled: boolean, name: string, permissionLevel: LinkCreatablePermissionLevel,
+         residentsCanSubmit: boolean, value: number){
             this.id = id;
             this.description = description;
             this.enabled = enabled;
             this.name = name;
             this.permissionLevel = permissionLevel;
-            this.residentCanSubmit = residentsCanSubmit;
+            this.residentsCanSubmit = residentsCanSubmit;
             this.value = value;
+    }
+
+    firestoreJson(){
+        const data = {}
+        data[PointType.DESCRIPTION] = this.description
+        data[PointType.ENABLED] = this.enabled
+        data[PointType.NAME] = this.name
+        data[PointType.PERMISSION_LEVEL] = this.permissionLevel
+        data[PointType.RESIDENTS_CAN_SUBMIT] = this.residentsCanSubmit
+        data[PointType.VALUE] = this.value
+        return data
     }
 
     static fromQuerySnapshot(snapshot: FirebaseFirestore.QuerySnapshot): PointType[]{
@@ -46,13 +57,13 @@ export class PointType{
      * @param documentId Required because DocumentData.id is null
      * @param document 
      */
-    private static fromData(documentId: String, document: FirebaseFirestore.DocumentData){
+    private static fromData(documentId: string, document: FirebaseFirestore.DocumentData){
         const id = documentId;
         let  description = ""
         let enabled = false
         let name = ""
         let permissionLevel = 0
-        let residentCanSubmit = false
+        let residentsCanSubmit = false
         let value = 0
 
         if( PointType.DESCRIPTION in document) {
@@ -84,10 +95,10 @@ export class PointType{
         }
 
         if( PointType.RESIDENTS_CAN_SUBMIT in document) {
-            residentCanSubmit = document[PointType.RESIDENTS_CAN_SUBMIT]
+            residentsCanSubmit = document[PointType.RESIDENTS_CAN_SUBMIT]
         }
         else {
-            residentCanSubmit = false
+            residentsCanSubmit = false
         }
 
         if( PointType.VALUE in document) {
@@ -96,7 +107,7 @@ export class PointType{
         else {
             value = -1
         }
-        return new PointType(id,description,enabled,name,permissionLevel,residentCanSubmit,value);
+        return new PointType(id,description,enabled,name,permissionLevel,residentsCanSubmit,value);
     }
     
     canUserGenerateLinks(userPermissionLevel: UserPermissionLevel){

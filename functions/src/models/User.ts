@@ -1,6 +1,7 @@
 import { PointLog} from './PointLog'
-import { HouseCode } from './Housecode'
+import { HouseCode } from './HouseCode'
 import { UserPermissionLevel } from './UserPermissionLevel'
+import { UserHouseRank } from './RankArray'
 export class User {
 
     static FIRST_NAME = "FirstName"
@@ -10,6 +11,7 @@ export class User {
     static PERMISSION_LEVEL = "Permission Level"
     static SEMESTER_POINTS = "SemesterPoints"
     static TOTAL_POINTS = "TotalPoints"
+    static ENABLED = "Enabled"
 
     firstName: string
     floorId: string
@@ -18,10 +20,11 @@ export class User {
     semesterPoints: number
     permissionLevel: UserPermissionLevel
     totalPoints: number
+    enabled:boolean
     id: string
 
     constructor(firstName:string, floorId:string, house: string, lastName: string, 
-        semesterPoints: number, permissionLevel: UserPermissionLevel, totalPoints: number, id:string){
+        semesterPoints: number, permissionLevel: UserPermissionLevel, totalPoints: number, enabled:boolean, id:string){
             this.firstName = firstName
             this.floorId = floorId
             this.house = house
@@ -29,15 +32,22 @@ export class User {
             this.semesterPoints = semesterPoints
             this.permissionLevel = permissionLevel
             this.totalPoints = totalPoints
+            this.enabled = enabled
             this.id = id
         }
 
     static fromCode(firstName: string, lastName: string, id: string, code:HouseCode){
-        return new User(firstName,code.floorId, code.house, lastName, 0, code.permissionLevel, 0, id)
+        return new User(firstName,code.floorId, code.house, lastName, 0, code.permissionLevel, 0, true, id)
     } 
 
     getFullName(): string {
         return this.firstName + " " + this.lastName
+    }
+
+    getSemesterUpdate(){
+        const data = {}
+        data[User.SEMESTER_POINTS] = 0
+        return data
     }
 
     /**
@@ -47,6 +57,13 @@ export class User {
         return this.permissionLevel === UserPermissionLevel.RESIDENT || 
             this.permissionLevel === UserPermissionLevel.RHP || 
             this.permissionLevel === UserPermissionLevel.PRIVILEGED_RESIDENT
+    }
+
+    /**
+     * Retrieve a model to use to update House/Details/UserRank
+     */
+    getHouseRankModel(): UserHouseRank {
+        return new UserHouseRank(this.id, this.firstName, this.lastName, this.totalPoints,this.semesterPoints)
     }
 
     /**
@@ -79,6 +96,7 @@ export class User {
         let semesterPoints: number
         let permissionLevel: UserPermissionLevel
         let totalPoints: number
+        let enabled: boolean
         let id: string
 
         id = docId
@@ -132,8 +150,16 @@ export class User {
         else{
             totalPoints = 0
         }
+
+        if( User.ENABLED in documentData){
+            enabled = documentData[User.ENABLED]
+        }
+        else{
+            enabled = true
+        }
+
         return new User(firstName,floorId,house,lastName
-            ,semesterPoints,permissionLevel,totalPoints,id)
+            ,semesterPoints,permissionLevel,totalPoints,enabled, id)
     }
 
     toFirestoreJson(){
@@ -145,20 +171,7 @@ export class User {
         data[User.PERMISSION_LEVEL] = this.permissionLevel
         data[User.TOTAL_POINTS] = this.totalPoints
         data[User.SEMESTER_POINTS] = this.semesterPoints
-        
-        return data
-    }
-
-
-    toJson(){
-        const data = {}
-        data[User.FIRST_NAME]= this.firstName
-        data[User.FLOOR_ID] = this.floorId
-        data[User.HOUSE] = this.house
-        data[User.LAST_NAME] = this.lastName
-        data[User.PERMISSION_LEVEL] = this.permissionLevel
-        data[User.TOTAL_POINTS] = this.totalPoints
-        data[User.SEMESTER_POINTS] = this.semesterPoints
+        data[User.ENABLED] = this.enabled
         
         return data
     }
@@ -169,6 +182,10 @@ export class User {
         data[User.TOTAL_POINTS] = this.totalPoints
         data[User.SEMESTER_POINTS] = this.semesterPoints
         return data
+    }
+
+    toString() : string {
+        return `${this.firstName} ${this.lastName} has permission of ${this.permissionLevel}`
     }
 
 }

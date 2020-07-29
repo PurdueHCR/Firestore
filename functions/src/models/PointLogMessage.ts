@@ -41,8 +41,12 @@ export class PointLogMessage {
         return new PointLogMessage(new Date(), "Preapproved", MessageType.APPROVE, "PurdueHCR", "", UserPermissionLevel.RHP)
     }
 
-    static fromQueryDocumentSnapshot(queryDocument: FirebaseFirestore.QueryDocumentSnapshot): PointLogMessage {
-        return this.fromData(queryDocument.data())
+    static fromQuerySnapshot(snapshot: FirebaseFirestore.QuerySnapshot): PointLogMessage[] {
+        const messages: PointLogMessage[] = []
+        for( const document of snapshot.docs){
+            messages.push(this.fromData(document.data()))
+        }
+        return messages;
     }
 
     private static fromData(document: FirebaseFirestore.DocumentData): PointLogMessage {
