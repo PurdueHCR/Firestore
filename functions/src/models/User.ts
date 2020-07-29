@@ -165,13 +165,19 @@ export class User {
     toFirestoreJson(){
         const data = {}
         data[User.FIRST_NAME]= this.firstName
-        data[User.FLOOR_ID] = this.floorId
-        data[User.HOUSE] = this.house
         data[User.LAST_NAME] = this.lastName
         data[User.PERMISSION_LEVEL] = this.permissionLevel
-        data[User.TOTAL_POINTS] = this.totalPoints
-        data[User.SEMESTER_POINTS] = this.semesterPoints
         data[User.ENABLED] = this.enabled
+
+        if(this.permissionLevel === UserPermissionLevel.FACULTY){
+            data[User.HOUSE] = this.house
+        }
+        else if(this.isParticipantInCompetition()){
+            data[User.HOUSE] = this.house
+            data[User.FLOOR_ID] = this.floorId
+            data[User.TOTAL_POINTS] = this.totalPoints
+            data[User.SEMESTER_POINTS] = this.semesterPoints
+        }
         
         return data
     }

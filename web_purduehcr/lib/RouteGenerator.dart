@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purduehcr_web/OverviewPage/OverviewPage.dart';
+import 'package:purduehcr_web/Account_Login_Creation/AccountPage.dart';
 import 'package:purduehcr_web/ControlsPage/ControlsPage.dart';
 import 'package:purduehcr_web/FindUsersPage/FindUsersPage.dart';
 import 'package:purduehcr_web/HandlePointsPage/HandlePointsPage.dart';
 import 'package:purduehcr_web/HistoryPage/HistoryPage.dart';
 import 'package:purduehcr_web/HouseCodePage/HouseCodePage.dart';
 import 'package:purduehcr_web/LinkPage/LinkPage.dart';
-import 'package:purduehcr_web/Account_Login_Creation/CreateAccountPage.dart';
-import 'package:purduehcr_web/Account_Login_Creation/JoinHousePage.dart';
 import 'package:purduehcr_web/MyPointsPage/MyPointsPage.dart';
-import 'package:purduehcr_web/OverviewPage/OverviewPage.dart';
-import 'package:purduehcr_web/Account_Login_Creation/LogInPage.dart';
 import 'package:purduehcr_web/RewardsPage/RewardsPage.dart';
 import 'package:purduehcr_web/SubmitPointsPage/SubmitPointsPage.dart';
 import 'package:purduehcr_web/TokenTestPage/TokenTestPage.dart';
+import 'package:purduehcr_web/UserCreation/UserCreationPage.dart';
 
 import 'package:purduehcr_web/authentication/authentication.dart';
 
@@ -26,8 +25,8 @@ class RouteGenerator {
       return BlocBuilder<AuthenticationBloc, AuthenticationState>(
           bloc: BlocProvider.of<AuthenticationBloc>(context),
           builder: (BuildContext context, AuthenticationState state) {
+            List<String> path = settings.name.split("/");
             if (state is Authenticated) {
-              List<String> path = settings.name.split("/");
               switch (path[1]) {
                 case '':
                   return HomePage();
@@ -54,6 +53,8 @@ class RouteGenerator {
                   return FindUsersPage();
                 case 'rewards':
                   return RewardsPage();
+                case 'createaccount':
+                  return HomePage();
                 case 'addpoints':
                   if(path.length == 3){
                     return HomePage(linkId: path[2],);
@@ -74,15 +75,32 @@ class RouteGenerator {
                 child: Text("Initializing"),
               );
             }
-            else {
-              switch (settings.name){
-                case '/create_account':
-                  return CreateAccountPage();
-                case '/create_user':
-                  return JoinHousePage();
-                default:
-                  return LogInPage();
+            else if (state is AuthenticatedButNoUser) {
+              print("Going to user creation page");
+              if(path.length == 3){
+                return UserCreationPage(houseCode: path[2]);
               }
+              else{
+                return UserCreationPage();
+              }
+            }
+            else if(state is ConnectionErrorState) {
+              return Center(
+                child: Text("There was an error connection to the server. Please refresh the page."),
+              );
+            }
+            else if (state is Unauthenticated){
+              if(path.length == 3){
+                return AccountPage(houseCode: path[2]);
+              }
+              else{
+                return AccountPage();
+              }
+            }
+            else {
+              return Center(
+                child: Text("There was an error with authentication. Please refresh the page."),
+              );
             }
           });
     });

@@ -28,3 +28,16 @@ class AccountError extends AccountState {
   @override
   List<Object> get props => [message];
 }
+
+class CreateAccountInitial extends AccountState {
+  const CreateAccountInitial();
+  @override
+  List<Object> get props => [];
+}
+
+class CreateAccountError extends AccountState {
+  final String message;
+  const CreateAccountError({this.message = ""});
+  @override
+  List<Object> get props => [message];
+}

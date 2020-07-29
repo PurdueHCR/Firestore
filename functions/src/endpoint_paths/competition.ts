@@ -71,8 +71,6 @@ comp_app.use(firestoreTools.validateFirebaseIdToken)
  */
 comp_app.get('/settings', async (req, res) => {
 	try{
-		const user = await getUser(req["user"]["user_id"])
-		verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
 		const systemPreferences = await getSystemPreferences();
 		
 		res.status(APIResponse.SUCCESS_CODE).send({settings:systemPreferences})

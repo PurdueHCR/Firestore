@@ -73,13 +73,30 @@ class FirebaseUtility{
     });
   }
 
-  static Future createAccount(Config config, String email, String password){
+  static Future<void> createAccount(Config config, String email, String password){
     return initializeFirebase(config).then((value) async {
       try{
         await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
       }
       catch(error){
-        return Future.error(error.code);
+        String errorMessage;
+        switch (error.code) {
+          case "auth/email-already-in-use":
+            errorMessage = "This email address is already being used";
+            break;
+          case "auth/invalid-email":
+            errorMessage = "This is not a valid email";
+            break;
+          case "auth/operation-not-allowed":
+            errorMessage = "For Some reason you cant do this? Try again later and if a problem persists, talk to an RA.";
+            break;
+          case "auth/weak-password":
+            errorMessage = "Your password is not strong enough. Please create a different one.";
+            break;
+          default:
+            errorMessage = error.toString();
+        }
+        return Future.error(errorMessage);
       }
     });
   }

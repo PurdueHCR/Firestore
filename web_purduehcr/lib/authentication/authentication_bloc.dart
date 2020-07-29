@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
 import 'package:purduehcr_web/Config.dart';
 import 'package:purduehcr_web/Models/ApiError.dart';
+import 'package:purduehcr_web/Models/SystemPreferences.dart';
 import 'package:purduehcr_web/Utilities/FirebaseUtility.dart';
 import 'package:purduehcr_web/authentication/authentication_repository.dart';
 import 'authentication.dart';
@@ -25,41 +26,54 @@ class AuthenticationBloc
   @override
   Stream<AuthenticationState> mapEventToState(AuthenticationEvent event) async* {
     if (event is AppStarted) {
+      SystemPreference preferences;
       try{
         await FirebaseUtility.initializeFirebase(config);
+        preferences = await _authenticationRepository.getSystemPreferences();
         final user = await _authenticationRepository.getUser();
-        yield Authenticated(user);
+        yield Authenticated(user, preferences: preferences);
+      }
+      on ApiError catch(apiError){
+        if(apiError.errorCode == 400){
+          yield AuthenticatedButNoUser(preferences: preferences);
+        }
+        else{
+          print("Uh oh. There was an API error: "+apiError.toString());
+          yield Unauthenticated(preferences: preferences);
+        }
       }
       catch(error){
         print("Uh oh. There was an error");
-        yield Unauthenticated();
+        yield ConnectionErrorState(preferences: preferences);
       }
     }
     else if (event is LoggedIn) {
       try{
         final user = await _authenticationRepository.getUser();
-        yield Authenticated(user);
+        yield Authenticated(user, preferences: state.preferences);
       }
       on ApiError catch(apiError){
         print("Failed to get User model with API Error. $apiError");
-        // TODO Handle No user.
-        // Right now if there is no user model, authBLoC will yield unauthenticated
-        // . However, because the previous state was Unauthenticated (thus
-        // showing the login page), the app will not actually change states, so
-        // the current login page will continue to be displayed
-        // which is currently being told to show the loading widget.
-        yield Unauthenticated();
+        yield AuthenticatedButNoUser(preferences: state.preferences, houseCode: event.houseCode);
       }
       catch(error){
         print("Failed to get User model. $error");
-        yield Unauthenticated();
+        yield ConnectionErrorState(preferences: state.preferences);
       }
 
     }
     else if (event is LoggedOut) {
-      yield AuthLoading();
-      await _authenticationRepository.logout();
-      yield Unauthenticated();
+      yield AuthLoading(preferences: state.preferences);
+      try{
+        await _authenticationRepository.logout();
+        yield Unauthenticated(preferences: state.preferences);
+      }
+      catch(error){
+        yield ConnectionErrorState(preferences: state.preferences);
+      }
+    }
+    else if (event is CreatedUser){
+      yield Authenticated(event.user, preferences: state.preferences);
     }
   }
 }

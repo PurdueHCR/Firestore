@@ -110,6 +110,69 @@
       }
     },
 
+    "/house_codes/preview" : {
+      "get" : {
+        "tags" : [ "house_codes" ],
+        "summary" : "Return the house code for the provided id and the house model if present",
+        "parameters" : [ 
+          {
+          "name" : "code",
+          "in" : "query",
+          "description" : "Code for the join house code",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "ABC123"
+          } 
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HouseCodePreview"
+                }
+              }
+            }
+          },
+          "415" : {
+            "description" : "The provided house code id does not match any code.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownHouseCodeId"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "The provided id was not in a supported format.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
     "/house_codes/refresh" : {
       "post" : {
         "tags" : [ "house_codes" ],
@@ -3012,6 +3075,17 @@
           "pointsPerResident" : {
             "type" : "number",
             "example" : 33.76
+          }
+        }
+      },
+      "HouseCodePreview" : {
+        "type" : "object",
+        "properties" : {
+          "houseCode" : {
+            "$ref" : "#/components/schemas/HouseCode"
+          },
+          "house" : {
+            "$ref" : "#/components/schemas/House"
           }
         }
       },

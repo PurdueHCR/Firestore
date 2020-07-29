@@ -27,7 +27,9 @@ class User {
   User(this.firstName,this.lastName,this.floorId,
       this.house,this.semesterPoints, this.totalPoints,this.permissionLevel, this.enabled,
       this.id){
-    fb.storage().ref(this.house.toLowerCase()+".png").getDownloadURL().then((value) => houseDownloadURL = value);
+    if(this.house != null && this.house.isNotEmpty){
+      fb.storage().ref(this.house.toLowerCase()+".png").getDownloadURL().then((value) => houseDownloadURL = value);
+    }
   }
 
   Future<Uri> getHouseDownloadURL(){
@@ -37,6 +39,10 @@ class User {
     else{
       return Future.value(houseDownloadURL);
     }
+  }
+
+  bool isCompetitionParticipant(){
+    return CompetitionParticipantsSet().contains(permissionLevel);
   }
 
   factory User.fromJson(Map<String, dynamic>  data){

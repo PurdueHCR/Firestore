@@ -57,6 +57,37 @@ class PhcrDrawer extends Drawer {
         selectedList = EA_LIST;
         break;
     }
+
+    String permissionName = UserPermissionLevelConverter.convertPermissionToString(user.permissionLevel);
+    String accountDetails = "";
+    if(user.isCompetitionParticipant()){
+      accountDetails = user.house+ " House: " +user.floorId+" "+permissionName;
+    }
+    else if(user.permissionLevel == UserPermissionLevel.FHP){
+      accountDetails = user.house+" "+permissionName;
+    }
+    else{
+      accountDetails = permissionName;
+    }
+
+    Widget houseIcon;
+    if(user.isCompetitionParticipant()){
+      houseIcon = FutureBuilder(
+        future: user.getHouseDownloadURL(),
+        builder: (context, snapshot){
+          if(snapshot.connectionState == ConnectionState.none && !snapshot.hasData){
+            return Image.asset('assets/main_icon.png');
+          }
+          else{
+            return Image.network((snapshot.data as Uri).toString());
+          }
+        },
+      );
+    }
+    else {
+      houseIcon = Image.network(BlocProvider.of<AuthenticationBloc>(context).state.preferences.defaultImageURL);
+    }
+
     return Drawer(
       elevation: this.elevation,
       child: SafeArea(
@@ -69,20 +100,13 @@ class PhcrDrawer extends Drawer {
                     color: Colors.blue,
                   ),
                   accountName: Text(user.firstName+ ' '+user.lastName),
-                  accountEmail: Text(user.house+' - '+user.floorId),
+                  accountEmail: Text(accountDetails),
                   currentAccountPicture: CircleAvatar(
                     backgroundColor: Colors.white,
-                    child: FutureBuilder(
-                      future: user.getHouseDownloadURL(),
-                      builder: (context, snapshot){
-                        if(snapshot.connectionState == ConnectionState.none && !snapshot.hasData){
-                          return Image.asset('assets/main_icon.png');
-                        }
-                        else{
-                          return Image.network((snapshot.data as Uri).toString());
-                        }
-                      },
-                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: houseIcon,
+                    )
                   ),
                 );
               }
