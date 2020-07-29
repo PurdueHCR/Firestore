@@ -14,8 +14,9 @@ class AccountBloc extends Bloc<AccountEvent, AccountState>{
   AccountRepository _accountRepository;
   final Config config;
   final AuthenticationBloc authenticationBloc;
+  final String houseCode;
 
-  AccountBloc({ @required this.config,@required this.authenticationBloc})  :
+  AccountBloc({ @required this.config,@required this.authenticationBloc, this.houseCode})  :
         assert(authenticationBloc != null){
     this._accountRepository = new AccountRepository(config);
   }
@@ -42,7 +43,7 @@ class AccountBloc extends Bloc<AccountEvent, AccountState>{
         }
         else if(event.verifyPassword == event.password){
           await _accountRepository.createAccount(event.email, event.password);
-          authenticationBloc.add(LoggedIn());
+          authenticationBloc.add(LoggedIn(houseCode: houseCode));
         }
         else{
           yield CreateAccountError(message: "Please make sure your passwords match");
@@ -62,7 +63,7 @@ class AccountBloc extends Bloc<AccountEvent, AccountState>{
       yield AccountLoading();
       try {
         await _accountRepository.loginUser(event.email, event.password);
-        authenticationBloc.add(LoggedIn());
+        authenticationBloc.add(LoggedIn(houseCode: houseCode));
       }
       on ApiError catch(apiError){
         print("GOT API ERROR: "+apiError.toString());

@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/Account_Login_Creation/account_bloc/account.dart';
 
 class LoginCard extends StatefulWidget{
 
-  final Function(AccountEvent) handleEvent;
   final String error;
 
-  const LoginCard({Key key, this.handleEvent, this.error = ""}) : super(key: key);
+  const LoginCard({Key key, this.error = ""}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -17,6 +17,17 @@ class LoginCard extends StatefulWidget{
 }
 
 class _LoginCardState extends State<LoginCard>{
+
+
+  AccountBloc _accountBloc;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _accountBloc = BlocProvider.of<AccountBloc>(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     TextEditingController emailController = TextEditingController();
@@ -84,7 +95,7 @@ class _LoginCardState extends State<LoginCard>{
                       padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
                       child: RaisedButton(
                         onPressed: (){
-                          widget.handleEvent(CreateAccountInitialize());
+                          _accountBloc.add(CreateAccountInitialize());
                         },
                         child: Text("Create an account"),
                       ),
@@ -95,7 +106,7 @@ class _LoginCardState extends State<LoginCard>{
                       padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
                       child: RaisedButton(
                         onPressed: () {
-                          widget.handleEvent(Login(email: emailController.text, password: passwordController.text));
+                          _accountBloc.add(Login(email: emailController.text, password: passwordController.text, ));
                         },
                         child:  Text("Log In"),
                       ),

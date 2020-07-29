@@ -11,6 +11,10 @@ import '../ConfigWrapper.dart';
 
 class UserCreationPage extends StatefulWidget{
 
+  final String houseCode;
+
+  const UserCreationPage({Key key, this.houseCode}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return _UserCreationPageState();
@@ -45,10 +49,15 @@ class _UserCreationPageState extends State<UserCreationPage>{
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _userCreationBloc = UserCreationBloc(
-      config: ConfigWrapper.of(context),
-      authenticationBloc: _authenticationBloc,
-    );
+    if(_userCreationBloc == null){
+      _userCreationBloc = UserCreationBloc(
+        config: ConfigWrapper.of(context),
+        authenticationBloc: _authenticationBloc,
+      );
+      if(widget.houseCode != null){
+        _userCreationBloc.add(EnterHouseCode(widget.houseCode));
+      }
+    }
   }
 
   @override

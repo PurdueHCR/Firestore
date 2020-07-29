@@ -27,7 +27,8 @@ class ConnectionErrorState extends AuthenticationState {
 }
 
 class AuthenticatedButNoUser extends AuthenticationState{
-  const AuthenticatedButNoUser({SystemPreference preferences}): super(preferences:preferences);
+  final String houseCode;
+  const AuthenticatedButNoUser({SystemPreference preferences, this.houseCode}): super(preferences:preferences);
 }
 
 class AuthLoading extends AuthenticationState {

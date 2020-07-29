@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purduehcr_web/Account_Login_Creation/account_bloc/account.dart';
 
 import 'account_bloc/account_event.dart';
 
 class CreateAccountCard extends StatefulWidget{
-  final Function(AccountEvent) handleEvent;
   final String error;
-  CreateAccountCard({Key key, this.handleEvent, this.error = ""}) : super(key: key);
+  CreateAccountCard({Key key, this.error = ""}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -24,7 +25,13 @@ class CreateAccountCardState extends State<CreateAccountCard>{
   RegExp regExp = new RegExp(
     r"[A-Z0-9a-z._%+-]+@purdue\\.edu",
   );
+  AccountBloc _accountBloc;
 
+  @override
+  void initState() {
+    super.initState();
+    _accountBloc = BlocProvider.of<AccountBloc>(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +112,7 @@ class CreateAccountCardState extends State<CreateAccountCard>{
                             padding: EdgeInsets.all(16),
                             child: RaisedButton(
                               onPressed: () {
-                                widget.handleEvent(AccountInitialize());
+                                _accountBloc.add(AccountInitialize());
                               },
                               child: Text("Back"),
                             ),
@@ -117,8 +124,8 @@ class CreateAccountCardState extends State<CreateAccountCard>{
                             padding: EdgeInsets.all(16),
                             child: RaisedButton(
                               onPressed: (){
-                                widget.handleEvent(CreateAccount(email: emailController.text, password:  pswdController.text, verifyPassword: verifyPswdController.text));
-                              },
+                                _accountBloc.add(CreateAccount(email: emailController.text, password:  pswdController.text, verifyPassword: verifyPswdController.text));
+                                },
                               child: Text("Create an account"),
                             ),
                           )

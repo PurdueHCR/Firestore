@@ -25,8 +25,8 @@ class RouteGenerator {
       return BlocBuilder<AuthenticationBloc, AuthenticationState>(
           bloc: BlocProvider.of<AuthenticationBloc>(context),
           builder: (BuildContext context, AuthenticationState state) {
+            List<String> path = settings.name.split("/");
             if (state is Authenticated) {
-              List<String> path = settings.name.split("/");
               switch (path[1]) {
                 case '':
                   return HomePage();
@@ -53,6 +53,8 @@ class RouteGenerator {
                   return FindUsersPage();
                 case 'rewards':
                   return RewardsPage();
+                case 'createaccount':
+                  return HomePage();
                 case 'addpoints':
                   if(path.length == 3){
                     return HomePage(linkId: path[2],);
@@ -75,15 +77,30 @@ class RouteGenerator {
             }
             else if (state is AuthenticatedButNoUser) {
               print("Going to user creation page");
-              return UserCreationPage();
+              if(path.length == 3){
+                return UserCreationPage(houseCode: path[2]);
+              }
+              else{
+                return UserCreationPage();
+              }
             }
             else if(state is ConnectionErrorState) {
               return Center(
                 child: Text("There was an error connection to the server. Please refresh the page."),
               );
             }
+            else if (state is Unauthenticated){
+              if(path.length == 3){
+                return AccountPage(houseCode: path[2]);
+              }
+              else{
+                return AccountPage();
+              }
+            }
             else {
-              return AccountPage();
+              return Center(
+                child: Text("There was an error with authentication. Please refresh the page."),
+              );
             }
           });
     });

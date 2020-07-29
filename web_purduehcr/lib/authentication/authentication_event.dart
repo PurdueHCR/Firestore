@@ -10,7 +10,6 @@ abstract class AuthenticationEvent extends Equatable {
 }
 
 class AppStarted extends AuthenticationEvent {
-
   const AppStarted();
 
   @override
@@ -18,17 +17,18 @@ class AppStarted extends AuthenticationEvent {
 }
 
 class LoggedIn extends AuthenticationEvent {
-
-  const LoggedIn();
+  final String houseCode;
+  const LoggedIn({this.houseCode});
 
   @override
   List<Object> get props => [];
 
 }
 
-class CreatedAccount extends AuthenticationEvent {
+//Created account and joined house and is ready to move on
+class CreatedUser extends AuthenticationEvent {
   final User user;
-  const CreatedAccount(this.user);
+  const CreatedUser(this.user);
 
   @override
   List<Object> get props => [];

@@ -1,4 +1,3 @@
-import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,7 +13,8 @@ import 'package:purduehcr_web/authentication/authentication.dart';
 
 class AccountPage extends StatefulWidget {
 
-  AccountPage({Key key}) : super(key: key);
+  final String houseCode;
+  AccountPage({Key key, this.houseCode}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -43,6 +43,7 @@ class _AccountPageState extends State<AccountPage> {
       _loginBloc = AccountBloc(
         config: ConfigWrapper.of(context),
         authenticationBloc: _authenticationBloc,
+        houseCode: widget.houseCode
       );
       _loginBloc.add(AccountInitialize());
     }
@@ -96,33 +97,29 @@ class _AccountPageState extends State<AccountPage> {
       child = _createLoadingCard();
     }
     else if(state is AccountError){
-      child = LoginCard(
-        handleEvent: (AccountEvent event){
-          _loginBloc.add(event);
-        },
-        error: state.message
+      child = BlocProvider(
+        builder: (BuildContext context) => _loginBloc,
+        child: LoginCard(
+            error: state.message
+        )
       );
     }
     else if(state is CreateAccountError){
-      child = CreateAccountCard(
-          handleEvent: (AccountEvent event){
-            _loginBloc.add(event);
-          },
-          error: state.message
+      child = BlocProvider(
+          builder: (BuildContext context) => _loginBloc,
+          child: CreateAccountCard(error: state.message)
       );
     }
     else if(state is CreateAccountInitial){
-      child = CreateAccountCard(
-        handleEvent: (AccountEvent event){
-          _loginBloc.add(event);
-        },
+      child = BlocProvider(
+        builder: (BuildContext context) => _loginBloc,
+          child: CreateAccountCard()
       );
     }
     else {
-      child = LoginCard(
-        handleEvent: (AccountEvent event){
-        _loginBloc.add(event);
-        },
+      child = BlocProvider(
+          builder: (BuildContext context) => _loginBloc,
+          child: LoginCard()
       );
     }
     return Center(

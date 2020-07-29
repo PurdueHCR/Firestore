@@ -50,7 +50,7 @@ class UserCreationBloc extends Bloc<UserCreationEvent, UserCreationState>{
       yield LoadingUserCreationInformation();
       try{
         User user = await _userCreationRepository.joinHouse(event.houseCode, event.firstName, event.lastName);
-        authenticationBloc.add(CreatedAccount(user));
+        authenticationBloc.add(CreatedUser(user));
       }
       on ApiError catch(error){
         print("Got an API error: "+error.toString());

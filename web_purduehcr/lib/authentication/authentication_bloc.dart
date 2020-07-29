@@ -54,7 +54,7 @@ class AuthenticationBloc
       }
       on ApiError catch(apiError){
         print("Failed to get User model with API Error. $apiError");
-        yield AuthenticatedButNoUser(preferences: state.preferences);
+        yield AuthenticatedButNoUser(preferences: state.preferences, houseCode: event.houseCode);
       }
       catch(error){
         print("Failed to get User model. $error");
@@ -72,7 +72,7 @@ class AuthenticationBloc
         yield ConnectionErrorState(preferences: state.preferences);
       }
     }
-    else if (event is CreatedAccount){
+    else if (event is CreatedUser){
       yield Authenticated(event.user, preferences: state.preferences);
     }
   }
