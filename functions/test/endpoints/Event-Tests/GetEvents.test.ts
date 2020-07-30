@@ -48,6 +48,8 @@ describe('event/get', () => {
         await FirestoreDataFactory.setHouseCode(db, HOUSE_CODE_1)
         await FirestoreDataFactory.setHouse(db, HOUSE_NAME_2)
         await FirestoreDataFactory.setHouseCode(db, HOUSE_CODE_2)
+
+        await FirestoreDataFactory.setEvent
     })
 
     beforeEach(async () => {
