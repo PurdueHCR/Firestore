@@ -104,46 +104,33 @@ comp_app.get('/settings', async (req, res) => {
  */
 comp_app.put('/settings', async (req, res) => {
 	try{
-		if(req.body === undefined || 
-			(req.body.competitionHiddenMessage === undefined && !("isCompetitionVisible" in req.body) && req.body.competitionDisabledMessage === undefined && !("isCompetitionEnabled" in req.body)))
+		if(req.body === undefined || req.body === null)
 			throw APIResponse.MissingRequiredParameters()
 
-		const competitionHiddenMessage = req.body.competitionHiddenMessage
-		const competitionDisabledMessage = req.body.competitionDisabledMessage
 		const user = await getUser(req["user"]["user_id"])
 		verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
 		const systemPreferences = await getSystemPreferences();
 		
-		if(competitionHiddenMessage !== undefined){
-			if(typeof competitionHiddenMessage === 'string')
-			systemPreferences.competitionHiddenMessage = competitionHiddenMessage
-			else
-				throw APIResponse.IncorrectFormat()
-		}
 		if("isCompetitionVisible" in req.body){
-			console.log(typeof req.body.isCompetitionVisible)
-			if(req.body.isCompetitionVisible === 'false' || req.body.isCompetitionVisible === 'true')
-				systemPreferences.isCompetitionVisible = req.body.isCompetitionVisible === 'true'
-			else if(req.body.isCompetitionVisible === true || req.body.isCompetitionVisible === false){
-				systemPreferences.isCompetitionVisible = req.body.isCompetitionVisible
-			}
-			else
-				throw APIResponse.IncorrectFormat()
+			systemPreferences.isCompetitionVisible = ParameterParser.parseInputForBoolean(req.body.isCompetitionVisible)
 		}
-		if(competitionDisabledMessage !== undefined){
-			if(typeof competitionDisabledMessage === 'string')
-			systemPreferences.competitionDisabledMessage = competitionDisabledMessage
-			else
-				throw APIResponse.IncorrectFormat()
+
+		if("competitionHiddenMessage" in req.body){
+			systemPreferences.competitionHiddenMessage = ParameterParser.parseInputForString(req.body.competitionHiddenMessage)
 		}
+
+		if("isShowingRewards" in req.body){
+			systemPreferences.showRewards = ParameterParser.parseInputForBoolean(req.body.isShowingRewards)
+		}
+
 		if( "isCompetitionEnabled"  in req.body){
-			if(req.body.isCompetitionEnabled === 'false' || req.body.isCompetitionEnabled === 'true')
-				systemPreferences.isCompetitionEnabled = req.body.isCompetitionEnabled === 'true'
-			else if(req.body.isCompetitionEnabled === false || req.body.isCompetitionEnabled === true)
-				systemPreferences.isCompetitionEnabled = req.body.isCompetitionEnabled
-			else
-				throw APIResponse.IncorrectFormat()
+			systemPreferences.isCompetitionEnabled = ParameterParser.parseInputForBoolean(req.body.isCompetitionEnabled)
 		}
+
+		if("competitionDisabledMessage" in req.body){
+			systemPreferences.competitionDisabledMessage = ParameterParser.parseInputForString(req.body.competitionDisabledMessage)
+		}
+
 		await updateSystemPreferences(systemPreferences)
 		
 		throw APIResponse.Success()

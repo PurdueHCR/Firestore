@@ -22,9 +22,10 @@ class UpdateSettings extends ControlEvent {
   final String competitionDisabledMessage;
   final bool isCompetitionVisible;
   final String competitionHiddenMessage;
-  const UpdateSettings({this.isCompetitionEnabled, this.competitionDisabledMessage, this.isCompetitionVisible, this.competitionHiddenMessage});
+  final bool isShowingRewards;
+  const UpdateSettings({this.isCompetitionEnabled, this.competitionDisabledMessage, this.isCompetitionVisible, this.competitionHiddenMessage, this.isShowingRewards});
   @override
-  List<Object> get props => [isCompetitionEnabled, competitionDisabledMessage, isCompetitionVisible, competitionHiddenMessage];
+  List<Object> get props => [isCompetitionEnabled, competitionDisabledMessage, isCompetitionVisible, competitionHiddenMessage, isShowingRewards];
 }
 
 class RequestBackup extends ControlEvent {

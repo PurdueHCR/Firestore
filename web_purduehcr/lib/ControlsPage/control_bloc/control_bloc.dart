@@ -41,7 +41,8 @@ class ControlBloc extends Bloc<ControlEvent, ControlState>{
           isCompetitionEnabled: event.isCompetitionEnabled,
           competitionDisabledMessage: event.competitionDisabledMessage,
           isCompetitionVisible: event.isCompetitionVisible,
-          competitionHiddenMessage: event.competitionHiddenMessage
+          competitionHiddenMessage: event.competitionHiddenMessage,
+          isShowingRewards: event.isShowingRewards
         );
       }
       on ApiError catch(apiError){
@@ -58,6 +59,9 @@ class ControlBloc extends Bloc<ControlEvent, ControlState>{
           }
           if(event.isCompetitionEnabled != null) {
             state.settings.isCompetitionEnabled = event.isCompetitionEnabled;
+          }
+          if(event.isShowingRewards != null){
+            state.settings.showRewards = event.isShowingRewards;
           }
           yield ControlLoaded(state.settings);
         }

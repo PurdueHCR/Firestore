@@ -11,6 +11,7 @@ class SystemPreference {
   static const String DEFAULT_IMAGE_URL = "defaultImageURL";
   static const String DEFAULT_IMAGE_NAME = "defaultImageName";
   static const String HOUSE_IDS = "houseIds";
+  static const String SHOW_REWARDS = "showRewards";
 
   bool isCompetitionEnabled;
   bool isCompetitionVisible;
@@ -18,10 +19,11 @@ class SystemPreference {
   String competitionHiddenMessage;
   String defaultImageURL;
   String defaultImageName;
+  bool showRewards;
   List<String> houseIds;
 
 
-  SystemPreference({this.isCompetitionEnabled, this.isCompetitionVisible, this.competitionDisabledMessage, this.competitionHiddenMessage, this.defaultImageName, this.defaultImageURL, this.houseIds});
+  SystemPreference({this.isCompetitionEnabled, this.isCompetitionVisible, this.competitionDisabledMessage, this.competitionHiddenMessage, this.defaultImageName, this.defaultImageURL, this.houseIds, this.showRewards});
 
   factory SystemPreference.fromJson(Map<String, dynamic> json){
 
@@ -39,7 +41,8 @@ class SystemPreference {
         competitionHiddenMessage: json[COMPETITION_HIDDEN_MESSAGE],
         defaultImageName: json[DEFAULT_IMAGE_NAME],
         defaultImageURL: json[DEFAULT_IMAGE_URL],
-        houseIds: houses
+        houseIds: houses,
+        showRewards: json[SHOW_REWARDS]
     );
   }
 
