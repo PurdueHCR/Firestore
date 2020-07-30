@@ -132,7 +132,7 @@ describe('Post point_log/messages', async ()  => {
         })
     })
 
-    it('Proffesional staff cant post message', async(done) => {
+    it.skip('Proffesional staff cant post message', async(done) => {
         const body = {log_id: RESIDENT_COPP+"_LOG_1", message:"Test message"}
         const res = factory.post(point_log_func, "/messages", body, REC_ID)
         res.end(async function (err, res) {
