@@ -43,19 +43,31 @@ export class House {
         data[House.FLOOR_IDS] = this.floorIds
         data[House.DOWNLOAD_URL] = this.downloadURL
         data[House.DESCRIPTION] = this.description
-        data[House.HOUSE_AWARDS] = this.houseAwards
+        data[House.HOUSE_AWARDS] = this.serializeHouseAwards()
         return data
     }
 
     updateHouseJson(){
+        const houseAwardsData:any[] = []
+        this.houseAwards.forEach((item) => {
+            houseAwardsData.push(item.toFirestoreJson())
+        })
         const data = {}
         data[House.COLOR] = this.color
         data[House.NUMBER_OF_RESIDENTS] = this.numberOfResidents
         data[House.FLOOR_IDS] = this.floorIds
         data[House.DOWNLOAD_URL] = this.downloadURL
         data[House.DESCRIPTION] = this.description
-        data[House.HOUSE_AWARDS] = this.houseAwards
+        data[House.HOUSE_AWARDS] = this.serializeHouseAwards()
         return data
+    }
+
+    serializeHouseAwards():any[] {
+        const houseAwardsData:any[] = []
+        this.houseAwards.forEach((item) => {
+            houseAwardsData.push(item.toFirestoreJson())
+        })
+        return houseAwardsData
     }
 
     /**
@@ -64,12 +76,7 @@ export class House {
     toPointUpdateJson() {
         const data = {}
         data[House.TOTAL_POINTS] = this.totalPoints
-        const houseAwards:any[] = []
-        this.houseAwards.forEach((item) => {
-            houseAwards.push(item.toFirestoreJson())
-        })
-        data[House.HOUSE_AWARDS] = houseAwards
-        console.log(JSON.stringify(houseAwards))
+        data[House.HOUSE_AWARDS] = this.serializeHouseAwards()
         return data
     }
 

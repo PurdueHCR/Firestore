@@ -2,12 +2,16 @@ import { HouseCompetition } from "../models/HouseCompetition"
 import { APIResponse } from "../models/APIResponse"
 import { User } from "../models/User"
 import * as admin from 'firebase-admin'
+import { SystemPreference } from "../models/SystemPreference"
+import { getHouseByName } from "./GetHouses"
+import { getRankArray } from "./GetRankArray"
+import { updateHouseRankArray} from './UpdateHouseRankArray'
 
 /**
  * Reset all of the user's semster points
  * @throws 500 - Server Error 
  */
-export async function saveAndResetSemester() : Promise<void>{
+export async function saveAndResetSemester(systemPreferences:SystemPreference) : Promise<void>{
 	const db = admin.firestore()
 	try {
         //Get all users with a floor id (this will be residents, rhps, and prib)
@@ -29,6 +33,19 @@ export async function saveAndResetSemester() : Promise<void>{
             }
         }
         await batch.commit()
+
+        //Get the Rank document in all of the houses to set semester scores
+        for(const house_id of systemPreferences.houseIds){
+            const house = await getHouseByName(house_id)
+            const rankArray = await getRankArray(house)
+            if(rankArray.users.length === 0){
+                continue
+            }
+            for(const user of rankArray.users){
+                user.semesterPoints = 0
+            }
+            await updateHouseRankArray(house,rankArray)
+        }
 
     }
 	catch (err) {

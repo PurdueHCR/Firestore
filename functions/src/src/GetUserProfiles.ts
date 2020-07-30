@@ -22,25 +22,27 @@ export async function getResidentProfile(user:User): Promise<ResidentProfile>{
 	verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP, UserPermissionLevel.RESIDENT, UserPermissionLevel.PRIVILEGED_RESIDENT])
 	const data:any = {}
 	const systemPreferences = await getSystemPreferences()
-	if(systemPreferences.isCompetitionVisible){
-		
-		const houses = await getAllHouses()
-		let user_house: House = houses[0]
-		for(const house of houses){
-			if(house.id === user.house){
-				user_house = house
-				break
-			}
+	const houses = await getAllHouses()
+	let user_house: House = houses[0]
+	for(const house of houses){
+		if(house.id === user.house){
+			user_house = house
+			break
 		}
-		
-		data.user_rank = await getRank(user)
-		data.next_reward = await getNextRewardForHouse(user_house)
-		data.houses = houses
 	}
-	else{
+	data.user_house = user_house
+	data.user_rank = await getRank(user)
+	data.next_reward = await getNextRewardForHouse(user_house)
+	data.houses = houses
+
+	if(!systemPreferences.isCompetitionVisible){
 		data.user_rank = {}
 		data.next_reward = {}
 		data.houses = []
+	}
+
+	if(!systemPreferences.showRewards){
+		data.next_reward = {}
 	}
 
 	data.last_submissions = await getPointLogsForUser(user, 5)
@@ -66,26 +68,27 @@ export async function getRHPProfile(user:User): Promise<RHPProfile>{
 	verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP])
 	const data:RHPProfile = {}
 	const systemPreferences = await getSystemPreferences()
-	if(systemPreferences.isCompetitionVisible){
-		
-		const houses = await getAllHouses()
-		let user_house: House = houses[0]
-		for(const house of houses){
-			if(house.id === user.house){
-				user_house = house
-				break
-			}
+	const houses = await getAllHouses()
+	let user_house: House = houses[0]
+	for(const house of houses){
+		if(house.id === user.house){
+			user_house = house
+			break
 		}
-		
-		data.user_rank = await getRank(user)
-		data.next_reward = await getNextRewardForHouse(user_house)
-		
-		data.houses = houses
 	}
-	else{
+	data.user_house = user_house
+	data.user_rank = await getRank(user)
+	data.next_reward = await getNextRewardForHouse(user_house)
+	data.houses = houses
+
+	if(!systemPreferences.isCompetitionVisible){
 		data.user_rank = {}
 		data.next_reward = {}
 		data.houses = []
+	}
+
+	if(!systemPreferences.showRewards){
+		data.next_reward = {}
 	}
 
 	data.house_codes = await getViewableHouseCodes(user)

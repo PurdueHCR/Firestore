@@ -28,9 +28,10 @@ class ResidentOverviewLoaded extends OverviewState {
   final List<PointLog> logs;
   final Reward reward;
   final List<House> houses;
+  final House myHouse;
   final Key key;
 
-  const ResidentOverviewLoaded({@required this.rank, @required this.logs, @required this.reward, @required this.houses, this.key});
+  const ResidentOverviewLoaded({@required this.rank, @required this.logs, @required this.reward, @required this.houses, @required this.myHouse, this.key});
   @override
   List<Object> get props => [rank, logs, reward, houses, key];
 }
@@ -40,10 +41,11 @@ class RHPOverviewLoaded extends OverviewState {
   final List<PointLog> logs;
   final Reward reward;
   final List<House> houses;
+  final House myHouse;
   final List<HouseCode> houseCodes;
   final Key key;
 
-  const RHPOverviewLoaded({@required this.rank, @required this.logs, @required this.reward, @required this.houses, @required this.houseCodes, this.key});
+  const RHPOverviewLoaded({@required this.rank, @required this.logs, @required this.reward, @required this.houses, @required this.myHouse, @required this.houseCodes, this.key});
   @override
   List<Object> get props => [rank, logs, reward, houses, key, houseCodes];
 }

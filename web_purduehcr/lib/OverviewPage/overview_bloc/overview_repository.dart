@@ -53,7 +53,8 @@ class OverviewRepository {
     houseList.forEach((element) {
       houses.add(House.fromJson(element));
     });
-    return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, key: UniqueKey());
+    House myHouse = House.fromJson(residentOverview["user_house"]);
+    return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, myHouse:myHouse, key: UniqueKey());
   }
 
   ///Call the api to get the information for the resident overview
@@ -80,7 +81,8 @@ class OverviewRepository {
     houseCodeResponse.forEach((element) {
       houseCodes.add(HouseCode.fromJson(element));
     });
-    return RHPOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, houseCodes: houseCodes, key: UniqueKey());
+    House myHouse = House.fromJson(residentOverview["user_house"]);
+    return RHPOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, houseCodes: houseCodes, myHouse: myHouse, key: UniqueKey());
   }
 
   ///Call the api to get the information for the resident overview
@@ -101,7 +103,9 @@ class OverviewRepository {
     houseList.forEach((element) {
       houses.add(House.fromJson(element));
     });
-    return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, key: UniqueKey());
+    House myHouse = House.fromJson(residentOverview["user_house"]);
+
+    return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, key: UniqueKey(), myHouse: myHouse);
   }
 
   Future<ProfessionalStaffLoaded> _getProfessionalStaffLoaded() async {

@@ -1,11 +1,13 @@
 import 'package:charts_flutter/flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/Models/House.dart';
+import 'package:purduehcr_web/Models/SystemPreferences.dart';
 
 class HouseCompetitionCard extends StatefulWidget{
   final List<House> houses;
+  final SystemPreference preferences;
 
-  const HouseCompetitionCard({Key key, this.houses}) : super(key: key);
+  const HouseCompetitionCard({Key key, this.houses, this.preferences}) : super(key: key);
 
 
   @override
@@ -17,11 +19,20 @@ class HouseCompetitionCard extends StatefulWidget{
 class HouseCompetitionCardState extends State<HouseCompetitionCard>{
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: new BarChart(
+    Widget child;
+    if(widget.houses == null || widget.houses.length == 0){
+      child = Center(
+        child: Text(widget.preferences.competitionHiddenMessage),
+      );
+    }
+    else{
+      child = new BarChart(
         _formatData(),
         animate: false,
-      ),
+      );
+    }
+    return Card(
+      child: child
     );
   }
 

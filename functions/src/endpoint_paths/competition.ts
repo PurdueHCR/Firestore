@@ -211,13 +211,14 @@ comp_app.get('/confirmEndSemester', async (req, res) => {
 		if(req.query.code === undefined || typeof req.query.code !== 'string' || req.query.code === ""){
 			throw APIResponse.MissingRequiredParameters()
 		}
-		verifyOneTimeCode(req.query.code)
+		const code = ParameterParser.parseInputForString(req.query.code)
+		verifyOneTimeCode(code)
 		const systemPreferences = await getSystemPreferences()
 		if(systemPreferences.isCompetitionEnabled){
 			throw APIResponse.CompetitionDisabled()
 		}
 		else{
-			await saveAndResetSemester()
+			await saveAndResetSemester(systemPreferences)
 		}
 		throw APIResponse.Success()
 	}
@@ -252,6 +253,7 @@ comp_app.post('/resetCompetition', async (req, res) => {
 			if(!systemPreferences.isCompetitionEnabled){
 				//Generate random key, save it to the house system and create a link 
 				const secretKey = generateOneTimeCode()
+				console.log("Using codE: "+secretKey)
 				const path = "https://"+req.hostname+"/competition/confirmResetCompetition?code="+secretKey+"&user="+user.id
 				
 				const mailOptions = {
@@ -299,7 +301,8 @@ comp_app.get('/confirmResetCompetition', async (req,res) => {
 		}
 		const user = await getUser(req.query.user)
 		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
-			verifyOneTimeCode(req.query.code)
+			const code = ParameterParser.parseInputForString(req.query.code)
+			verifyOneTimeCode(code)
 			const systemPreferences = await getSystemPreferences()
 			if(systemPreferences.isCompetitionEnabled){
 				throw APIResponse.CompetitionMustBeDisabled()

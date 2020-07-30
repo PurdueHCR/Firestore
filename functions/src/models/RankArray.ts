@@ -24,6 +24,15 @@ export class RankArray {
         return this.users
     }
 
+    toFirestoreJson(): any {
+        let map = {}
+        for(const user of this.users){
+            //Funky syntax to merge objects
+            map = {...map, ...user.toFirestoreJson()}
+        }
+        return map
+    }
+
 
     static fromDocumentSnapshot(document: FirebaseFirestore.DocumentSnapshot): RankArray{
         const users:UserHouseRank[] = []
