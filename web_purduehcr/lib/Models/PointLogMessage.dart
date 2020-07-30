@@ -11,9 +11,9 @@ class PointLogMessage {
 
   factory PointLogMessage.fromJson(Map<String, dynamic> json){
     return PointLogMessage(
-      creationDate: json["creationDate"],
+      creationDate: DateTime.fromMicrosecondsSinceEpoch((json["creationDate"]["_seconds"] as int) * 1000000),
       message: json["message"],
-      messageType: json["messageTye"],
+      messageType: json["messageType"],
       senderFirstName: json["senderFirstName"],
       senderLastName: json["senderLastName"],
       senderPermissionLevel: json["senderPermissionLevel"]

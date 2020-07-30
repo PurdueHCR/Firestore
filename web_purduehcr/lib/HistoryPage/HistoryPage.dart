@@ -41,47 +41,89 @@ class _HistoryPageState
     if (_historyBloc == null) {
       Config config = ConfigWrapper.of(context);
       _historyBloc = new HistoryBloc(config: config);
+      if(authState.user.permissionLevel == UserPermissionLevel.PROFESSIONAL_STAFF){
+        _historyBloc.add(SelectHouse(house: authState.preferences.houseIds[0]));
+      }
     }
   }
 
   @override
   Widget buildLargeDesktopBody({BuildContext context, HistoryState state}) {
-    return Column(
-      children: [
-        buildSearchView(context, state),
-        buildBottomView(context, state)
-      ],
-    );
+    if(state is HistoryPageError){
+      return Column(
+        children: [
+          buildSearchView(context, state),
+          Center(
+            child: Text("There was a problem loading the residents. Please try again."),
+          )
+        ],
+      );
+    }
+    else{
+      return Column(
+        children: [
+          buildSearchView(context, state),
+          buildBottomView(context, state)
+        ],
+      );
+    }
+
   }
 
   @override
   Widget buildMobileBody({BuildContext context, HistoryState state}) {
-    if(_selectedPointLog == null){
+    if(state is HistoryPageError){
       return Column(
         children: [
           buildSearchView(context, state),
-          buildBottomView(context, state)
+          Center(
+            child: Text("There was a problem loading the residents. Please try again."),
+          )
         ],
       );
     }
     else{
-      return buildBottomView(context, state);
+      if(_selectedPointLog == null){
+        return Column(
+          children: [
+            buildSearchView(context, state),
+            buildBottomView(context, state)
+          ],
+        );
+      }
+      else{
+        return buildBottomView(context, state);
+      }
     }
+
   }
 
   @override
   Widget buildSmallDesktopBody({BuildContext context, HistoryState state}) {
-    if(_selectedPointLog == null){
+    if(state is HistoryPageError){
       return Column(
         children: [
           buildSearchView(context, state),
-          buildBottomView(context, state)
+          Center(
+            child: Text("There was a problem loading the residents. Please try again."),
+          )
         ],
       );
     }
     else{
-      return buildBottomView(context, state);
+      if(_selectedPointLog == null){
+        return Column(
+          children: [
+            buildSearchView(context, state),
+            buildBottomView(context, state)
+          ],
+        );
+      }
+      else{
+        return buildBottomView(context, state);
+      }
     }
+
   }
 
   Widget buildBottomView(BuildContext context, HistoryState state) {
@@ -95,10 +137,12 @@ class _HistoryPageState
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
           child: LogListAndChat(
+              key: UniqueKey(),
               logs: state.logs,
               onPressed: _onPressed,
               selectedPointLog: _selectedPointLog,
               searchable: false,
+              house: state.house,
             showLoadMore: state.logs.length % 25 == 0, //Pages are 25, so if length is not divisible by 25, then there are no more to load
             loadMore: loadMore,
           ),
@@ -232,6 +276,7 @@ class _HistoryPageState
             ],
           ),
         ),
+        generateHouseButtons(context,state),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
           child: Container(
@@ -437,5 +482,42 @@ class _HistoryPageState
   @override
   UserPermissionSet getAcceptedPermissionLevels() {
     return ResidentialLifeStaffSet();
+  }
+
+  Widget generateHouseButtons(BuildContext context, HistoryState state){
+    if(authState.user.permissionLevel == UserPermissionLevel.PROFESSIONAL_STAFF){
+      List<Widget> buttons = [];
+      for(String house in authState.preferences.houseIds){
+        if(house == state.house){
+          buttons.add(RaisedButton(
+            child: Text(house),
+            onPressed: (){
+              setState(() {
+                _historyBloc.add(SelectHouse(house:house));
+              });
+            },
+          ));
+        }
+        else{
+          buttons.add(OutlineButton(
+            child: Text(house),
+            onPressed: (){
+              setState(() {
+                _historyBloc.add(SelectHouse(house:house));
+              });
+            },
+          ));
+        }
+      }
+      return Center(
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          children: buttons,
+        ),
+      );
+    }
+    else{
+      return SizedBox.shrink();
+    }
   }
 }
