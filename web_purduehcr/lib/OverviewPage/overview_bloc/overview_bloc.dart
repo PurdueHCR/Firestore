@@ -56,7 +56,28 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState>{
         print("Got error from granting award" +error.toString());
         yield GrantAwardError(currentState.houses);
       }
-
+    }
+    else if(event is UpdateHouse){
+      ProfessionalStaffLoaded currentState = state as ProfessionalStaffLoaded;
+      try{
+        await overviewRepository.updateHouse(event.house.name, description: event.description, numberOfResidents: event.numberOfResidents);
+        yield UpdateHouseError(currentState.houses);
+      }
+      on ApiError catch(error){
+        if(error.errorCode == 200){
+          event.house.description = event.description;
+          event.house.numberOfResidents = event.numberOfResidents;
+          event.house.pointsPerResident = event.house.totalPoints / event.numberOfResidents;
+          yield ProfessionalStaffLoaded(houses: currentState.houses);
+        }
+        else {
+          yield UpdateHouseError(currentState.houses);
+        }
+      }
+      catch(error){
+        print("Got error from updating the house" +error.toString());
+        yield UpdateHouseError(currentState.houses);
+      }
     }
   }
 

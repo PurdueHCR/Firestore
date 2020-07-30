@@ -125,4 +125,16 @@ class OverviewRepository {
     await callCloudFunction(config, Method.POST, "competition/houseAward", body: body);
   }
 
+  updateHouse(String house, {String description, int numberOfResidents}) async {
+    Map<String, dynamic> body = new Map();
+    body["house"] = house;
+    if(description != null){
+      body["description"] = description;
+    }
+    if(numberOfResidents != null){
+      body["numberOfResidents"] = numberOfResidents;
+    }
+    await callCloudFunction(config, Method.POST, "competition/updateHouse", body: body);
+  }
+
 }

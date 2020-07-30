@@ -107,6 +107,7 @@ class _ProfessionalStaffOverviewPageState extends BasePageState<OverviewBloc, Ov
                     child: BlocProvider(
                       builder: (BuildContext context) => _overviewBloc,
                       child: HouseDescription(
+                        key: ObjectKey(_selectedHouse),
                         house: _selectedHouse,
                         permissionLevel: authState.user.permissionLevel,
                       ),
@@ -201,6 +202,7 @@ class _ProfessionalStaffOverviewPageState extends BasePageState<OverviewBloc, Ov
               child: BlocProvider(
                 builder: (BuildContext context) => _overviewBloc,
                 child: HouseDescription(
+                  key: ObjectKey(_selectedHouse),
                   house: _selectedHouse,
                   permissionLevel: authState.user.permissionLevel,
                 ),

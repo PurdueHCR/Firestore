@@ -47,6 +47,17 @@ export class House {
         return data
     }
 
+    updateHouseJson(){
+        const data = {}
+        data[House.COLOR] = this.color
+        data[House.NUMBER_OF_RESIDENTS] = this.numberOfResidents
+        data[House.FLOOR_IDS] = this.floorIds
+        data[House.DOWNLOAD_URL] = this.downloadURL
+        data[House.DESCRIPTION] = this.description
+        data[House.HOUSE_AWARDS] = this.houseAwards
+        return data
+    }
+
     /**
      * get the minimaly sized JSON object required to update the total points in the database
      */

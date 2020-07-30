@@ -53,7 +53,7 @@ class ProfessionalStaffLoaded extends OverviewState {
 
   const ProfessionalStaffLoaded({@required this.houses});
   @override
-  List<Object> get props => [houses];
+  List<Object> get props => [UniqueKey()];
 }
 
 class OverviewError extends OverviewState {
@@ -74,4 +74,10 @@ class GrantAwardError extends ProfessionalStaffLoaded {
   const GrantAwardError(List<House> houses): super(houses:houses);
   @override
   List<Object> get props => [houses];
+}
+class UpdateHouseError extends ProfessionalStaffLoaded {
+  UpdateHouseError(List<House> houses): super(houses:houses);
+
+  @override
+  List<Object> get props => [];
 }

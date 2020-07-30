@@ -20,6 +20,8 @@ import {verifyOneTimeCode, generateOneTimeCode} from '../src/OTCGenerator'
 import {resetHouseCompetition} from '../src/ResetHouseCompetition'
 import * as ParameterParser from '../src/ParameterParser'
 import { grantHouseAward } from '../src/GrantHouseAward'
+import { getHouseByName } from '../src/GetHouses'
+import { updateHouse } from '../src/UpdateHouse'
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
@@ -390,6 +392,55 @@ comp_app.post('/houseAward', async (req, res) => {
 		await grantHouseAward(house_name, ppr, description)
 		
 		throw APIResponse.Success()
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.error("Unknown Error: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
+})
+
+/**
+ * Update fields for the house
+ * @param body.house - required id of the house
+ * @param body.numberOfResidents - min 0 number of residents for the house
+ * @param body.description - of the house
+ * @returns 200 - Sucess
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permissions
+ * @throws 422 - Missing Required Parameters
+ * @throws 425 - Unknown House 
+ * @throws 426 - Invalid Data Format
+ * @throws 500 - Server Error
+ */
+comp_app.post('/updateHouse', async (req, res) => {
+	try{
+		if(req.body === undefined || req.body === null){
+			throw APIResponse.MissingRequiredParameters()
+		}
+
+		const house_id = ParameterParser.parseInputForString(req.body.house)
+
+		const user = await getUser(req["user"]["user_id"])
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
+
+		const house = await getHouseByName(house_id)
+		if( "numberOfResidents" in req.body){
+			house.numberOfResidents = ParameterParser.parseInputForNumber(req.body.numberOfResidents, 0)
+		}
+		if( "description" in req.body){
+			house.description = ParameterParser.parseInputForString(req.body.description)
+		}
+		//TODO Add rhps[] and floorIds[] 
+		await updateHouse(house)
+		throw APIResponse.Success()
+
 	}
 	catch (error){
         if( error instanceof APIResponse){
