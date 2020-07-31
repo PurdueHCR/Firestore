@@ -269,23 +269,25 @@ export class FirestoreDataFactory{
     }
 
     /**
-     * 
+     * Create an event
      * @param db 
      * @param creator_id
      * @param eOpts 
      */
-    static setEvent(db: firebase.firestore.Firestore, creator_id: string, eOpts:Options.EventOptions = Options.EVENT_DEFAULTS): Promise<void> {
-        return db.collection("Events").doc((eOpts.id)?eOpts.id:Options.EVENT_DEFAULTS.id).set({
-            Name: (eOpts.name !== undefined)?eOpts.name:Options.EVENT_DEFAULTS.name,
-            Details: (eOpts.details !== undefined)?eOpts.details:Options.EVENT_DEFAULTS.details,
-            Date: (eOpts.date !== undefined)?eOpts.date:Options.EVENT_DEFAULTS.date,
-            Location: (eOpts.location !== undefined)?eOpts.location:Options.EVENT_DEFAULTS.location,
-            Points: (eOpts.points !== undefined)?eOpts.points:Options.EVENT_DEFAULTS.points,
-            PointTypeID: (eOpts.point_type_id !== undefined)?eOpts.point_type_id:Options.EVENT_DEFAULTS.point_type_id,
-            PointTypeName: (eOpts.point_type_name !== undefined)?eOpts.point_type_name:Options.EVENT_DEFAULTS.point_type_name,
-            PointTypeDescription: (eOpts.point_type_description !== undefined)?eOpts.point_type_description:Options.EVENT_DEFAULTS.point_type_description,
-            House: (eOpts.house !== undefined)?eOpts.house:Options.EVENT_DEFAULTS.house
-        })
+    static setEvent(db: firebase.firestore.Firestore, id: string, creator_id: string, eOpts:Options.EventOptions = Options.EVENT_DEFAULTS): Promise<void> {
+        const data = {
+            "Name": (eOpts.name !== undefined)?eOpts.name:Options.EVENT_DEFAULTS.name,
+            "Details": (eOpts.details !== undefined)?eOpts.details:Options.EVENT_DEFAULTS.details,
+            "Date": (eOpts.date !== undefined)?eOpts.date:Options.EVENT_DEFAULTS.date,
+            "Location": (eOpts.location !== undefined)?eOpts.location:Options.EVENT_DEFAULTS.location,
+            "Points": (eOpts.points !== undefined)?eOpts.points:Options.EVENT_DEFAULTS.points,
+            "PointTypeID": (eOpts.point_type_id !== undefined)?eOpts.point_type_id:Options.EVENT_DEFAULTS.point_type_id,
+            "PointTypeName": (eOpts.point_type_name !== undefined)?eOpts.point_type_name:Options.EVENT_DEFAULTS.point_type_name,
+            "PointTypeDescription": (eOpts.point_type_description !== undefined)?eOpts.point_type_description:Options.EVENT_DEFAULTS.point_type_description,
+            "House": (eOpts.house !== undefined)?eOpts.house:Options.EVENT_DEFAULTS.house,
+            "CreatorID":creator_id
+        }
+        return db.collection("Events").doc(id).set(data)
     }
 
     /**

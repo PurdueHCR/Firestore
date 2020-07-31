@@ -3,7 +3,7 @@ import * as firebase from "@firebase/testing"
 import * as IntegrationMockFactory from '../IntegrationMockFactory'
 import * as request from 'supertest'
 import { FirestoreDataFactory } from '../FirestoreDataFactory'
-import { APIResponse } from '../../../src/models/APIResponse'
+import { EVENT_DEFAULTS } from '../../OptionDeclarations'
 
 let get_events_func
 let db: firebase.firestore.Firestore
@@ -49,37 +49,116 @@ describe('event/get', () => {
         await FirestoreDataFactory.setHouse(db, HOUSE_NAME_2)
         await FirestoreDataFactory.setHouseCode(db, HOUSE_CODE_2)
 
-        await FirestoreDataFactory.setEvent
+        await FirestoreDataFactory.setEvent(db, "1", RHP_ID, EVENT_DEFAULTS)
+        await FirestoreDataFactory.setEvent(db, "2", RHP_ID, {house:"Platinum"})
+        await FirestoreDataFactory.setEvent(db, "3", RHP_ID, {house:"Palladium"})
     })
 
     beforeEach(async () => {
         await FirestoreDataFactory.setSystemPreference(db)
     })
 
-    // Test if no body is provided
-    it('Missing Body', async(done) => {
+    // Test Palladium Resident
+    it('Test Palladium Resident', async(done) => {
+        const res: request.Test = factory.post(get_events_func, GET_EVENTS_PATH, {}, PALLADIUM_RESIDENT_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(res.body.events).toHaveLength(2)
+                done()
+            }
+        })
+    })
+
+    // Test Resident
+    it('Test Platinum Resident', async(done) => {
         const res: request.Test = factory.post(get_events_func, GET_EVENTS_PATH, {}, RESIDENT_ID)
         res.end(function (err, res) {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(422)
+                expect(res.status).toBe(200)
+                expect(res.body.events).toHaveLength(2)
+                done()
             }
         })
     })
 
-    // Test Palladium Resident
-
-    // Test Resident
-
     // Test RHP
+    it('Test Platinum Resident', async(done) => {
+        const res: request.Test = factory.post(get_events_func, GET_EVENTS_PATH, {}, RHP_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(res.body.events).toHaveLength(2)
+                done()
+            }
+        })
+    })
 
     // Test Professional Staff
+    it('Test Professional Staff', async(done) => {
+        const res: request.Test = factory.post(get_events_func, GET_EVENTS_PATH, {}, REC_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(res.body.events).toHaveLength(3)
+                done()
+            }
+        })
+    })
 
     // Test External Adivsors
+    it('Test External Adivsors', async(done) => {
+        const res: request.Test = factory.post(get_events_func, GET_EVENTS_PATH, {}, EA_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(res.body.events).toHaveLength(1)
+                done()
+            }
+        })
+    })
     
     // Test Faculty
+    it('Test Faculty', async(done) => {
+        const res: request.Test = factory.post(get_events_func, GET_EVENTS_PATH, {}, FACULTY)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(res.body.events).toHaveLength(2)
+                done()
+            }
+        })
+    })
 
-    // Test Priviledged Residents
+    // Test Privileged Resident
+    it('Test Privileged Resident', async(done) => {
+        const res: request.Test = factory.post(get_events_func, GET_EVENTS_PATH, {}, PRIV_RES)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(res.body.events).toHaveLength(2)
+                done()
+            }
+        })
+    })
+
+    //After all of the tests are done, make sure to delete the test firestore app
+    afterAll(()=>{
+        Promise.all(firebase.apps().map(app => app.delete()))
+    })
 
 })

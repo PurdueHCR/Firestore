@@ -3,7 +3,6 @@ import { User } from '../models/User'
 import { Event } from '../models/Event'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { HouseCompetition } from '../models/HouseCompetition'
-import { APIResponse } from '../models/APIResponse'
 
 //REC and someone else should see all events. otherwise only see the events to your house
 
@@ -24,8 +23,10 @@ export async function getEvents(user: User): Promise<Event[]> {
         const events = Event.fromQuerySnapshot(await db.collection(HouseCompetition.EVENTS_KEY).get())
         return Promise.resolve(events)
     } else {
-        const events = Event.fromQuerySnapshot(await db.collection(HouseCompetition.EVENTS_KEY).where('House', 'in', [user.house, "All Houses"]).get())
+        const eventsSnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('House', 'in', [user.house, "All Houses"]).get()
+        const events = Event.fromQuerySnapshot(eventsSnapshot)
         return Promise.resolve(events)
+       
     }
 
 }

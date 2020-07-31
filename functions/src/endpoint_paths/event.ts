@@ -137,8 +137,8 @@ events_app.post('/get', async (req, res) => {
 
     try {
         const user = await getUser(req["user"]["user_id"])
-        const events = await getEvents(user)
-        res.status(APIResponse.SUCCESS_CODE).send(events.toJson())
+        const event_logs = await getEvents(user)
+        res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
     } catch (error) {
         console.error("FAILED WITH ERROR: " + error.toString())
         if (error instanceof TypeError) {
