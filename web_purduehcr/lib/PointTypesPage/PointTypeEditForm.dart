@@ -84,7 +84,6 @@ class _PointTypeEditFormState extends State<PointTypeEditForm>{
                   child: this.isEditingName ?
                   TextField(
                     controller: nameController,
-                    maxLines: null,
                     maxLength: 100,
                     onEditingComplete: (){
                       FocusScope.of(context).unfocus();
@@ -121,7 +120,6 @@ class _PointTypeEditFormState extends State<PointTypeEditForm>{
                   child: this.isEditingDescription ?
                   TextField(
                     controller: descriptionController,
-                    maxLines: null,
                     maxLength: 400,
                     onEditingComplete: (){
                       FocusScope.of(context).unfocus();
@@ -157,7 +155,6 @@ class _PointTypeEditFormState extends State<PointTypeEditForm>{
                   child: this.isEditingValue ?
                   TextField(
                     controller: valueController,
-                    maxLines: null,
                     maxLength: 4,
                     keyboardType: TextInputType.numberWithOptions(),
                     onEditingComplete: (){
@@ -198,6 +195,7 @@ class _PointTypeEditFormState extends State<PointTypeEditForm>{
                     onPressed: (){
                       setState(() {
                         permissionLevel = PointTypePermissionLevel.PROFESSIONAL_STAFF_ONLY;
+                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, permissionLevel: permissionLevel));
                       });
                     },
                   )
@@ -217,6 +215,7 @@ class _PointTypeEditFormState extends State<PointTypeEditForm>{
                     onPressed: (){
                       setState(() {
                         permissionLevel = PointTypePermissionLevel.PROFESSIONAL_AND_RHPS;
+                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, permissionLevel: permissionLevel));
                       });
                     },
                   )
@@ -236,6 +235,7 @@ class _PointTypeEditFormState extends State<PointTypeEditForm>{
                     onPressed: (){
                       setState(() {
                         permissionLevel = PointTypePermissionLevel.ALL;
+                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, permissionLevel: permissionLevel));
                       });
                     },
                   )

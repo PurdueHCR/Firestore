@@ -53,7 +53,8 @@ class OverviewRepository {
     houseList.forEach((element) {
       houses.add(House.fromJson(element));
     });
-    return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, key: UniqueKey());
+    House myHouse = House.fromJson(residentOverview["user_house"]);
+    return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, myHouse:myHouse, key: UniqueKey());
   }
 
   ///Call the api to get the information for the resident overview
@@ -80,7 +81,8 @@ class OverviewRepository {
     houseCodeResponse.forEach((element) {
       houseCodes.add(HouseCode.fromJson(element));
     });
-    return RHPOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, houseCodes: houseCodes, key: UniqueKey());
+    House myHouse = House.fromJson(residentOverview["user_house"]);
+    return RHPOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, houseCodes: houseCodes, myHouse: myHouse, key: UniqueKey());
   }
 
   ///Call the api to get the information for the resident overview
@@ -101,7 +103,9 @@ class OverviewRepository {
     houseList.forEach((element) {
       houses.add(House.fromJson(element));
     });
-    return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, key: UniqueKey());
+    House myHouse = House.fromJson(residentOverview["user_house"]);
+
+    return ResidentOverviewLoaded(rank: rank, logs: recentSubmissions, reward: nextReward, houses: houses, key: UniqueKey(), myHouse: myHouse);
   }
 
   Future<ProfessionalStaffLoaded> _getProfessionalStaffLoaded() async {
@@ -123,6 +127,18 @@ class OverviewRepository {
     body["description"] = description;
     body["ppr"] = pointsPerResident;
     await callCloudFunction(config, Method.POST, "competition/houseAward", body: body);
+  }
+
+  updateHouse(String house, {String description, int numberOfResidents}) async {
+    Map<String, dynamic> body = new Map();
+    body["house"] = house;
+    if(description != null){
+      body["description"] = description;
+    }
+    if(numberOfResidents != null){
+      body["numberOfResidents"] = numberOfResidents;
+    }
+    await callCloudFunction(config, Method.POST, "competition/updateHouse", body: body);
   }
 
 }

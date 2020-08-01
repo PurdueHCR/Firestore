@@ -46,14 +46,20 @@ class ProfileCardState extends State<ProfileCard>{
   }
 
   Widget buildRightWidget(){
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text("#"+widget.userRank.houseRank.toString()+" Overall"),
-        Text("#"+ widget.userRank.semesterRank.toString()+" Semester"),
-      ],
-    );
+    if(widget.userRank.houseRank != null){
+      return Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("#"+widget.userRank.houseRank.toString()+" Overall"),
+          Text("#"+ widget.userRank.semesterRank.toString()+" Semester"),
+        ],
+      );
+    }
+    else{
+      return SizedBox.shrink();
+    }
+
   }
 
   Widget createHouseImage(){

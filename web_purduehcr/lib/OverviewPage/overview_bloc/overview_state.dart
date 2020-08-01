@@ -28,9 +28,10 @@ class ResidentOverviewLoaded extends OverviewState {
   final List<PointLog> logs;
   final Reward reward;
   final List<House> houses;
+  final House myHouse;
   final Key key;
 
-  const ResidentOverviewLoaded({@required this.rank, @required this.logs, @required this.reward, @required this.houses, this.key});
+  const ResidentOverviewLoaded({@required this.rank, @required this.logs, @required this.reward, @required this.houses, @required this.myHouse, this.key});
   @override
   List<Object> get props => [rank, logs, reward, houses, key];
 }
@@ -40,10 +41,11 @@ class RHPOverviewLoaded extends OverviewState {
   final List<PointLog> logs;
   final Reward reward;
   final List<House> houses;
+  final House myHouse;
   final List<HouseCode> houseCodes;
   final Key key;
 
-  const RHPOverviewLoaded({@required this.rank, @required this.logs, @required this.reward, @required this.houses, @required this.houseCodes, this.key});
+  const RHPOverviewLoaded({@required this.rank, @required this.logs, @required this.reward, @required this.houses, @required this.myHouse, @required this.houseCodes, this.key});
   @override
   List<Object> get props => [rank, logs, reward, houses, key, houseCodes];
 }
@@ -53,7 +55,7 @@ class ProfessionalStaffLoaded extends OverviewState {
 
   const ProfessionalStaffLoaded({@required this.houses});
   @override
-  List<Object> get props => [houses];
+  List<Object> get props => [UniqueKey()];
 }
 
 class OverviewError extends OverviewState {
@@ -74,4 +76,10 @@ class GrantAwardError extends ProfessionalStaffLoaded {
   const GrantAwardError(List<House> houses): super(houses:houses);
   @override
   List<Object> get props => [houses];
+}
+class UpdateHouseError extends ProfessionalStaffLoaded {
+  UpdateHouseError(List<House> houses): super(houses:houses);
+
+  @override
+  List<Object> get props => [];
 }

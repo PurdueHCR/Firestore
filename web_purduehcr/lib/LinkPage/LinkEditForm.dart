@@ -86,7 +86,6 @@ class _LinkEditFormState extends State<LinkEditForm>{
                 child: this.isChangingText ?
                 TextField(
                   controller: descriptionController,
-                  maxLines: null,
                   maxLength: 250,
                   onEditingComplete: (){
                     FocusScope.of(context).unfocus();

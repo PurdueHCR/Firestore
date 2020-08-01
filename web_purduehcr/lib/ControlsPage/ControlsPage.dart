@@ -1,7 +1,4 @@
-import 'package:bloc/src/bloc.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:purduehcr_web/BasePage.dart';
 import 'package:purduehcr_web/Config.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
@@ -17,7 +14,7 @@ class ControlsPage extends BasePage{
 
 }
 
-class _ControlsPageState extends BasePageState{
+class _ControlsPageState extends BasePageState<ControlBloc, ControlEvent, ControlState>{
 
   ControlBloc _controlBloc;
   TextEditingController competitionHiddenController = TextEditingController();
@@ -28,6 +25,7 @@ class _ControlsPageState extends BasePageState{
 
   bool isCompetitionVisible;
   bool isCompetitionEnabled;
+  bool isShowingRewards;
   String competitionDisabledMessage;
   String competitionHiddenMessage;
 
@@ -46,27 +44,27 @@ class _ControlsPageState extends BasePageState{
   }
 
   @override
-  Widget buildLargeDesktopBody({BuildContext context, state}) {
+  Widget buildLargeDesktopBody({BuildContext context, ControlState state}) {
     return buildBody(context: context, state: state);
   }
 
   @override
-  Widget buildMobileBody({BuildContext context, state}) {
+  Widget buildMobileBody({BuildContext context, ControlState state}) {
     return buildBody(context: context, state: state);
   }
 
   @override
-  Widget buildSmallDesktopBody({BuildContext context, state}) {
+  Widget buildSmallDesktopBody({BuildContext context, ControlState state}) {
     return buildBody(context: context, state: state);
   }
 
   @override
-  Bloc getBloc() {
+  ControlBloc getBloc() {
     return _controlBloc;
   }
 
   @override
-  bool isLoadingState(currentState) {
+  bool isLoadingState(ControlState currentState) {
     return currentState is ControlPageLoading;
   }
 
@@ -91,6 +89,7 @@ class _ControlsPageState extends BasePageState{
         this.isCompetitionEnabled = state.settings.isCompetitionEnabled;
         this.competitionDisabledMessage = state.settings.competitionDisabledMessage;
         this.competitionHiddenMessage = state.settings.competitionHiddenMessage;
+        this.isShowingRewards = state.settings.showRewards;
       }
 
       return Column(
@@ -119,7 +118,6 @@ class _ControlsPageState extends BasePageState{
                         child: this.isChangingCompetitionDisabledText ?
                         TextField(
                           controller: competitionDisabledController,
-                          maxLines: null,
                           maxLength: 250,
                           onEditingComplete: (){
                             FocusScope.of(context).unfocus();
@@ -134,15 +132,21 @@ class _ControlsPageState extends BasePageState{
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            Text(this.competitionDisabledMessage),
-                            IconButton(
-                              icon: Icon(Icons.edit),
-                              onPressed: (){
-                                setState(() {
-                                  competitionDisabledController = TextEditingController(text: this.competitionDisabledMessage);
-                                  isChangingCompetitionDisabledText = true;
-                                });
-                              },
+                            Flexible(
+                              flex: 8,
+                              child: Text(this.competitionDisabledMessage)
+                            ),
+                            Flexible(
+                              flex: 1,
+                              child: IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: (){
+                                  setState(() {
+                                    competitionDisabledController = TextEditingController(text: this.competitionDisabledMessage);
+                                    isChangingCompetitionDisabledText = true;
+                                  });
+                                },
+                              ),
                             )
                           ],
                         )
@@ -165,7 +169,6 @@ class _ControlsPageState extends BasePageState{
                         child: this.isChangingCompetitionHiddenText ?
                         TextField(
                           controller: competitionHiddenController,
-                          maxLines: null,
                           maxLength: 250,
                           onEditingComplete: (){
                             FocusScope.of(context).unfocus();
@@ -180,19 +183,35 @@ class _ControlsPageState extends BasePageState{
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            Text(this.competitionHiddenMessage),
-                            IconButton(
-                              icon: Icon(Icons.edit),
-                              onPressed: (){
-                                setState(() {
-                                  competitionHiddenController = TextEditingController(text: this.competitionHiddenMessage);
-                                  isChangingCompetitionHiddenText = true;
-                                });
-                              },
+                            Flexible(
+                              flex: 8,
+                              child: Text(this.competitionHiddenMessage)
+                            ),
+                            Flexible(
+                              flex: 1,
+                              child: IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: (){
+                                  setState(() {
+                                    competitionHiddenController = TextEditingController(text: this.competitionHiddenMessage);
+                                    isChangingCompetitionHiddenText = true;
+                                  });
+                                },
+                              ),
                             )
                           ],
                         )
                     ),
+                  ),
+                  SwitchListTile(
+                    title: Text("Show Rewards"),
+                    value: this.isShowingRewards,
+                    onChanged: (val){
+                      setState(() {
+                        this.isShowingRewards = val;
+                        _controlBloc.add(UpdateSettings(isShowingRewards: val));
+                      });
+                    },
                   ),
                   Text("Suggested IDs: 3,4,5,6")
                 ],
@@ -453,6 +472,18 @@ class _ControlsPageState extends BasePageState{
         backgroundColor: Colors.red,
         content: Text(
             '${state.message}'),
+      );
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) {
+        Scaffold.of(context).showSnackBar(snackBar);
+        _controlBloc.add(ControlHandledMessage());
+      });
+    }
+    else if (state is ControlEmailSent){
+      final snackBar = SnackBar(
+        backgroundColor: Colors.green,
+        content: Text(
+            'Email sent!'),
       );
       WidgetsBinding.instance
           .addPostFrameCallback((_) {

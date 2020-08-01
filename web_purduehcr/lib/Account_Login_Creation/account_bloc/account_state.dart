@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
 
 abstract class AccountState extends Equatable{
   const AccountState();
@@ -13,7 +14,7 @@ class AccountInitial extends AccountState {
 class AccountLoading extends AccountState {
   const AccountLoading();
   @override
-  List<Object> get props => [];
+  List<Object> get props => [UniqueKey()];
 }
 
 class LoginSuccess extends AccountState {
@@ -40,4 +41,16 @@ class CreateAccountError extends AccountState {
   const CreateAccountError({this.message = ""});
   @override
   List<Object> get props => [message];
+}
+
+class SendEmailSuccess extends AccountState {
+  const SendEmailSuccess();
+  @override
+  List<Object> get props => [];
+}
+
+class SendEmailError extends AccountState {
+  const SendEmailError();
+  @override
+  List<Object> get props => [];
 }

@@ -3,7 +3,7 @@ import { HouseCompetition } from '../models/HouseCompetition';
 import { APIResponse } from '../models/APIResponse';
 import { User } from '../models/User';
 import { UserPermissionLevel } from '../models/UserPermissionLevel';
-import { HouseCode } from '../models/HouseCode';
+import { HouseCode } from "../models/HouseCode"
 
 /**
  * Retrieve the list of house codes

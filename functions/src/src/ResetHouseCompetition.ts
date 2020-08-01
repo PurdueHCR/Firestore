@@ -18,7 +18,7 @@ export async function resetHouseCompetition(user:User){
     const houses = await getAllHouses()
 
     let fb:{token:string}
-        if(functions.config().fb.token === undefined || functions.config().fb.token === ""){
+        if(functions.config().fb === undefined || functions.config().fb.token === ""){
             fb = require('../../development_keys/fb_token.json')
         }
         else{
@@ -49,6 +49,11 @@ export async function resetHouseCompetition(user:User){
 	catch (err) {
 		console.error("Error deleting the comeptition. " + err)
 		throw APIResponse.ServerError()
+    }
+
+    for(const house of houses){
+        house.totalPoints = 0
+        house.houseAwards = []
     }
 
     //Repopulate the models

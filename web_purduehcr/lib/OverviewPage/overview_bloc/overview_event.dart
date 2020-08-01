@@ -41,3 +41,12 @@ class HandleGrantAwardMessage extends OverviewEvent {
   @override
   List<Object> get props => [];
 }
+
+class UpdateHouse extends OverviewEvent {
+  final House house;
+  final String description;
+  final int numberOfResidents;
+  const UpdateHouse(this.house, {this.description, this.numberOfResidents});
+  @override
+  List<Object> get props => [house, description, numberOfResidents];
+}

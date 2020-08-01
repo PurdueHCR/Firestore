@@ -171,7 +171,7 @@ describe('GET point_log/messages', async ()  => {
         })
     })
 
-    it('REC results in Invalid Permissions', async(done) => {
+    it.skip('REC results in Invalid Permissions', async(done) => {
         const query = {"log_id": RESIDENT_PLAT+"_LOG_1"}
         const res = factory.get(point_log_func, "/messages",REC_ID, query)
         res.end(function (err, res) {

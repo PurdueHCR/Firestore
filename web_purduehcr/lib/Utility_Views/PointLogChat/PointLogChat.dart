@@ -17,8 +17,9 @@ import 'package:purduehcr_web/authentication/authentication.dart';
 
 class PointLogChat extends StatefulWidget{
   final PointLog pointLog;
+  final String house; // included for when Professional staff need to use this
 
-  const PointLogChat({Key key, this.pointLog}) : super(key:key);
+  const PointLogChat({Key key, this.pointLog, this.house}) : super(key:key);
 
   @override
   State<StatefulWidget> createState() {
@@ -42,7 +43,7 @@ class _PointLogChatState extends State<PointLogChat>{
   void didChangeDependencies() {
     super.didChangeDependencies();
     Config config = ConfigWrapper.of(context);
-    _pointLogChatBloc = new PointLogChatBloc(config: config );
+    _pointLogChatBloc = new PointLogChatBloc(config: config, house: widget.house);
 
     authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     authState = authenticationBloc.state;

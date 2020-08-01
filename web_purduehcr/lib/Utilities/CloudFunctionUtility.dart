@@ -16,7 +16,6 @@ callCloudFunction(Config config, Method method, String path, {Map<String, dynami
   });
 
   if(result.data["message"] != null){
-    print("GOT API Message: "+result.data["message"]);
     String errorString = result.data["message"];
     throw new ApiError(int.parse(errorString.split(": ")[0]), errorString.split(": ")[1]);
   }
@@ -24,7 +23,6 @@ callCloudFunction(Config config, Method method, String path, {Map<String, dynami
 }
 
 String _serializeParams(Map<String, dynamic> params) {
-  print("serialize params: "+params.toString());
   if (params == null || params.isEmpty) {
     return "";
   }

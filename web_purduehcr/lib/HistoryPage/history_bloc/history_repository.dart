@@ -21,7 +21,7 @@ class HistoryRepository {
     return pts;
   }
 
-  Future<List<PointLog>> getRecentHistory({DateTime date, DateTime startAt}) async {
+  Future<List<PointLog>> getRecentHistory({DateTime date, DateTime startAt, String house}) async {
     Map<String, dynamic> params = {"type":"recent"};
     if(date != null){
       params["date"] = date;
@@ -29,19 +29,8 @@ class HistoryRepository {
     if(startAt != null){
       params["startAt"] = startAt;
     }
-    Map<String,dynamic> pointLogList = await callCloudFunction(config, Method.GET, "competition/history", params: params);
-    Set<Map<String, dynamic>> pointLogs = Set.from(pointLogList["point_logs"]);
-    List<PointLog> logs = new List();
-    pointLogs.forEach((element) {
-      logs.add(PointLog.fromJson(element));
-    });
-    return logs;
-  }
-
-  Future<List<PointLog>> getUserHistory(String userLastName, {DateTime startAt}) async {
-    Map<String, dynamic> params = {"type":"user", "last_name":userLastName};
-    if(startAt != null){
-      params["startAt"] = startAt;
+    if(house != null){
+      params["house"] = house;
     }
     Map<String,dynamic> pointLogList = await callCloudFunction(config, Method.GET, "competition/history", params: params);
     Set<Map<String, dynamic>> pointLogs = Set.from(pointLogList["point_logs"]);
@@ -52,10 +41,30 @@ class HistoryRepository {
     return logs;
   }
 
-  Future<List<PointLog>> getPointTypeHistory(PointType pointType, {DateTime startAt}) async {
+  Future<List<PointLog>> getUserHistory(String userLastName, {DateTime startAt, String house}) async {
+    Map<String, dynamic> params = {"type":"user", "last_name":userLastName};
+    if(startAt != null){
+      params["startAt"] = startAt;
+    }
+    if(house != null){
+      params["house"] = house;
+    }
+    Map<String,dynamic> pointLogList = await callCloudFunction(config, Method.GET, "competition/history", params: params);
+    Set<Map<String, dynamic>> pointLogs = Set.from(pointLogList["point_logs"]);
+    List<PointLog> logs = new List();
+    pointLogs.forEach((element) {
+      logs.add(PointLog.fromJson(element));
+    });
+    return logs;
+  }
+
+  Future<List<PointLog>> getPointTypeHistory(PointType pointType, {DateTime startAt, String house}) async {
     Map<String, dynamic> params = {"type":"point_type", "point_type_id":pointType.id};
     if(startAt != null){
       params["startAt"] = startAt;
+    }
+    if(house != null){
+      params["house"] = house;
     }
     Map<String,dynamic> pointLogList = await callCloudFunction(config, Method.GET, "competition/history", params: params);
     Set<Map<String, dynamic>> pointLogs = Set.from(pointLogList["point_logs"]);

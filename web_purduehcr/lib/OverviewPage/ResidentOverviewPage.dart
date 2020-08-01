@@ -66,6 +66,7 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
               height: getActiveAreaWidth(context) * 0.3,
               child:HouseCompetitionCard(
                 houses: state.houses,
+                preferences: authState.preferences,
               ),
             ),
             Row(
@@ -76,7 +77,7 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
                     user:user,
                     userRank:state.rank
                 ),
-                RewardsCard(reward: state.reward, house: getUserHouse(user, state.houses),)
+                RewardsCard(reward: state.reward, house: state.myHouse,)
               ],
             ),
             SizedBox(
@@ -115,13 +116,14 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
               height: getActiveAreaWidth(context) * 0.3,
               child:HouseCompetitionCard(
                 houses: residentData.houses,
+                preferences: authState.preferences,
               ),
             ),
             ProfileCard(
                 user:user,
                 userRank:residentData.rank
             ),
-            RewardsCard(reward: residentData.reward, house: getUserHouse(user, residentData.houses),),
+            RewardsCard(reward: residentData.reward, house: state.myHouse,),
             SizedBox(
               width: getActiveAreaWidth(context),
               height: 308,
@@ -146,14 +148,6 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
     return _overviewBloc;
   }
 
-  House getUserHouse(User user, List<House> houses){
-    for( House house in houses){
-      if(house.name == user.house){
-        return house;
-      }
-    }
-    return houses[0];
-  }
 
   void handleLink(){
     if(linkId != null){

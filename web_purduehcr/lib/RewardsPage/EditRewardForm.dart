@@ -67,7 +67,6 @@ class _EditRewardFormState extends State<EditRewardForm> {
                   child: this.isEditingName
                       ? TextField(
                           controller: nameController,
-                          maxLines: null,
                           maxLength: 100,
                           onEditingComplete: () {
                             FocusScope.of(context).unfocus();
@@ -108,7 +107,6 @@ class _EditRewardFormState extends State<EditRewardForm> {
                   child: this.isEditingValue
                       ? TextField(
                           controller: valueController,
-                          maxLines: null,
                           maxLength: 4,
                           keyboardType: TextInputType.numberWithOptions(),
                           onEditingComplete: () {

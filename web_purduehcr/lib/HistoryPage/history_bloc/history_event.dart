@@ -14,6 +14,13 @@ class SelectSearchType extends HistoryEvent {
   List<Object> get props => [searchType];
 }
 
+class SelectHouse extends HistoryEvent {
+  final String house;
+  const SelectHouse({@required this.house});
+  @override
+  List<Object> get props => [house];
+}
+
 class SearchEvent extends HistoryEvent {
   final String searchType;
   const SearchEvent({@required this.searchType});

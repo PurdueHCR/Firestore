@@ -41,7 +41,8 @@ class ControlBloc extends Bloc<ControlEvent, ControlState>{
           isCompetitionEnabled: event.isCompetitionEnabled,
           competitionDisabledMessage: event.competitionDisabledMessage,
           isCompetitionVisible: event.isCompetitionVisible,
-          competitionHiddenMessage: event.competitionHiddenMessage
+          competitionHiddenMessage: event.competitionHiddenMessage,
+          isShowingRewards: event.isShowingRewards
         );
       }
       on ApiError catch(apiError){
@@ -58,6 +59,9 @@ class ControlBloc extends Bloc<ControlEvent, ControlState>{
           }
           if(event.isCompetitionEnabled != null) {
             state.settings.isCompetitionEnabled = event.isCompetitionEnabled;
+          }
+          if(event.isShowingRewards != null){
+            state.settings.showRewards = event.isShowingRewards;
           }
           yield ControlLoaded(state.settings);
         }
@@ -77,8 +81,7 @@ class ControlBloc extends Bloc<ControlEvent, ControlState>{
       }
       on ApiError catch(apiError){
         if(apiError.errorCode == 200){
-          print("Requested backup");
-          yield ControlLoaded(state.settings);
+          yield ControlEmailSent(state.settings);
         }
         else{
           print("Failed. There was an error... "+apiError.message);
@@ -96,8 +99,7 @@ class ControlBloc extends Bloc<ControlEvent, ControlState>{
       }
       on ApiError catch(apiError){
         if(apiError.errorCode == 200){
-          print("end semester");
-          yield ControlLoaded(state.settings);
+          yield ControlEmailSent(state.settings);
         }
         else if(apiError.errorCode == 414){
           print("Competition must be disabled");
@@ -119,8 +121,7 @@ class ControlBloc extends Bloc<ControlEvent, ControlState>{
       }
       on ApiError catch(apiError){
         if(apiError.errorCode == 200){
-          print("Reset competition");
-          yield ControlLoaded(state.settings);
+          yield ControlEmailSent(state.settings);
         }
         else if(apiError.errorCode == 414){
           print("Competition must be disabled");

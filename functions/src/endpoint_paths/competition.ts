@@ -20,6 +20,11 @@ import {verifyOneTimeCode, generateOneTimeCode} from '../src/OTCGenerator'
 import {resetHouseCompetition} from '../src/ResetHouseCompetition'
 import * as ParameterParser from '../src/ParameterParser'
 import { grantHouseAward } from '../src/GrantHouseAward'
+import { getHouseByName } from '../src/GetHouses'
+import { updateHouse, updateCompleteHouse } from '../src/UpdateHouse'
+import { getHouseCodes } from '../src/GetHouseCodes'
+import { createUser } from '../src/CreateUser'
+import { updateUser } from '../src/UpdateUser'
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
@@ -102,46 +107,33 @@ comp_app.get('/settings', async (req, res) => {
  */
 comp_app.put('/settings', async (req, res) => {
 	try{
-		if(req.body === undefined || 
-			(req.body.competitionHiddenMessage === undefined && !("isCompetitionVisible" in req.body) && req.body.competitionDisabledMessage === undefined && !("isCompetitionEnabled" in req.body)))
+		if(req.body === undefined || req.body === null)
 			throw APIResponse.MissingRequiredParameters()
 
-		const competitionHiddenMessage = req.body.competitionHiddenMessage
-		const competitionDisabledMessage = req.body.competitionDisabledMessage
 		const user = await getUser(req["user"]["user_id"])
 		verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
 		const systemPreferences = await getSystemPreferences();
 		
-		if(competitionHiddenMessage !== undefined){
-			if(typeof competitionHiddenMessage === 'string')
-			systemPreferences.competitionHiddenMessage = competitionHiddenMessage
-			else
-				throw APIResponse.IncorrectFormat()
-		}
 		if("isCompetitionVisible" in req.body){
-			console.log(typeof req.body.isCompetitionVisible)
-			if(req.body.isCompetitionVisible === 'false' || req.body.isCompetitionVisible === 'true')
-				systemPreferences.isCompetitionVisible = req.body.isCompetitionVisible === 'true'
-			else if(req.body.isCompetitionVisible === true || req.body.isCompetitionVisible === false){
-				systemPreferences.isCompetitionVisible = req.body.isCompetitionVisible
-			}
-			else
-				throw APIResponse.IncorrectFormat()
+			systemPreferences.isCompetitionVisible = ParameterParser.parseInputForBoolean(req.body.isCompetitionVisible)
 		}
-		if(competitionDisabledMessage !== undefined){
-			if(typeof competitionDisabledMessage === 'string')
-			systemPreferences.competitionDisabledMessage = competitionDisabledMessage
-			else
-				throw APIResponse.IncorrectFormat()
+
+		if("competitionHiddenMessage" in req.body){
+			systemPreferences.competitionHiddenMessage = ParameterParser.parseInputForString(req.body.competitionHiddenMessage)
 		}
+
+		if("isShowingRewards" in req.body){
+			systemPreferences.showRewards = ParameterParser.parseInputForBoolean(req.body.isShowingRewards)
+		}
+
 		if( "isCompetitionEnabled"  in req.body){
-			if(req.body.isCompetitionEnabled === 'false' || req.body.isCompetitionEnabled === 'true')
-				systemPreferences.isCompetitionEnabled = req.body.isCompetitionEnabled === 'true'
-			else if(req.body.isCompetitionEnabled === false || req.body.isCompetitionEnabled === true)
-				systemPreferences.isCompetitionEnabled = req.body.isCompetitionEnabled
-			else
-				throw APIResponse.IncorrectFormat()
+			systemPreferences.isCompetitionEnabled = ParameterParser.parseInputForBoolean(req.body.isCompetitionEnabled)
 		}
+
+		if("competitionDisabledMessage" in req.body){
+			systemPreferences.competitionDisabledMessage = ParameterParser.parseInputForString(req.body.competitionDisabledMessage)
+		}
+
 		await updateSystemPreferences(systemPreferences)
 		
 		throw APIResponse.Success()
@@ -222,13 +214,14 @@ comp_app.get('/confirmEndSemester', async (req, res) => {
 		if(req.query.code === undefined || typeof req.query.code !== 'string' || req.query.code === ""){
 			throw APIResponse.MissingRequiredParameters()
 		}
-		verifyOneTimeCode(req.query.code)
+		const code = ParameterParser.parseInputForString(req.query.code)
+		verifyOneTimeCode(code)
 		const systemPreferences = await getSystemPreferences()
 		if(systemPreferences.isCompetitionEnabled){
 			throw APIResponse.CompetitionDisabled()
 		}
 		else{
-			await saveAndResetSemester()
+			await saveAndResetSemester(systemPreferences)
 		}
 		throw APIResponse.Success()
 	}
@@ -263,6 +256,7 @@ comp_app.post('/resetCompetition', async (req, res) => {
 			if(!systemPreferences.isCompetitionEnabled){
 				//Generate random key, save it to the house system and create a link 
 				const secretKey = generateOneTimeCode()
+				console.log("Using codE: "+secretKey)
 				const path = "https://"+req.hostname+"/competition/confirmResetCompetition?code="+secretKey+"&user="+user.id
 				
 				const mailOptions = {
@@ -310,7 +304,8 @@ comp_app.get('/confirmResetCompetition', async (req,res) => {
 		}
 		const user = await getUser(req.query.user)
 		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
-			verifyOneTimeCode(req.query.code)
+			const code = ParameterParser.parseInputForString(req.query.code)
+			verifyOneTimeCode(code)
 			const systemPreferences = await getSystemPreferences()
 			if(systemPreferences.isCompetitionEnabled){
 				throw APIResponse.CompetitionMustBeDisabled()
@@ -390,6 +385,55 @@ comp_app.post('/houseAward', async (req, res) => {
 		await grantHouseAward(house_name, ppr, description)
 		
 		throw APIResponse.Success()
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.error("Unknown Error: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
+})
+
+/**
+ * Update fields for the house
+ * @param body.house - required id of the house
+ * @param body.numberOfResidents - min 0 number of residents for the house
+ * @param body.description - of the house
+ * @returns 200 - Sucess
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permissions
+ * @throws 422 - Missing Required Parameters
+ * @throws 425 - Unknown House 
+ * @throws 426 - Invalid Data Format
+ * @throws 500 - Server Error
+ */
+comp_app.post('/updateHouse', async (req, res) => {
+	try{
+		if(req.body === undefined || req.body === null){
+			throw APIResponse.MissingRequiredParameters()
+		}
+
+		const house_id = ParameterParser.parseInputForString(req.body.house)
+
+		const user = await getUser(req["user"]["user_id"])
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
+
+		const house = await getHouseByName(house_id)
+		if( "numberOfResidents" in req.body){
+			house.numberOfResidents = ParameterParser.parseInputForNumber(req.body.numberOfResidents, 0)
+		}
+		if( "description" in req.body){
+			house.description = ParameterParser.parseInputForString(req.body.description)
+		}
+		//TODO Add rhps[] and floorIds[] 
+		await updateHouse(house)
+		throw APIResponse.Success()
+
 	}
 	catch (error){
         if( error instanceof APIResponse){
@@ -579,6 +623,32 @@ comp_app.get('/history', async (req, res) => {
             res.status(apiResponse.code).send(apiResponse.toJson())
         }
 	}
+})
+
+comp_app.get('/testDataSetup', async (req,res) => {
+	const systemPreferences = await getSystemPreferences()
+	const houseCodes = await getHouseCodes()
+	for(const house_id of systemPreferences.houseIds){
+
+		let points = 0
+
+		for(const code of houseCodes){
+			if(code.house === house_id){
+				await createUser(code.id, code.code, code.house, code.permissionLevel === 0 ? "Resident" : code.code)
+				const user = await getUser(code.id)
+				user.totalPoints = Math.round((Math.random() * 500))
+				user.semesterPoints = Math.round(user.totalPoints * Math.random())
+				points += user.totalPoints
+				await updateUser(user)
+			}
+		}
+
+		const house = await getHouseByName(house_id)
+		house.totalPoints = points
+		house.numberOfResidents = 178
+		await updateCompleteHouse(house)
+	}
+	res.status(200).send(APIResponse.Success())
 })
 
 /**

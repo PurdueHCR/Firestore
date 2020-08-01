@@ -20,6 +20,9 @@ class Reward{
 
 
   factory Reward.fromJson(Map<String,dynamic> json) {
+    if(!json.containsKey(ID)){
+      return null;
+    }
     return Reward(
       id: json[ID],
       name: json[NAME],

@@ -8,6 +8,7 @@ export class SystemPreference {
     static IS_COMPETITION_VISIBLE = "isCompetitionVisible"
     static SUGGESTED_POINT_IDS = "suggestedPointIDs"
     static HOUSE_IDS = "houseIDs"
+    static SHOW_REWARDS = "ShowRewards"
     static DEFAULT_IMAGE_URL = "DefaultImageURL"
     static DEFAULT_IMAGE_NAME = "DefaultImageName"
 
@@ -21,11 +22,12 @@ export class SystemPreference {
     isCompetitionVisible: Boolean
     defaultImageURL: string
     defaultImageName: string
+    showRewards: boolean
     houseIds: string[]
 
     constructor(id:string, androidVersion: string,  competitionDisabledMessage: string, iosVersion: string, competitionHiddenMessage:string, 
         isCompetitionEnabled: Boolean, suggestedPointIds: string, isCompetitionVisible: Boolean, houseIds: string[], defaultImageURL: string,
-        defaultImageName: string){
+        defaultImageName: string, showRewards: boolean){
         this.id = id
         this.androidVersion = androidVersion
         this.competitionDisabledMessage = competitionDisabledMessage
@@ -37,6 +39,7 @@ export class SystemPreference {
         this.houseIds = houseIds
         this.defaultImageName = defaultImageName
         this.defaultImageURL = defaultImageURL
+        this.showRewards = showRewards
     }
 
     updateFirebaseJson(){
@@ -48,6 +51,7 @@ export class SystemPreference {
         data[SystemPreference.HOUSE_IDS] = this.houseIds
         data[SystemPreference.DEFAULT_IMAGE_NAME] = this.defaultImageName
         data[SystemPreference.DEFAULT_IMAGE_URL] = this.defaultImageURL
+        data[SystemPreference.SHOW_REWARDS] = this.showRewards
         return data
     }
 
@@ -71,6 +75,7 @@ export class SystemPreference {
         let isCompetitionVisible: Boolean
         let defaultImageURL: string
         let defaultImageName: string
+        let showRewards: boolean
         id = document.id;
 
         if( SystemPreference.ANDROID_VERSION in document.data()!){
@@ -143,6 +148,13 @@ export class SystemPreference {
             defaultImageURL = ""
         }
 
-        return new SystemPreference(id, androidVersion, competitionDisabledMessage, iosVersion, competitionHiddenMessage, isCompetitionEnabled, suggestedPointIds, isCompetitionVisible, houseIds, defaultImageURL, defaultImageName);
+        if(SystemPreference.SHOW_REWARDS in document.data()!){
+            showRewards = document.data()![SystemPreference.SHOW_REWARDS]
+        }
+        else{
+            showRewards = true
+        }
+
+        return new SystemPreference(id, androidVersion, competitionDisabledMessage, iosVersion, competitionHiddenMessage, isCompetitionEnabled, suggestedPointIds, isCompetitionVisible, houseIds, defaultImageURL, defaultImageName, showRewards);
     }
 }

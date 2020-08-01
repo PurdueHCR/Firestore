@@ -13,13 +13,11 @@ class ControlRepository {
 
   Future<SystemPreference> getSettings() async {
     Map<String,dynamic> settingDoc = await callCloudFunction(config, Method.GET, "competition/settings");
-    print("Got data: "+settingDoc.toString());
     SystemPreference settings = SystemPreference.fromJson(settingDoc["settings"]);
-    print("Got data: "+settings.toString());
     return settings;
   }
 
-  updateSettings({bool isCompetitionEnabled, String competitionDisabledMessage, bool isCompetitionVisible, String competitionHiddenMessage}) async{
+  updateSettings({bool isCompetitionEnabled, String competitionDisabledMessage, bool isCompetitionVisible, String competitionHiddenMessage, bool isShowingRewards}) async{
     Map<String, dynamic> body = Map();
     if(competitionHiddenMessage != null){
       body[SystemPreference.COMPETITION_HIDDEN_MESSAGE] = competitionHiddenMessage;
@@ -32,6 +30,9 @@ class ControlRepository {
     }
     if(isCompetitionEnabled != null) {
       body[SystemPreference.IS_COMPETITION_ENABLED] = isCompetitionEnabled;
+    }
+    if(isShowingRewards != null){
+      body[SystemPreference.SHOW_REWARDS] = isShowingRewards;
     }
     await callCloudFunction(config, Method.PUT, "competition/settings", body: body);
   }
