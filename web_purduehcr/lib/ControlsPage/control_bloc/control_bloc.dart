@@ -81,8 +81,7 @@ class ControlBloc extends Bloc<ControlEvent, ControlState>{
       }
       on ApiError catch(apiError){
         if(apiError.errorCode == 200){
-          print("Requested backup");
-          yield ControlLoaded(state.settings);
+          yield ControlEmailSent(state.settings);
         }
         else{
           print("Failed. There was an error... "+apiError.message);
@@ -100,8 +99,7 @@ class ControlBloc extends Bloc<ControlEvent, ControlState>{
       }
       on ApiError catch(apiError){
         if(apiError.errorCode == 200){
-          print("end semester");
-          yield ControlLoaded(state.settings);
+          yield ControlEmailSent(state.settings);
         }
         else if(apiError.errorCode == 414){
           print("Competition must be disabled");
@@ -123,8 +121,7 @@ class ControlBloc extends Bloc<ControlEvent, ControlState>{
       }
       on ApiError catch(apiError){
         if(apiError.errorCode == 200){
-          print("Reset competition");
-          yield ControlLoaded(state.settings);
+          yield ControlEmailSent(state.settings);
         }
         else if(apiError.errorCode == 414){
           print("Competition must be disabled");

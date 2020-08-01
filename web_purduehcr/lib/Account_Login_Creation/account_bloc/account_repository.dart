@@ -17,4 +17,8 @@ class AccountRepository {
     return FirebaseUtility.signIn(config, email, password);
   }
 
+  sendPasswordResetEmail(String email) async{
+    await FirebaseUtility.sendPasswordResetEmail(email);
+  }
+
 }

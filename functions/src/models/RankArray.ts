@@ -7,6 +7,34 @@
 ///-----------------------------------------------------------------
 
 
+export class UserHouseRank{
+    residentId: string
+    firstName: string
+    lastName: string
+    totalPoints: number
+    semesterPoints: number
+
+    constructor(residentId:string, firstName: string, lastName: string, totalPoints: number, semesterPoints: number){
+        this.residentId = residentId
+        this.firstName = firstName
+        this.lastName = lastName
+        this.totalPoints = totalPoints
+        this.semesterPoints = semesterPoints
+    }
+
+    toFirestoreJson():any{
+        const map = {}
+        map[this.residentId] = {
+            firstName:this.firstName,
+            lastName:this.lastName,
+            totalPoints:this.totalPoints,
+            semesterPoints:this.semesterPoints
+        }
+        return map
+    }
+
+}
+
 export class RankArray {
     users:UserHouseRank[]
 
@@ -48,30 +76,3 @@ export class RankArray {
     }
 }
 
-export class UserHouseRank{
-    residentId: string
-    firstName: string
-    lastName: string
-    totalPoints: number
-    semesterPoints: number
-
-    constructor(residentId:string, firstName: string, lastName: string, totalPoints: number, semesterPoints: number){
-        this.residentId = residentId
-        this.firstName = firstName
-        this.lastName = lastName
-        this.totalPoints = totalPoints
-        this.semesterPoints = semesterPoints
-    }
-
-    toFirestoreJson():any{
-        const map = {}
-        map[this.residentId] = {
-            firstName:this.firstName,
-            lastName:this.lastName,
-            totalPoints:this.totalPoints,
-            semesterPoints:this.semesterPoints
-        }
-        return map
-    }
-
-}

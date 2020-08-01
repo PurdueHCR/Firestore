@@ -26,6 +26,10 @@ const validateFirebaseIdToken = async (req, res , next) => {
 		next()
 		return
 	}
+	if(req.path === '/testDataSetup' && !req.headers.authorization){
+		next()
+		return
+	}
 
 
   	if ((!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) &&

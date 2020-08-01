@@ -37,3 +37,9 @@ class ControlEmailError extends ControlState {
   @override
   List<Object> get props => [];
 }
+
+class ControlEmailSent extends ControlState {
+  const ControlEmailSent( SystemPreference settings):super(settings:settings);
+  @override
+  List<Object> get props => [];
+}

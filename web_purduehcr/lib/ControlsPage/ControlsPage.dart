@@ -479,6 +479,18 @@ class _ControlsPageState extends BasePageState<ControlBloc, ControlEvent, Contro
         _controlBloc.add(ControlHandledMessage());
       });
     }
+    else if (state is ControlEmailSent){
+      final snackBar = SnackBar(
+        backgroundColor: Colors.green,
+        content: Text(
+            'Email sent!'),
+      );
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) {
+        Scaffold.of(context).showSnackBar(snackBar);
+        _controlBloc.add(ControlHandledMessage());
+      });
+    }
   }
 }
 

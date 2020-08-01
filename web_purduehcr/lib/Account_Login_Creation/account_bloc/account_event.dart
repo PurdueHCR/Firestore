@@ -42,3 +42,16 @@ class CreateAccount extends AccountEvent {
   @override
   List<Object> get props => [email, password, verifyPassword];
 }
+
+class SendPasswordResetEmail extends AccountEvent {
+  final String email;
+  const SendPasswordResetEmail(this.email);
+  @override
+  List<Object> get props => [email];
+}
+
+class DisplayedMessage extends AccountEvent {
+  const DisplayedMessage();
+  @override
+  List<Object> get props => [];
+}

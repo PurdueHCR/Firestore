@@ -6,6 +6,7 @@ import 'package:purduehcr_web/Account_Login_Creation/LoginCard.dart';
 import 'package:purduehcr_web/Account_Login_Creation/account_bloc/account.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
+import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:purduehcr_web/authentication/authentication.dart';
 
 
@@ -51,7 +52,7 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
-
+    print("did call build");
     final bool isDesktop = isDisplayDesktop(context);
 
     return Scaffold(
@@ -62,6 +63,9 @@ class _AccountPageState extends State<AccountPage> {
         child: BlocBuilder<AccountBloc, AccountState>(
           bloc: _loginBloc,
           builder: (context, state) {
+            print("got new state update");
+            checkStateForSnackMessage(context, state);
+            print("Was not snack message");
             if(isDesktop){
               return _createDesktop(state);
             }
@@ -93,10 +97,9 @@ class _AccountPageState extends State<AccountPage> {
 
   Widget _createMobile(AccountState state){
     Widget child;
-    if(state is AccountLoading){
-      child = _createLoadingCard();
-    }
-    else if(state is AccountError){
+    print("Create mobile");
+    if(state is AccountError){
+      print("Account error");
       child = BlocProvider(
         builder: (BuildContext context) => _loginBloc,
         child: LoginCard(
@@ -116,26 +119,58 @@ class _AccountPageState extends State<AccountPage> {
           child: CreateAccountCard()
       );
     }
-    else {
+    else if(state is AccountInitial){
       child = BlocProvider(
           builder: (BuildContext context) => _loginBloc,
           child: LoginCard()
       );
+    }
+    else if(state is AccountLoading){
+      child = LoadingWidget();
+    }
+    else{
+      child = Text("There was a big problem");
     }
     return Center(
       child: child,
     );
   }
 
+  checkStateForSnackMessage(BuildContext context, AccountState state){
+    if(state is SendEmailSuccess){
+      final snackBar = SnackBar(
+        backgroundColor: Colors.green,
+        content:
+        Text('If the account exists, an email has been sent.'),
+      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Scaffold.of(context).showSnackBar(snackBar);
+        _loginBloc.add(DisplayedMessage());
+      });
+    }
+    else if(state is SendEmailError){
+      final snackBar = SnackBar(
+        backgroundColor: Colors.red,
+        content:
+        Text('There was a problem sending the email. Please try again.'),
+      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Scaffold.of(context).showSnackBar(snackBar);
+        _loginBloc.add(DisplayedMessage());
+      });
+    }
+  }
+
   Widget _createLoadingCard(){
     return Card (
-      child: CircularProgressIndicator(),
+      child: LoadingWidget(),
     );
   }
 
   @override
   void dispose() {
     super.dispose();
+    print("close bloc");
     _loginBloc.close();
   }
 }

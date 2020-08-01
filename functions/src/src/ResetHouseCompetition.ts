@@ -51,6 +51,11 @@ export async function resetHouseCompetition(user:User){
 		throw APIResponse.ServerError()
     }
 
+    for(const house of houses){
+        house.totalPoints = 0
+        house.houseAwards = []
+    }
+
     //Repopulate the models
     await setHouses(houses)
     await createUserFromModel(user.id, user)

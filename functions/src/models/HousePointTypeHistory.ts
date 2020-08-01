@@ -5,6 +5,20 @@
 ///   Revision History:
 ///   Name:           Date:        Description:
 ///-----------------------------------------------------------------
+export class HousePointType{
+    id: number
+    name: string
+    submitted: number
+    approved: number
+
+    constructor(id:number, name:string, submitted:number, approved: number){
+        this.id = id
+        this.name = name
+        this.submitted = submitted
+        this.approved = approved
+    }
+}
+
 export class HousePointTypeHistory{
 
     housePointTypes: HousePointType[]
@@ -33,16 +47,3 @@ export class HousePointTypeHistory{
     }
 }
 
-export class HousePointType{
-    id: number
-    name: string
-    submitted: number
-    approved: number
-
-    constructor(id:number, name:string, submitted:number, approved: number){
-        this.id = id
-        this.name = name
-        this.submitted = submitted
-        this.approved = approved
-    }
-}

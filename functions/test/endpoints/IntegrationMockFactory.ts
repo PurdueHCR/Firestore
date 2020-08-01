@@ -57,7 +57,7 @@ export function mockDynamicLink(){
 export function mockOTCGenerator(){
     jest.mock('otplib', () => {
         return {
-            authenticator: {
+            totp: {
                 generate: (secret) => "TESTTOKEN",
                 check:(token, secret) => {
                     console.log("Checking "+token)

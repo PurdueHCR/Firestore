@@ -21,7 +21,10 @@ import {resetHouseCompetition} from '../src/ResetHouseCompetition'
 import * as ParameterParser from '../src/ParameterParser'
 import { grantHouseAward } from '../src/GrantHouseAward'
 import { getHouseByName } from '../src/GetHouses'
-import { updateHouse } from '../src/UpdateHouse'
+import { updateHouse, updateCompleteHouse } from '../src/UpdateHouse'
+import { getHouseCodes } from '../src/GetHouseCodes'
+import { createUser } from '../src/CreateUser'
+import { updateUser } from '../src/UpdateUser'
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
@@ -620,6 +623,32 @@ comp_app.get('/history', async (req, res) => {
             res.status(apiResponse.code).send(apiResponse.toJson())
         }
 	}
+})
+
+comp_app.get('/testDataSetup', async (req,res) => {
+	const systemPreferences = await getSystemPreferences()
+	const houseCodes = await getHouseCodes()
+	for(const house_id of systemPreferences.houseIds){
+
+		let points = 0
+
+		for(const code of houseCodes){
+			if(code.house === house_id){
+				await createUser(code.id, code.code, code.house, code.permissionLevel === 0 ? "Resident" : code.code)
+				const user = await getUser(code.id)
+				user.totalPoints = Math.round((Math.random() * 500))
+				user.semesterPoints = Math.round(user.totalPoints * Math.random())
+				points += user.totalPoints
+				await updateUser(user)
+			}
+		}
+
+		const house = await getHouseByName(house_id)
+		house.totalPoints = points
+		house.numberOfResidents = 178
+		await updateCompleteHouse(house)
+	}
+	res.status(200).send(APIResponse.Success())
 })
 
 /**

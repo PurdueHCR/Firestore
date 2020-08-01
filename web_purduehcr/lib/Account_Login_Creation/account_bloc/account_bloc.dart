@@ -26,7 +26,7 @@ class AccountBloc extends Bloc<AccountEvent, AccountState>{
 
   @override
   Stream<AccountState> mapEventToState( AccountEvent event) async* {
-    if(event is AccountInitialize){
+    if(event is AccountInitialize || event is DisplayedMessage){
       yield AccountInitial();
     }
     else if(event is CreateAccountInitialize){
@@ -60,8 +60,8 @@ class AccountBloc extends Bloc<AccountEvent, AccountState>{
       }
     }
     else if(event is Login) {
-      yield AccountLoading();
       try {
+        yield AccountLoading();
         await _accountRepository.loginUser(event.email, event.password);
         authenticationBloc.add(LoggedIn(houseCode: houseCode));
       }
@@ -71,7 +71,17 @@ class AccountBloc extends Bloc<AccountEvent, AccountState>{
       }
       catch (error) {
         print("GOT LOGIN ERROR in BLOC: $error");
-        yield AccountError(message: error);
+        yield AccountError(message: error.toString());
+      }
+    }
+    else if(event is SendPasswordResetEmail){
+      try{
+        await _accountRepository.sendPasswordResetEmail(event.email);
+        yield SendEmailSuccess();
+      }
+      catch(error){
+        print("Got error "+ error.toString());
+        yield SendEmailError();
       }
     }
   }

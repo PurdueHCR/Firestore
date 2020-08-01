@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/Config.dart';
 import 'package:firebase/firebase.dart' as fb;
+import 'package:purduehcr_web/Models/ApiError.dart';
 
 
 class FirebaseUtility{
@@ -68,7 +69,7 @@ class FirebaseUtility{
             errorMessage = "Uh oh, there was a problem. Please try again later.";
             break;
         }
-        return Future.error(errorMessage);
+        throw ApiError(400, errorMessage);
       }
     });
   }
@@ -108,6 +109,17 @@ class FirebaseUtility{
         return Future.value(value.token);
       });
     });
+  }
+
+  static sendPasswordResetEmail(String email) async{
+    try{
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    }
+    catch(error){
+      if(error.code != "auth/user-not-found"){
+        throw error;
+      }
+    }
   }
 
 

@@ -131,7 +131,6 @@ class _HouseDescription extends State<HouseDescription> {
         key: _residentsKey,
         child: TextFormField(
           decoration:InputDecoration(labelText: 'How many residents are in this house?'),
-          maxLines: null,
           maxLength: 3,
           keyboardType: TextInputType.numberWithOptions(),
           controller: numResController,
@@ -226,8 +225,7 @@ class _HouseDescription extends State<HouseDescription> {
         key: _descriptionFormKey,
         child: TextFormField(
           decoration:InputDecoration(labelText: 'Enter a description for this house.'),
-          maxLines: null,
-          maxLength: 200,
+          maxLength: 250,
           controller: descriptionController,
           onEditingComplete: (){
             final form = _descriptionFormKey.currentState;

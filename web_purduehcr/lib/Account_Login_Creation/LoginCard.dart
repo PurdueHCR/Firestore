@@ -20,6 +20,8 @@ class _LoginCardState extends State<LoginCard>{
 
 
   AccountBloc _accountBloc;
+  final _passwordResetKey = GlobalKey<FormState>();
+  TextEditingController passwordResetController = TextEditingController();
 
 
   @override
@@ -115,8 +117,67 @@ class _LoginCardState extends State<LoginCard>{
                 ],
               ),
               FlatButton(
-                onPressed: () { print("Forgot Password"); },
                 child: Text("Forgot Password"),
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                    builder: (BuildContext context){
+                        return AlertDialog(
+                          title: Text("Reset Password"),
+                          content: Form(
+                            key: _passwordResetKey,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(maxWidth: 300),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text("To reset your password, enter your account email below. If it exists, we will send you an email with a link to reset your password."),
+                                  TextFormField(
+                                    decoration:
+                                    InputDecoration(labelText: 'Enter the email linked to your account'),
+                                    maxLines: null,
+                                    maxLength: 100,
+                                    controller: passwordResetController,
+                                    keyboardType: TextInputType.emailAddress,
+                                    autofillHints: [AutofillHints.email],
+                                    validator: (value) {
+                                      RegExp regExp = new RegExp(
+                                        r"[A-Z0-9a-z._%+-]+@purdue\.edu",
+                                      );
+                                      if (value.isEmpty) {
+                                        return 'Please enter an email address';
+                                      }
+                                      else if(!regExp.hasMatch(value)){
+                                        return 'Please enter a valid purdue email address';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          actions: [
+                            RaisedButton(
+                              child: Text("Cancel"),
+                              onPressed: (){
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            RaisedButton(
+                              child: Text("Request Email"),
+                              onPressed: (){
+                                if(_passwordResetKey.currentState.validate()){
+                                  _accountBloc.add(SendPasswordResetEmail(passwordResetController.text) );
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                            )
+                          ],
+                        );
+                    }
+                  );
+                },
               )
             ],
           ),
