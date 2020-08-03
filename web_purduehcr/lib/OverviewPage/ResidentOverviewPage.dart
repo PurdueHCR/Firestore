@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:purduehcr_web/BasePage.dart';
 import 'package:purduehcr_web/Models/House.dart';
 import 'package:purduehcr_web/Models/User.dart';
+import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/OverviewPage/overview_bloc/overview.dart';
 import 'package:purduehcr_web/OverviewPage/overview_cards/HouseCompetitionCard.dart';
 import 'package:purduehcr_web/OverviewPage/overview_cards/ProfileCard.dart';
@@ -23,7 +24,7 @@ class ResidentOverviewPage extends BasePage {
   @override
   State<StatefulWidget> createState() {
     print("Create State Resident Overview Page");
-    return _ResidentOverviewPageState(drawerLabel: "Overview", linkId: linkId);
+    return _ResidentOverviewPageState( "Overview", linkId: linkId);
   }
 
 }
@@ -33,7 +34,7 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
   OverviewBloc _overviewBloc;
   String linkId;
 
-  _ResidentOverviewPageState({@required String drawerLabel, this.linkId}):super(drawerLabel:drawerLabel);
+  _ResidentOverviewPageState(String drawerLabel, {this.linkId}):super(drawerLabel);
 
   @override
   void initState() {
@@ -65,6 +66,7 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
               height: getActiveAreaWidth(context) * 0.3,
               child:HouseCompetitionCard(
                 houses: state.houses,
+                preferences: authState.preferences,
               ),
             ),
             Row(
@@ -75,7 +77,7 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
                     user:user,
                     userRank:state.rank
                 ),
-                RewardsCard(reward: state.reward, house: getUserHouse(user, state.houses),)
+                RewardsCard(reward: state.reward, house: state.myHouse,)
               ],
             ),
             SizedBox(
@@ -114,13 +116,14 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
               height: getActiveAreaWidth(context) * 0.3,
               child:HouseCompetitionCard(
                 houses: residentData.houses,
+                preferences: authState.preferences,
               ),
             ),
             ProfileCard(
                 user:user,
                 userRank:residentData.rank
             ),
-            RewardsCard(reward: residentData.reward, house: getUserHouse(user, residentData.houses),),
+            RewardsCard(reward: residentData.reward, house: state.myHouse,),
             SizedBox(
               width: getActiveAreaWidth(context),
               height: 308,
@@ -145,14 +148,6 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
     return _overviewBloc;
   }
 
-  House getUserHouse(User user, List<House> houses){
-    for( House house in houses){
-      if(house.name == user.house){
-        return house;
-      }
-    }
-    return houses[0];
-  }
 
   void handleLink(){
     if(linkId != null){
@@ -168,5 +163,10 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
         }
       });
     }
+  }
+
+  @override
+  UserPermissionSet getAcceptedPermissionLevels() {
+    return CompetitionParticipantsSet();
   }
 }

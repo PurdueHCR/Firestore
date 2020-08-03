@@ -21,13 +21,273 @@
   }, {
     "name" : "link"
   }, {
-    "name" : "reward"
+    "name" : "rewards"
   }, {
     "name" : "point_type"
   }, {
     "name" : "point_log"
+  },{
+    "name" : "house_codes"
   } ],
   "paths" : {
+
+    "/house_codes/" : {
+      "get" : {
+        "tags" : [ "house_codes" ],
+        "summary" : "Returns all house codes that is visible to the user.",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties": {
+                    "house_codes": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/HouseCode"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level to access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/house_codes/preview" : {
+      "get" : {
+        "tags" : [ "house_codes" ],
+        "summary" : "Return the house code for the provided id and the house model if present",
+        "parameters" : [ 
+          {
+          "name" : "code",
+          "in" : "query",
+          "description" : "Code for the join house code",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "ABC123"
+          } 
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HouseCodePreview"
+                }
+              }
+            }
+          },
+          "415" : {
+            "description" : "The provided house code id does not match any code.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownHouseCodeId"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "The provided id was not in a supported format.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/house_codes/refresh" : {
+      "post" : {
+        "tags" : [ "house_codes" ],
+        "summary" : "Refresh the code field in the House Code models and generate a new dynamic link for it. If provided with an id in the body, this will only refresh the token on that House Code.",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "requestBody" : {
+          "description" : "Optional field to only refresh a single House Code",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties": {
+                  "id" : {
+                    "type": "string",
+                    "example": "329opc8dahl3fh"
+                  }
+                }
+              }
+            }
+          },
+          "required" : false
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties": {
+                    "house_codes": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/HouseCode"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level to access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "415" : {
+            "description" : "The provided house code id does not match any code.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownHouseCodeId"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "The provided id was not in a supported format.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
     "/user/auth-rank" : {
       "get" : {
         "tags" : [ "user" ],
@@ -201,7 +461,248 @@
         }
       }
     },
-    "/user/get" : {
+    "/user/search" : {
+      "get" : {
+        "tags" : [ "user" ],
+        "summary" : "Search for a user whose last name starts with the provided term. This is an endpoint for Professional staff only.",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        }, {
+          "name" : "term",
+          "in" : "query",
+          "description" : "The begining of the last name of the user to find.",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "A"
+        },
+        {
+          "name" : "previousName",
+          "in" : "query",
+          "description" : "The last name of the last resident returned in the previous request to support pagination.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Aardvark"
+        }
+       ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties": {
+                    "users": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/User"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User who made the request does not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level to access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing Required Parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "Invalid Data Format. Make sure Strings are not null or empty.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/" : {
+      "put": {
+        "tags" : [ "user" ],
+        "summary" : "Update the user model.",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to update the user. If an id is not provided, it will update the current user's information. Otherwise, it will use the provided id to update a user. A resident can only update the first and last name. RHP's can do that and update the house and floor id. Professional staff can update those and the permission level.",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UserUpdate"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Update was successfully completed.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "The calling user doesnt exist or the user with the given id doesn't exist.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level to access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing Required Parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "425" : {
+            "description" : "The house provided does not exist.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownHouse"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "Invalid Data Format. Make sure Strings are not null or empty and numbers are not negative. Permission Level must be in the correct range.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "428" : {
+            "description" : "The provided floor id does not exist for the house.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidFloorId"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
       "get" : {
         "tags" : [ "user" ],
         "summary" : "Get the user model for the provided Firebase Token.",
@@ -680,6 +1181,120 @@
           },
           "500" : {
             "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/competition/houseAward" : {
+      "post" : {
+        "tags" : [ "competition" ],
+        "summary" : "Give a Points Per Resident award to the house specified. This is only for Professional staff",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "requestBody" : {
+          "description" : "Fields to give award to a house",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties": {
+                  "house": {
+                    "type" : "string",
+                    "example" : "Platinum"
+                  },
+                  "ppr": {
+                    "type" : "number",
+                    "example" : 10
+                  },
+                  "description": {
+                    "type" : "string",
+                    "example" : "First Place in the Summer Competition"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Retrieved Point Logs",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level. Only Residents, RHPs, and Privileged Residents can get points",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing Required Parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "Invalid Format in Data",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
           }
         }
       }
@@ -1452,6 +2067,214 @@
             }
           }
         }
+      },
+      "put" : {
+        "tags": [ "point_type"],
+        "summary": "Route for professional staff to update a point type",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to update a point type. Id is the only required parameters",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PointType"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses": {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "417" : {
+            "description" : "The Id provided for the point type was not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDoesNotExist"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "An id must be provided as well as at least one of the other parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags": [ "point_type"],
+        "summary": "Route for professional staff to create a point type",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to update a point type. ",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PointTypeWithoutId"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses": {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointType"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "An id must be provided as well as at least one of the other parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/point_type/submittable": {
@@ -1590,10 +2413,10 @@
         }
       }
     },
-    "/point_type/update" : {
-      "put" : {
-        "tags" : [ "point_type" ],
-        "summary" : "Update a Point Type",
+    "/rewards/" : {
+      "delete": {
+        "tags" : [ "rewards" ],
+        "description":"Deletes the reward with the given id.",
         "parameters" : [ {
           "name" : "Authorization",
           "in" : "header",
@@ -1605,21 +2428,21 @@
             "type" : "string"
           },
           "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "requestBody" : {
-          "description" : "Body sent to update the Point Type. Only id is required. The other parameters are optional.",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/PointType"
-              }
-            }
+        }, {
+          "name" : "id",
+          "in" : "query",
+          "description" : "Id  for the reward",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
           },
-          "required" : true
-        },
+          "example" : "Ice Cream Party"
+        } ],
         "responses" : {
           "200" : {
-            "description" : "Success",
+            "description" : "Message Successfully Saved",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -1639,7 +2462,7 @@
             }
           },
           "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -1649,7 +2472,7 @@
             }
           },
           "403" : {
-            "description" : "Invalid Permission Level -  Only Professional Staf can edit point types",
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -1658,18 +2481,18 @@
               }
             }
           },
-          "426" : {
-            "description" : "One or more fields provided were in an invalid format to save in the database",
+          "420" : {
+            "description" : "Could not find the reward with the given Id",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                  "$ref" : "#/components/schemas/UnknownReward"
                 }
               }
             }
           },
           "500" : {
-            "description" : "Server Error.",
+            "description" : "Server Error",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -1679,11 +2502,9 @@
             }
           }
         }
-      }
-    },
-    "/reward/get" : {
+      },
       "get" : {
-        "tags" : [ "reward" ],
+        "tags" : [ "rewards" ],
         "summary" : "If given an Id,  get the reward with that Id, otherwise get all the rewards",
         "parameters" : [ {
           "name" : "Authorization",
@@ -1710,14 +2531,29 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "Rewards",
+            "description" : "Success",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/Reward"
+                  "type" : "object",
+                  "properties": {
+                    "rewards": {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/Reward"
+                      }
+                    }
                   }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
                 }
               }
             }
@@ -1753,7 +2589,216 @@
             }
           }
         }
+      },
+      "post" : {
+        "tags": [ "rewards"],
+        "summary": "Route for professional staff to create a reward",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to update a reward. ",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Reward"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses": {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Reward"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "An id must be provided as well as at least one of the other parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [ "rewards"],
+        "summary": "Route for professional staff to update a reward",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer Firebase_ID_Token",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to update a reward. Id is the only required parameters",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Reward"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses": {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "420" : {
+            "description" : "The Id provided for the reward was not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownReward"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "An id must be provided as well as at least one of the other parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
       }
+
     },
     "/point_log/messages" : {
       "post" : {
@@ -1979,6 +3024,35 @@
           }
         }
       },
+      "UserUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "example" : "23p9vd123iohfds09aserh"
+          },
+          "firstName" : {
+            "type" : "string",
+            "example" : "Mitch"
+          },
+          "lastName" : {
+            "type" : "string",
+            "example" : "Daniels"
+          },
+          "floorId" : {
+            "type" : "string",
+            "example" : "4N"
+          },
+          "house" : {
+            "type" : "string",
+            "example" : "Platinum"
+          },
+          "permissionLevel" : {
+            "type" : "integer",
+            "example" : 0
+          }
+        }
+      },
       "House" : {
         "type" : "object",
         "properties" : {
@@ -2001,6 +3075,42 @@
           "pointsPerResident" : {
             "type" : "number",
             "example" : 33.76
+          }
+        }
+      },
+      "HouseCodePreview" : {
+        "type" : "object",
+        "properties" : {
+          "houseCode" : {
+            "$ref" : "#/components/schemas/HouseCode"
+          },
+          "house" : {
+            "$ref" : "#/components/schemas/House"
+          }
+        }
+      },
+      "HouseCode" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "example" : "4S1234"
+          },
+          "codeName" : {
+            "type" : "string",
+            "example" : "4S Resident"
+          },
+          "floorId" : {
+            "type" : "string",
+            "example" : "4S"
+          },
+          "House" : {
+            "type" : "string",
+            "example" : "Platinum"
+          },
+          "permissionLevel" : {
+            "type" : "integer",
+            "example" : 0
           }
         }
       },
@@ -2096,19 +3206,23 @@
         "properties" : {
           "id" : {
             "type" : "string",
-            "example" : "Ice Cream"
+            "example" : "aslk3tasytre2"
           },
           "fileName" : {
             "type" : "string",
             "example" : "IceCream.png"
           },
+          "downloadURL" : {
+            "type" : "string",
+            "example" : "www.url.com/download"
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "Ice Cream Party"
+          },
           "requiredPPR" : {
             "type" : "number",
             "example" : 45
-          },
-          "requiredValue" : {
-            "type" : "number",
-            "example" : 4000
           }
         }
       },
@@ -2189,27 +3303,56 @@
             "type" : "string",
             "example" : "5"
           },
-          "Description" : {
+          "description" : {
             "type" : "string",
             "example" : "Attend a House Dinner"
           },
-          "Enabled" : {
+          "enabled" : {
             "type" : "boolean",
             "example" : true
           },
-          "Name" : {
+          "name" : {
             "type" : "string",
             "example" : "House Dinner"
           },
-          "PermissionLevel" : {
+          "permissionLevel" : {
             "type" : "number",
             "example" : 1
           },
-          "ResidentsCanSubmit" : {
+          "residentsCanSubmit" : {
             "type" : "boolean",
             "example" : true
           },
-          "Value" : {
+          "value" : {
+            "type" : "number",
+            "example" : 1
+          }
+        }
+      },
+      "PointTypeWithoutId" : {
+        "type" : "object",
+        "properties" : {
+          "description" : {
+            "type" : "string",
+            "example" : "Attend a House Dinner"
+          },
+          "enabled" : {
+            "type" : "boolean",
+            "example" : true
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "House Dinner"
+          },
+          "permissionLevel" : {
+            "type" : "number",
+            "example" : 1
+          },
+          "residentsCanSubmit" : {
+            "type" : "boolean",
+            "example" : true
+          },
+          "value" : {
             "type" : "number",
             "example" : 1
           }
@@ -2445,12 +3588,30 @@
           }
         }
       },
+      "UnknownHouseCodeId" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "There is no House Code with the provided id. Make sure you use the Id field of the House Code and not the code field."
+          }
+        }
+      },
       "InvalidDataFormat" : {
         "type" : "object",
         "properties" : {
           "message" : {
             "type" : "string",
             "example" : "Data provided is in the incorrect format."
+          }
+        }
+      },
+      "InvalidFloorId" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "The provided floor id does not exist on the house."
           }
         }
       },
@@ -2481,7 +3642,15 @@
           }
         }
       },
-      
+      "RewardAlreadyExists" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "A reward with that id already exists."
+          }
+        }
+      },
       "ServerError" : {
         "type" : "object",
         "properties" : {

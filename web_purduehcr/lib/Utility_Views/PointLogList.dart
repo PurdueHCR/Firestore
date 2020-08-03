@@ -10,8 +10,9 @@ class PointLogList extends StatefulWidget{
   final bool searchable;
   final bool showLoadMoreButton;
   final Function loadMore;
+  final bool shrinkWrap;
 
-  const PointLogList({Key key, @required this.pointLogs, @required this.onPressed, this.searchable = true, this.showLoadMoreButton = false, this.loadMore}):
+  const PointLogList({Key key, @required this.pointLogs, @required this.onPressed, this.searchable = true, this.showLoadMoreButton = false, this.loadMore, this.shrinkWrap = false}):
         assert(pointLogs != null), assert(onPressed != null), super(key: key);
 
   @override
@@ -39,7 +40,7 @@ class _PointLogListState extends State<PointLogList>{
     }
     else{
       mainContent = ListView.builder(
-//        shrinkWrap: true,
+        shrinkWrap: widget.shrinkWrap,
         itemCount: (this.widget.showLoadMoreButton)? visibleLogs.length + 1 : visibleLogs.length,
         itemBuilder: (BuildContext context, int index){
           if(index == visibleLogs.length){
@@ -58,7 +59,7 @@ class _PointLogListState extends State<PointLogList>{
     }
 
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.max,
       children: [
         Visibility(
             visible: widget.searchable,
@@ -96,11 +97,6 @@ class PointLogListTile extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    print("First name: "+pointLog.residentFirstName);
-    print("Description: "+pointLog.description);
-    print("WAs handled: "+pointLog.pointTypeId.toString());
-    print("Date "+pointLog.dateOccurred.toString());
-
     return ListTile(
       onTap: () => onTap(context, pointLog),
       title: Text(pointLog.residentFirstName),

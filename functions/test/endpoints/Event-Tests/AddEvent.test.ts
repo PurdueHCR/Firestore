@@ -39,7 +39,9 @@ describe('event/add', () => {
         await FirestoreDataFactory.setUser(db, FACULTY, 3)
         await FirestoreDataFactory.setUser(db, PRIV_RES, 4)
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
-        
+        await FirestoreDataFactory.setPointType(db, 1, {permission_level:3})
+        await FirestoreDataFactory.setPointType(db, 2, {residents_can_submit:false, permission_level:1})
+        await FirestoreDataFactory.setPointType(db, 3, {is_enabled:false, permission_level:3})
         await FirestoreDataFactory.setHouse(db, HOUSE_NAME)
         await FirestoreDataFactory.setHouseCode(db, HOUSE_CODE)
     })
@@ -69,10 +71,7 @@ describe('event/add', () => {
             "details": "test details",
             "date": "January 1, 2100",
             "location": "test location",
-            "points": "5",
-            "point_type_id":"1",
-            "point_type_name":"test type name",
-            "point_type_description":"test type description",
+            "point_type_id":1,
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -92,10 +91,7 @@ describe('event/add', () => {
             "name": "test event",
             "date": "January 1, 2100",
             "location": "test location",
-            "points": "5",
-            "point_type_id":"1",
-            "point_type_name":"test type name",
-            "point_type_description":"test type description",
+            "point_type_id":1,
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -115,10 +111,7 @@ describe('event/add', () => {
             "name": "test event",
             "details": "test details",
             "location": "test location",
-            "points": "5",
-            "point_type_id":"1",
-            "point_type_name":"test type name",
-            "point_type_description":"test type description",
+            "point_type_id":1,
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -138,33 +131,7 @@ describe('event/add', () => {
             "name": "test event",
             "details": "test details",
             "date": "January 1, 2100",
-            "points": "5",
-            "point_type_id":"1",
-            "point_type_name":"test type name",
-            "point_type_description":"test type description",
-            "house": "test house"
-          }
-        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
-        res.end(function (err, res) {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.status).toBe(422)
-                done()
-            }
-        })
-    })
-
-    // Test if no points provided
-    it('Missing points', async(done) => {
-        const body = {
-            "name": "test event",
-            "details": "test details",
-            "date": "January 1, 2100",
-            "location": "test location",
-            "point_type_id":"1",
-            "point_type_name":"test type name",
-            "point_type_description":"test type description",
+            "point_type_id":1,
             "house": "test house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -185,10 +152,7 @@ describe('event/add', () => {
             "details": "test details",
             "date": "January 1, 2100",
             "location": "test location",
-            "points": "5",
-            "point_type_id":"1",
-            "point_type_name":"test type name",
-            "point_type_description":"test type description"
+            "point_type_id":1
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
         res.end(function (err, res) {
@@ -208,9 +172,6 @@ describe('event/add', () => {
             "details": "test details",
             "date": "January 1, 2100",
             "location": "test location",
-            "points": "5",
-            "point_type_name":"test type name",
-            "point_type_description":"test type description",
             "house":"test_house"
           }
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
@@ -224,47 +185,45 @@ describe('event/add', () => {
         })
     })
 
-    // Test if no point_type_name
-    it('Missing point_type_id', async(done) => {
-        const body = {
-            "name": "test event",
-            "details": "test details",
-            "date": "January 1, 2100",
-            "location": "test location",
-            "points": "5",
-            "point_type_id":"1",
-            "point_type_description":"test type description",
-            "house":"test_house"
-          }
+    // Test incorrect permission point type for RHP
+    it('Test incorrect permission point type for RHP', async(done) => {
+        let body = createDefaultEventBody()
+        body['point_type_id'] = 2
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
         res.end(function (err, res) {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(422)
+                expect(res.status).toBe(430)
                 done()
             }
         })
     })
 
-    // Test if no point_type_description
-    it('Missing point_type_description', async(done) => {
-        const body = {
-            "name": "test event",
-            "details": "test details",
-            "date": "January 1, 2100",
-            "location": "test location",
-            "points": "5",
-            "point_type_id":"1",
-            "point_type_name":"test type name",
-            "house":"test_house"
-          }
+    // Test disabled point type
+    it('Test disabled point type', async(done) => {
+        let body = createDefaultEventBody()
+        body['point_type_id'] = 3
         const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, body, RHP_ID)
         res.end(function (err, res) {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(422)
+                expect(res.status).toBe(418)
+                done()
+            }
+        })
+    })
+
+    // Test competition disabled
+    it('Test competition disabled', async(done) => {
+        await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled:false})
+        const res: request.Test = factory.post(add_event_func, ADD_EVENT_PATH, createDefaultEventBody(), RHP_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(412)
                 done()
             }
         })
@@ -290,7 +249,7 @@ describe('event/add', () => {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(201)
+                expect(res.status).toBe(200)
 
                 let doc = await db.collection("Events").where('Name','==','test event').limit(1).get()
                 expect(doc.docs[0]).toBeDefined()
@@ -300,7 +259,7 @@ describe('event/add', () => {
                 expect(data.Details).toBe("test details")
                 expect(data.Date).toBeDefined()
                 expect(data.Location).toBe("test location")
-                expect(data.Points).toBe(5)
+                expect(data.Points).toBe(1)
                 expect(data.House).toBe("test house")
                 expect(data.CreatorID).toBe(RHP_ID)
 
@@ -316,7 +275,7 @@ describe('event/add', () => {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(201)
+                expect(res.status).toBe(200)
 
                 let doc = await db.collection("Events").where('Name','==','test event').limit(1).get()
                 expect(doc.docs[0]).toBeDefined()
@@ -326,7 +285,7 @@ describe('event/add', () => {
                 expect(data.Details).toBe("test details")
                 expect(data.Date).toBeDefined()
                 expect(data.Location).toBe("test location")
-                expect(data.Points).toBe(5)
+                expect(data.Points).toBe(1)
                 expect(data.House).toBe("test house")
                 expect(data.CreatorID).toBe(REC_ID)
                 
@@ -342,7 +301,7 @@ describe('event/add', () => {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(201)
+                expect(res.status).toBe(200)
 
                 let doc = await db.collection("Events").where('Name','==','test event').limit(1).get()
                 expect(doc.docs[0]).toBeDefined()
@@ -352,7 +311,7 @@ describe('event/add', () => {
                 expect(data.Details).toBe("test details")
                 expect(data.Date).toBeDefined()
                 expect(data.Location).toBe("test location")
-                expect(data.Points).toBe(5)
+                expect(data.Points).toBe(1)
                 expect(data.House).toBe("test house")
                 expect(data.CreatorID).toBe(FACULTY)
                 
@@ -368,7 +327,7 @@ describe('event/add', () => {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(201)
+                expect(res.status).toBe(200)
 
                 let doc = await db.collection("Events").where('Name','==','test event').limit(1).get()
                 expect(doc.docs[0]).toBeDefined()
@@ -378,7 +337,7 @@ describe('event/add', () => {
                 expect(data.Details).toBe("test details")
                 expect(data.Date).toBeDefined()
                 expect(data.Location).toBe("test location")
-                expect(data.Points).toBe(5)
+                expect(data.Points).toBe(1)
                 expect(data.House).toBe("test house")
                 expect(data.CreatorID).toBe(PRIV_RES)
 
@@ -394,7 +353,7 @@ describe('event/add', () => {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(201)
+                expect(res.status).toBe(200)
 
                 let doc = await db.collection("Events").where('Name','==','test event').limit(1).get()
                 expect(doc.docs[0]).toBeDefined()
@@ -404,7 +363,7 @@ describe('event/add', () => {
                 expect(data.Details).toBe("test details")
                 expect(data.Date).toBeDefined()
                 expect(data.Location).toBe("test location")
-                expect(data.Points).toBe(5)
+                expect(data.Points).toBe(1)
                 expect(data.House).toBe("test house")
                 expect(data.CreatorID).toBe(EA_ID)
 
@@ -414,7 +373,8 @@ describe('event/add', () => {
     })
 
     // After all of the tests are done, make sure to delete the test firestore app
-    afterAll( () => {
+    afterAll( async () => {
+        await FirestoreDataFactory.cleanDatabase(db)
         Promise.all(firebase.apps().map(app => app.delete()))
     })
 })
@@ -426,7 +386,6 @@ describe('event/add', () => {
  */
 
 function createDefaultEventBody() {
-        return {"name":"test event", "details":"test details", "date":"January 1, 2100", "location":"test location",
-                "points":5, "point_type_id":1, "point_type_name":"test type name",
-                "point_type_description":"test type description", "house":"test house"}
+        return {"name":"test event", "details":"test details", "date":"January 1, 2100",
+                "location":"test location", "point_type_id":1, "house":"test house"}
     }

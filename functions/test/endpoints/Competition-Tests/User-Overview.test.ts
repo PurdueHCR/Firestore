@@ -17,6 +17,9 @@ let FHP = "FHP"
 let NHAS = "Non Honors Affiliated Staff"
 let USER_OVERVIEW = "/userOverview"
 
+let REWARD_100PPR = "REWARD_100PPR"
+let REWARD_5PPR = "REWARD_5PPR"
+
 
 //Test Suite Submit Points
 describe('GET competition/userOverview', () =>{
@@ -32,6 +35,7 @@ describe('GET competition/userOverview', () =>{
         //Get the User function from the index to test
         competition_func = require('../../../src/endpoint_paths/index.ts').competition
 
+        await FirestoreDataFactory.setSystemPreference(db)  
         //Create 6 sample residents
         await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0, {total_points: 1, semester_points: 1})
         for(let i =0; i < 5; i++){
@@ -60,14 +64,11 @@ describe('GET competition/userOverview', () =>{
         await FirestoreDataFactory.createMultiplePointLogs(db,"Platinum",RHP_ID,3)
 
         //Create sample rewards
-        await FirestoreDataFactory.setReward(db, {id:"T-Shirts", required_ppr: 5}) // Tshirts reard 5 ppr
-        await FirestoreDataFactory.setReward(db)// Default Reward 100 ppr
+        await FirestoreDataFactory.setReward(db, REWARD_5PPR, {required_ppr: 5}) // Tshirts reard 5 ppr
+        await FirestoreDataFactory.setReward(db, REWARD_100PPR)// Default Reward 100 ppr
+        await FirestoreDataFactory.createAllHouseCodes(db)
     })
 
-    beforeEach(async() =>{
-        // Reset the House competition sys preferences
-        await FirestoreDataFactory.setSystemPreference(db)  
-    })
 
 
     //Test if competition is hidden
@@ -88,6 +89,7 @@ describe('GET competition/userOverview', () =>{
                 expect(Object.getOwnPropertyNames(res.body.resident.next_reward)).toHaveLength(0)
                 expect(res.body.resident.houses).toHaveLength(0)
                 expect(res.body.resident.last_submissions).toHaveLength(5)
+                await FirestoreDataFactory.setSystemPreference(db, {is_competition_visible:true})
                 done()
             }
         })
@@ -108,6 +110,7 @@ describe('GET competition/userOverview', () =>{
             }
             else{
                 expect(res.status).toBe(200)
+                await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled:true})
                 done()
             }
         })
@@ -146,12 +149,13 @@ describe('GET competition/userOverview', () =>{
 
                 //check next reward
 
-                expect(res.body.rhp.next_reward.id).toBe(REWARD_DEFAULTS.id)
-                expect(res.body.rhp.next_reward.fileName).toBe(REWARD_DEFAULTS.id+".png")
+                expect(res.body.rhp.next_reward.id).toBe(REWARD_100PPR)
+                expect(res.body.rhp.next_reward.fileName).toBe(REWARD_DEFAULTS.file_name)
                 expect(res.body.rhp.next_reward.requiredPPR).toBe(REWARD_DEFAULTS.required_ppr)
 
                 //Check last submissions
                 expect(res.body.rhp.last_submissions).toHaveLength(3)
+                expect(res.body.rhp.house_codes).toHaveLength(3)
                 
                 done();
             }
@@ -167,7 +171,24 @@ describe('GET competition/userOverview', () =>{
                 done(err)
             }
             else{
-                expect(res.status).toBe(403)
+                expect(res.status).toBe(200)
+
+                //Check houses
+                expect(res.body.professional_staff.houses[0].id).toBe("Platinum")
+                expect(res.body.professional_staff.houses[0].pointsPerResident).toBe(10)
+                expect(res.body.professional_staff.houses[0].yearRank).toBeDefined()
+                expect(res.body.professional_staff.houses[0].semesterRank).toBeDefined()
+                expect(res.body.professional_staff.houses[0].submissions).toBeDefined()
+                expect(res.body.professional_staff.houses[1].id).toBe("Titanium")
+                expect(res.body.professional_staff.houses[1].pointsPerResident).toBe(8)
+                expect(res.body.professional_staff.houses[2].id).toBe("Silver")
+                expect(res.body.professional_staff.houses[2].pointsPerResident).toBe(3)
+                expect(res.body.professional_staff.houses[3].id).toBe("Palladium")
+                expect(res.body.professional_staff.houses[3].pointsPerResident).toBe(1)
+                expect(res.body.professional_staff.houses[4].id).toBe("Copper")
+                expect(res.body.professional_staff.houses[4].pointsPerResident).toBe(0)
+
+                
                 done()
             }
         })
@@ -222,8 +243,7 @@ describe('GET competition/userOverview', () =>{
 
                 //check next reward
 
-                expect(res.body.privileged_resident.next_reward.id).toBe("T-Shirts")
-                expect(res.body.privileged_resident.next_reward.fileName).toBe("T-Shirts.png")
+                expect(res.body.privileged_resident.next_reward.id).toBe(REWARD_5PPR)
                 expect(res.body.privileged_resident.next_reward.requiredPPR).toBe(5)
 
                 //Check last submissions
@@ -277,8 +297,8 @@ describe('GET competition/userOverview', () =>{
 
                 //check next reward
 
-                expect(res.body.resident.next_reward.id).toBe(REWARD_DEFAULTS.id)
-                expect(res.body.resident.next_reward.fileName).toBe(REWARD_DEFAULTS.id+".png")
+                expect(res.body.resident.next_reward.id).toBe(REWARD_100PPR)
+                expect(res.body.resident.next_reward.fileName).toBe(REWARD_DEFAULTS.file_name)
                 expect(res.body.resident.next_reward.requiredPPR).toBe(REWARD_DEFAULTS.required_ppr)
 
                 //Check last submissions

@@ -1,7 +1,8 @@
 import 'dart:ui';
 
-import 'package:firebase/firebase.dart' as fb;
 import 'package:meta/meta.dart';
+import 'package:purduehcr_web/Models/HousePointTypeCount.dart';
+import 'package:purduehcr_web/Models/UserScore.dart';
 
 class House{
 
@@ -10,40 +11,79 @@ class House{
   static const TOTAL_POINTS_KEY = "totalPoints";
   static const ID_KEY = "id";
   static const POINTS_PER_RESIDENTS_KEY = "pointsPerResident";
+  static const DOWNLOAD_URL = "downloadURL";
+  static const DESCRIPTION = "description";
+  static const YEAR_RANK = "yearRank";
+  static const SEMESTER_RANK = "semesterRank";
+  static const SUBMISSIONS = "submissions";
+
 
   String name;
-  double pontsPerResident;
+  double pointsPerResident;
   String color;
   int numberOfResidents;
   int totalPoints;
-  Uri downloadURL;
+  String downloadURL;
+  String description;
+  List<UserScore> overallScores;
+  List<UserScore> semesterScores;
+  List<HousePointTypeCount> submissions;
 
-  House({@required this.name, @required this.pontsPerResident, @required this.color, @required this.numberOfResidents, @required this.totalPoints}){
-    fb.storage().ref(this.name.toLowerCase()+".png").getDownloadURL().then((value) => downloadURL = value);
-  }
+  House({@required this.name, @required this.pointsPerResident,
+    @required this.color, @required this.numberOfResidents,
+    @required this.totalPoints, @required this.downloadURL, @required this.description,
+    this.overallScores, this.semesterScores, this.submissions});
 
-  Future<Uri> getDownloadURL(){
-    if(this.downloadURL == null){
-      return Future.delayed(Duration(milliseconds: 100)).then((val)=> getDownloadURL());
-    }
-    else{
-      return Future.value(downloadURL);
-    }
-  }
 
   factory House.fromJson(Map<String, dynamic> json){
+
+    List<UserScore> yearScores = new List();
+    List<UserScore> semesterScores = new List();
+    List<HousePointTypeCount> submissions = new List();
+
+    if(json.containsKey(YEAR_RANK)){
+      Set<Map<String, dynamic>> yearRankList = Set.from(json[YEAR_RANK]);
+
+      yearRankList.forEach((element) {
+        yearScores.add(UserScore.fromJson(element));
+      });
+    }
+    if(json.containsKey(SUBMISSIONS)){
+      Set<Map<String, dynamic>> submissionsList = Set.from(json[SUBMISSIONS]);
+
+      submissionsList.forEach((element) {
+        submissions.add(HousePointTypeCount.fromJson(element));
+      });
+    }
+
+    if(json.containsKey(SEMESTER_RANK)){
+      Set<Map<String, dynamic>> semesterRankList = Set.from(json[SEMESTER_RANK]);
+
+      semesterRankList.forEach((element) {
+        semesterScores.add(UserScore.fromJson(element));
+      });
+    }
+
     return House(
       name: json[ID_KEY],
-      pontsPerResident: json[POINTS_PER_RESIDENTS_KEY],
+      pointsPerResident: json[POINTS_PER_RESIDENTS_KEY],
       color: json[COLOR_KEY],
       numberOfResidents: (json[NUMBER_RESIDENTS_KEY] != null )?json[NUMBER_RESIDENTS_KEY]: -1,
-      totalPoints: (json[TOTAL_POINTS_KEY] != null )?json[TOTAL_POINTS_KEY]: -1
+      totalPoints: (json[TOTAL_POINTS_KEY] != null )?json[TOTAL_POINTS_KEY]: -1,
+      downloadURL: json[DOWNLOAD_URL],
+      description: json[DESCRIPTION],
+      overallScores: yearScores,
+      semesterScores: semesterScores,
+      submissions: submissions
     );
   }
 
 
   Color getHouseColor(){
-    int color = int.parse(this.color.substring(1), radix: 16);
-    return Color.fromARGB(255, (color & 0xff0000) >> 16, (color & 0xff00 >> 8), color & 0xff);
+    final buffer = StringBuffer();
+    if (this.color.length == 6 || this.color.length == 7) buffer.write('ff');
+    buffer.write(this.color.replaceFirst('#', ''));
+    return Color(int.parse(buffer.toString(), radix: 16));
+
   }
 }

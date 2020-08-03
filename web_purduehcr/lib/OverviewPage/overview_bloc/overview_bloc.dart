@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:purduehcr_web/Config.dart';
+import 'package:purduehcr_web/Models/ApiError.dart';
 import 'package:purduehcr_web/OverviewPage/overview_bloc/overview_repository.dart';
 import 'overview.dart';
 class OverviewBloc extends Bloc<OverviewEvent, OverviewState>{
@@ -18,8 +19,10 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState>{
     if(event is OverviewLaunchedEvent){
       try{
         yield await overviewRepository.getUserOverview(event.permissionLevel);
+        print("Done yielding!!");
       }
       catch(error){
+        print("Got error from overvview loading" +error.toString());
         yield OverviewError(error: error);
       }
     }
@@ -29,7 +32,51 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState>{
         yield await overviewRepository.getUserOverview(event.permissionLevel);
       }
       catch(error){
+        print("Got error from overvview loading" +error.toString());
         yield OverviewError(error: error);
+      }
+    }
+
+    else if(event is GrantAward){
+      ProfessionalStaffLoaded currentState = state as ProfessionalStaffLoaded;
+      try{
+        await overviewRepository.grantHouseAward(event.house.name, event.description, event.pointsPerResident);
+        yield GrantAwardError(currentState.houses);
+      }
+      on ApiError catch(error){
+        if(error.errorCode == 200){
+            event.house.totalPoints += (event.house.numberOfResidents * event.pointsPerResident) as int;
+            event.house.pointsPerResident += event.pointsPerResident;
+            yield GrantAwardSuccess(currentState.houses);
+        }
+        else
+          yield GrantAwardError(currentState.houses);
+      }
+      catch(error){
+        print("Got error from granting award" +error.toString());
+        yield GrantAwardError(currentState.houses);
+      }
+    }
+    else if(event is UpdateHouse){
+      ProfessionalStaffLoaded currentState = state as ProfessionalStaffLoaded;
+      try{
+        await overviewRepository.updateHouse(event.house.name, description: event.description, numberOfResidents: event.numberOfResidents);
+        yield UpdateHouseError(currentState.houses);
+      }
+      on ApiError catch(error){
+        if(error.errorCode == 200){
+          event.house.description = event.description;
+          event.house.numberOfResidents = event.numberOfResidents;
+          event.house.pointsPerResident = event.house.totalPoints / event.numberOfResidents;
+          yield ProfessionalStaffLoaded(houses: currentState.houses);
+        }
+        else {
+          yield UpdateHouseError(currentState.houses);
+        }
+      }
+      catch(error){
+        print("Got error from updating the house" +error.toString());
+        yield UpdateHouseError(currentState.houses);
       }
     }
   }

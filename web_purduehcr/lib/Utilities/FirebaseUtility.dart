@@ -3,6 +3,8 @@ import 'package:firebase/firebase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/Config.dart';
+import 'package:firebase/firebase.dart' as fb;
+import 'package:purduehcr_web/Models/ApiError.dart';
 
 
 class FirebaseUtility{
@@ -67,18 +69,35 @@ class FirebaseUtility{
             errorMessage = "Uh oh, there was a problem. Please try again later.";
             break;
         }
-        return Future.error(errorMessage);
+        throw ApiError(400, errorMessage);
       }
     });
   }
 
-  static Future createAccount(Config config, String email, String password){
+  static Future<void> createAccount(Config config, String email, String password){
     return initializeFirebase(config).then((value) async {
       try{
         await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
       }
       catch(error){
-        return Future.error(error.code);
+        String errorMessage;
+        switch (error.code) {
+          case "auth/email-already-in-use":
+            errorMessage = "This email address is already being used";
+            break;
+          case "auth/invalid-email":
+            errorMessage = "This is not a valid email";
+            break;
+          case "auth/operation-not-allowed":
+            errorMessage = "For Some reason you cant do this? Try again later and if a problem persists, talk to an RA.";
+            break;
+          case "auth/weak-password":
+            errorMessage = "Your password is not strong enough. Please create a different one.";
+            break;
+          default:
+            errorMessage = error.toString();
+        }
+        return Future.error(errorMessage);
       }
     });
   }
@@ -92,9 +111,24 @@ class FirebaseUtility{
     });
   }
 
+  static sendPasswordResetEmail(String email) async{
+    try{
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    }
+    catch(error){
+      if(error.code != "auth/user-not-found"){
+        throw error;
+      }
+    }
+  }
+
 
   static Future<void> logout(){
     return FirebaseAuth.instance.signOut();
+  }
+
+  static Future deleteImageFromStorage(String filePath){
+    return fb.storage().ref('/').child(filePath).delete();
   }
 
 }

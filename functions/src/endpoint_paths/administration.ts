@@ -3,11 +3,15 @@ import * as admin from 'firebase-admin';
 import * as express from 'express';
 import {User} from "../models/User";
 import { HouseCompetition } from '../models/HouseCompetition';
-import { House } from '../models/House';
-import { HouseCode } from '../models/Housecode';
 import { Link } from '../models/Link';
 import { PointType } from '../models/PointType';
 import { Reward } from '../models/Reward';
+import { APIResponse } from '../models/APIResponse';
+import { getHouseCodes } from '../src/GetHouseCodes';
+import { getUser } from '../src/GetUser';
+import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission';
+import { UserPermissionLevel } from '../models/UserPermissionLevel';
+import { HouseWithPointLog } from '../models/House';
 import { PointLog } from '../models/PointLog';
 
 //Make sure that the app is only initialized one time 
@@ -18,6 +22,7 @@ if(admin.apps.length === 0){
 const db = admin.firestore();
 const admin_app = express();
 const cors = require('cors');
+const nodemailer = require('nodemailer')
 const admin_main = express();
 const firestoreTools = require('../firestoreTools');
 
@@ -35,125 +40,74 @@ admin_app.use(cors({origin:true}));
 admin_app.use(firestoreTools.flutterReformat)
 admin_app.use(firestoreTools.validateFirebaseIdToken);
 
-export class UserPointsFromDate {
-    id: String
-    firstName: String
-    lastName: String
-    logs: PointLog[] = []
-    points: number
-
-    constructor(id, first, last){
-        this.id = id
-        this.firstName = first
-        this.lastName = last
-        this.points = 0
-    }
-
-    isUser(id){
-        return this.id === id
-    }
-
-    addLog(pointLog, value){
-        this.logs.push(pointLog)
-        this.points += value
-    }
+let auth: any
+if(functions.config().email_auth === undefined){
+	auth = require("../../development_keys/email_auth.json")
 }
+else{
+	auth = functions.config().email_auth
+}
+//Setup the Sending Email Control
+const transporter = nodemailer.createTransport({
+	service: 'gmail',
+	auth: auth
+})
+
 
 /**
- * Post Function that sends an email to confirm the saving of the semester points
+ * Get a json_backup
  */
-admin_app.get('/json_backup', (req, res) => {
+admin_app.get('/json_backup', async (req, res) => {
+
     const houseCompetition = new HouseCompetition()
+    try{
+
+        const user = await getUser(req["user"]["user_id"])
+        verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
+
+        houseCompetition.houses = HouseWithPointLog.fromQuerySnapshot(await db.collection(HouseCompetition.HOUSE_KEY).get())
+        for(const house of houseCompetition.houses){
+            house.pointLogs = PointLog.fromQuerySnapshot(await db.collection(HouseCompetition.HOUSE_KEY).doc(house.id).collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).get())
+        }
+        houseCompetition.houseCodes = await getHouseCodes()
+        houseCompetition.links = Link.fromQuerySnapshot(await db.collection(HouseCompetition.LINKS_KEY).get())
+        houseCompetition.pointTypes = PointType.fromQuerySnapshot(await db.collection(HouseCompetition.POINT_TYPES_KEY).get())
+        houseCompetition.users = User.fromQuerySnapshot(await db.collection(HouseCompetition.USERS_KEY).get())
+        houseCompetition.rewards = Reward.fromQuerySnapshot(await db.collection(HouseCompetition.REWARDS_KEY).get())
+        const mailOptions = {
+            from: 'Purdue HCR Contact <purduehcrcontact@gmail.com',
+            to: req["user"]["email"],
+            subject: "Backup for PurdueHCR House Competition",
+            html: "Backup for PurdueHCR House Competition",
+            attachments:[
+                {   // utf-8 string as an attachment
+                    filename: `purduehcr-backup-${(new Date()).toString()}.json`,
+                    content: JSON.stringify(houseCompetition)
+                },
+            ]
+        }
+        //Send mail
+        transporter.sendMail(mailOptions,  (erro, _info) =>{
+            if(erro){
+                console.log("Sending email error: "+erro)
+            }
+        })
+        throw APIResponse.Success()
+    }
+    catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.error("Unknown Error on endSemester: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
     
-    db.collection(HouseCompetition.HOUSE_KEY).get()
-    .then(async housesSnapshot =>{
-        houseCompetition.houses = House.fromQuerySnapshot(housesSnapshot)
-        db.collection(HouseCompetition.HOUSE_CODES_KEY).get()
-        .then(async houseCodeDocuments =>{
-            let hcIterator = 0;
-            while(hcIterator < houseCodeDocuments.docs.length){
-                houseCompetition.houseCodes.push(HouseCode.fromDocumentSnapshot(houseCodeDocuments.docs[hcIterator]));
-                hcIterator++;
-            }
-            db.collection(HouseCompetition.LINKS_KEY).get()
-            .then(async linkDocuments =>{
-                houseCompetition.links = Link.fromQuerySnapshot(linkDocuments)
-                db.collection(HouseCompetition.POINT_TYPES_KEY).get()
-                .then(async pointTypeSnapshot =>{
-                    houseCompetition.pointTypes = PointType.fromQuerySnapshot(pointTypeSnapshot)
-                    db.collection(HouseCompetition.REWARDS_KEY).get()
-                    .then(async rewardDocuments =>{
-                        houseCompetition.rewards = Reward.fromQuerySnapshot(rewardDocuments)
-                        db.collection(HouseCompetition.USERS_KEY).get()
-                            .then(async userDocuments =>{
-                                houseCompetition.users = User.fromQuerySnapshot(userDocuments);
-                                res.status(200).send(JSON.stringify(houseCompetition));
-                            })
-                            .catch(err => res.send(500).send(err));
-                    })
-                    .catch(err => res.send(500).send(err));
-                })
-                .catch(err => res.send(500).send(err));
-            })
-            .catch(err => res.send(500).send(err));
-        })
-        .catch(err => res.send(500).send(err));
-    })
-    .catch(err => res.send(500).send(err));
+    
 })
 
-admin_app.get('/house_submissions_from_date', (req, res) => {
-
-    db.collection(HouseCompetition.POINT_TYPES_KEY).get()
-    .then(async pointTypeDocuments =>{
-        const pts  = PointType.fromQuerySnapshot(pointTypeDocuments)
-
-        const date = new Date(Date.parse(req.query.date as string))
-        db.collection(HouseCompetition.HOUSE_KEY).doc(req.query.house as string).collection('Points').where('DateSubmitted', '>', date).get()
-        .then(async pointLogsSnapshot =>{
-            
-            //Create new list of users
-            const users: UserPointsFromDate[] = []
-            const pointLogs = PointLog.fromQuerySnapshot(pointLogsSnapshot)
-            //iterate through all of the pointlog documents
-            for(const pl of pointLogs){
-
-                //If the point log has been approved
-                if(pl.pointTypeId > 0){
-                    //Iterate through the point types
-                    for( const ptIterator of pts ){
-                        //If the point types is found
-                        if(ptIterator.id === pl.pointTypeId.toString()){
-
-                            //Assigned means it hasnt been used
-                            let assigned = false
-                            //Iterate through all the users
-                            for( const usrIterator of users) {
-                                //If the user exists, add the pointlog to the user
-                                if(usrIterator.id === pl.residentId){
-                                    assigned = true
-                                    usrIterator.addLog(pl, ptIterator.value)
-                                }
-                            }
-
-                            //If no user was found, add the user
-                            if(!assigned){
-                                const user = new UserPointsFromDate(pl.residentId, pl.residentFirstName, pl.residentLastName)
-                                user.addLog(pl, ptIterator.value)
-                                users.push(user)
-                            }
-                            break
-                        }
-                    }
-                }
-            }
-            //Resturn json object with the users
-            res.status(200).send(JSON.stringify(users))
-        })
-        .catch(err => res.status(200).send("2 "+err));
-    })
-    .catch(err => res.status(402).send("1 "+ err));
-})
 
 // competition_main is the object to be exported. export this in index.ts
 export const administration_main = functions.https.onRequest(admin_main);

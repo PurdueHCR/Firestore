@@ -6,30 +6,31 @@ import * as admin from 'firebase-admin'
 // `Authorization: Bearer <Firebase ID Token>`.
 // when decoded successfully, the ID Token content will be added as `req.user`.
 const validateFirebaseIdToken = async (req, res , next) => {
-	if(req.path === '/getLink'){
-		next()
-		return
-	}
-
-	if(req.path === '/getPointTypes'){
-		next()
-		return
-	}
 	
-	if(req.path === '/secret-semester-points-set'){
+	if(req.path === '/confirmEndSemester'){
     	next()
   		return
 	}
 
-	if(req.path === '/secret-reset-house-competition'){
+	if(req.path === '/confirmResetCompetition'){
     	next()
   		return
 	}
-	  
-	if(req.path === '/rank'){
-    		next()
-  		return
-  	}
+
+	if(req.path === '/preview' && !req.headers.authorization){
+		next()
+		return
+	}
+
+	if(req.path === '/settings' && !req.headers.authorization){
+		next()
+		return
+	}
+	if(req.path === '/testDataSetup' && !req.headers.authorization){
+		next()
+		return
+	}
+
 
   	if ((!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) &&
       	!(req.cookies && req.cookies.__session)) {

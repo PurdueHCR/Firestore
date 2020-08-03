@@ -1,5 +1,5 @@
 import * as admin from "firebase-admin"
-import { UserWithPoints, User } from "./User"
+import { User } from "./User"
 import { PointType } from "./PointType"
 
 export class PointLog {
@@ -176,10 +176,4 @@ export class PointLog {
         return data
     }
 
-
-    createUser(){
-        const usr = new UserWithPoints(this.residentFirstName, "","",this.residentLastName,0,0,0,this.residentId)
-        usr.addPointLog(this)
-        return usr;
-    }
 }

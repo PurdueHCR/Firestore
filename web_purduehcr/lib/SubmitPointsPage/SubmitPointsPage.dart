@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:purduehcr_web/BasePage.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/Models/PointType.dart';
+import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/SubmitPointsPage/PointSubmissionForm.dart';
 import 'package:purduehcr_web/SubmitPointsPage/submit_points_bloc/submit_points.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
@@ -13,7 +14,7 @@ import '../Config.dart';
 class SubmitPointsPage extends BasePage{
   @override
   State<StatefulWidget> createState() {
-    return _SubmitPointsPageState(drawerLabel: "Submit Points");
+    return _SubmitPointsPageState("Submit Points");
   }
 
 }
@@ -23,7 +24,9 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
   SubmitPointBloc _submitPointBloc;
   PointType _selectedPointType;
 
-  _SubmitPointsPageState({@required String drawerLabel}):super(drawerLabel:drawerLabel);
+  _SubmitPointsPageState(String drawerLabel) : super(drawerLabel);
+
+
 
 
 
@@ -157,6 +160,11 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
       });
 
     }
+  }
+
+  @override
+  UserPermissionSet getAcceptedPermissionLevels() {
+    return CompetitionParticipantsSet();
   }
 
 }

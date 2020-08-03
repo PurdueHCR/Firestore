@@ -1,5 +1,5 @@
-import { House } from "./House"
-import { HouseCode } from "./Housecode"
+import { HouseWithPointLog } from "./House"
+import { HouseCode } from "./HouseCode"
 import { PointType } from "./PointType"
 import { Reward } from "./Reward"
 import { Link } from "./Link"
@@ -10,6 +10,9 @@ export class HouseCompetition {
 
     static EVENTS_KEY = "Events"
     static HOUSE_KEY = "House"
+    static HOUSE_DETAILS_KEY = "Details"
+    static HOUSE_DETAILS_RANK_DOC = "Rank"
+    static HOUSE_DETAILS_POINT_TYPES_DOC = "PointTypes"
     static HOUSE_COLLECTION_POINTS_KEY = "Points"
     static HOUSE_COLLECTION_POINTS_COLLECTION_MESSAGES_KEY = "Messages"
     static HOUSE_CODES_KEY = "HouseCodes"
@@ -21,7 +24,7 @@ export class HouseCompetition {
     static USERS_KEY = "Users"
 
     events: Event[] = []
-    houses: House[] = []
+    houses: HouseWithPointLog[] = []
     houseCodes: HouseCode[] = []
     links: Link[] = []
     pointTypes: PointType[] = []

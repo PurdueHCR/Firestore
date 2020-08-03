@@ -19,19 +19,28 @@ class RewardsCard extends StatefulWidget{
 class RewardsCardState extends State<RewardsCard>{
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            drawRewardWidget(),
-            drawTextWidgets()
-          ],
-        ),
-      )
-    );
+    print("Is reward null: "+(widget.reward == null).toString());
+    print("Is house null: "+(widget.house == null).toString());
+    if(widget.reward == null){
+      print("DO THIS TOO");
+      return SizedBox.shrink();
+    }
+    else{
+      print("DONT DRAW THIS");
+      return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                drawRewardWidget(),
+                drawTextWidgets()
+              ],
+            ),
+          )
+      );
+    }
   }
 
   Widget drawRewardWidget(){
@@ -48,23 +57,13 @@ class RewardsCardState extends State<RewardsCard>{
                 child: new CircularProgressIndicator(
                   strokeWidth: 10,
                   valueColor: new AlwaysStoppedAnimation<Color>(widget.house.getHouseColor()),
-                  value: widget.house.pontsPerResident/ widget.reward.requiredPPR,
+                  value: widget.house.pointsPerResident/ widget.reward.requiredPPR,
                 ),
               ),
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
-                  child: FutureBuilder(
-                    future: widget.reward.getDownloadURL(),
-                    builder: (context, snapshot){
-                      if(snapshot.connectionState == ConnectionState.none && !snapshot.hasData){
-                        return LoadingWidget();
-                      }
-                      else{
-                        return Image.network((snapshot.data as Uri).toString());
-                      }
-                    },
-                  ),
+                  child: Image.network(widget.reward.downloadURL)
                 ),
               ),
             ],
@@ -91,7 +90,7 @@ class RewardsCardState extends State<RewardsCard>{
           padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
           child: Column(
             children: [
-              Text(widget.house.pontsPerResident.toString()+ " / "+widget.reward.requiredPPR.toString()),
+              Text(widget.house.pointsPerResident.toString()+ " / "+widget.reward.requiredPPR.toString()),
               Text("Points Per Resident", maxLines: null,),
             ],
           ),

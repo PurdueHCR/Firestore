@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/Config.dart';
+import 'package:purduehcr_web/Models/ApiError.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
 import 'package:purduehcr_web/Models/PointLogMessage.dart';
 import './point_log_chat.dart';
@@ -9,9 +10,10 @@ import './point_log_chat.dart';
 
 class PointLogChatBloc extends Bloc<PointLogChatEvent, PointLogChatState>{
   PointLogChatRepository _pointLogChatRepository;
+  final String house; // Included if the account is professional staff, so they can see messages
   final Config config;
 
-  PointLogChatBloc({ @required this.config})  :
+  PointLogChatBloc({ @required this.config , this.house})  :
         assert(config != null){
     this._pointLogChatRepository = new PointLogChatRepository(config);
   }
@@ -22,8 +24,13 @@ class PointLogChatBloc extends Bloc<PointLogChatEvent, PointLogChatState>{
   @override
   Stream<PointLogChatState> mapEventToState( PointLogChatEvent event) async* {
     if(event is PointLogChatInitialize){
-      List<PointLogMessage> messages = await _pointLogChatRepository.getMessages(event.pointLog);
-      yield PointLogChatLoaded(messages: messages, pointLog: event.pointLog);
+      try{
+        List<PointLogMessage> messages = await _pointLogChatRepository.getMessages(event.pointLog, house: house);
+        yield PointLogChatLoaded(messages: messages, pointLog: event.pointLog);
+      }
+      catch(error){
+        print("Got error: "+error);
+      }
     }
     else if(event is PostMessage){
       List<PointLogMessage> messages = (state as PointLogChatLoaded).messages;
@@ -31,12 +38,21 @@ class PointLogChatBloc extends Bloc<PointLogChatEvent, PointLogChatState>{
       if(event.message.message.isNotEmpty){
         yield PointLogChatLoading();
         try{
-          await _pointLogChatRepository.postMessage(log, event.message.message);
-          messages.add(event.message);
-          yield PointLogChatLoaded(messages: messages, pointLog: log);
+          await _pointLogChatRepository.postMessage(log, event.message.message, house: house);
 
         }
+        on ApiError catch(apiError){
+          if(apiError.errorCode == 200){
+            messages.add(event.message);
+            yield PointLogChatLoaded(messages: messages, pointLog: log);
+          }
+          else{
+            print("Got api error: "+apiError.toString());
+            yield PointLogChatLoaded(messages: messages, pointLog: log);
+          }
+        }
         catch(error){
+          print("Got error: "+error);
           yield PointLogChatLoaded(messages: messages, pointLog: log);
         }
       }

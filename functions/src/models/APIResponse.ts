@@ -74,6 +74,14 @@ export class APIResponse{
     }
 
     /**
+     * 405 - The The provided one time code is either invalid or has expired.
+     * Epired or Invlaid one time code
+     */
+    static InvalidOneTimeCode(): APIResponse {
+        return new APIResponse(405, "The provided one time code is either invalid or has expired.")
+    }
+
+    /**
      * 406 - Link is Not Enabled
      * The Link is not enabled. It must be turned on by the owner.
      */
@@ -114,6 +122,14 @@ export class APIResponse{
     }
 
     /**
+     * 411 - Could Not Send Email
+     * There was an error sending the email
+     */
+    static CouldNotSendEmail(): APIResponse {
+        return new APIResponse(411, "Failed to send Email")
+    }
+
+    /**
      * 412 - House Competition Is Disabled
      * House Competition is disabled so the request may not be completed at this time
      */
@@ -127,6 +143,22 @@ export class APIResponse{
      */
     static UnknownPointLog(): APIResponse {
         return new APIResponse(413, "Unkown PointLog")
+    }
+
+    /**
+     * 414 - House Competition Must Be Disabled
+     * The House Competition must be disabled to perform this action
+     */
+    static CompetitionMustBeDisabled(): APIResponse {
+        return new APIResponse(414, "The House Competition must be disabled to perform this action")
+    }
+
+    /**
+     * 415 - Unknown House Code Id
+     * There is no House Code with the provided id. Make sure you use the Id field of the House Code and not the code field.
+     */
+    static UnknownHouseCodeId(): APIResponse {
+        return new APIResponse(415, "There is no House Code with the provided id. Make sure you use the Id field of the House Code and not the code field.")
     }
 
     /**
@@ -224,7 +256,14 @@ export class APIResponse{
     static CanNotPostMessage(): APIResponse {
         return new APIResponse(427, "You are not allowed to post a message to this submission.")
     }
-    
+
+    /**
+     * 428 - Invalid Floor Id
+     * The floor id does not exist with the house that the user belongs to.
+     */
+    static InvalidFloorId(): APIResponse {
+        return new APIResponse(428, "The floor id does not exist with the house that the user belongs to.")
+    }
     /**
      * 430 - Insufficient Permission Level For Create a Link with that Point Type
      * The point type  
@@ -239,6 +278,14 @@ export class APIResponse{
      */
     static CanNotAccessPointLog(): APIResponse {
         return new APIResponse(431, "This user does not have the corrent ownership or permission to access this point log.")
+    }
+
+    /**
+     * 470 - Reward Already Exists
+     * A reward with that id already exists.
+     */
+    static RewardAlreadyExists(): APIResponse {
+        return new APIResponse(470, "A reward with that id already exists.")
     }
 
     /**

@@ -11,10 +11,15 @@ const _DrawerOptions MY_POINTS = _DrawerOptions("My Points","/my_points",Icon(Ic
 const _DrawerOptions HISTORY = _DrawerOptions("House History","/house_history",Icon(Icons.history));
 const _DrawerOptions TOKEN = _DrawerOptions("Token","/token",Icon(Icons.add));
 const _DrawerOptions LINKS = _DrawerOptions("Links", "/links", Icon(Icons.link));
+const _DrawerOptions CONTROLS = _DrawerOptions("Controls", "/controls", Icon(Icons.build));
+const _DrawerOptions POINT_TYPE_CONTROLS = _DrawerOptions("Point Categories", "/point_type_controls", Icon(Icons.list));
+const _DrawerOptions HOUSE_CODES = _DrawerOptions("House Codes", "/house_codes", Icon(Icons.home));
+const _DrawerOptions FIND_USERS = _DrawerOptions("Find Users", "/find_users", Icon(Icons.search));
+const _DrawerOptions REWARDS = _DrawerOptions("Rewards", "/rewards", Icon(Icons.cake));
 
 const List<_DrawerOptions> RESIDENT_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, TOKEN];
 const List<_DrawerOptions> RHP_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, HANDLE_POINTS, LINKS, HISTORY];
-const List<_DrawerOptions> PROFESSIONAL_STAFF_LIST = [OVERVIEW, LINKS, HISTORY];
+const List<_DrawerOptions> PROFESSIONAL_STAFF_LIST = [OVERVIEW, LINKS, HISTORY, HOUSE_CODES, POINT_TYPE_CONTROLS, REWARDS, FIND_USERS, CONTROLS];
 const List<_DrawerOptions> FHP_LIST = [OVERVIEW, LINKS];
 const List<_DrawerOptions> PRIVILEGED_USER_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, LINKS];
 const List<_DrawerOptions> EA_LIST = [OVERVIEW, LINKS];
@@ -45,13 +50,44 @@ class PhcrDrawer extends Drawer {
       case UserPermissionLevel.FHP:
         selectedList = FHP_LIST;
         break;
-      case UserPermissionLevel.PRIVILEGED_USER:
+      case UserPermissionLevel.PRIVILEGED_RESIDENT:
         selectedList = PRIVILEGED_USER_LIST;
         break;
-      case UserPermissionLevel.NHAS:
+      case UserPermissionLevel.EXTERNAL_ADVISER:
         selectedList = EA_LIST;
         break;
     }
+
+    String permissionName = UserPermissionLevelConverter.convertPermissionToString(user.permissionLevel);
+    String accountDetails = "";
+    if(user.isCompetitionParticipant()){
+      accountDetails = user.house+ " House: " +user.floorId+" "+permissionName;
+    }
+    else if(user.permissionLevel == UserPermissionLevel.FHP){
+      accountDetails = user.house+" "+permissionName;
+    }
+    else{
+      accountDetails = permissionName;
+    }
+
+    Widget houseIcon;
+    if(user.isCompetitionParticipant()){
+      houseIcon = FutureBuilder(
+        future: user.getHouseDownloadURL(),
+        builder: (context, snapshot){
+          if(snapshot.connectionState == ConnectionState.none && !snapshot.hasData){
+            return Image.asset('assets/main_icon.png');
+          }
+          else{
+            return Image.network((snapshot.data as Uri).toString());
+          }
+        },
+      );
+    }
+    else {
+      houseIcon = Image.network(BlocProvider.of<AuthenticationBloc>(context).state.preferences.defaultImageURL);
+    }
+
     return Drawer(
       elevation: this.elevation,
       child: SafeArea(
@@ -64,20 +100,13 @@ class PhcrDrawer extends Drawer {
                     color: Colors.blue,
                   ),
                   accountName: Text(user.firstName+ ' '+user.lastName),
-                  accountEmail: Text(user.house+' - '+user.floorId),
+                  accountEmail: Text(accountDetails),
                   currentAccountPicture: CircleAvatar(
                     backgroundColor: Colors.white,
-                    child: FutureBuilder(
-                      future: user.getHouseDownloadURL(),
-                      builder: (context, snapshot){
-                        if(snapshot.connectionState == ConnectionState.none && !snapshot.hasData){
-                          return Image.asset('assets/main_icon.png');
-                        }
-                        else{
-                          return Image.network((snapshot.data as Uri).toString());
-                        }
-                      },
-                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: houseIcon,
+                    )
                   ),
                 );
               }

@@ -64,6 +64,7 @@ describe('point_log/handle', async ()  => {
 
     beforeEach(async () => {
         let approved_log_ref = await FirestoreDataFactory.setPointLog(db, HOUSE_NAME, RESIDENT_ID, false)
+        await FirestoreDataFactory.setHousePointTypeDetails(db, HOUSE_NAME, 1, "",5,0)
         if (approved_log_ref !== null) {
             approved_log = (approved_log_ref as firebase.firestore.DocumentReference)
             point_description = POINT_LOG_DEFAULTS.description!

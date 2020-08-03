@@ -11,6 +11,7 @@ import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { PointLogMessage } from '../models/PointLogMessage'
 import { MessageType } from '../models/MessageType'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
+import * as ParameterParser from '../src/ParameterParser'
 
 if(admin.apps.length === 0){
 	admin.initializeApp(functions.config().firebase)
@@ -71,7 +72,7 @@ logs_app.post('/handle', async (req, res) => {
 		res.status(error.code).send(error.toJson())
 	} else {
 
-		let should_approve = (req.body.approve == 'true');
+		const should_approve = (req.body.approve === 'true');
 		if(!should_approve && (!req.body.message || req.body.message === "")){
 			console.error("If approve is false, you must send a message.")
 			const error = APIResponse.MissingRequiredParameters()
@@ -128,12 +129,23 @@ logs_app.post('/messages', async (req, res) => {
 	else {
 		try {
 			const user = await getUser(req["user"]["user_id"])
-			verifyUserHasCorrectPermission(user, [UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP])
-			const pointLog = await getPointLog(user, req.body.log_id as string)
-			const message = new PointLogMessage(new Date(Date.now()), req.body.message as string, MessageType.COMMENT, user.firstName, user.lastName, user.permissionLevel)
+			verifyUserHasCorrectPermission(user, [UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF])
 			
-			await submitPointLogMessage(user.house, pointLog, message, user.permissionLevel === UserPermissionLevel.RHP)
-			res.status(APIResponse.SUCCESS_CODE).send(APIResponse.Success())
+			let house = ""
+			if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+				house = ParameterParser.parseInputForString(req.body.house)
+			}
+			else{
+				house = user.house
+			}
+			const log_id = ParameterParser.parseInputForString(req.body.log_id)
+			const msg = ParameterParser.parseInputForString(req.body.message)
+
+			const pointLog = await getPointLog(user, house, log_id)
+			const message = new PointLogMessage(new Date(Date.now()), msg, MessageType.COMMENT, user.firstName, user.lastName, user.permissionLevel)
+			
+			await submitPointLogMessage(house, pointLog, message, [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF].includes(user.permissionLevel ))
+			throw APIResponse.Success()
 			
 
 		} catch (error) {
@@ -157,7 +169,23 @@ logs_app.get('/messages', async (req, res) => {
 	}
 	else {
 		try {
-			const messages = await getPointLogMessages(req["user"]["user_id"], req.query.log_id as string)
+			const user = await getUser(req["user"]["user_id"])
+			verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP, UserPermissionLevel.RESIDENT, UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.PROFESSIONAL_STAFF])
+
+			const log_id = ParameterParser.parseInputForString(req.query.log_id)
+
+			let house = ""
+			if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+				house = ParameterParser.parseInputForString(req.query.house)
+			}
+			else{
+				house = user.house
+			}
+
+			//Makes sure PointLog exists and user has permissions to edit
+			await getPointLog(user, house, log_id)
+			
+			const messages = await getPointLogMessages(house,log_id)
 			res.status(APIResponse.SUCCESS_CODE).send({messages:messages})
 			
 		} catch(suberror){

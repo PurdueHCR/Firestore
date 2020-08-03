@@ -85,7 +85,7 @@ export class Event {
         let point_type_description: string
         let house: string
         let creator_id: string
-        let id = docId
+        const id = docId
 
         if (Event.NAME in documentData) {
             name = documentData[Event.NAME]

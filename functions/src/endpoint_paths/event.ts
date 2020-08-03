@@ -6,9 +6,12 @@ import { addEvent } from '../src/AddEvent'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { getUser } from '../src/GetUser'
 import { getEvents } from '../src/GetEvents'
+import { getPointTypeById } from '../src/GetPointTypeById'
+import { getSystemPreferences } from '../src/GetSystemPreferences'
+import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 
 // Made sure that the app is only initialized one time
-if (admin.apps.length == 0) {
+if (admin.apps.length === 0) {
     admin.initializeApp(functions.config().firebase)
 }
 
@@ -36,22 +39,22 @@ events_app.use(firestoreTools.validateFirebaseIdToken)
  * @param location event location string
  * @param points number of points for attending the event
  * @param point_type_id id of the PointType associated with the event
- * @param point_type_name name of the PointType associated with the event
- * @param point_type_description description of the PointType associated with the event
  * @param house house name for attending event
  * 
  * @throws 403 - Invalid Permission Level
+ * @throws 412 - Competition Disabled
+ * @throws 417 - Unknown Point Type
+ * @throws 418 - Point Type Is Disabled
  * @throws 422 - Missing Required Parameters
  * @throws 424 - Date Not In Range
+ * @throws 430 - Insufficient Permission Level For Create a Link with that Point Type
  * @throws 500 - Server Error
  */
 events_app.post('/add', async (req, res) => {
     
     if (!req.body || !req.body.name || req.body.name === "" || !req.body.details || req.body.details === ""
         || !req.body.date || req.body.date === "" || !req.body.location || req.body.location === ""
-        || !req.body.points || req.body.points === "" || !req.body.point_type_id || req.body.point_type_id === ""
-        || !req.body.point_type_name || req.body.point_type_name === "" || !req.body.point_type_description
-        ||req.body.point_type_description === "" || !req.body.house || req.body.house === "") {
+        || !req.body.point_type_id || req.body.point_type_id === "" || !req.body.house || req.body.house === "") {
             if (!req.body) {
                 console.error("Missing Body")
             }
@@ -67,17 +70,8 @@ events_app.post('/add', async (req, res) => {
             else if (!req.body.location || req.body.location === "") {
                 console.error("Missing location")
             }
-            else if (!req.body.points || req.body.points === "") {
-                console.error("Missing points")
-            }
             else if (!req.body.point_type_id || req.body.point_type_id === "") {
                 console.error("Missing point_type_id")
-            }
-            else if (!req.body.point_type_name || req.body.point_type_name === "") {
-                console.error("Missing point_type_name")
-            }
-            else if (!req.body.point_type_description || req.body.point_type_description === "") {
-                console.error("Missing point_type_description")
             }
             else if (!req.body.house || req.body.house === "") {
                 console.error("Missing house")
@@ -86,30 +80,38 @@ events_app.post('/add', async (req, res) => {
             res.status(error.code).send(error.toJson())
     } else {
         try {
-            let user = await getUser(req["user"]["user_id"])
-            if (user.permissionLevel === UserPermissionLevel.RESIDENT) {
-                const error = APIResponse.InvalidPermissionLevel()
+            const system_preferences = await getSystemPreferences()
+		    if(!system_preferences.isCompetitionEnabled) {
+                const error = APIResponse.CompetitionDisabled()
+                res.status(error.code).send(error.toJson())
+                return
+            }
+            const user = await getUser(req["user"]["user_id"])
+            const valid_users = [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.EXTERNAL_ADVISOR,
+                                UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.FACULTY]
+            verifyUserHasCorrectPermission(user, valid_users)
+            const type = await getPointTypeById(req.body.point_type_id)
+            if (!type.canUserGenerateLinks(user.permissionLevel)) {
+                const error = APIResponse.InsufficientPointTypePermissionForLink()
+                res.status(error.code).send(error.toJson())
+                return
+            }
+            if (!type.enabled) {
+                const error = APIResponse.PointTypeDisabled()
                 res.status(error.code).send(error.toJson())
                 return
             }
             const event_date = new Date(req.body.date)
-            let today = new Date()
+            const today = new Date()
             // Must set today to earliest possible time so event_date set to today's date will not error
             today.setHours(0,0,0,0)
             if (event_date < today) {
                 const error = APIResponse.DateNotInRange()
                 res.status(error.code).send(error.toJson())
             }
-            const didAddEvent = await addEvent(req.body.name, req.body.details, event_date,
-                req.body.location, parseInt(req.body.points), req.body.point_type_id, req.body.point_type_name,
-                req.body.point_type_description, req.body.house, user.id)
-            const success = APIResponse.Success()
-            if (didAddEvent) {
-                res.status(201).send(success.toJson())
-            }
-            else {
-                res.status(202).send(success.toJson())
-            }
+            await addEvent(req.body.name, req.body.details, event_date,
+                req.body.location, type, req.body.house, user.id)
+            res.status(200).send(APIResponse.Success())
         } catch (error) {
             console.error("FAILED WITH ERROR: " + error.toString())
             if (error instanceof TypeError) {
@@ -124,8 +126,6 @@ events_app.post('/add', async (req, res) => {
             }
         }
     }
-
-    // Check that user is not resident in the next page
 })
 
 /**
