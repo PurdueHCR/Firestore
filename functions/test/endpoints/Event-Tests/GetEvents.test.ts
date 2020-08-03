@@ -16,10 +16,8 @@ let PRIV_RES = "PRIV_RES"
 let FACULTY = "FACULTY"
 let EA_ID = "EA_ID"
 let HOUSE_NAME_1 = "Platinum"
-let HOUSE_CODE_1 = "4N1234"
 let HOUSE_NAME_2 = "Palladium"
-let HOUSE_CODE_2 = "3N1234"
-let GET_EVENTS_PATH = "/get"
+let GET_EVENTS_PATH = "/"
 
 // Test Suite GetEvents
 describe('event/get', () => {
@@ -45,9 +43,7 @@ describe('event/get', () => {
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
         
         await FirestoreDataFactory.setHouse(db, HOUSE_NAME_1)
-        await FirestoreDataFactory.setHouseCode(db, HOUSE_CODE_1)
         await FirestoreDataFactory.setHouse(db, HOUSE_NAME_2)
-        await FirestoreDataFactory.setHouseCode(db, HOUSE_CODE_2)
 
         await FirestoreDataFactory.setEvent(db, "1", RHP_ID, EVENT_DEFAULTS)
         await FirestoreDataFactory.setEvent(db, "2", RHP_ID, {house:"Platinum"})
@@ -60,7 +56,7 @@ describe('event/get', () => {
 
     // Test Palladium Resident
     it('Test Palladium Resident', async(done) => {
-        const res: request.Test = factory.post(get_events_func, GET_EVENTS_PATH, {}, PALLADIUM_RESIDENT_ID)
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, PALLADIUM_RESIDENT_ID)
         res.end(function (err, res) {
             if (err) {
                 done(err)
@@ -74,7 +70,7 @@ describe('event/get', () => {
 
     // Test Resident
     it('Test Platinum Resident', async(done) => {
-        const res: request.Test = factory.post(get_events_func, GET_EVENTS_PATH, {}, RESIDENT_ID)
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, RESIDENT_ID)
         res.end(function (err, res) {
             if (err) {
                 done(err)
@@ -88,7 +84,7 @@ describe('event/get', () => {
 
     // Test RHP
     it('Test Platinum Resident', async(done) => {
-        const res: request.Test = factory.post(get_events_func, GET_EVENTS_PATH, {}, RHP_ID)
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, RHP_ID)
         res.end(function (err, res) {
             if (err) {
                 done(err)
@@ -102,7 +98,7 @@ describe('event/get', () => {
 
     // Test Professional Staff
     it('Test Professional Staff', async(done) => {
-        const res: request.Test = factory.post(get_events_func, GET_EVENTS_PATH, {}, REC_ID)
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, REC_ID)
         res.end(function (err, res) {
             if (err) {
                 done(err)
@@ -116,7 +112,7 @@ describe('event/get', () => {
 
     // Test External Adivsors
     it('Test External Adivsors', async(done) => {
-        const res: request.Test = factory.post(get_events_func, GET_EVENTS_PATH, {}, EA_ID)
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, EA_ID)
         res.end(function (err, res) {
             if (err) {
                 done(err)
@@ -130,7 +126,7 @@ describe('event/get', () => {
     
     // Test Faculty
     it('Test Faculty', async(done) => {
-        const res: request.Test = factory.post(get_events_func, GET_EVENTS_PATH, {}, FACULTY)
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, FACULTY)
         res.end(function (err, res) {
             if (err) {
                 done(err)
@@ -144,7 +140,7 @@ describe('event/get', () => {
 
     // Test Privileged Resident
     it('Test Privileged Resident', async(done) => {
-        const res: request.Test = factory.post(get_events_func, GET_EVENTS_PATH, {}, PRIV_RES)
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, PRIV_RES)
         res.end(function (err, res) {
             if (err) {
                 done(err)

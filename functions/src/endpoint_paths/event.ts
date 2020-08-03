@@ -133,7 +133,7 @@ events_app.post('/add', async (req, res) => {
  * 
  * @throws 500 - Server Error
  */
-events_app.post('/get', async (req, res) => {
+events_app.get('/', async (req, res) => {
 
     try {
         const user = await getUser(req["user"]["user_id"])
@@ -141,11 +141,7 @@ events_app.post('/get', async (req, res) => {
         res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
     } catch (error) {
         console.error("FAILED WITH ERROR: " + error.toString())
-        if (error instanceof TypeError) {
-            const apiResponse = APIResponse.InvalidDateFormat()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
-        else if (error instanceof APIResponse) {
+        if (error instanceof APIResponse) {
             res.status(error.code).send(error.toJson())
         } else {
             const apiResponse = APIResponse.ServerError()
