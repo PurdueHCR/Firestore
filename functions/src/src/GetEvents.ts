@@ -4,8 +4,6 @@ import { Event } from '../models/Event'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { HouseCompetition } from '../models/HouseCompetition'
 
-//REC and someone else should see all events. otherwise only see the events to your house
-
 /**
  * This function returns all events available to the user
  * 
