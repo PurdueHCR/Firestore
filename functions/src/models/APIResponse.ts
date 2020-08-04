@@ -281,6 +281,14 @@ export class APIResponse{
     }
 
     /**
+     * 450 - Event Does Not Exist
+     * The requested event cannot be found
+     */
+    static NonExistantEvent(): APIResponse {
+        return new APIResponse(450, "The request event cannot be found.")
+    }
+
+    /**
      * 470 - Reward Already Exists
      * A reward with that id already exists.
      */
