@@ -73,13 +73,7 @@ class _RHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               mainAxisSize: MainAxisSize.max,
-              children: [
-                ProfileCard(
-                    user:user,
-                    userRank:state.rank
-                ),
-                RewardsCard(reward: state.reward, house: state.myHouse,)
-              ],
+              children: buildInnerRow(state),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -147,6 +141,12 @@ class _RHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
               height: 308,
               child:RecentSubmissionsCard(submissions: state.logs,),
             ),
+            ConstrainedBox(
+              constraints: BoxConstraints(minHeight: 300, maxHeight: 300),
+              child: HouseCodesCard(
+                houseCodes: state.houseCodes,
+              ),
+            ),
           ],
         ),
       );
@@ -185,5 +185,25 @@ class _RHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
   @override
   UserPermissionSet getAcceptedPermissionLevels() {
     return CompetitionParticipantsSet();
+  }
+
+  List<Widget> buildInnerRow(RHPOverviewLoaded state) {
+    if(authState.preferences.showRewards && authState.preferences.isCompetitionVisible){
+      return [
+        ProfileCard(
+            user:user,
+            userRank:state.rank
+        ),
+        RewardsCard(reward: state.reward, house: state.myHouse,)
+      ];
+    }
+    else{
+      return [
+        ProfileCard(
+            user:user,
+            userRank:state.rank
+        )
+      ];
+    }
   }
 }

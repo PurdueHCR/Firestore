@@ -57,7 +57,13 @@ class ProfileCardState extends State<ProfileCard>{
       );
     }
     else{
-      return SizedBox.shrink();
+      return Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("Your rank is hidden!")
+        ],
+      );
     }
 
   }

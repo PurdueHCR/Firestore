@@ -72,13 +72,7 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               mainAxisSize: MainAxisSize.max,
-              children: [
-                ProfileCard(
-                    user:user,
-                    userRank:state.rank
-                ),
-                RewardsCard(reward: state.reward, house: state.myHouse,)
-              ],
+              children: buildInnerRow(state),
             ),
             SizedBox(
               width: getActiveAreaWidth(context),
@@ -92,6 +86,26 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
     }
     else{
       return LoadingWidget();
+    }
+  }
+
+  List<Widget> buildInnerRow(ResidentOverviewLoaded state) {
+    if(authState.preferences.showRewards){
+      return [
+        ProfileCard(
+            user:user,
+            userRank:state.rank
+        ),
+        RewardsCard(reward: state.reward, house: state.myHouse,)
+      ];
+    }
+    else{
+      return [
+        ProfileCard(
+            user:user,
+            userRank:state.rank
+        )
+      ];
     }
   }
 

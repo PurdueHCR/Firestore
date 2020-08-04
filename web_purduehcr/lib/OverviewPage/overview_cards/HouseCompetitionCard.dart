@@ -22,7 +22,12 @@ class HouseCompetitionCardState extends State<HouseCompetitionCard>{
     Widget child;
     if(widget.houses == null || widget.houses.length == 0){
       child = Center(
-        child: Text(widget.preferences.competitionHiddenMessage),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(widget.preferences.competitionHiddenMessage,
+            textAlign: TextAlign.center,
+          ),
+        ),
       );
     }
     else{

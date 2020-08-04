@@ -64,7 +64,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
             bloc: getBloc(),
             builder: (BuildContext context, S state){
               if(isLoadingState(state)){
-                return LoadingWidget();
+                return _buildLoadingIcon();
               }
               else{
                 return SafeArea(
@@ -119,7 +119,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
             bloc: getBloc(),
             builder: (BuildContext context, S state){
               if(isLoadingState(state)){
-                return LoadingWidget();
+                return _buildLoadingIcon();
               }
               else{
                 return buildSmallDesktopBody(context: context, state:state);
@@ -161,7 +161,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
             bloc: getBloc(),
             builder: (BuildContext context, S state){
               if(isLoadingState(state)){
-                return LoadingWidget();
+                return _buildLoadingIcon();
               }
               else{
                 return buildMobileBody(context: context, state:state);
@@ -229,6 +229,25 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
 
   List<Widget> buildActions(DisplayType displayType){
     return null;
+  }
+
+  Widget _buildLoadingIcon(){
+    return Expanded(
+      child: Center(
+        child: Card(
+          child: SizedBox(
+              width: 150,
+              height: 150,
+              child: Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: LoadingWidget(),
+                ),
+              )
+          ),
+        ),
+      ),
+    );
   }
 
 }
