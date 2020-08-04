@@ -2,20 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/RouteGenerator.dart';
-import 'package:bloc/bloc.dart';
+
 
 import 'package:purduehcr_web/authentication/authentication.dart';
 
 
-
-class SimpleBlocDelegate extends BlocDelegate {
-  @override
-  void onTransition(Bloc bloc, Transition transition) {
-    print(transition);
-    super.onTransition(bloc, transition);
-  }
-
-}
 
 class PurdueHCR extends StatefulWidget {
 
