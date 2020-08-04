@@ -20,7 +20,7 @@ let HOUSE_NAME_2 = "Palladium"
 let GET_EVENTS_PATH = "/"
 
 // Test Suite GetEvents
-describe('event/get', () => {
+describe('event/', () => {
     beforeAll(async() => {
         firebase.apps().map(app => app.delete())
 
@@ -83,7 +83,7 @@ describe('event/get', () => {
     })
 
     // Test RHP
-    it('Test Platinum Resident', async(done) => {
+    it('Test RHP', async(done) => {
         const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, RHP_ID)
         res.end(function (err, res) {
             if (err) {
