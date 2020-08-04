@@ -97,7 +97,7 @@ export class FirestoreDataFactory{
             await db.collection("House").doc(houseId).collection("Details").doc("Rank").update(updateData)
         }
         else{
-            throw Error("You havent created the detail docs yet when preparing the test")
+            throw Error("You havent created the house details docs yet when preparing the test")
         }
     }
 

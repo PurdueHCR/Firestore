@@ -335,6 +335,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Invalid Permissions. Non competition participants can not get a rank.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
           "500" : {
             "description" : "Server Error",
             "content" : {

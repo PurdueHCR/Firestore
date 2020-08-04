@@ -8,7 +8,7 @@ import { submitLink} from '../src/SubmitLink'
 import { getUser, searchForUsers } from '../src/GetUser'
 import { createUser } from '../src/CreateUser'
 import { isInDateRange } from '../src/IsInDateRange'
-import { getUserRank } from '../src/GetUserRank'
+import { getRank } from '../src/GetUserRank'
 import { getPointLogsForUser } from '../src/GetPointLogsForUser'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { getUserLinks } from '../src/GetUserLinks'
@@ -41,11 +41,14 @@ users_app.use(firestoreTools.validateFirebaseIdToken)
  * @returns UserRank
  * @throws 400 - NonExistantUser
  * @throws 401 - Unauthroized
+ * @throws 403 - Invalid Permission
  * @throws 500 - ServerError
  */
 users_app.get('/auth-rank',  async (req, res) => {
 	try{
-		const rank = await getUserRank(req["user"]["user_id"])
+		const user = await getUser(req["user"]["user_id"])
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP, UserPermissionLevel.PRIVILEGED_RESIDENT])
+		const rank = await getRank(user)
 		res.status(APIResponse.SUCCESS_CODE).send(rank.toJson())
 	}
 	catch (error){
