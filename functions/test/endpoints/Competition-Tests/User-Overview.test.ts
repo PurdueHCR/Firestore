@@ -20,6 +20,7 @@ let USER_OVERVIEW = "/userOverview"
 let REWARD_100PPR = "REWARD_100PPR"
 let REWARD_5PPR = "REWARD_5PPR"
 
+let PLATINUM = "Platinum"
 
 //Test Suite Submit Points
 describe('GET competition/userOverview', () =>{
@@ -36,18 +37,6 @@ describe('GET competition/userOverview', () =>{
         competition_func = require('../../../src/endpoint_paths/index.ts').competition
 
         await FirestoreDataFactory.setSystemPreference(db)  
-        //Create 6 sample residents
-        await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0, {total_points: 1, semester_points: 1})
-        for(let i =0; i < 5; i++){
-            await FirestoreDataFactory.setUser(db, RESIDENT_ID+" "+i.toString(), 0, {total_points: (i+1)*10, semester_points: (i+1)*10})
-        }
-
-        //Create Other permission level users
-        await FirestoreDataFactory.setUser(db, RHP_ID, 1)
-        await FirestoreDataFactory.setUser(db, REC_ID, 2)
-        await FirestoreDataFactory.setUser(db, FHP, 3)
-        await FirestoreDataFactory.setUser(db, PRIV_RES, 4, {house_name:"Silver"})
-        await FirestoreDataFactory.setUser(db, NHAS, 5)
 
         //Create houses
         await FirestoreDataFactory.setAllHouses(db,
@@ -59,6 +48,25 @@ describe('GET competition/userOverview', () =>{
                 titanium:{total_points:1600, num_residents: 200}
             }
         )
+
+        //Create 6 sample residents
+        await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0, {total_points: 1, semester_points: 1, house_name: PLATINUM})
+        await FirestoreDataFactory.setUserHouseRank(db, PLATINUM, RESIDENT_ID+" MAIN", "RESIDENT", "MAIN", 1,1 )
+        for(let i =0; i < 5; i++){
+            await FirestoreDataFactory.setUser(db, RESIDENT_ID+" "+i.toString(), 0, {total_points: (i+1)*10, semester_points: (i+1)*10, house_name: PLATINUM})
+            await FirestoreDataFactory.setUserHouseRank(db, PLATINUM, RESIDENT_ID+" "+i.toString(), "RESIDENT", i.toString(), (i+1)*10,(i+1)*10 )
+        }
+
+        //Create Other permission level users
+        await FirestoreDataFactory.setUser(db, RHP_ID, 1, {house_name:PLATINUM, total_points: 0, semester_points: 0})
+        await FirestoreDataFactory.setUserHouseRank(db, PLATINUM, RHP_ID, "RHP", "MAIN", 0,0 )
+        await FirestoreDataFactory.setUser(db, REC_ID, 2)
+        await FirestoreDataFactory.setUser(db, FHP, 3)
+        await FirestoreDataFactory.setUser(db, PRIV_RES, 4, {house_name:"Silver"})
+        await FirestoreDataFactory.setUserHouseRank(db, "Silver", PRIV_RES+" MAIN", "PRIVE", "PRIV", 0,0 )
+        await FirestoreDataFactory.setUser(db, NHAS, 5)
+
+        
         //Create pointlogs for a user
         await FirestoreDataFactory.createMultiplePointLogs(db,"Platinum",RESIDENT_ID,10)
         await FirestoreDataFactory.createMultiplePointLogs(db,"Platinum",RHP_ID,3)
