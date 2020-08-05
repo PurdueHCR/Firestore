@@ -43,10 +43,19 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
   @override
   Widget buildMobileBody({BuildContext context, SubmitPointState state}) {
     _onChangeState(context, state);
-    return PointTypeList(
-        pointTypes: _submitPointBloc.state.pointTypes,
-        onPressed: _onPressed
-    );
+    if(_selectedPointType == null){
+      return PointTypeList(
+          pointTypes: _submitPointBloc.state.pointTypes,
+          onPressed: _onPressed
+      );
+    }
+    else{
+      return PointSubmissionForm(
+        key: new ObjectKey(_selectedPointType),
+        pointType: _selectedPointType,
+        onSubmit: _onSubmit,
+      );
+    }
   }
 
   @override
@@ -55,12 +64,14 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
     return Row(
       children: [
         Flexible(
-          child: PointTypeList(
-              pointTypes: _submitPointBloc.state.pointTypes,
-              onPressed: _onPressed
+          child: Container(
+            color: Colors.grey,
+            child: PointTypeList(
+                pointTypes: _submitPointBloc.state.pointTypes,
+                onPressed: _onPressed
+            ),
           ),
         ),
-        VerticalDivider(),
         Flexible(
             child: PointSubmissionForm(
               key: new ObjectKey(_selectedPointType),
@@ -75,7 +86,19 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
   @override
   Widget buildSmallDesktopBody({BuildContext context, SubmitPointState state}) {
     _onChangeState(context, state);
-    return PointTypeList(pointTypes: _submitPointBloc.state.pointTypes, onPressed: _onPressed);
+    if(_selectedPointType == null){
+      return PointTypeList(
+          pointTypes: _submitPointBloc.state.pointTypes,
+          onPressed: _onPressed
+      );
+    }
+    else{
+      return PointSubmissionForm(
+        key: new ObjectKey(_selectedPointType),
+        pointType: _selectedPointType,
+        onSubmit: _onSubmit,
+      );
+    }
   }
 
   @override
@@ -89,27 +112,23 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
   }
 
   _onPressed(BuildContext context, PointType pointType){
-    if(displayTypeOf(context) == DisplayType.desktop_large){
-      setState(() {
-        _selectedPointType = pointType;
-      });
+    setState(() {
+      _selectedPointType = pointType;
+    });
+  }
+
+  @override
+  Widget buildLeadingButton(DisplayType displayType){
+    if(_selectedPointType == null || displayType == DisplayType.desktop_large){
+      return null;
     }
     else{
-      showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return SimpleDialog(
-            title: Text("Submission Form"),
-            children: [
-              PointSubmissionForm(
-                key: new ObjectKey(_selectedPointType),
-                pointType: pointType,
-                onSubmit: _onSubmit,
-              )
-            ],
-          );
-        }
-      );
+      return IconButton(icon: Icon(Icons.arrow_back),
+        onPressed: (){
+          setState(() {
+            _selectedPointType = null;
+          });
+        },);
     }
   }
 
@@ -124,10 +143,6 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
 
   _onChangeState(BuildContext context, SubmitPointState state){
     if(state is SubmissionSuccess){
-      print("On change state success");
-      if(state.shouldDismissDialog){
-        Navigator.pop(context);
-      }
       final snackBar = SnackBar(
         backgroundColor: Colors.green,
         content: Text('Submission Recorded'),
@@ -142,10 +157,6 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
       });
     }
     else if(state is SubmissionError){
-      print("On change state error");
-      if(state.shouldDismissDialog){
-        Navigator.pop(context);
-      }
       final snackBar = SnackBar(
         backgroundColor: Colors.red,
         content: Text('Could not record submission'),

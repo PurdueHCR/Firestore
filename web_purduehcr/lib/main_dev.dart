@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/PurdueHCR_main.dart';
 import 'package:bloc/bloc.dart';
+import 'package:purduehcr_web/Utilities/ThemeNotifier.dart';
 
 import 'Config.dart';
 import 'env/dev.dart';
@@ -18,9 +20,11 @@ class SimpleBlocDelegate extends BlocDelegate {
 void main(){
   BlocSupervisor.delegate = SimpleBlocDelegate();
   runApp(
-      new ConfigWrapper(
-          config: Config.fromJson(config),
-          child: new PurdueHCR()
+      ChangeNotifierProvider<ThemeNotifier>(
+        create: (_) => ThemeNotifier(ThemeNotifier.platinumTheme),
+        child: ConfigWrapper(
+            config: Config.fromJson(config),
+            child: new PurdueHCR()),
       )
   );
 }

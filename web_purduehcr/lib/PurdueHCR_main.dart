@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/RouteGenerator.dart';
 
 
 import 'package:purduehcr_web/authentication/authentication.dart';
+
+import 'Utilities/ThemeNotifier.dart';
 
 
 
@@ -27,13 +30,12 @@ class PurdueHCRState extends State<PurdueHCR>{
   }
   @override
   Widget build(BuildContext context) {
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
     return BlocProvider<AuthenticationBloc>(
       builder: (context) => _authenticationBloc,
       child: MaterialApp(
         title: 'Purdue HCR',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
+        theme: themeNotifier.getTheme(),
         initialRoute: '/',
         onGenerateRoute: (settings) => RouteGenerator.generateRoute(settings),
       ),

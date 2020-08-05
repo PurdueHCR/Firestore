@@ -50,11 +50,8 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
             color: Theme.of(context).backgroundColor,
             child: Center(
               child: SizedBox(
-                  width: getActiveAreaWidth(context),
-                  child: Container(
-                      color: Colors.white,
-                      child: buildLargeDesktopBody()
-                  )
+                  width: getActiveAreaWidth(context) - 32,
+                  child: Center(child: buildLargeDesktopBody())
               ),
             ),
           );
@@ -64,7 +61,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
             bloc: getBloc(),
             builder: (BuildContext context, S state){
               if(isLoadingState(state)){
-                return _buildLoadingIcon();
+                return LoadingWidget();
               }
               else{
                 return SafeArea(
@@ -72,11 +69,8 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
                     color: Theme.of(context).backgroundColor,
                     child: Center(
                       child: SizedBox(
-                        width: getActiveAreaWidth(context),
-                        child: Container(
-                          color: Colors.white,
-                          child: buildLargeDesktopBody(context: context, state:state)
-                        )
+                        width: getActiveAreaWidth(context) - 32,
+                        child: buildLargeDesktopBody(context: context, state:state)
                       ),
                     ),
                   ),
@@ -112,17 +106,23 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
       case DisplayType.desktop_small:
         Widget child;
         if(getBloc() == null){
-          child = buildSmallDesktopBody();
+          child = Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: buildSmallDesktopBody(),
+          );
         }
         else{
           child = BlocBuilder<B,S>(
             bloc: getBloc(),
             builder: (BuildContext context, S state){
               if(isLoadingState(state)){
-                return _buildLoadingIcon();
+                return LoadingWidget();
               }
               else{
-                return buildSmallDesktopBody(context: context, state:state);
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: buildSmallDesktopBody(context: context, state:state),
+                );
               }
             },
           );
@@ -154,17 +154,23 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
       default:
         Widget child;
         if(getBloc() == null){
-          child = buildMobileBody();
+          child = Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: buildMobileBody(),
+          );
         }
         else{
           child = BlocBuilder<B,S>(
             bloc: getBloc(),
             builder: (BuildContext context, S state){
               if(isLoadingState(state)){
-                return _buildLoadingIcon();
+                return LoadingWidget();
               }
               else{
-                return buildMobileBody(context: context, state:state);
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: buildMobileBody(context: context, state:state),
+                );
               }
             },
           );
@@ -229,25 +235,6 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
 
   List<Widget> buildActions(DisplayType displayType){
     return null;
-  }
-
-  Widget _buildLoadingIcon(){
-    return Expanded(
-      child: Center(
-        child: Card(
-          child: SizedBox(
-              width: 150,
-              height: 150,
-              child: Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: LoadingWidget(),
-                ),
-              )
-          ),
-        ),
-      ),
-    );
   }
 
 }

@@ -32,7 +32,7 @@ class _PointSubmissionFormState extends State<PointSubmissionForm>{
   @override
   Widget build(BuildContext context) {
     if(widget.pointType == null){
-      return Text("Select a Point Category");
+      return Center(child: Text("Select a Point Category"));
     }
     else if( isLoading){
       return LoadingWidget();

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
+import 'package:purduehcr_web/Utilities/ThemeNotifier.dart';
 import 'package:purduehcr_web/authentication/authentication.dart';
 import 'package:purduehcr_web/Models/User.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
@@ -29,7 +31,6 @@ class PhcrDrawer extends Drawer {
   final String selectedPageName;
   final double elevation;
   const PhcrDrawer(this.selectedPageName,{this.elevation = 16.0}): super();
-
 
 
   @override
@@ -97,7 +98,7 @@ class PhcrDrawer extends Drawer {
               if(index == 0){
                 return UserAccountsDrawerHeader(
                   decoration: BoxDecoration(
-                    color: Colors.blue,
+                    color: Theme.of(context).primaryColor,
                   ),
                   accountName: Text(user.firstName+ ' '+user.lastName),
                   accountEmail: Text(accountDetails),

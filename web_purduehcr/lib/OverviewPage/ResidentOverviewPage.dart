@@ -90,7 +90,7 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
   }
 
   List<Widget> buildInnerRow(ResidentOverviewLoaded state) {
-    if(authState.preferences.showRewards){
+    if(authState.preferences.showRewards && authState.preferences.isCompetitionVisible){
       return [
         ProfileCard(
             user:user,

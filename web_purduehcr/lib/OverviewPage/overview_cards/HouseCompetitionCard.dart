@@ -37,6 +37,7 @@ class HouseCompetitionCardState extends State<HouseCompetitionCard>{
       );
     }
     return Card(
+      color: Theme.of(context).dialogBackgroundColor,
       child: child
     );
   }

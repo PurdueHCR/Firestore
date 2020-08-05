@@ -18,10 +18,20 @@ class _LoadingWidgetState extends State<LoadingWidget>{
   @override
   Widget build(BuildContext context) {
 
-    return AspectRatio(
-      aspectRatio: 1,
-      child: CircularProgressIndicator(),
+    return Center(
+      child: Card(
+        child: SizedBox(
+            width: 150,
+            height: 150,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: CircularProgressIndicator(),
+              ),
+            )
+        ),
+      ),
     );
   }
-
 }
