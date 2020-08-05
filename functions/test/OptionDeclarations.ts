@@ -280,3 +280,30 @@ export const USER_DEFAULTS:UserOptions = {
 
 ///----------------------------------------------------------------
 
+///------------------------- Event OPTIONS ------------------------
+
+export declare type EventOptions = {
+    name?: string,
+    details?: string,
+    date?: Date,
+    location?: string,
+    points?: number,
+    point_type_id?: number,
+    point_type_name?: string,
+    point_type_description?: string,
+    house?: string
+}
+
+export const EVENT_DEFAULTS:EventOptions = {
+    name: "TEST_NAME",
+    details: "TEST_DETAILS",
+    date: new Date(),
+    location: "TEST_LOCATION",
+    points: 1,
+    point_type_id: 1,
+    point_type_name: "TEST_TYPE_NAME",
+    point_type_description: "TEST_TYPE_DESCRIPTION",
+    house: "All Houses"
+}
+///----------------------------------------------------------------
+

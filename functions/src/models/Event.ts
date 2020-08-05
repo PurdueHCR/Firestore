@@ -133,7 +133,7 @@ export class Event {
             house = ""
         }
         if (Event.CREATOR_ID in documentData) {
-            creator_id = document[Event.CREATOR_ID]
+            creator_id = documentData[Event.CREATOR_ID]
         } else {
             creator_id = ""
         }

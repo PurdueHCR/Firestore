@@ -97,7 +97,7 @@ export class FirestoreDataFactory{
             await db.collection("House").doc(houseId).collection("Details").doc("Rank").update(updateData)
         }
         else{
-            throw Error("You havent created the detail docs yet when preparing the test")
+            throw Error("You havent created the house details docs yet when preparing the test")
         }
     }
 
@@ -333,6 +333,35 @@ export class FirestoreDataFactory{
         })
     }
 
+    /**
+     * Create an event
+     * @param db 
+     * @param creator_id
+     * @param eOpts 
+     */
+    static setEvent(db: firebase.firestore.Firestore, id: string, creator_id: string, eOpts:Options.EventOptions = Options.EVENT_DEFAULTS): Promise<void> {
+        const data = {
+            "Name": (eOpts.name !== undefined)?eOpts.name:Options.EVENT_DEFAULTS.name,
+            "Details": (eOpts.details !== undefined)?eOpts.details:Options.EVENT_DEFAULTS.details,
+            "Date": (eOpts.date !== undefined)?eOpts.date:Options.EVENT_DEFAULTS.date,
+            "Location": (eOpts.location !== undefined)?eOpts.location:Options.EVENT_DEFAULTS.location,
+            "Points": (eOpts.points !== undefined)?eOpts.points:Options.EVENT_DEFAULTS.points,
+            "PointTypeID": (eOpts.point_type_id !== undefined)?eOpts.point_type_id:Options.EVENT_DEFAULTS.point_type_id,
+            "PointTypeName": (eOpts.point_type_name !== undefined)?eOpts.point_type_name:Options.EVENT_DEFAULTS.point_type_name,
+            "PointTypeDescription": (eOpts.point_type_description !== undefined)?eOpts.point_type_description:Options.EVENT_DEFAULTS.point_type_description,
+            "House": (eOpts.house !== undefined)?eOpts.house:Options.EVENT_DEFAULTS.house,
+            "CreatorID":creator_id
+        }
+        return db.collection("Events").doc(id).set(data)
+    }
+
+    /**
+     * Run this after events test to clean events
+     * @param db Test App Firestore instance
+     */
+    static async cleanEvents(db: firebase.firestore.Firestore) {
+        await FirestoreDataFactory.deleteCollection(db, "Events", 100)
+    }
 
     static async getCompetitionPointsStatus(db: firebase.firestore.Firestore, house:string, user_id:string): Promise<CompetitionPointStatus> {
         const user_doc = await db.collection("Users").doc(user_id).get()
@@ -414,14 +443,6 @@ export class FirestoreDataFactory{
         await FirestoreDataFactory.deleteCollection(db, "PointTypes",100)
         await FirestoreDataFactory.deleteCollection(db, "Rewards",100)
         await FirestoreDataFactory.deleteCollection(db, "Users",100)
-    }
-
-    /**
-     * Run this after events test to clean events
-     * @param db Test App Firestore instance
-     */
-    static async cleanEvents(db: firebase.firestore.Firestore) {
-        await FirestoreDataFactory.deleteCollection(db, "Events", 1)
     }
 
 
