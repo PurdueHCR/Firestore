@@ -55,8 +55,8 @@ describe('event/get_by_id', () => {
         await FirestoreDataFactory.setSystemPreference(db)
     })
 
-    // Test Missing Body
-    it('Test Missing Body', async(done) => {
+    // Test Missing Query
+    it('Test Missing Query', async(done) => {
         const res: request.Test = factory.get(get_event_func, GET_EVENT_PATH, PALLADIUM_RESIDENT_ID, {})
         res.end(function (err, res) {
             if (err) {
@@ -75,7 +75,7 @@ describe('event/get_by_id', () => {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(APIResponse.NonExistantUser().code)
+                expect(res.status).toBe(APIResponse.NonExistantEvent().code)
                 done()
             }
         })

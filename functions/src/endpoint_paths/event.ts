@@ -157,18 +157,18 @@ events_app.get('/', async (req, res) => {
  * @param event_id id of the event
  * 
  * @throws 403 - Invalid Permission Level
+ * @throws 422 - Missing Required Parameters
  * @throws 450 - Non-Existant Event
  * @throws 500 - Server Error
  * 
  * @returns an event
  */
 events_app.get("/get_by_id", async (req, res) => {
-    if (!req.body || req.body === "" || !req.body.event_id
-        || req.body.event_id === "") {
-        if (!req.body || req.body === "") {
-            console.error("Missing body")
+    if (!req.query || !req.query.event_id || req.query.event_id === "") {
+        if (!req.query) {
+            console.error("Missing query")
         }
-        else if (!req.body.event_id || req.body.event_id === "") {
+        else if (!req.query.event_id || req.query.event_id === "") {
             console.error("Missing event_id")
         }
         const error = APIResponse.MissingRequiredParameters()
@@ -176,7 +176,7 @@ events_app.get("/get_by_id", async (req, res) => {
     } else {
         try {
             const user = await getUser(req["user"]["user_id"])
-            const event_log = getEventById(req.body.event_id, user)
+            const event_log = getEventById(req.query.event_id as string, user)
             res.status(APIResponse.SUCCESS_CODE).send({event:event_log})
 
         } catch (error) {

@@ -4,6 +4,7 @@ import { Event } from '../models/Event'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { HouseCompetition } from '../models/HouseCompetition'
 import { APIResponse } from '../models/APIResponse'
+import { verifyUserHasCorrectPermission } from './VerifyUserHasCorrectPermission'
 
 /**
  * This function returns the event with the given id if it exists
@@ -25,12 +26,11 @@ export async function getEventById(event_id: string, user: User): Promise<Event>
     if (!event.exists) {
         return Promise.reject(APIResponse.NonExistantEvent())
     }
-    if (user.permissionLevel !== UserPermissionLevel.PROFESSIONAL_STAFF) {
-        if (event.data["house"] !== user.house && event.data["house"] !== "All Houses") {
-            return Promise.reject(APIResponse.InvalidPermissionLevel())
-        }
+    if (event.data()!.house !== user.house && event.data()!.house !== "All Houses") {
+        verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
     }
-    let event_obj = Event.fromData(event_id, event)
+    const event_obj = Event.fromData(event_id, event.data()!)
+    console.log(event_obj)
     return Promise.resolve(event_obj)
 
 }
