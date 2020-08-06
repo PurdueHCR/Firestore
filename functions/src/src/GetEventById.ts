@@ -30,7 +30,6 @@ export async function getEventById(event_id: string, user: User): Promise<Event>
         verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
     }
     const event_obj = Event.fromData(event_id, event.data()!)
-    console.log(event_obj)
     return Promise.resolve(event_obj)
 
 }
