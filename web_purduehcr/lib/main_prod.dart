@@ -10,7 +10,7 @@ import 'env/prod.dart';
 
 void main() => runApp(
     ChangeNotifierProvider<ThemeNotifier>(
-      create: (_) => ThemeNotifier(ThemeNotifier.darkTheme),
+      create: (_) => ThemeNotifier(ThemeData.light(), ThemeData.dark()),
       child: ConfigWrapper(
           config: Config.fromJson(config),
           child: new PurdueHCR()),

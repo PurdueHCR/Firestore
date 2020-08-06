@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:purduehcr_web/OverviewPage/OverviewPage.dart';
 import 'package:purduehcr_web/Account_Login_Creation/AccountPage.dart';
 import 'package:purduehcr_web/ControlsPage/ControlsPage.dart';
@@ -17,6 +18,7 @@ import 'package:purduehcr_web/UserCreation/UserCreationPage.dart';
 import 'package:purduehcr_web/authentication/authentication.dart';
 
 import 'PointTypesPage/PointTypesPage.dart';
+import 'Utilities/ThemeNotifier.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {

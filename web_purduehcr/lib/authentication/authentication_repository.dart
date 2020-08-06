@@ -1,6 +1,7 @@
 import 'package:purduehcr_web/Config.dart';
 import 'package:purduehcr_web/Models/SystemPreferences.dart';
 import 'package:purduehcr_web/Models/User.dart';
+import 'package:purduehcr_web/Models/WebInitializationResponse.dart';
 import 'package:purduehcr_web/Utilities/CloudFunctionUtility.dart';
 import 'package:purduehcr_web/Utilities/FirebaseUtility.dart';
 
@@ -18,8 +19,8 @@ class AuthenticationRepository {
   return SystemPreference.fromJson(settingsMap["settings"]);
 }
 
-  Future<User> getUser() async {
-    Map<String, dynamic> userMap = await callCloudFunction(config, Method.GET, "user/");
-    return User.fromJson(userMap);
+  Future<WebInitializationResponse> getInitializationData() async {
+    Map<String, dynamic> initMap = await callCloudFunction(config, Method.GET, "web/initialization");
+    return WebInitializationResponse.fromJson(initMap);
   }
 }

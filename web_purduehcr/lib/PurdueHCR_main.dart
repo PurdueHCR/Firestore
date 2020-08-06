@@ -21,22 +21,25 @@ class PurdueHCR extends StatefulWidget {
 
 class PurdueHCRState extends State<PurdueHCR>{
   AuthenticationBloc _authenticationBloc;
+  ThemeNotifier _themeNotifier;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _authenticationBloc = AuthenticationBloc(config: ConfigWrapper.of(context));
-    _authenticationBloc.add(AppStarted());
+    if(_authenticationBloc == null){
+      _themeNotifier = Provider.of<ThemeNotifier>(context);
+      _authenticationBloc = AuthenticationBloc(config: ConfigWrapper.of(context), themeNotifier: _themeNotifier);
+      _authenticationBloc.add(AppStarted());
+    }
   }
   @override
   Widget build(BuildContext context) {
-    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
     return BlocProvider<AuthenticationBloc>(
       builder: (context) => _authenticationBloc,
       child: MaterialApp(
         title: 'Purdue HCR',
-        theme: ThemeNotifier.lightTheme,
-//        darkTheme: ThemeNotifier.darkTheme,
+        theme: _themeNotifier.getTheme(),
         initialRoute: '/',
         onGenerateRoute: (settings) => RouteGenerator.generateRoute(settings),
       ),

@@ -28,9 +28,11 @@
     "name" : "point_log"
   },{
     "name" : "house_codes"
-  } ],
+  },{
+    "name" : "web",
+    "description": "Endpoints used by the Flutter Web app to minimize api calls"
+  }],
   "paths" : {
-
     "/house_codes/" : {
       "get" : {
         "tags" : [ "house_codes" ],
@@ -1627,6 +1629,16 @@
               }
             }
           },
+          "425" : {
+            "description" : "This error should never be returned, but it could. If you ever get this, please report it as a bug and the user that you tried to access it with.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownHouse"
+                }
+              }
+            }
+          },
           "500" : {
             "description" : "Server Error.",
             "content" : {
@@ -1640,9 +1652,58 @@
         }
       }
     },
-    "/competition/userOverview" : {
+    "/web/initialization" : {
+      "get": {
+        "tags": ["web"],
+        "summary": "Returns initial fields needed to setup the web app",
+        "parameters": [],
+        "responses": {
+          "200" : {
+            "description": "Successfully retrieved information",
+            "content" : {
+              "application/json" : {
+                "schema": {
+                  "$ref" : "#/components/schemas/WebInitializationResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/web/userOverview" : {
       "get" : {
-        "tags" : [ "competition" ],
+        "tags" : [ "web" ],
         "summary" : "Get the data that is most pertinent to the given user.",
         "parameters" : [ {
           "name" : "Authorization",
@@ -2984,6 +3045,22 @@
   },
   "components" : {
     "schemas" : {
+      "WebInitializationResponse": {
+        "type": "object",
+        "description": "User and settings will be returned every time if there is no error. House will only be returned if the user belongs to a house.",
+        "required": [ "user", "settings" ],
+        "properties": {
+            "user": {
+                "$ref": "#/components/schemas/User"
+            },
+            "settings": {
+              "$ref": "#/components/schemas/SystemPreference"
+            },
+            "house": {
+              "$ref": "#/components/schemas/House"
+            }
+        }
+      },
       "UserRank" : {
         "type" : "object",
         "properties" : {

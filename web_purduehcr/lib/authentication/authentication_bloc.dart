@@ -2,10 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:purduehcr_web/Config.dart';
 import 'package:purduehcr_web/Models/ApiError.dart';
 import 'package:purduehcr_web/Models/SystemPreferences.dart';
 import 'package:purduehcr_web/Utilities/FirebaseUtility.dart';
+import 'package:purduehcr_web/Utilities/ThemeNotifier.dart';
 import 'package:purduehcr_web/authentication/authentication_repository.dart';
 import 'authentication.dart';
 
@@ -13,10 +15,11 @@ import 'authentication.dart';
 class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
   final Config config;
+  final ThemeNotifier themeNotifier;
   AuthenticationRepository _authenticationRepository;
 
-  AuthenticationBloc({@required this.config})
-      : assert(config != null){
+  AuthenticationBloc({@required this.config, @required this.themeNotifier})
+      : assert(config != null), assert(themeNotifier != null){
     _authenticationRepository = AuthenticationRepository(config);
   }
 
@@ -25,13 +28,17 @@ class AuthenticationBloc
 
   @override
   Stream<AuthenticationState> mapEventToState(AuthenticationEvent event) async* {
-    if (event is AppStarted) {
+    if (event is AppStarted && state.preferences == null) {
       SystemPreference preferences;
       try{
         await FirebaseUtility.initializeFirebase(config);
         preferences = await _authenticationRepository.getSystemPreferences();
-        final user = await _authenticationRepository.getUser();
-        yield Authenticated(user, preferences: preferences);
+        final initializationData = await _authenticationRepository.getInitializationData();
+        if(initializationData.house != null && themeNotifier.getMainColor() != initializationData.house.getHouseColor()){
+          print("LAUNCHING FOR start");
+          themeNotifier.setMainColor(initializationData.house.getHouseColor());
+        }
+        yield Authenticated(initializationData.user, initializationData.house, preferences: preferences);
       }
       on ApiError catch(apiError){
         if(apiError.errorCode == 400){
@@ -49,8 +56,12 @@ class AuthenticationBloc
     }
     else if (event is LoggedIn) {
       try{
-        final user = await _authenticationRepository.getUser();
-        yield Authenticated(user, preferences: state.preferences);
+        final initializationData = await _authenticationRepository.getInitializationData();
+        if(initializationData.house != null && themeNotifier.getMainColor() != initializationData.house.getHouseColor()){
+          print("LAUNCHING FOR Login");
+          themeNotifier.setMainColor(initializationData.house.getHouseColor());
+        }
+        yield Authenticated(initializationData.user, initializationData.house, preferences: initializationData.settings);
       }
       on ApiError catch(apiError){
         print("Failed to get User model with API Error. $apiError");
@@ -73,7 +84,23 @@ class AuthenticationBloc
       }
     }
     else if (event is CreatedUser){
-      yield Authenticated(event.user, preferences: state.preferences);
+      try{
+        final initializationData = await _authenticationRepository.getInitializationData();
+        if(initializationData.house != null && themeNotifier.getMainColor() != initializationData.house.getHouseColor()){
+          print("LAUNCHING FOR CREATE");
+          themeNotifier.setMainColor(initializationData.house.getHouseColor());
+        }
+        yield Authenticated(initializationData.user, initializationData.house, preferences: initializationData.settings);
+
+      }
+      on ApiError catch(apiError){
+        print("Uh oh. There was an API error: "+apiError.toString());
+        yield Unauthenticated(preferences: state.preferences);
+      }
+      catch(error){
+        print("Failed to get User model. $error");
+        yield ConnectionErrorState(preferences: state.preferences);
+      }
     }
   }
 }

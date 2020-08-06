@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:purduehcr_web/Models/House.dart';
 import 'package:purduehcr_web/Models/SystemPreferences.dart';
 import 'package:purduehcr_web/Models/User.dart';
 
@@ -15,7 +16,8 @@ class AuthUninitialized extends AuthenticationState {
 
 class Authenticated extends AuthenticationState {
   final User user;
-  Authenticated(this.user,{SystemPreference preferences}): super(preferences:preferences);
+  final House house;
+  Authenticated(this.user, this.house, {SystemPreference preferences}): super(preferences:preferences);
 }
 
 class Unauthenticated extends AuthenticationState {
