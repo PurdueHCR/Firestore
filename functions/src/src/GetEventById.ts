@@ -26,7 +26,7 @@ export async function getEventById(event_id: string, user: User): Promise<Event>
     if (!event.exists) {
         return Promise.reject(APIResponse.NonExistantEvent())
     }
-    if (event.data()!.house !== user.house && event.data()!.house !== "All Houses") {
+    if (event.data()!.House !== user.house && event.data()!.House !== "All Houses") {
         verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
     }
     const event_obj = Event.fromData(event_id, event.data()!)

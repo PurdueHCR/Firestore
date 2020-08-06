@@ -176,7 +176,7 @@ events_app.get("/get_by_id", async (req, res) => {
     } else {
         try {
             const user = await getUser(req["user"]["user_id"])
-            const event_log = getEventById(req.query.event_id as string, user)
+            const event_log = await getEventById(req.query.event_id as string, user)
             res.status(APIResponse.SUCCESS_CODE).send({event:event_log})
 
         } catch (error) {

@@ -102,7 +102,7 @@ describe('event/get_by_id', () => {
                 done(err)
             } else {
                 expect(res.status).toBe(200)
-                expect(res.body.data["house"]).toEqual("Palladium")
+                expect(res.body["event"].house).toEqual("Palladium")
                 done()
             }
         })
@@ -116,7 +116,7 @@ describe('event/get_by_id', () => {
                 done(err)
             } else {
                 expect(res.status).toBe(200)
-                expect(res.body.data["house"]).toEqual("Platinum")
+                expect(res.body["event"].house).toEqual("Platinum")
                 done()
             }
         })
@@ -130,7 +130,7 @@ describe('event/get_by_id', () => {
                 done(err)
             } else {
                 expect(res.status).toBe(200)
-                expect(res.body.data["house"]).toEqual("All Houses")
+                expect(res.body["event"].house).toEqual("All Houses")
                 done()
             }
         })
@@ -144,7 +144,7 @@ describe('event/get_by_id', () => {
                 done(err)
             } else {
                 expect(res.status).toBe(200)
-                expect(res.body.data["house"]).toEqual("All Houses")
+                expect(res.body["event"].house).toEqual("All Houses")
                 done()
             }
         })
@@ -171,7 +171,7 @@ describe('event/get_by_id', () => {
                 done(err)
             } else {
                 expect(res.status).toBe(200)
-                expect(res.body.data["house"]).toEqual("Platinum")
+                expect(res.body["event"].house).toEqual("Platinum")
                 done()
             }
         })
@@ -185,7 +185,7 @@ describe('event/get_by_id', () => {
                 done(err)
             } else {
                 expect(res.status).toBe(200)
-                expect(res.body.data["house"]).toEqual("All Houses")
+                expect(res.body["event"].house).toEqual("All Houses")
                 done()
             }
         })
@@ -200,7 +200,7 @@ describe('event/get_by_id', () => {
                 done(err)
             } else {
                 expect(res.status).toBe(200)
-                expect(res.body.data["house"]).toEqual("Platinum")
+                expect(res.body["event"].house).toEqual("Platinum")
                 done()
             }
         })
@@ -214,7 +214,7 @@ describe('event/get_by_id', () => {
                 done(err)
             } else {
                 expect(res.status).toBe(200)
-                expect(res.body.data["house"]).toEqual("All Houses")
+                expect(res.body["event"].house).toEqual("All Houses")
                 done()
             }
         })
@@ -241,7 +241,7 @@ describe('event/get_by_id', () => {
                 done(err)
             } else {
                 expect(res.status).toBe(200)
-                expect(res.body.data["house"]).toEqual("All Houses")
+                expect(res.body["event"].house).toEqual("All Houses")
                 done()
             }
         })
@@ -268,7 +268,7 @@ describe('event/get_by_id', () => {
                 done(err)
             } else {
                 expect(res.status).toBe(200)
-                expect(res.body.data["house"]).toEqual("Platinum")
+                expect(res.body["event"].house).toEqual("Platinum")
                 done()
             }
         })
@@ -282,7 +282,7 @@ describe('event/get_by_id', () => {
                 done(err)
             } else {
                 expect(res.status).toBe(200)
-                expect(res.body.data["house"]).toEqual("All Houses")
+                expect(res.body["event"].house).toEqual("All Houses")
                 done()
             }
         })
@@ -309,7 +309,7 @@ describe('event/get_by_id', () => {
                 done(err)
             } else {
                 expect(res.status).toBe(200)
-                expect(res.body.data["house"]).toEqual("Platinum")
+                expect(res.body["event"].house).toEqual("Platinum")
                 done()
             }
         })
