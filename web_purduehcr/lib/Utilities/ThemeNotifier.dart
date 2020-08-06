@@ -3,24 +3,14 @@ import 'package:flutter/material.dart';
 class ThemeNotifier with ChangeNotifier {
 
   static final darkTheme = ThemeData(
-    primarySwatch: Colors.grey,
-    primaryColor: Colors.black,
+    primaryColor: Colors.black54,
     brightness: Brightness.dark,
-    backgroundColor: const Color(0xFF212121),
-    accentColor: Colors.white,
-    accentIconTheme: IconThemeData(color: Colors.black),
-    dividerColor: Colors.black12,
-  );
-
-  static final platinumTheme = ThemeData(
-    primaryColor: const Color(0xFF5AC0C7),
-    brightness: Brightness.dark,
-    backgroundColor: const Color(0xFFFFEDDF),
+    backgroundColor: Colors.black26,
     accentColor: const Color(0xFF5AC0C7),
-    accentIconTheme: IconThemeData(color: const Color(0xFFFAFFD8)),
-    dividerColor: Colors.black12,
-    canvasColor: const Color(0xFF1B2845),
-    dialogBackgroundColor: Colors.white,
+    canvasColor: Colors.black45,
+    appBarTheme: AppBarTheme(color: Colors.black45, ),
+    cardColor: Colors.white,
+
     textTheme: TextTheme(
       headline1: TextStyle(color: Colors.black),
       bodyText2: TextStyle(color: Colors.black),
@@ -28,9 +18,22 @@ class ThemeNotifier with ChangeNotifier {
       caption: TextStyle(color: Colors.black),
       button: TextStyle(color: Colors.black),
       overline: TextStyle(color: Colors.black),
-    )
-//    canvasColor: const Color(0xFF242038)
+      bodyText1: TextStyle(color: Colors.black),
+      subtitle2: TextStyle(color: Colors.black),
+      headline2: TextStyle(color: Colors.white)
+    ),
+    focusColor: Colors.black,
+    iconTheme: IconThemeData(color: Colors.black),
   );
+
+  static final lightTheme = ThemeData(
+
+    primaryColor: const Color(0xFF5AC0C7),
+    accentColor: const Color(0xFF5AC0C7)
+  );
+
+
+
 
   ThemeData _themeData;
 

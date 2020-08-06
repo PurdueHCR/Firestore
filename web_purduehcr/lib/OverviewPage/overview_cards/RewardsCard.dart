@@ -24,7 +24,6 @@ class RewardsCardState extends State<RewardsCard>{
     }
     else{
       return Card(
-        color: Theme.of(context).dialogBackgroundColor,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -87,7 +86,7 @@ class RewardsCardState extends State<RewardsCard>{
           padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
           child: Column(
             children: [
-              Text(widget.house.pointsPerResident.toString()+ " / "+widget.reward.requiredPPR.toString()),
+              Text(widget.house.pointsPerResident.toStringAsFixed(2)+ " / "+widget.reward.requiredPPR.toString()),
               Text("Points Per Resident", maxLines: null,),
             ],
           ),

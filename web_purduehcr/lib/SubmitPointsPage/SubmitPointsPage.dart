@@ -65,7 +65,6 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
       children: [
         Flexible(
           child: Container(
-            color: Colors.grey,
             child: PointTypeList(
                 pointTypes: _submitPointBloc.state.pointTypes,
                 onPressed: _onPressed

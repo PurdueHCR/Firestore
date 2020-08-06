@@ -47,7 +47,6 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
         Widget child;
         if(getBloc() == null){
           child = Container(
-            color: Theme.of(context).backgroundColor,
             child: Center(
               child: SizedBox(
                   width: getActiveAreaWidth(context) - 32,
@@ -66,7 +65,6 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
               else{
                 return SafeArea(
                   child: Container(
-                    color: Theme.of(context).backgroundColor,
                     child: Center(
                       child: SizedBox(
                         width: getActiveAreaWidth(context) - 32,

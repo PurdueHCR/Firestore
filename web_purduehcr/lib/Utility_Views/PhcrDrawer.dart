@@ -91,17 +91,17 @@ class PhcrDrawer extends Drawer {
 
     return Drawer(
       elevation: this.elevation,
-      child: SafeArea(
+      child: Container(
         child: ListView.builder(
             itemCount: selectedList.length + 2,
             itemBuilder: (BuildContext context, int index) {
               if(index == 0){
                 return UserAccountsDrawerHeader(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
+                  accountName: Text(user.firstName+ ' '+user.lastName,
+
                   ),
-                  accountName: Text(user.firstName+ ' '+user.lastName),
-                  accountEmail: Text(accountDetails),
+                  accountEmail: Text(accountDetails,
+                  ),
                   currentAccountPicture: CircleAvatar(
                     backgroundColor: Colors.white,
                     child: Padding(
@@ -125,7 +125,7 @@ class PhcrDrawer extends Drawer {
                   selected: selectedPageName == selectedList[index - 1].name,
                   leading: selectedList[index - 1].icon,
                   title: Text(
-                      selectedList[index - 1].name
+                      selectedList[index - 1].name,
                   ),
                   onTap: () {
                     if(!(selectedPageName == selectedList[index - 1].name))

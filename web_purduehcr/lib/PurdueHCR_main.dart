@@ -35,7 +35,8 @@ class PurdueHCRState extends State<PurdueHCR>{
       builder: (context) => _authenticationBloc,
       child: MaterialApp(
         title: 'Purdue HCR',
-        theme: themeNotifier.getTheme(),
+        theme: ThemeNotifier.lightTheme,
+//        darkTheme: ThemeNotifier.darkTheme,
         initialRoute: '/',
         onGenerateRoute: (settings) => RouteGenerator.generateRoute(settings),
       ),

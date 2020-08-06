@@ -21,7 +21,7 @@ void main(){
   BlocSupervisor.delegate = SimpleBlocDelegate();
   runApp(
       ChangeNotifierProvider<ThemeNotifier>(
-        create: (_) => ThemeNotifier(ThemeNotifier.platinumTheme),
+        create: (_) => ThemeNotifier(ThemeNotifier.lightTheme),
         child: ConfigWrapper(
             config: Config.fromJson(config),
             child: new PurdueHCR()),
