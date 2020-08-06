@@ -47,6 +47,7 @@ describe('event/get_by_creator_id', () => {
         await FirestoreDataFactory.setEvent(db, "3", FACULTY, EVENT_DEFAULTS)
         await FirestoreDataFactory.setEvent(db, "4", PRIV_RES, EVENT_DEFAULTS)
         await FirestoreDataFactory.setEvent(db, "5", EA_ID, EVENT_DEFAULTS)
+        await FirestoreDataFactory.setEvent(db, "6", REC_ID, EVENT_DEFAULTS)
     })
 
     beforeEach(async () => {
@@ -61,21 +62,87 @@ describe('event/get_by_creator_id', () => {
                 done(err)
             } else {
                 expect(res.status).toBe(200)
-                expect(res.body.length).toEqual(0)
+                expect(res.body.length).toBeUndefined()
                 done()
             }
         })
     })
 
     // Test RHP
-    //it('Test RHP')
+    it('Test RHP', async(done) => {
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, RHP_ID, {})
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(Object.keys(res.body["events"]).length).toBe(1)
+                expect(res.body["events"][0].creator_id).toBe(RHP_ID)
+                done()
+            }
+        })
+    })
 
     // Test Faculty
-
+    it('Test Faculty', async(done) => {
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, FACULTY, {})
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(Object.keys(res.body["events"]).length).toBe(1)
+                expect(res.body["events"][0].creator_id).toBe(FACULTY)
+                done()
+            }
+        })
+    })
 
     // Test Privileged Resident
+    it('Test Privileged Resident', async(done) => {
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, PRIV_RES, {})
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(Object.keys(res.body["events"]).length).toBe(1)
+                expect(res.body["events"][0].creator_id).toBe(PRIV_RES)
+                done()
+            }
+        })
+    })
 
     // Test EA
+    it('Test EA', async(done) => {
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, EA_ID, {})
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(Object.keys(res.body["events"]).length).toBe(1)
+                expect(res.body["events"][0].creator_id).toBe(EA_ID)
+                done()
+            }
+        })
+    })
+
+    // Test Staff
+    it('Test Staff', async(done) => {
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, REC_ID, {})
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(Object.keys(res.body["events"]).length).toBe(2)
+                expect(res.body["events"][0].creator_id).toBe(REC_ID)
+                expect(res.body["events"][1].creator_id).toBe(REC_ID)
+                done()
+            }
+        })
+    })
 
     //After all of the tests are done, make sure to delete the test firestore app
     afterAll(()=>{

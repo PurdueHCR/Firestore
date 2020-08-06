@@ -15,7 +15,7 @@ export async function getEventsByCreatorId(creator_id: string): Promise<Event[]>
 
     const db = admin.firestore()
     
-    const events = await db.collection(HouseCompetition.EVENTS_KEY).where('creator_id', '==', creator_id).get()
+    const events = await db.collection(HouseCompetition.EVENTS_KEY).where('CreatorID', '==', creator_id).get()
     const event_objs = Event.fromQuerySnapshot(events)
     return Promise.resolve(event_objs)
 
