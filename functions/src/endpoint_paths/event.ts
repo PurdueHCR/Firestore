@@ -10,6 +10,7 @@ import { getPointTypeById } from '../src/GetPointTypeById'
 import { getSystemPreferences } from '../src/GetSystemPreferences'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 import { getEventsByCreatorId } from '../src/GetEventsByCreatorId'
+import { getEventById } from '../src/GetEventById'
 
 // Made sure that the app is only initialized one time
 if (admin.apps.length === 0) {
@@ -130,6 +131,68 @@ events_app.post('/add', async (req, res) => {
 })
 
 /**
+ * Get all events available to the user
+ * 
+ * @throws 500 - Server Error
+ */
+events_app.get('/', async (req, res) => {
+
+    try {
+        const user = await getUser(req["user"]["user_id"])
+        const event_logs = await getEvents(user)
+        res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
+    } catch (error) {
+        console.error("FAILED WITH ERROR: " + error.toString())
+        if (error instanceof APIResponse) {
+            res.status(error.code).send(error.toJson())
+        } else {
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+    }
+})
+
+/**
+ * Get an Event by its ID
+ * 
+ * @param event_id id of the event
+ * 
+ * @throws 403 - Invalid Permission Level
+ * @throws 422 - Missing Required Parameters
+ * @throws 450 - Non-Existant Event
+ * @throws 500 - Server Error
+ * 
+ * @returns an event
+ */
+events_app.get("/get_by_id", async (req, res) => {
+    if (!req.query || !req.query.event_id || req.query.event_id === "") {
+        if (!req.query) {
+            console.error("Missing query")
+        }
+        else if (!req.query.event_id || req.query.event_id === "") {
+            console.error("Missing event_id")
+        }
+        const error = APIResponse.MissingRequiredParameters()
+        res.status(error.code).send(error.toJson())
+    } else {
+        try {
+            const user = await getUser(req["user"]["user_id"])
+            const event_log = await getEventById(req.query.event_id as string, user)
+            res.status(APIResponse.SUCCESS_CODE).send({event:event_log})
+
+        } catch (error) {
+            console.error("FAILED WITH ERROR: " + error.toString())
+            if (error instanceof APIResponse) {
+                res.status(error.code).send(error.toJson())
+            } else {
+                const apiResponse = APIResponse.ServerError()
+                res.status(apiResponse.code).send(apiResponse.toJson())
+            }
+        }
+    }
+})
+
+/**
  * Get all events created by the user
  * 
  * @throws 500 - Server Error
@@ -152,24 +215,3 @@ events_app.get('/get_by_creator_id', async (req, res) => {
     }
 })
 
-/**
- * Get all events available to the user
- * 
- * @throws 500 - Server Error
- */
-events_app.get('/', async (req, res) => {
-
-    try {
-        const user = await getUser(req["user"]["user_id"])
-        const event_logs = await getEvents(user)
-        res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
-    } catch (error) {
-        console.error("FAILED WITH ERROR: " + error.toString())
-        if (error instanceof APIResponse) {
-            res.status(error.code).send(error.toJson())
-        } else {
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
-    }
-})
