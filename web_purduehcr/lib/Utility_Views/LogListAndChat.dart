@@ -33,10 +33,10 @@ class LogListAndChat extends StatelessWidget{
                   searchable: searchable,
                   showLoadMoreButton: showLoadMore,
                   loadMore: loadMore,
+                  selectedItem: selectedPointLog,
               ),
             ),
           ),
-          VerticalDivider(),
           Flexible(
               child: PointLogChat(
                   key: ObjectKey(selectedPointLog),
@@ -55,6 +55,7 @@ class LogListAndChat extends StatelessWidget{
             searchable: searchable,
             showLoadMoreButton: showLoadMore,
             loadMore: loadMore,
+            selectedItem: selectedPointLog,
         );
       }
       else{

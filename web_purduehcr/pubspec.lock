@@ -403,6 +403,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.3.0"
+  linkable:
+    dependency: "direct main"
+    description:
+      name: linkable
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.5"
   logging:
     dependency: transitive
     description:

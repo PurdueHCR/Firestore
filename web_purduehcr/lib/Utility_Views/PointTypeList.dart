@@ -47,7 +47,10 @@ class _PointTypeListState extends State<PointTypeList>{
       children: [
         Visibility(
           visible: widget.searchable,
-            child: SearchBar(onValueChanged: _onValueChanged)
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: SearchBar(onValueChanged: _onValueChanged),
+            )
         ),
         Expanded(
           child: mainContent,

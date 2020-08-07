@@ -40,7 +40,7 @@ class _PointSubmissionFormState extends State<PointSubmissionForm>{
     else {
       return Column(
       mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Padding(
           padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
@@ -119,16 +119,14 @@ class _PointSubmissionFormState extends State<PointSubmissionForm>{
         ),
 
         Padding(
-            padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
-            child:ButtonTheme(
-                minWidth: double.infinity,
-                child: RaisedButton(
-                    onPressed: _onSubmit,
-                    child: Text(
-                      'Submit Point',
-                      style: TextStyle(color: Colors.white),
-                    )
-                )
+            padding: EdgeInsets.all(8),
+            child:RaisedButton(
+              color: Theme.of(context).primaryColor,
+              onPressed: _onSubmit,
+              child: Text(
+                'Submit Point',
+                style: Theme.of(context).textTheme.bodyText2,
+              )
             )
         )
       ],

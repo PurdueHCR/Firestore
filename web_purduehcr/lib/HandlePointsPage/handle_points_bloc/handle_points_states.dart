@@ -29,3 +29,14 @@ class HandlePointsPageLoaded extends HandlePointsState {
     return "HandlePointsPageLoaded";
   }
 }
+
+class HandlePointsPageHasError extends HandlePointsState {
+  const HandlePointsPageHasError({ List<PointLog> pointLogs}):super(pointLogs: pointLogs);
+  @override
+  List<Object> get props => [pointLogs];
+
+  @override
+  String toString() {
+    return "HandlePointsPageHasError";
+  }
+}
