@@ -9,6 +9,7 @@ import { getEvents } from '../src/GetEvents'
 import { getPointTypeById } from '../src/GetPointTypeById'
 import { getSystemPreferences } from '../src/GetSystemPreferences'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
+import { getEventsByCreatorId } from '../src/GetEventsByCreatorId'
 import { getEventById } from '../src/GetEventById'
 
 // Made sure that the app is only initialized one time
@@ -129,8 +130,8 @@ events_app.post('/add', async (req, res) => {
     }
 })
 
-
-/** Get all events available to the user
+/**
+ * Get all events available to the user
  * 
  * @throws 500 - Server Error
  */
@@ -190,3 +191,27 @@ events_app.get("/get_by_id", async (req, res) => {
         }
     }
 })
+
+/**
+ * Get all events created by the user
+ * 
+ * @throws 500 - Server Error
+ * 
+ * @returns an array of events created by the user
+ */
+events_app.get('/get_by_creator_id', async (req, res) => {
+    try {
+        const user = await getUser(req["user"]["user_id"])
+        const event_logs = await getEventsByCreatorId(user.id)
+        res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
+    } catch (error) {
+        console.error("FAILED WITH ERROR: " + error.toString())
+        if (error instanceof APIResponse) {
+            res.status(error.code).send(error.toJson())
+        } else {
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+    }
+})
+
