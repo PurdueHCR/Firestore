@@ -14,6 +14,7 @@ import 'package:purduehcr_web/RewardsPage/RewardsPage.dart';
 import 'package:purduehcr_web/SubmitPointsPage/SubmitPointsPage.dart';
 import 'package:purduehcr_web/TokenTestPage/TokenTestPage.dart';
 import 'package:purduehcr_web/UserCreation/UserCreationPage.dart';
+import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 
 import 'package:purduehcr_web/authentication/authentication.dart';
 
