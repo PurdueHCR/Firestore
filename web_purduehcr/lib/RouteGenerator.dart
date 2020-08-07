@@ -18,6 +18,7 @@ import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 
 import 'package:purduehcr_web/authentication/authentication.dart';
 
+import 'InitializationPage.dart';
 import 'PointTypesPage/PointTypesPage.dart';
 import 'Utilities/ThemeNotifier.dart';
 
@@ -74,9 +75,7 @@ class RouteGenerator {
               return CircularProgressIndicator();
             }
             else if (state is AuthUninitialized) {
-              return Center(
-                child: Text("Initializing"),
-              );
+              return InitializationPage();
             }
             else if (state is AuthenticatedButNoUser) {
               print("Going to user creation page");
@@ -88,8 +87,9 @@ class RouteGenerator {
               }
             }
             else if(state is ConnectionErrorState) {
-              return Center(
-                child: Text("There was an error connection to the server. Please refresh the page."),
+              return InitializationPage(
+                message: "There was an error connecting to the server. Please refresh the page.",
+                key: UniqueKey(),
               );
             }
             else if (state is Unauthenticated){
@@ -101,8 +101,9 @@ class RouteGenerator {
               }
             }
             else {
-              return Center(
-                child: Text("There was an error with authentication. Please refresh the page."),
+              return InitializationPage(
+                  message: "There was an error with authentication. Please refresh the page.",
+                  key: UniqueKey(),
               );
             }
           });
