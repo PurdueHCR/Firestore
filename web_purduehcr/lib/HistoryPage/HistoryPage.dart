@@ -282,8 +282,10 @@ class _HistoryPageState
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: Colors.black,
+                color: Colors.grey[500],
               ),
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+              color: Colors.grey[300],
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -32,6 +32,10 @@ class User {
     }
   }
 
+  String getFullName(){
+    return this.firstName + " " + this.lastName;
+  }
+
   Future<Uri> getHouseDownloadURL(){
     if(this.houseDownloadURL == null){
       return Future.delayed(Duration(milliseconds: 100)).then((val)=> getHouseDownloadURL());

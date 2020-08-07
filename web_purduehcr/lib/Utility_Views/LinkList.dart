@@ -48,7 +48,10 @@ class _LinkListState extends State<LinkList>{
       children: [
         Visibility(
             visible: widget.searchable,
-            child: SearchBar(onValueChanged: _onValueChanged)
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+              child: SearchBar(onValueChanged: _onValueChanged),
+            )
         ),
         Expanded(
           child: mainContent,

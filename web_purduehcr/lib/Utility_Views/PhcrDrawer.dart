@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:linkable/linkable.dart';
 import 'package:purduehcr_web/authentication/authentication.dart';
 import 'package:purduehcr_web/Models/User.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
@@ -24,12 +25,12 @@ const List<_DrawerOptions> FHP_LIST = [OVERVIEW, LINKS];
 const List<_DrawerOptions> PRIVILEGED_USER_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, LINKS];
 const List<_DrawerOptions> EA_LIST = [OVERVIEW, LINKS];
 
+
 class PhcrDrawer extends Drawer {
 
   final String selectedPageName;
   final double elevation;
   const PhcrDrawer(this.selectedPageName,{this.elevation = 16.0}): super();
-
 
 
   @override
@@ -90,15 +91,12 @@ class PhcrDrawer extends Drawer {
 
     return Drawer(
       elevation: this.elevation,
-      child: SafeArea(
+      child: Container(
         child: ListView.builder(
-            itemCount: selectedList.length + 2,
+            itemCount: selectedList.length + 4,
             itemBuilder: (BuildContext context, int index) {
               if(index == 0){
                 return UserAccountsDrawerHeader(
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                  ),
                   accountName: Text(user.firstName+ ' '+user.lastName),
                   accountEmail: Text(accountDetails),
                   currentAccountPicture: CircleAvatar(
@@ -110,12 +108,79 @@ class PhcrDrawer extends Drawer {
                   ),
                 );
               }
-              else if(index == selectedList.length + 2 - 1){
-                return FlatButton(
-                    child: Text("Log out"),
-                    onPressed: (){
-                      BlocProvider.of<AuthenticationBloc>(context).add(LoggedOut());
-                    }
+              else if(index == selectedList.length + 1 ){
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                  child: OutlineButton(
+                      child: Text("Log out"),
+                      onPressed: (){
+                        showDialog(
+                            context: context,
+                            child: AlertDialog(
+                              title: Text("Log Out"),
+                              content: Text("Are you sure you want to log out?"),
+                              actions: [
+                                FlatButton(
+                                  child: Text("Cancel"),
+                                  onPressed: (){
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                FlatButton(
+                                  child: Text("Log out"),
+                                  onPressed: (){
+                                    Navigator.of(context).pop();
+                                    BlocProvider.of<AuthenticationBloc>(context).add(LoggedOut());
+                                  },
+                                )
+                              ],
+                            )
+                        );
+                      }
+                  ),
+                );
+              }
+              else if(index == selectedList.length + 2){
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                  child: OutlineButton(
+                      child: Text("Report Bug"),
+                      onPressed: (){
+                        showDialog(
+                            context: context,
+                            child: AlertDialog(
+                              title: Text("Report a Bug"),
+                              content: Linkable(
+                                text: "To report a bug, please fill out the survey here: https://forms.gle/joentx244RnKy5Fe9",
+                              ),
+                            )
+                        );
+                      }
+                  ),
+                );
+              }
+              else if(index == selectedList.length + 3){
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                  child: IconButton(
+                      icon: Icon(Icons.info_outline),
+                      onPressed: (){
+                        showDialog(
+                            context: context,
+                            child: AlertDialog(
+                              title: Text("App Information"),
+                              content: SizedBox(
+                                width: 400,
+                                child: SingleChildScrollView(
+                                  child: Linkable(
+                                    text: APP_INFO_DESCRIPTION,
+                                  ),
+                                ),
+                              ),
+                            )
+                        );
+                      }
+                  ),
                 );
               }
               else{
@@ -124,7 +189,7 @@ class PhcrDrawer extends Drawer {
                   selected: selectedPageName == selectedList[index - 1].name,
                   leading: selectedList[index - 1].icon,
                   title: Text(
-                      selectedList[index - 1].name
+                      selectedList[index - 1].name,
                   ),
                   onTap: () {
                     if(!(selectedPageName == selectedList[index - 1].name))
@@ -144,3 +209,5 @@ class _DrawerOptions {
   final String path;
   const _DrawerOptions(this.name,this.path, this.icon);
 }
+
+const String APP_INFO_DESCRIPTION = "This app is maintained by the PurdueHCR Development Committee. The PurdueHCR Development Committee is a group of students interested in application development and is open for everyone to join.\nIf you are interested in joining, you can join our slack channel.\nhttps://join.slack.com/t/purduehcr/shared_invite/zt-96fxky0h-dp6ceejRxF_CkPjmLROVhA\n\nContact Information:\n\tPurdueHCR: purduehcrcontact@gmail.com\n\nCommittee President\n\tBen Hardin: bhardin@purdue.edu\nResidential Life Adviser\n\tAsa Cutler: cutler4@purdue.edu\nFlutter Developer\n\tBrian Johncox: brianjohncox232@gmail.com";

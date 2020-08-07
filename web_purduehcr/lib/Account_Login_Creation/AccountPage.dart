@@ -62,7 +62,7 @@ class _AccountPageState extends State<AccountPage> {
         alignment: Alignment.center,
         child: BlocBuilder<AccountBloc, AccountState>(
           bloc: _loginBloc,
-          builder: (context, state) {
+          builder: (BuildContext context, AccountState state) {
             print("got new state update");
             checkStateForSnackMessage(context, state);
             print("Was not snack message");
@@ -125,8 +125,11 @@ class _AccountPageState extends State<AccountPage> {
           child: LoginCard()
       );
     }
-    else if(state is AccountLoading){
-      child = LoadingWidget();
+    else if(state is AccountPageLoading){
+      child = BlocProvider(
+          builder: (BuildContext context) => _loginBloc,
+          child: LoginCard()
+      );
     }
     else{
       child = Text("There was a big problem");

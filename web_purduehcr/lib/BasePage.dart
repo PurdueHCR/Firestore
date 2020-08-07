@@ -47,14 +47,10 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
         Widget child;
         if(getBloc() == null){
           child = Container(
-            color: Theme.of(context).backgroundColor,
             child: Center(
               child: SizedBox(
-                  width: getActiveAreaWidth(context),
-                  child: Container(
-                      color: Colors.white,
-                      child: buildLargeDesktopBody()
-                  )
+                  width: getActiveAreaWidth(context) - 32,
+                  child: Center(child: buildLargeDesktopBody())
               ),
             ),
           );
@@ -69,14 +65,10 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
               else{
                 return SafeArea(
                   child: Container(
-                    color: Theme.of(context).backgroundColor,
                     child: Center(
                       child: SizedBox(
-                        width: getActiveAreaWidth(context),
-                        child: Container(
-                          color: Colors.white,
-                          child: buildLargeDesktopBody(context: context, state:state)
-                        )
+                        width: getActiveAreaWidth(context) - 32,
+                        child: buildLargeDesktopBody(context: context, state:state)
                       ),
                     ),
                   ),
@@ -112,7 +104,10 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
       case DisplayType.desktop_small:
         Widget child;
         if(getBloc() == null){
-          child = buildSmallDesktopBody();
+          child = Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: buildSmallDesktopBody(),
+          );
         }
         else{
           child = BlocBuilder<B,S>(
@@ -122,7 +117,10 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
                 return LoadingWidget();
               }
               else{
-                return buildSmallDesktopBody(context: context, state:state);
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: buildSmallDesktopBody(context: context, state:state),
+                );
               }
             },
           );
@@ -154,7 +152,10 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
       default:
         Widget child;
         if(getBloc() == null){
-          child = buildMobileBody();
+          child = Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: buildMobileBody(),
+          );
         }
         else{
           child = BlocBuilder<B,S>(
@@ -164,7 +165,10 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
                 return LoadingWidget();
               }
               else{
-                return buildMobileBody(context: context, state:state);
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: buildMobileBody(context: context, state:state),
+                );
               }
             },
           );

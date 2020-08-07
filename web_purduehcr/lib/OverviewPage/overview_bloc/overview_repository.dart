@@ -37,7 +37,7 @@ class OverviewRepository {
 
   ///Call the api to get the information for the resident overview
   Future<ResidentOverviewLoaded> _getResidentOverview() async {
-    Map<String,dynamic> data = (await callCloudFunction(config, Method.GET, "competition/userOverview"));
+    Map<String,dynamic> data = (await callCloudFunction(config, Method.GET, "web/userOverview"));
     Map<String,dynamic> residentOverview = data["resident"];
     UserRank rank = UserRank.fromJson(residentOverview["user_rank"]);
     Reward nextReward = Reward.fromJson(residentOverview["next_reward"]);
@@ -59,7 +59,7 @@ class OverviewRepository {
 
   ///Call the api to get the information for the resident overview
   Future<RHPOverviewLoaded> _getRHPOverview() async {
-    Map<String,dynamic> data = (await callCloudFunction(config, Method.GET, "competition/userOverview"));
+    Map<String,dynamic> data = (await callCloudFunction(config, Method.GET, "web/userOverview"));
     Map<String,dynamic> residentOverview = data["rhp"];
     UserRank rank = UserRank.fromJson(residentOverview["user_rank"]);
     Reward nextReward = Reward.fromJson(residentOverview["next_reward"]);
@@ -87,7 +87,7 @@ class OverviewRepository {
 
   ///Call the api to get the information for the resident overview
   Future<ResidentOverviewLoaded> _getPrivilegeResidentOverview() async {
-    Map<String,dynamic> data = (await callCloudFunction(config, Method.GET, "competition/userOverview"));
+    Map<String,dynamic> data = (await callCloudFunction(config, Method.GET, "web/userOverview"));
     Map<String,dynamic> residentOverview = data["privilege_resident"];
     UserRank rank = UserRank.fromJson(residentOverview["user_rank"]);
     Reward nextReward = Reward.fromJson(residentOverview["next_reward"]);
@@ -109,7 +109,7 @@ class OverviewRepository {
   }
 
   Future<ProfessionalStaffLoaded> _getProfessionalStaffLoaded() async {
-    Map<String,dynamic> data = (await callCloudFunction(config, Method.GET, "competition/userOverview"));
+    Map<String,dynamic> data = (await callCloudFunction(config, Method.GET, "web/userOverview"));
     Map<String,dynamic> residentOverview = data["professional_staff"];
 
 

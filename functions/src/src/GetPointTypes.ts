@@ -12,8 +12,9 @@ export async function getPointTypes() : Promise<PointType[]> {
 	try {
         const db = admin.firestore()
 		const pointTypeSnapshot = await db.collection(HouseCompetition.POINT_TYPES_KEY).get()
-		
-		return Promise.resolve(PointType.fromQuerySnapshot(pointTypeSnapshot))
+		const pointTypes = PointType.fromQuerySnapshot(pointTypeSnapshot)
+		pointTypes.sort((a,b) => a.value - b.value)
+		return Promise.resolve(pointTypes)
 	}
 	catch (err) {
 		console.log("GET Point type Error: " + err)

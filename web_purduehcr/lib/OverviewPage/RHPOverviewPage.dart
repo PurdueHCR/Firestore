@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/BasePage.dart';
 import 'package:purduehcr_web/Models/House.dart';
+import 'package:purduehcr_web/Models/PointLog.dart';
 import 'package:purduehcr_web/Models/User.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/OverviewPage/overview_bloc/overview.dart';
@@ -12,6 +13,7 @@ import 'package:purduehcr_web/OverviewPage/overview_cards/RecentSubmissionsCard.
 import 'package:purduehcr_web/OverviewPage/overview_cards/RewardsCard.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
+import 'package:purduehcr_web/Utility_Views/PointLogChat/PointLogChat.dart';
 import 'package:purduehcr_web/Utility_Views/SubmitLinkWidget/SubmitLinkWidget.dart';
 
 import '../Config.dart';
@@ -34,6 +36,7 @@ class _RHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
   User user;
   OverviewBloc _overviewBloc;
   String linkId;
+  PointLog _selectedPointLog;
 
   _RHPOverviewPageState(String drawerLabel, {this.linkId}):super(drawerLabel);
 
@@ -59,55 +62,59 @@ class _RHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
   @override
   Widget buildLargeDesktopBody({BuildContext context, OverviewState state}) {
     if(state is RHPOverviewLoaded){
-      return SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              width: getActiveAreaWidth(context),
-              height: getActiveAreaWidth(context) * 0.3,
-              child:HouseCompetitionCard(
-                houses: state.houses,
-                preferences: authState.preferences,
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                ProfileCard(
-                    user:user,
-                    userRank:state.rank
+      if(_selectedPointLog == null){
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(
+                width: getActiveAreaWidth(context),
+                height: getActiveAreaWidth(context) * 0.3,
+                child:HouseCompetitionCard(
+                  houses: state.houses,
+                  preferences: authState.preferences,
                 ),
-                RewardsCard(reward: state.reward, house: state.myHouse,)
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Expanded(
-                    child: ConstrainedBox(
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisSize: MainAxisSize.max,
+                children: buildInnerRow(state),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                      child: ConstrainedBox(
                         constraints: BoxConstraints(minHeight: 300, maxHeight: 300),
                         child: RecentSubmissionsCard(
                           submissions: state.logs,
-                        )
-                    )
-                ),
-                Expanded(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: 300, maxHeight: 300),
-                    child: HouseCodesCard(
-                      houseCodes: state.houseCodes,
-                    ),
+                          onPressed: (PointLog log){
+                            setState(() {
+                              _selectedPointLog = log;
+                            });
+                          },
+                        ),
+                      )
                   ),
-                )
-              ],
-            ),
+                  Expanded(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: 300, maxHeight: 300),
+                      child: HouseCodesCard(
+                        houseCodes: state.houseCodes,
+                      ),
+                    ),
+                  )
+                ],
+              ),
 
-          ],
-        ),
-      );
+            ],
+          ),
+        );
+      }
+      else{
+        return PointLogChat(pointLog: _selectedPointLog);
+      }
     }
     else{
       return LoadingWidget();
@@ -126,30 +133,48 @@ class _RHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
 
   Widget _buildBody(OverviewState state){
     if(state is RHPOverviewLoaded){
-      return SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              width: getActiveAreaWidth(context),
-              height: getActiveAreaWidth(context) * 0.3,
-              child:HouseCompetitionCard(
-                houses: state.houses,
-                preferences: authState.preferences,
+      if(_selectedPointLog == null){
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(
+                width: getActiveAreaWidth(context),
+                height: getActiveAreaWidth(context) * 0.3,
+                child:HouseCompetitionCard(
+                  houses: state.houses,
+                  preferences: authState.preferences,
+                ),
               ),
-            ),
-            ProfileCard(
-                user:user,
-                userRank:state.rank
-            ),
-            RewardsCard(reward: state.reward, house: state.myHouse,),
-            SizedBox(
-              width: getActiveAreaWidth(context),
-              height: 308,
-              child:RecentSubmissionsCard(submissions: state.logs,),
-            ),
-          ],
-        ),
-      );
+              ProfileCard(
+                  user:user,
+                  userRank:state.rank
+              ),
+              RewardsCard(reward: state.reward, house: state.myHouse,),
+              SizedBox(
+                width: getActiveAreaWidth(context),
+                height: 308,
+                child:RecentSubmissionsCard(
+                  submissions: state.logs,
+                  onPressed: (PointLog log){
+                    setState(() {
+                      _selectedPointLog = log;
+                    });
+                  },
+                ),
+              ),
+              ConstrainedBox(
+                constraints: BoxConstraints(minHeight: 300, maxHeight: 300),
+                child: HouseCodesCard(
+                  houseCodes: state.houseCodes,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+      else{
+        return PointLogChat(pointLog: _selectedPointLog);
+      }
     }
     else{
       return LoadingWidget();
@@ -185,5 +210,41 @@ class _RHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
   @override
   UserPermissionSet getAcceptedPermissionLevels() {
     return CompetitionParticipantsSet();
+  }
+
+  List<Widget> buildInnerRow(RHPOverviewLoaded state) {
+    if(authState.preferences.showRewards && authState.preferences.isCompetitionVisible){
+      return [
+        ProfileCard(
+            user:user,
+            userRank:state.rank
+        ),
+        RewardsCard(reward: state.reward, house: state.myHouse,)
+      ];
+    }
+    else{
+      return [
+        ProfileCard(
+            user:user,
+            userRank:state.rank
+        )
+      ];
+    }
+  }
+
+  @override
+  Widget buildLeadingButton(DisplayType displayType) {
+    if(_selectedPointLog != null){
+      return IconButton(icon: Icon(Icons.arrow_back),
+          onPressed: (){
+            setState(() {
+              _selectedPointLog = null;
+            });
+          }
+      );
+    }
+    else{
+      return null;
+    }
   }
 }

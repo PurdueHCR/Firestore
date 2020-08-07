@@ -273,8 +273,8 @@ describe('user/submitpoint', async () =>{
                 let messageDocs = await db.collection("House").doc(HOUSE_NAME).collection("Points").doc(documents.docs[0].id).collection("Messages").get()
                 expect(messageDocs.docs[0].data().Message).toBe("Preapproved")
                 expect(messageDocs.docs[0].data().MessageType).toBe("approve")
-                expect(messageDocs.docs[0].data().SenderFirstName).toBe("PurdueHCR")
-                expect(messageDocs.docs[0].data().SenderLastName).toBe("")
+                expect(messageDocs.docs[0].data().SenderFirstName).toBe("Purdue")
+                expect(messageDocs.docs[0].data().SenderLastName).toBe("HCR")
                 expect(messageDocs.docs[0].data().SenderPermissionLevel).toBe(1)
 
                 const userRankDocSnapshot = await db.collection("House").doc(HOUSE_NAME).collection("Details").doc("Rank").get()

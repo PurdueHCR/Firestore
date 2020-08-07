@@ -4,8 +4,8 @@ import 'package:purduehcr_web/Utility_Views/PointLogList.dart';
 
 class RecentSubmissionsCard extends StatefulWidget{
   final List<PointLog> submissions;
-
-  const RecentSubmissionsCard({Key key, this.submissions}) : super(key: key);
+  final Function(PointLog log) onPressed;
+  const RecentSubmissionsCard({Key key, this.submissions, this.onPressed}) : super(key: key);
 
 
   @override
@@ -42,7 +42,7 @@ class RecentSubmissionsCardState extends State<RecentSubmissionsCard>{
                         shrinkWrap: true,
                         searchable: false,
                         pointLogs: widget.submissions,
-                        onPressed: (context, log) => print("Tap"),
+                        onPressed: (context, log) => widget.onPressed(log),
                       ),
                     ),
                   ),
@@ -54,7 +54,13 @@ class RecentSubmissionsCardState extends State<RecentSubmissionsCard>{
     }
     else{
       return Card(
-        child: Text("You haven't submitted any points yet!"),
+        child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text("Once you submit some points, you will view the most recent ones here!",
+              textAlign: TextAlign.center,),
+            )
+        ),
       );
     }
   }

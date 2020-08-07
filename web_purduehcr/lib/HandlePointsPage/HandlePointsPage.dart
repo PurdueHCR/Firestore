@@ -37,17 +37,41 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
 
   @override
   Widget buildLargeDesktopBody({BuildContext context, HandlePointsState state}) {
-    return LogListAndChat(logs: state.pointLogs, onPressed: _onPressed, selectedPointLog: _selectedPointLog,);
+    if(state is HandlePointsPageLoaded){
+      return LogListAndChat(logs: state.pointLogs, onPressed: _onPressed, selectedPointLog: _selectedPointLog,);
+    }
+    else{
+      return buildErrorState();
+    }
   }
 
   @override
   Widget buildMobileBody({BuildContext context, HandlePointsState state}) {
-    return LogListAndChat(logs: state.pointLogs, onPressed: _onPressed, selectedPointLog: _selectedPointLog,);
+    if(state is HandlePointsPageLoaded){
+      return LogListAndChat(logs: state.pointLogs, onPressed: _onPressed, selectedPointLog: _selectedPointLog,);
+    }
+    else{
+      return buildErrorState();
+    }
   }
 
   @override
   Widget buildSmallDesktopBody({BuildContext context, HandlePointsState state}) {
-    return LogListAndChat(logs: state.pointLogs, onPressed: _onPressed, selectedPointLog: _selectedPointLog,);
+    if(state is HandlePointsPageLoaded){
+      return LogListAndChat(logs: state.pointLogs, onPressed: _onPressed, selectedPointLog: _selectedPointLog,);
+    }
+    else{
+      return buildErrorState();
+    }
+  }
+
+  Widget buildErrorState(){
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text("There was an error loading the point submissions. Please Try again"),
+      ),
+    );
   }
 
   @override

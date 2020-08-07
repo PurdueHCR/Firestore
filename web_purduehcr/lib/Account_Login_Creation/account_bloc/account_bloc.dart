@@ -33,7 +33,7 @@ class AccountBloc extends Bloc<AccountEvent, AccountState>{
       yield CreateAccountInitial();
     }
     else if(event is CreateAccount){
-      yield AccountLoading();
+      yield AccountPageLoading();
       try {
         RegExp regExp = new RegExp(
           r".*@purdue\.edu",
@@ -59,19 +59,22 @@ class AccountBloc extends Bloc<AccountEvent, AccountState>{
         yield CreateAccountError(message: error);
       }
     }
+    else if(event is SetAccountPageLoading){
+      yield new AccountPageLoading();
+    }
     else if(event is Login) {
       try {
-        yield AccountLoading();
         await _accountRepository.loginUser(event.email, event.password);
         authenticationBloc.add(LoggedIn(houseCode: houseCode));
       }
       on ApiError catch(apiError){
         print("GOT API ERROR: "+apiError.toString());
-        yield AccountError(message: apiError.toString());
+        yield new AccountError(message: apiError.toString());
+
       }
       catch (error) {
         print("GOT LOGIN ERROR in BLOC: $error");
-        yield AccountError(message: error.toString());
+        yield new AccountError(message: error.toString());
       }
     }
     else if(event is SendPasswordResetEmail){

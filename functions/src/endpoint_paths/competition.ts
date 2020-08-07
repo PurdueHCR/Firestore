@@ -8,7 +8,6 @@ import { HouseCompetition } from '../models/HouseCompetition'
 import { PointLog } from '../models/PointLog'
 import { User } from '../models/User'
 import { APIResponse } from '../models/APIResponse'
-import { getResidentProfile, getRHPProfile, getProfessionalStaffProfile } from '../src/GetUserProfiles'
 import { getUser } from '../src/GetUser'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
@@ -75,6 +74,7 @@ comp_app.use(firestoreTools.validateFirebaseIdToken)
  * @throws 500 - Server Error
  */
 comp_app.get('/settings', async (req, res) => {
+	console.log("Running GET competition/settings")
 	try{
 		const systemPreferences = await getSystemPreferences();
 		
@@ -434,55 +434,6 @@ comp_app.post('/updateHouse', async (req, res) => {
 		await updateHouse(house)
 		throw APIResponse.Success()
 
-	}
-	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Unknown Error: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
-	}
-})
-
-/**
- * Get the data that is most pertinent to the given user.
- * 
- * @throws 400 - Unknown User
- * @throws 401 - Unauthorized
- * @throws 403 - Invalid Permissions (This should not ever be sent because we sort permissions here, but it could be sent)
- * @throws 500 - Server Error
- */
-comp_app.get('/userOverview', async (req, res) => {
-	try{
-		const user = await getUser(req["user"]["user_id"])
-		if(user.permissionLevel === UserPermissionLevel.RESIDENT){
-			const resident_profile = await getResidentProfile(user)
-			res.status(APIResponse.SUCCESS_CODE).send({"resident":resident_profile})
-		}
-		else if(user.permissionLevel === UserPermissionLevel.RHP){
-			//This is sufficient for the first version, but we will eventually want to add more to their home screen
-			const resident_profile = await getRHPProfile(user)
-			res.status(APIResponse.SUCCESS_CODE).send({"rhp":resident_profile})
-		}
-		else if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
-			//This is sufficient for the first version, but we will eventually want to add more to their home screen
-			const prof_staff_profile = await getProfessionalStaffProfile(user)
-			res.status(APIResponse.SUCCESS_CODE).send({"professional_staff":prof_staff_profile})
-		}
-		else if(user.permissionLevel === UserPermissionLevel.PRIVILEGED_RESIDENT){
-			//This is sufficient for the first version, but we will eventually want to add more to their home screen
-			const resident_profile = await getResidentProfile(user)
-			res.status(APIResponse.SUCCESS_CODE).send({"privileged_resident":resident_profile})
-		}
-		else{
-			console.error("Other user permissions not yet implemented")
-			const apiResponse = APIResponse.InvalidPermissionLevel()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-		}
-		
 	}
 	catch (error){
         if( error instanceof APIResponse){

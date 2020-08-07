@@ -36,23 +36,21 @@ class PointLogChatBloc extends Bloc<PointLogChatEvent, PointLogChatState>{
       List<PointLogMessage> messages = (state as PointLogChatLoaded).messages;
       PointLog log = (state as PointLogChatLoaded).pointLog;
       if(event.message.message.isNotEmpty){
-        yield PointLogChatLoading();
+        messages.add(event.message);
+        yield PointLogChatLoaded(messages: messages, pointLog: log);
         try{
           await _pointLogChatRepository.postMessage(log, event.message.message, house: house);
-
         }
         on ApiError catch(apiError){
-          if(apiError.errorCode == 200){
-            messages.add(event.message);
-            yield PointLogChatLoaded(messages: messages, pointLog: log);
-          }
-          else{
+          if(apiError.errorCode != 200){
             print("Got api error: "+apiError.toString());
+            messages.removeLast();
             yield PointLogChatLoaded(messages: messages, pointLog: log);
           }
         }
         catch(error){
           print("Got error: "+error);
+          messages.removeLast();
           yield PointLogChatLoaded(messages: messages, pointLog: log);
         }
       }
@@ -63,13 +61,12 @@ class PointLogChatBloc extends Bloc<PointLogChatEvent, PointLogChatState>{
     else if(event is ApprovePointLog){
       List<PointLogMessage> messages = (state as PointLogChatLoaded).messages;
       PointLog log = (state as PointLogChatLoaded).pointLog;
-      yield PointLogChatLoading();
+      messages.add(PointLogMessage.createApproveMessage(event.user));
+      log.approve();
+      yield PointLogChatLoaded(messages: messages, pointLog: log);
+
       try{
         await _pointLogChatRepository.handlePointLog(log, true);
-        messages.add(PointLogMessage.createApproveMessage());
-        log.approve();
-        yield PointLogChatLoaded(messages: messages, pointLog: log);
-
       }
       catch(error){
         yield PointLogChatLoaded(messages: messages, pointLog: log);
@@ -78,14 +75,11 @@ class PointLogChatBloc extends Bloc<PointLogChatEvent, PointLogChatState>{
     else if(event is RejectPointLog){
       List<PointLogMessage> messages = (state as PointLogChatLoaded).messages;
       PointLog log = (state as PointLogChatLoaded).pointLog;
-      yield PointLogChatLoading();
+      messages.add(PointLogMessage.createRejectionMessage(event.user, event.message.message));
+      log.reject();
+      yield PointLogChatLoaded(messages: messages, pointLog: log);
       try{
         await _pointLogChatRepository.handlePointLog(log, false, message: event.message.message);
-        messages.add(PointLogMessage.createApproveMessage());
-        messages.add(event.message);
-        log.reject();
-        yield PointLogChatLoaded(messages: messages, pointLog: log);
-
       }
       catch(error){
         yield PointLogChatLoaded(messages: messages, pointLog: log);

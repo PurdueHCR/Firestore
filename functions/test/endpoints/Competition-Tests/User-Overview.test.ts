@@ -23,7 +23,7 @@ let REWARD_5PPR = "REWARD_5PPR"
 let PLATINUM = "Platinum"
 
 //Test Suite Submit Points
-describe('GET competition/userOverview', () =>{
+describe('GET web/userOverview', () =>{
 
     beforeAll(async () => {
         
@@ -34,7 +34,7 @@ describe('GET competition/userOverview', () =>{
         db = IntegrationMockFactory.getDb()
         
         //Get the User function from the index to test
-        competition_func = require('../../../src/endpoint_paths/index.ts').competition
+        competition_func = require('../../../src/endpoint_paths/index.ts').web
 
         await FirestoreDataFactory.setSystemPreference(db)  
 

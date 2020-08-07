@@ -19,14 +19,10 @@ class RewardsCard extends StatefulWidget{
 class RewardsCardState extends State<RewardsCard>{
   @override
   Widget build(BuildContext context) {
-    print("Is reward null: "+(widget.reward == null).toString());
-    print("Is house null: "+(widget.house == null).toString());
     if(widget.reward == null){
-      print("DO THIS TOO");
       return SizedBox.shrink();
     }
     else{
-      print("DONT DRAW THIS");
       return Card(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -90,7 +86,7 @@ class RewardsCardState extends State<RewardsCard>{
           padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
           child: Column(
             children: [
-              Text(widget.house.pointsPerResident.toString()+ " / "+widget.reward.requiredPPR.toString()),
+              Text(widget.house.pointsPerResident.toStringAsFixed(2)+ " / "+widget.reward.requiredPPR.toString()),
               Text("Points Per Resident", maxLines: null,),
             ],
           ),

@@ -26,6 +26,7 @@ class HandlePointsBloc extends Bloc<HandlePointEvent, HandlePointsState>{
       }
       catch(error){
         print("There was an error loading the point types: $error");
+        yield HandlePointsPageHasError(pointLogs: state.pointLogs);
       }
     }
   }

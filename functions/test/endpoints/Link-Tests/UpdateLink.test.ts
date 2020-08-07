@@ -98,9 +98,9 @@ describe('link/create', async () =>{
                 const link =  await db.collection("Links").doc("Link 2").get()
                 expect(link.exists).toBeTruthy()
                 expect(link.data()!["Description"]).toBe("Brand new description")
-                expect(link.data()!["SingleUse"]).toBe("false")
-                expect(link.data()!["Archived"]).toBe("true")
-                expect(link.data()!["Enabled"]).toBe("true")
+                expect(link.data()!["SingleUse"]).toBe(false)
+                expect(link.data()!["Archived"]).toBe(true)
+                expect(link.data()!["Enabled"]).toBe(true)
                 done()
             }
         })
