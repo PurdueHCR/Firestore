@@ -12,7 +12,7 @@ import 'env/dev.dart';
 class SimpleBlocDelegate extends BlocDelegate {
   @override
   void onTransition(Bloc bloc, Transition transition) {
-    print("Trainsition to: "+transition.toString());
+//    print("Trainsition to: "+transition.toString());
     super.onTransition(bloc, transition);
   }
 

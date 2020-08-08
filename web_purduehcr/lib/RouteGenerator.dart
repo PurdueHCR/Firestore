@@ -78,7 +78,6 @@ class RouteGenerator {
               return InitializationPage();
             }
             else if (state is AuthenticatedButNoUser) {
-              print("Going to user creation page");
               if(path.length == 3){
                 return UserCreationPage(houseCode: path[2]);
               }

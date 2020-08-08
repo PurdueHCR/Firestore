@@ -119,7 +119,8 @@ assets/flutter-firebase-config.json
 public/*
 !public/404.html
 !public/api/
-public/api/.*
+!public/privacy/
+!public/terms-and-conditions/
 
 #unignore the jest config
 !functions/jest.config.json

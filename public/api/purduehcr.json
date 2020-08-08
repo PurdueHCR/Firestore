@@ -30,7 +30,10 @@
     "name" : "house_codes"
   },{
     "name" : "web",
-    "description": "Endpoints used by the Flutter Web app to minimize api calls"
+    "description": "Endpoints used by the Flutter Web app to minimize api calls."
+  }, {
+    "name" : "administration",
+    "description": "Endpoints to be used by the admins to perform mass updates."
   }],
   "paths" : {
     "/house_codes/" : {
@@ -1311,9 +1314,9 @@
         }
       }
     },
-    "/competition/save-semester-points" : {
+    "/administration/endSemester" : {
       "post" : {
-        "tags" : [ "competition" ],
+        "tags" : [ "administration" ],
         "summary" : "Request a confirmation email sent to the user's account that contains information on how to save the current points total for all users. This can only be performed by an REA/REC.",
         "parameters" : [ {
           "name" : "Authorization",
@@ -1346,9 +1349,9 @@
         }
       }
     },
-    "/competition/reset-house-competition" : {
+    "/administration/resetCompetition" : {
       "post" : {
-        "tags" : [ "competition" ],
+        "tags" : [ "administration" ],
         "summary" : "Request a confirmation email sent to the user's account that contains information on how to reset the house competition. This will delete all submitted points, delete all QR codes, delete all users, and reset house scores. This can only be performed by an REA/REC.",
         "parameters" : [ {
           "name" : "Authorization",

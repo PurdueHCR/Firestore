@@ -47,10 +47,11 @@ export class PointLogMessage {
     }
 
     static getRejectionMessage(rejectingUser: User, reason: string): PointLogMessage {
-        if(!(reason.charAt(reason.length - 1) in ['?', '.', '!'])){
-            reason += "."
+        let message = reason
+        if(!(message.charAt(reason.length - 1) in ['?', '.', '!'])){
+            message += "."
         }
-        return new PointLogMessage(new Date(), `${rejectingUser.getFullName()} rejected this point submission with the reason: ${reason}`, MessageType.APPROVE, "Purdue", "HCR", rejectingUser.permissionLevel)
+        return new PointLogMessage(new Date(), `${rejectingUser.getFullName()} rejected this point submission with the reason: ${message}`, MessageType.APPROVE, "Purdue", "HCR", rejectingUser.permissionLevel)
     }
 
     static fromQuerySnapshot(snapshot: FirebaseFirestore.QuerySnapshot): PointLogMessage[] {

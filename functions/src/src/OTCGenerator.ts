@@ -8,7 +8,7 @@ import {APIResponse} from '../models/APIResponse'
 export function generateOneTimeCode():string {
     let secret:string
     if(functions.config().otc === undefined || functions.config().otc.secret === ""){
-        const data = require('../../development_keys/otc_secret.json')
+        const data = require('../../development_keys/keys.json').otc
         secret = data.secret
     }
     else{
@@ -30,7 +30,7 @@ export function verifyOneTimeCode(token:string){
     try {
         let secret:string
         if(functions.config().otc === undefined || functions.config().otc.secret === ""){
-            secret = require('../../development_keys/otc_secret.json')["secret"]
+            secret = require('../../development_keys/keys.json').otc.secret
         }
         else{
             secret = functions.config().otc.secret

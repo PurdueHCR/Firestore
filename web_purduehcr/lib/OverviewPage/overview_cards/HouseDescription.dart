@@ -191,7 +191,7 @@ class _HouseDescription extends State<HouseDescription> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text("Points Per Resident: "),
-                    Text(widget.house.pointsPerResident.toString())
+                    Text(widget.house.pointsPerResident.toStringAsFixed(2))
                   ],
                 ),
               ],
@@ -248,6 +248,8 @@ class _HouseDescription extends State<HouseDescription> {
     }
     else{
       return Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
             flex: 8,

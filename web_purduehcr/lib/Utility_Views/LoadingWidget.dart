@@ -8,7 +8,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class LoadingWidget extends StatefulWidget {
-  final images = [AssetImage('loading_icons/copper.png'),AssetImage('loading_icons/palladium.png'),AssetImage('loading_icons/platinum.png'),AssetImage('loading_icons/silver.png'),AssetImage('loading_icons/titanium.png')];
+  final images = ['loading_icons/copper.png','loading_icons/palladium.png','loading_icons/platinum.png','loading_icons/silver.png','loading_icons/titanium.png'];
   @override
   State<StatefulWidget> createState() {
     return _LoadingWidgetState();
@@ -35,7 +35,6 @@ class _LoadingWidgetState extends State<LoadingWidget> with SingleTickerProvider
     )..addListener(() {
       if(flipAnimation.value <= 0.755 && flipAnimation.value >= 0.745){
         setState(() {
-          print("Set STate");
           position = (position + 1)%5;
         });
       }
@@ -54,7 +53,7 @@ class _LoadingWidgetState extends State<LoadingWidget> with SingleTickerProvider
       child: AnimatedBuilder(
         animation: controller,
           builder: (BuildContext context, Widget child){
-            Image img = Image(image: widget.images[position]);
+            Image img = Image.asset("assets/${widget.images[position]}");
             return Container(
               height: 150,
                 width: 150,
@@ -84,7 +83,6 @@ class _LoadingWidgetState extends State<LoadingWidget> with SingleTickerProvider
 
   @override
   void dispose() {
-    // TODO: implement dispose
     controller.dispose();
     super.dispose();
   }

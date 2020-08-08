@@ -32,8 +32,6 @@ class SystemPreference {
     houseList.forEach((element) {
       houses.add(element);
     });
-
-    print("Check here");
     return SystemPreference(
         isCompetitionEnabled: json[IS_COMPETITION_ENABLED],
         isCompetitionVisible: json[IS_COMPETITION_VISIBLE],

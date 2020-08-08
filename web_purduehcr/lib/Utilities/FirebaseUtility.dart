@@ -39,7 +39,6 @@ class FirebaseUtility{
     return initializeFirebase(config).then((_) async {
       try{
         await FirebaseAuth.instance.signInWithEmailAndPassword(email:email, password: password);
-
       }
       catch(error){
         String errorMessage;

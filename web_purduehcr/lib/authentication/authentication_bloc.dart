@@ -35,7 +35,6 @@ class AuthenticationBloc
         preferences = await _authenticationRepository.getSystemPreferences();
         final initializationData = await _authenticationRepository.getInitializationData();
         if(initializationData.house != null && themeNotifier.getMainColor() != initializationData.house.getHouseColor()){
-          print("LAUNCHING FOR start");
           themeNotifier.setMainColor(initializationData.house.getHouseColor());
         }
         yield Authenticated(initializationData.user, initializationData.house, preferences: preferences);
@@ -58,7 +57,6 @@ class AuthenticationBloc
       try{
         final initializationData = await _authenticationRepository.getInitializationData();
         if(initializationData.house != null && themeNotifier.getMainColor() != initializationData.house.getHouseColor()){
-          print("LAUNCHING FOR Login");
           themeNotifier.setMainColor(initializationData.house.getHouseColor());
         }
         yield Authenticated(initializationData.user, initializationData.house, preferences: initializationData.settings);
@@ -87,7 +85,6 @@ class AuthenticationBloc
       try{
         final initializationData = await _authenticationRepository.getInitializationData();
         if(initializationData.house != null && themeNotifier.getMainColor() != initializationData.house.getHouseColor()){
-          print("LAUNCHING FOR CREATE");
           themeNotifier.setMainColor(initializationData.house.getHouseColor());
         }
         yield Authenticated(initializationData.user, initializationData.house, preferences: initializationData.settings);

@@ -144,15 +144,15 @@ class _ProfessionalStaffOverviewPageState extends BasePageState<OverviewBloc, Ov
 
   @override
   Widget buildSmallDesktopBody({BuildContext context, OverviewState state}) {
-    return _buildBody(state);
+    return _buildBody(context, state);
   }
 
   @override
   Widget buildMobileBody({BuildContext context, OverviewState state}) {
-    return _buildBody(state);
+    return _buildBody(context, state);
   }
 
-  Widget _buildBody(OverviewState state){
+  Widget _buildBody(BuildContext context, OverviewState state){
     checkForMessage(context, state);
     if(state is ProfessionalStaffLoaded){
       if(_selectedHouse == null)

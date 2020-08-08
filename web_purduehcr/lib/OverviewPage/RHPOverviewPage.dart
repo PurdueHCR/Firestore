@@ -26,7 +26,6 @@ class RHPOverviewPage extends BasePage {
 
   @override
   State<StatefulWidget> createState() {
-    print("Create State RHP Overview Page");
     return _RHPOverviewPageState( "Overview", linkId: linkId);
   }
 
@@ -199,7 +198,6 @@ class _RHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
             return SubmitLinkWidget(linkId: linkId,);
           }
       ).then((didSubmit) {
-        print("GOT VALUE BACK: $didSubmit");
         if(didSubmit){
           _overviewBloc.add(ReloadOverview(permissionLevel: user.permissionLevel));
         }

@@ -55,6 +55,7 @@ class _InitializationPageState extends State<InitializationPage>{
   }
 
   List<String> messages = [
+    'Reticulating Spines',
     'Generating witty dialog...',
     'Swapping time and space...',
     'Spinning violently around the y-axis...',
@@ -64,10 +65,16 @@ class _InitializationPageState extends State<InitializationPage>{
     'Don\'t think of purple hippos...',
     'We need a new fuse...',
     'Have a good day!',
+    'Hmm... That\'s not supposed to... oh wait, we\'re fine',
+    'Please Wait Attentively (which is what you agreed to in the Terms and Conditions)',
+    'Time is an illusion. Loading time doubly so.',
     'Upgrading Windows, your PC will restart several times. Sit back and relax.',
     '640K ought to be enough for anybody',
     'The architects are still drafting',
+    'Magical elves with abacuses are working frantically',
     'The bits are breeding',
+    'Recalculating PI....',
+    'Please be patient. The program should finish loading in six to eight semesters.',
     'We\'re building the buildings as fast as we can',
     'Would you prefer chicken, steak, or tofu?',
     '(Pay no attention to the man behind the curtain)',
@@ -110,7 +117,6 @@ class _InitializationPageState extends State<InitializationPage>{
     'All your web browsers belong to us',
     'All I really need is a kilobit.',
     'I feel like im supposed to be loading something. . .',
-    'What do you call 8 Hobbits? A Hobbyte.',
     'Should have used a compiled language...',
     'Is this Windows?',
     'Adjusting flux capacitor...',
@@ -220,7 +226,10 @@ class _InitializationPageState extends State<InitializationPage>{
     'Sorry we are busy catching em\' all, we\'ll be done soon',
     'TODO: Insert elevator music',
     'Still faster than Windows update',
-    'What, were you expecting a cute animal video compilation?'
+    'What, were you expecting a cute animal video compilation?',
+    'Our premium plan is faster',
+    'You are number 2843684714 in the queue',
+    'We\'re working very hard. We promise',
   ];
 
 }
