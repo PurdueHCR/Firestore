@@ -68,20 +68,23 @@ admin_app.get('/json_backup', async (req, res) => {
         houseCompetition.links = Link.fromQuerySnapshot(await db.collection(HouseCompetition.LINKS_KEY).get())
         houseCompetition.pointTypes = PointType.fromQuerySnapshot(await db.collection(HouseCompetition.POINT_TYPES_KEY).get())
         houseCompetition.users = User.fromQuerySnapshot(await db.collection(HouseCompetition.USERS_KEY).get())
-        houseCompetition.rewards = Reward.fromQuerySnapshot(await db.collection(HouseCompetition.REWARDS_KEY).get())
+		houseCompetition.rewards = Reward.fromQuerySnapshot(await db.collection(HouseCompetition.REWARDS_KEY).get())
+		
+		const jsonFile = JSON.stringify(houseCompetition)
+		
         const mailOptions = {
             from: 'Purdue HCR Contact <purduehcr@gmail.com',
             to: req["user"]["email"],
             subject: "Backup for PurdueHCR House Competition",
-            html: "Backup for PurdueHCR House Competition",
+            html: "Backup for PurdueHCR House Competition. Please download and save it. ",
             attachments:[
                 {   // utf-8 string as an attachment
                     filename: `purduehcr-backup-${(new Date()).toString()}.json`,
-                    content: JSON.stringify(houseCompetition)
+                    content: jsonFile
                 },
             ]
         }
-        const transporter = createMailTransporter()()
+        const transporter = createMailTransporter()
         //Send mail
         await transporter.sendMail(mailOptions)
         throw APIResponse.Success()
@@ -117,7 +120,7 @@ admin_app.post('/endSemester', async (req, res) => {
 			if(!systemPreferences.isCompetitionEnabled){
 				//Generate random key, save it to the house system and create a link 
 				const secretKey = generateOneTimeCode()
-				const path = "https://"+req.hostname+"/competition/confirmEndSemester?code="+secretKey
+				const path = "https://"+req.hostname+"/administration/confirmEndSemester?code="+secretKey
 
 				//Set the mail options
 				const mailOptions = {
@@ -206,7 +209,7 @@ admin_app.post('/resetCompetition', async (req, res) => {
 				//Generate random key, save it to the house system and create a link 
 				const secretKey = generateOneTimeCode()
 				console.log("Using codE: "+secretKey)
-				const path = "https://"+req.hostname+"/competition/confirmResetCompetition?code="+secretKey+"&user="+user.id
+				const path = "https://"+req.hostname+"/administration/confirmResetCompetition?code="+secretKey+"&user="+user.id
 				
 				const mailOptions = {
 					from: 'Purdue HCR Contact <purduehcr@gmail.com>',
@@ -282,6 +285,35 @@ admin_app.get('/confirmResetCompetition', async (req,res) => {
 	}
 })
 
+// admin_app.post('/testData', async (req, res) => {
+// 	try{
+// 		const users: any[] = req.body.users
+// 		for(const user of users){
+// 			await createUser(user.id, user.code, user.first, user.last)
+// 		}
+// 		const points: any[] = req.body.points
+// 		for(const point of points){
+// 			const user = await getUser(point.user_id)
+// 			const log = new UnsubmittedPointLog(new Date(Date.now()), point.description, point.pointTypeId)
+// 			await submitPoint(user, log)
+// 			if(point.approver_id !== undefined){
+// 				await updatePointLogStatus(point.approved, point.approver_id, log.id, "Not enough details")
+// 			}
+// 		}
+// 		res.status(200).send("Success")
+// 	}
+// 	catch (error){
+//         if( error instanceof APIResponse){
+//             res.status(error.code).send(error.toJson())
+//         }
+//         else {
+//             console.error("Unknown Error on endSemester: "+error.toString())
+//             const apiResponse = APIResponse.ServerError()
+//             res.status(apiResponse.code).send(apiResponse.toJson())
+//         }
+// 	}
+// })
+
 
 function createMailTransporter(): any {
 	let auth: any
@@ -315,4 +347,8 @@ function createMailTransporter(): any {
 }
 
 // competition_main is the object to be exported. export this in index.ts
-export const administration_main = functions.https.onRequest(admin_main)
+export const administration_main = functions.runWith({
+	timeoutSeconds: 540,
+	memory: '1GB'
+}).https.onRequest(admin_main)
+

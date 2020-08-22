@@ -3,28 +3,28 @@ import * as firebase from "@firebase/testing";
 import * as IntegrationMockFactory from '../IntegrationMockFactory'
 import {FirestoreDataFactory} from '../FirestoreDataFactory'
 
-let competition_func
+let administration_func
 
 const ENDPOINT = "/confirmResetCompetition"
 
-const RESIDENT_ID = "RESIDENT_CONFIRM_RESET_COMPETITION"
-const RHP_ID = "RHP_CONFIRM_RESET_COMPETITION"
-const PROF_ID = "Proffesional_Staff_CONFIRM_RESET_COMPETITION"
-const FHP_ID = "FHPCONFIRM_RESET_COMPETITION"
-const PRIV_RES_ID = "PRIV_RES_CONFIRM_RESET_COMPETITION"
-const EA_ID = "EA_CONFIRM_RESET_COMPETITION"
+const RESIDENT_ID = "RESIDENT_CONFIRM_RESET_ADMINISTRATION"
+const RHP_ID = "RHP_CONFIRM_RESET_ADMINISTRATION"
+const PROF_ID = "Proffesional_Staff_CONFIRM_RESET_ADMINISTRATION"
+const FHP_ID = "FHPCONFIRM_RESET_ADMINISTRATION"
+const PRIV_RES_ID = "PRIV_RES_CONFIRM_RESET_ADMINISTRATION"
+const EA_ID = "EA_CONFIRM_RESET_ADMINISTRATION"
 let db:firebase.firestore.Firestore
 
 
 //Test Suite GetUser
-describe('GET competition/confirmResetCompetition', () =>{
+describe('GET administration/confirmResetCompetition', () =>{
 
     beforeAll(async () => {
         IntegrationMockFactory.mockFirebaseAdmin()
         IntegrationMockFactory.mockOTCGenerator()
         db = IntegrationMockFactory.getDb()
 
-        competition_func = require('../../../src/endpoint_paths/index.ts').competition
+        administration_func = require('../../../src/endpoint_paths/index.ts').administration
 
         await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0)
         await FirestoreDataFactory.setUser(db, RHP_ID, 1)
@@ -78,7 +78,7 @@ describe('GET competition/confirmResetCompetition', () =>{
 
     it('Code must exist in the query', (done) => {
         const params = {user:PROF_ID}
-        const res = factory.get(competition_func, ENDPOINT, "", params)
+        const res = factory.get(administration_func, ENDPOINT, "", params)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -92,7 +92,7 @@ describe('GET competition/confirmResetCompetition', () =>{
 
     it('user must exist in the query', (done) => {
         const params = {code:"TESTTOKEN"}
-        const res = factory.get(competition_func, ENDPOINT, "", params)
+        const res = factory.get(administration_func, ENDPOINT, "", params)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -106,7 +106,7 @@ describe('GET competition/confirmResetCompetition', () =>{
 
     it('User is resident results in Invalid Permissions', (done) => {
         const params = {code:"TESTTOKEN",user:RESIDENT_ID}
-        const res = factory.get(competition_func, ENDPOINT, "", params)
+        const res = factory.get(administration_func, ENDPOINT, "", params)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -120,7 +120,7 @@ describe('GET competition/confirmResetCompetition', () =>{
 
     it('User is rhp results in Invalid Permissions', (done) => {
         const params = {code:"TESTTOKEN",user:RHP_ID}
-        const res = factory.get(competition_func, ENDPOINT, "", params)
+        const res = factory.get(administration_func, ENDPOINT, "", params)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -134,7 +134,7 @@ describe('GET competition/confirmResetCompetition', () =>{
 
     it('User is fhp results in Invalid Permissions', (done) => {
         const params = {code:"TESTTOKEN",user:FHP_ID}
-        const res = factory.get(competition_func, ENDPOINT, "", params)
+        const res = factory.get(administration_func, ENDPOINT, "", params)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -148,7 +148,7 @@ describe('GET competition/confirmResetCompetition', () =>{
 
     it('User is priv_res results in Invalid Permissions', (done) => {
         const params = {code:"TESTTOKEN",user:PRIV_RES_ID}
-        const res = factory.get(competition_func, ENDPOINT, "", params)
+        const res = factory.get(administration_func, ENDPOINT, "", params)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -162,7 +162,7 @@ describe('GET competition/confirmResetCompetition', () =>{
 
     it('User is EA results in Invalid Permissions', (done) => {
         const params = {code:"TESTTOKEN",user:EA_ID}
-        const res = factory.get(competition_func, ENDPOINT, "", params)
+        const res = factory.get(administration_func, ENDPOINT, "", params)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -176,7 +176,7 @@ describe('GET competition/confirmResetCompetition', () =>{
 
     it('User doesnt exist results in Unknown User', (done) => {
         const params = {code:"TESTTOKEN",user:"UNKOWN USER"}
-        const res = factory.get(competition_func, ENDPOINT, "", params)
+        const res = factory.get(administration_func, ENDPOINT, "", params)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -188,10 +188,10 @@ describe('GET competition/confirmResetCompetition', () =>{
         })
     })
 
-    it('Competition not disabled results in error', async (done) => {
+    it('Administration not disabled results in error', async (done) => {
         await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled: true})
         const params = {code:"TESTTOKEN",user:PROF_ID}
-        const res = factory.get(competition_func, ENDPOINT, "", params)
+        const res = factory.get(administration_func, ENDPOINT, "", params)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -206,7 +206,7 @@ describe('GET competition/confirmResetCompetition', () =>{
 
     it('One time code is invalid results in InvalidOTC error', (done) => {
         const params = {code:"BAD_TOKEN",user:PROF_ID}
-        const res = factory.get(competition_func, ENDPOINT, "", params)
+        const res = factory.get(administration_func, ENDPOINT, "", params)
         res.end(function (err, res) {
             if(err){
                 done(err)
@@ -222,7 +222,7 @@ describe('GET competition/confirmResetCompetition', () =>{
         const pointTypeDocs = await db.collection("PointTypes").get()
         expect(pointTypeDocs.docs.length).toBe(10)
         const params = {code:"TESTTOKEN",user:PROF_ID}
-        const res = factory.get(competition_func, ENDPOINT, "", params)
+        const res = factory.get(administration_func, ENDPOINT, "", params)
         res.end(async function (err, res) {
             if(err){
                 done(err)

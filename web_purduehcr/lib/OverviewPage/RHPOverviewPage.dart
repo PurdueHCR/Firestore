@@ -15,6 +15,7 @@ import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:purduehcr_web/Utility_Views/PointLogChat/PointLogChat.dart';
 import 'package:purduehcr_web/Utility_Views/SubmitLinkWidget/SubmitLinkWidget.dart';
+import 'package:purduehcr_web/Utility_Views/TopBanner.dart';
 
 import '../Config.dart';
 import '../ConfigWrapper.dart';
@@ -190,6 +191,20 @@ class _RHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
     return _overviewBloc;
   }
 
+  @override
+  TopBanner getTopBanner() {
+    if(!authState.preferences.isCompetitionEnabled){
+      return TopBanner(
+        color: Colors.yellow,
+        message: authState.preferences.competitionDisabledMessage,
+      );
+    }
+    else{
+      return null;
+    }
+  }
+
+
   void handleLink(){
     if(linkId != null){
       showDialog(
@@ -229,6 +244,7 @@ class _RHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
       ];
     }
   }
+
 
   @override
   Widget buildLeadingButton(DisplayType displayType) {

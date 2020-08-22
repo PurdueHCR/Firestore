@@ -127,3 +127,7 @@ public/*
 
 #VS Code workspaces
 *.code-workspace
+
+#Ignore secret config files
+**/production_config.sh
+**/test_config.sh

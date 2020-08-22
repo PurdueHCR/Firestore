@@ -25,7 +25,7 @@ class FirebaseUtility{
             storageBucket: config.storageBucket);
       }
       catch (err){
-        debugPrint("We are ignoring this error");
+        print("We are ignoring this error: $err");
       }
       return auth().setPersistence(Persistence.SESSION);
     }

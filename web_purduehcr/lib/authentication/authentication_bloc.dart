@@ -44,12 +44,10 @@ class AuthenticationBloc
           yield AuthenticatedButNoUser(preferences: preferences);
         }
         else{
-          print("Uh oh. There was an API error: "+apiError.toString());
           yield Unauthenticated(preferences: preferences);
         }
       }
       catch(error){
-        print("Uh oh. There was an error");
         yield ConnectionErrorState(preferences: preferences);
       }
     }
@@ -62,14 +60,11 @@ class AuthenticationBloc
         yield Authenticated(initializationData.user, initializationData.house, preferences: initializationData.settings);
       }
       on ApiError catch(apiError){
-        print("Failed to get User model with API Error. $apiError");
         yield AuthenticatedButNoUser(preferences: state.preferences, houseCode: event.houseCode);
       }
       catch(error){
-        print("Failed to get User model. $error");
         yield ConnectionErrorState(preferences: state.preferences);
       }
-
     }
     else if (event is LoggedOut) {
       yield AuthLoading(preferences: state.preferences);
@@ -91,12 +86,23 @@ class AuthenticationBloc
 
       }
       on ApiError catch(apiError){
-        print("Uh oh. There was an API error: "+apiError.toString());
         yield Unauthenticated(preferences: state.preferences);
       }
       catch(error){
-        print("Failed to get User model. $error");
+        print("Failed to get User . $error");
         yield ConnectionErrorState(preferences: state.preferences);
+      }
+    }
+    else if(event is UpdateUser){
+      try{
+        print("Please update user");
+        final initializationData = await _authenticationRepository.getInitializationData();
+        (state as Authenticated).user.totalPoints = initializationData.user.totalPoints;
+        (state as Authenticated).user.totalPoints = initializationData.user.semesterPoints;
+        print("DID IT");
+      }
+      catch(error){
+        print("Failed to update User . $error");
       }
     }
   }

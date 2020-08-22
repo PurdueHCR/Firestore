@@ -8,6 +8,7 @@ import 'package:purduehcr_web/SubmitPointsPage/PointSubmissionForm.dart';
 import 'package:purduehcr_web/SubmitPointsPage/submit_points_bloc/submit_points.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/Utility_Views/PointTypeList.dart';
+import 'package:purduehcr_web/Utility_Views/TopBanner.dart';
 
 import '../Config.dart';
 
@@ -35,7 +36,7 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
     super.didChangeDependencies();
     if(_submitPointBloc == null){
       Config config = ConfigWrapper.of(context);
-      _submitPointBloc = new SubmitPointBloc(config);
+      _submitPointBloc = new SubmitPointBloc(config, authenticationBloc);
       _submitPointBloc.add(SubmitPointInitialize());
     }
   }
@@ -43,60 +44,80 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
   @override
   Widget buildMobileBody({BuildContext context, SubmitPointState state}) {
     _onChangeState(context, state);
-    if(_selectedPointType == null){
-      return PointTypeList(
-          pointTypes: _submitPointBloc.state.pointTypes,
-          onPressed: _onPressed
-      );
+    if(authState.preferences.isCompetitionEnabled){
+      if(_selectedPointType == null){
+        return PointTypeList(
+            pointTypes: _submitPointBloc.state.pointTypes,
+            onPressed: _onPressed
+        );
+      }
+      else{
+        return PointSubmissionForm(
+          key: new ObjectKey(_selectedPointType),
+          pointType: _selectedPointType,
+          onSubmit: _onSubmit,
+        );
+      }
     }
     else{
-      return PointSubmissionForm(
-        key: new ObjectKey(_selectedPointType),
-        pointType: _selectedPointType,
-        onSubmit: _onSubmit,
-      );
+      return PointTypeList(
+          pointTypes: _submitPointBloc.state.pointTypes,
+          onPressed: null);
     }
   }
 
   @override
   Widget buildLargeDesktopBody({BuildContext context, SubmitPointState state}) {
     _onChangeState(context, state);
-    return Row(
-      children: [
-        Flexible(
-          child: Container(
-            child: PointTypeList(
-                pointTypes: _submitPointBloc.state.pointTypes,
-                onPressed: _onPressed
+    if(authState.preferences.isCompetitionEnabled){
+      return Row(
+        children: [
+          Flexible(
+            child: Container(
+              child: PointTypeList(
+                  pointTypes: _submitPointBloc.state.pointTypes,
+                  onPressed: _onPressed
+              ),
             ),
           ),
-        ),
-        Flexible(
-            child: PointSubmissionForm(
-              key: new ObjectKey(_selectedPointType),
-              pointType: _selectedPointType,
-              onSubmit: _onSubmit,
-            )
-        )
-      ],
-    );
+          Flexible(
+              child: PointSubmissionForm(
+                key: new ObjectKey(_selectedPointType),
+                pointType: _selectedPointType,
+                onSubmit: _onSubmit,
+              )
+          )
+        ],
+      );
+    }
+    else{
+      return PointTypeList(
+          pointTypes: _submitPointBloc.state.pointTypes,
+          onPressed: null);
+    }
   }
 
   @override
   Widget buildSmallDesktopBody({BuildContext context, SubmitPointState state}) {
     _onChangeState(context, state);
-    if(_selectedPointType == null){
-      return PointTypeList(
-          pointTypes: _submitPointBloc.state.pointTypes,
-          onPressed: _onPressed
-      );
+    if(authState.preferences.isCompetitionEnabled){
+      if(_selectedPointType == null){
+        return PointTypeList(
+            pointTypes: _submitPointBloc.state.pointTypes,
+            onPressed: _onPressed
+        );
+      }
+      else{
+        return PointSubmissionForm(
+          key: new ObjectKey(_selectedPointType),
+          pointType: _selectedPointType,
+          onSubmit: _onSubmit,
+        );
+      }
     }
     else{
-      return PointSubmissionForm(
-        key: new ObjectKey(_selectedPointType),
-        pointType: _selectedPointType,
-        onSubmit: _onSubmit,
-      );
+      return PointTypeList(
+          pointTypes: _submitPointBloc.state.pointTypes);
     }
   }
 
@@ -169,6 +190,19 @@ class _SubmitPointsPageState extends BasePageState<SubmitPointBloc, SubmitPointE
         _selectedPointType = null;
       });
 
+    }
+  }
+
+  @override
+  TopBanner getTopBanner() {
+    if(!authState.preferences.isCompetitionEnabled){
+      return TopBanner(
+        color: Colors.yellow,
+        message: "Point Submissions Are Prevented When the House Competition Is Not Active",
+      );
+    }
+    else{
+      return null;
     }
   }
 

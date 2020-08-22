@@ -23,7 +23,7 @@ if [ "$1" = "build" ]; then
     npm run build
     echo "done"
     if [ "$2" != "dev" ]; then
-        echo "Make sure you set the firebase functions:config:set applinks.key= applinks.dynamic_link_url= applinks.main_app_url="
+        echo "please run the appropriate config command before you deploy. (./production_config.sh or ./test_config.sh)"
     fi
 elif [ "$1" = "install" ]; then
     echo "Checking required tools"

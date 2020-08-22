@@ -34,9 +34,9 @@ class RouteGenerator {
               switch (path[1]) {
                 case '':
                   return HomePage();
-                case 'token':
-                  //If the user is on dev or test they can access TokenTestPage
-                  return TokenTestPage();
+//                case 'token':
+//                  //If the user is on dev or test they can access TokenTestPage
+//                  return TokenTestPage();
                 case 'submit_points':
                   return SubmitPointsPage();
                 case 'handle_points':

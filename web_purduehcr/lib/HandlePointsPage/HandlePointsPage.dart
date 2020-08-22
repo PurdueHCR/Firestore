@@ -5,6 +5,7 @@ import 'package:purduehcr_web/Utility_Views/LogListAndChat.dart';
 import 'package:purduehcr_web/HandlePointsPage/handle_points_bloc/handle_points.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
+import 'package:purduehcr_web/Utility_Views/TopBanner.dart';
 
 import '../BasePage.dart';
 import '../Config.dart';
@@ -99,6 +100,18 @@ class _HandlePointsPageState extends BasePageState<HandlePointsBloc, HandlePoint
     }
   }
 
+  @override
+  TopBanner getTopBanner() {
+    if(!authState.preferences.isCompetitionEnabled){
+      return TopBanner(
+        color: Colors.yellow,
+        message: "Handling Point Submissions Is Prevented When the House Competition Is Not Active",
+      );
+    }
+    else{
+      return null;
+    }
+  }
 
 
   _onPressed(BuildContext context, PointLog pointLog) {

@@ -8,8 +8,8 @@ class PointTypeList extends StatefulWidget{
   final Function(BuildContext, PointType) onPressed;
   final bool searchable;
 
-  const PointTypeList({Key key, @required this.pointTypes, @required this.onPressed, this.searchable = true}):
-        assert(pointTypes != null), assert(onPressed != null), super(key: key);
+  const PointTypeList({Key key, @required this.pointTypes, this.onPressed, this.searchable = true}):
+        assert(pointTypes != null), super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -84,12 +84,12 @@ class PointTypeListTile extends StatelessWidget{
   final Function(BuildContext context, PointType pointType) onTap;
 
   const PointTypeListTile({Key key, @required this.pointType, @required this.onTap}):
-        assert(pointType != null), assert(onTap != null), super(key: key);
+        assert(pointType != null),  super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: () => onTap(context, pointType),
+      onTap: () => (onTap != null)? onTap(context, pointType): (_)=>{},
       title: Text(pointType.name),
       subtitle: Text(pointType.description),
       trailing: Column(
@@ -119,7 +119,7 @@ class PointTypeComponentsListTile extends StatelessWidget{
       trailing: Column(
         children: [
           Text(points.toString()),
-          Text("Points")
+          Text((points == 1)? "Point": "Points")
         ],
       ),
     );

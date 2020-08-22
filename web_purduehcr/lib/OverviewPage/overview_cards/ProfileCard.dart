@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/Models/User.dart';
+import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/Models/UserRank.dart';
 
 class ProfileCard extends StatefulWidget{
@@ -94,7 +95,7 @@ class ProfileCardState extends State<ProfileCard>{
               },
             )
         ),
-        Text("Platinum - 4N")
+        Text(widget.user.house +" - "+widget.user.floorId)
       ],
     );
   }
