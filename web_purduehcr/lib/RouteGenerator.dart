@@ -1,26 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
-import 'package:purduehcr_web/OverviewPage/OverviewPage.dart';
-import 'package:purduehcr_web/Account_Login_Creation/AccountPage.dart';
-import 'package:purduehcr_web/ControlsPage/ControlsPage.dart';
-import 'package:purduehcr_web/FindUsersPage/FindUsersPage.dart';
-import 'package:purduehcr_web/HandlePointsPage/HandlePointsPage.dart';
-import 'package:purduehcr_web/HistoryPage/HistoryPage.dart';
-import 'package:purduehcr_web/HouseCodePage/HouseCodePage.dart';
-import 'package:purduehcr_web/LinkPage/LinkPage.dart';
-import 'package:purduehcr_web/MyPointsPage/MyPointsPage.dart';
-import 'package:purduehcr_web/RewardsPage/RewardsPage.dart';
-import 'package:purduehcr_web/SubmitPointsPage/SubmitPointsPage.dart';
-import 'package:purduehcr_web/TokenTestPage/TokenTestPage.dart';
-import 'package:purduehcr_web/UserCreation/UserCreationPage.dart';
-import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
-
-import 'package:purduehcr_web/authentication/authentication.dart';
-
-import 'InitializationPage.dart';
-import 'PointTypesPage/PointTypesPage.dart';
-import 'Utilities/ThemeNotifier.dart';
+import 'package:purduehcr_web/Utility_Views/InitializationPage.dart';
+import 'package:purduehcr_web/Main_App_Pages/OverviewPage/OverviewPage.dart';
+import 'package:purduehcr_web/Account_And_User_Pages/Account_Login_Creation/AccountPage.dart';
+import 'package:purduehcr_web/Main_App_Pages/ControlsPage/ControlsPage.dart';
+import 'package:purduehcr_web/Main_App_Pages/FindUsersPage/FindUsersPage.dart';
+import 'package:purduehcr_web/Main_App_Pages/HandlePointsPage/HandlePointsPage.dart';
+import 'package:purduehcr_web/Main_App_Pages/HistoryPage/HistoryPage.dart';
+import 'package:purduehcr_web/Main_App_Pages/HouseCodePage/HouseCodePage.dart';
+import 'package:purduehcr_web/Main_App_Pages/LinkPage/LinkPage.dart';
+import 'package:purduehcr_web/Main_App_Pages/MyPointsPage/MyPointsPage.dart';
+import 'package:purduehcr_web/Main_App_Pages/PointTypesPage/PointTypesPage.dart';
+import 'package:purduehcr_web/Main_App_Pages/RewardsPage/RewardsPage.dart';
+import 'package:purduehcr_web/Main_App_Pages/SubmitPointsPage/SubmitPointsPage.dart';
+import 'package:purduehcr_web/Account_And_User_Pages/UserCreation/UserCreationPage.dart';
+import 'package:purduehcr_web/Authentication_Bloc/authentication.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
