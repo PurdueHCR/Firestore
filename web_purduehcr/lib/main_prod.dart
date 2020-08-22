@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:purduehcr_web/ConfigWrapper.dart';
+import 'package:purduehcr_web/Configuration/ConfigWrapper.dart';
 import 'package:purduehcr_web/PurdueHCR_main.dart';
 
-import 'Config.dart';
+import 'Configuration/Config.dart';
 import 'Utilities/ThemeNotifier.dart';
-import 'env/prod.dart';
+import 'package:purduehcr_web/Configuration/env/prod.dart';
 
 
 void main() => runApp(

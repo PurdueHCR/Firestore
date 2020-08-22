@@ -6,15 +6,15 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:linkable/linkable.dart';
-import 'package:purduehcr_web/Config.dart';
-import 'package:purduehcr_web/ConfigWrapper.dart';
+import 'package:purduehcr_web/Configuration/Config.dart';
+import 'package:purduehcr_web/Configuration/ConfigWrapper.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
 import 'package:purduehcr_web/Models/PointLogMessage.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:purduehcr_web/Utility_Views/PointLogChat/point_log_chat_bloc/point_log_chat.dart';
 import 'package:purduehcr_web/Utility_Views/PointLogList.dart';
-import 'package:purduehcr_web/authentication/authentication.dart';
+import 'package:purduehcr_web/Authentication_Bloc/authentication.dart';
 
 class PointLogChat extends StatefulWidget{
   final PointLog pointLog;

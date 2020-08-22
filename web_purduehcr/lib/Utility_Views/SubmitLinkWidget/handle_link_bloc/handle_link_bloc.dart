@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
-import 'package:purduehcr_web/Config.dart';
-import 'package:purduehcr_web/LinkPage/link_bloc/link.dart';
+import 'package:purduehcr_web/Configuration/Config.dart';
 import 'package:purduehcr_web/Models/ApiError.dart';
 import 'package:purduehcr_web/Models/Link.dart';
-import 'package:purduehcr_web/authentication/authentication.dart';
+import 'package:purduehcr_web/Authentication_Bloc/authentication.dart';
 import 'handle_link.dart';
 
 

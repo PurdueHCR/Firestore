@@ -1,4 +1,4 @@
-import 'package:purduehcr_web/Config.dart';
+import 'package:purduehcr_web/Configuration/Config.dart';
 import 'package:purduehcr_web/Models/ApiError.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
 import 'package:purduehcr_web/Models/PointLogMessage.dart';

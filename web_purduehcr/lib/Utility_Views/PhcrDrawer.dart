@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:linkable/linkable.dart';
-import 'package:purduehcr_web/authentication/authentication.dart';
+import 'package:purduehcr_web/Authentication_Bloc/authentication.dart';
 import 'package:purduehcr_web/Models/User.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:url_launcher/url_launcher.dart';

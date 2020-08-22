@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:purduehcr_web/Config.dart';
-import 'package:purduehcr_web/ConfigWrapper.dart';
+import 'package:purduehcr_web/Configuration/Config.dart';
+import 'package:purduehcr_web/Configuration/ConfigWrapper.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:purduehcr_web/Utility_Views/SubmitLinkWidget/handle_link_bloc/handle_link.dart';
-import 'package:purduehcr_web/authentication/authentication.dart';
+import 'package:purduehcr_web/Authentication_Bloc/authentication.dart';
 
 
 class SubmitLinkWidget extends StatefulWidget{

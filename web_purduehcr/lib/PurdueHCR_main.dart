@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:purduehcr_web/ConfigWrapper.dart';
+import 'package:purduehcr_web/Configuration/ConfigWrapper.dart';
 import 'package:purduehcr_web/RouteGenerator.dart';
 
 
-import 'package:purduehcr_web/authentication/authentication.dart';
+import 'package:purduehcr_web/Authentication_Bloc/authentication.dart';
 
-import 'Utilities/ThemeNotifier.dart';
+import 'package:purduehcr_web/Utilities/ThemeNotifier.dart';
 
 
 

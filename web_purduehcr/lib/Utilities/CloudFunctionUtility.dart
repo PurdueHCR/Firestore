@@ -1,7 +1,7 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:purduehcr_web/Models/ApiError.dart';
 
-import '../Config.dart';
+import '../Configuration/Config.dart';
 
 
 callCloudFunction(Config config, Method method, String path, {Map<String, dynamic> params, Map<String, dynamic> body}) async {

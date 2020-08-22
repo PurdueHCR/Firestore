@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:firebase/firebase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:purduehcr_web/Config.dart';
+import 'package:purduehcr_web/Configuration/Config.dart';
 import 'package:firebase/firebase.dart' as fb;
 import 'package:purduehcr_web/Models/ApiError.dart';
 

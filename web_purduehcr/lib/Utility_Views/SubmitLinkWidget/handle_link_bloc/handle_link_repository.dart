@@ -1,4 +1,4 @@
-import 'package:purduehcr_web/Config.dart';
+import 'package:purduehcr_web/Configuration/Config.dart';
 import 'package:purduehcr_web/Models/Link.dart';
 import 'package:purduehcr_web/Utilities/CloudFunctionUtility.dart';
 
