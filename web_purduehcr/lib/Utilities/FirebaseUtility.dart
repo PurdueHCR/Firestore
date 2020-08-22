@@ -25,7 +25,7 @@ class FirebaseUtility{
             storageBucket: config.storageBucket);
       }
       catch (err){
-        debugPrint("We are ignoring this error");
+        print("We are ignoring this error: $err");
       }
       return auth().setPersistence(Persistence.SESSION);
     }
@@ -39,7 +39,6 @@ class FirebaseUtility{
     return initializeFirebase(config).then((_) async {
       try{
         await FirebaseAuth.instance.signInWithEmailAndPassword(email:email, password: password);
-
       }
       catch(error){
         String errorMessage;

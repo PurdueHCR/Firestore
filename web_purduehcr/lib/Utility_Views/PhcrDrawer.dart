@@ -4,13 +4,13 @@ import 'package:linkable/linkable.dart';
 import 'package:purduehcr_web/authentication/authentication.dart';
 import 'package:purduehcr_web/Models/User.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const _DrawerOptions OVERVIEW = _DrawerOptions("Overview","/",Icon(Icons.account_circle));
 const _DrawerOptions SUBMIT_POINTS = _DrawerOptions("Submit Points","/submit_points",Icon(Icons.add));
 const _DrawerOptions HANDLE_POINTS = _DrawerOptions("Handle Points","/handle_points",Icon(Icons.message));
 const _DrawerOptions MY_POINTS = _DrawerOptions("My Points","/my_points",Icon(Icons.list));
 const _DrawerOptions HISTORY = _DrawerOptions("House History","/house_history",Icon(Icons.history));
-const _DrawerOptions TOKEN = _DrawerOptions("Token","/token",Icon(Icons.add));
 const _DrawerOptions LINKS = _DrawerOptions("Links", "/links", Icon(Icons.link));
 const _DrawerOptions CONTROLS = _DrawerOptions("Controls", "/controls", Icon(Icons.build));
 const _DrawerOptions POINT_TYPE_CONTROLS = _DrawerOptions("Point Categories", "/point_type_controls", Icon(Icons.list));
@@ -18,7 +18,7 @@ const _DrawerOptions HOUSE_CODES = _DrawerOptions("House Codes", "/house_codes",
 const _DrawerOptions FIND_USERS = _DrawerOptions("Find Users", "/find_users", Icon(Icons.search));
 const _DrawerOptions REWARDS = _DrawerOptions("Rewards", "/rewards", Icon(Icons.cake));
 
-const List<_DrawerOptions> RESIDENT_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, TOKEN];
+const List<_DrawerOptions> RESIDENT_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS];
 const List<_DrawerOptions> RHP_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, HANDLE_POINTS, LINKS, HISTORY];
 const List<_DrawerOptions> PROFESSIONAL_STAFF_LIST = [OVERVIEW, LINKS, HISTORY, HOUSE_CODES, POINT_TYPE_CONTROLS, REWARDS, FIND_USERS, CONTROLS];
 const List<_DrawerOptions> FHP_LIST = [OVERVIEW, LINKS];
@@ -172,8 +172,43 @@ class PhcrDrawer extends Drawer {
                               content: SizedBox(
                                 width: 400,
                                 child: SingleChildScrollView(
-                                  child: Linkable(
-                                    text: APP_INFO_DESCRIPTION,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          OutlineButton(
+                                            child: Text("Privacy Policy"),
+                                            onPressed: () async {
+                                              await launch('/privacy/');
+                                            },
+                                          ),
+                                          OutlineButton(
+                                            child: Text("Terms and Conditions"),
+                                            onPressed: () async {
+                                              await launch('/terms-and-conditions/');
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      Text(APP_INFO_DESCRIPTION),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          OutlineButton(
+                                            child: Text("Join Slack"),
+                                            onPressed: () async {
+                                              await launch('https://join.slack.com/t/purduehcr/shared_invite/zt-96fxky0h-dp6ceejRxF_CkPjmLROVhA');
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      Linkable(
+                                        text: APP_CONTACT_INFO,
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -210,4 +245,5 @@ class _DrawerOptions {
   const _DrawerOptions(this.name,this.path, this.icon);
 }
 
-const String APP_INFO_DESCRIPTION = "This app is maintained by the PurdueHCR Development Committee. The PurdueHCR Development Committee is a group of students interested in application development and is open for everyone to join.\nIf you are interested in joining, you can join our slack channel.\nhttps://join.slack.com/t/purduehcr/shared_invite/zt-96fxky0h-dp6ceejRxF_CkPjmLROVhA\n\nContact Information:\n\tPurdueHCR: purduehcrcontact@gmail.com\n\nCommittee President\n\tBen Hardin: bhardin@purdue.edu\nResidential Life Adviser\n\tAsa Cutler: cutler4@purdue.edu\nFlutter Developer\n\tBrian Johncox: brianjohncox232@gmail.com";
+const String APP_INFO_DESCRIPTION = "This app is maintained by the PurdueHCR Development Committee. The PurdueHCR Development Committee is a group of students interested in application development and is open for everyone to join.\nIf you are interested in joining, you can join our slack channel.\n";
+const String APP_CONTACT_INFO = "Contact Information:\n\tPurdueHCR: purduehcrcontact@gmail.com\n\nCommittee President\n\tBen Hardin: hardin30@purdue.edu\nResidential Life Adviser\n\tAsa Cutler: cutler4@purdue.edu\nFlutter Developer\n\tBrian Johncox: brianjohncox232@gmail.com";

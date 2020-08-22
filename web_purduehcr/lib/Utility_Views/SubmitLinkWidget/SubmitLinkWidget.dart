@@ -4,6 +4,7 @@ import 'package:purduehcr_web/Config.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:purduehcr_web/Utility_Views/SubmitLinkWidget/handle_link_bloc/handle_link.dart';
+import 'package:purduehcr_web/authentication/authentication.dart';
 
 
 class SubmitLinkWidget extends StatefulWidget{
@@ -27,7 +28,7 @@ class _SubmitLinkWidgetState extends State<SubmitLinkWidget>{
     super.didChangeDependencies();
     if(_handleLinkBloc == null){
       Config config = ConfigWrapper.of(context);
-      _handleLinkBloc = new HandleLinkBloc(config:config);
+      _handleLinkBloc = new HandleLinkBloc(config, BlocProvider.of<AuthenticationBloc>(context));
       _handleLinkBloc.add(HandleLinkInitialize(widget.linkId));
     }
   }

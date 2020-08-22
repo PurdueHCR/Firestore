@@ -116,7 +116,8 @@ class PointLogListTile extends StatelessWidget{
 
 class DateWidget extends StatelessWidget {
   final DateTime date;
-  const DateWidget({@required this.date});
+  final TextStyle style;
+  const DateWidget({@required this.date, this.style});
 
   @override
   Widget build(BuildContext context) {
@@ -125,8 +126,8 @@ class DateWidget extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(monthFormatter.format(date)),
-        Text(dayFormatter.format(date)),
+        Text(monthFormatter.format(date), style: style,),
+        Text(dayFormatter.format(date), style: style,),
       ],
     );
   }

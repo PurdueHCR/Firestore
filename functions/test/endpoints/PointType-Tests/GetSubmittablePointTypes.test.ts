@@ -43,21 +43,6 @@ describe('point_types/submittable', () =>{
         await FirestoreDataFactory.setSystemPreference(db)
     })
 
-    //Test Competition Disabled
-    it('Competition Disabled', async (done) => {
-        await FirestoreDataFactory.setSystemPreference(db, {is_house_enabled: false})
-        const res = factory.get(pt_func, "/submittable", RESIDENT_ID)
-        res.end(function (err, res) {
-            if(err){
-                done(err)
-            }
-            else{
-                expect(res.status).toBe(412)
-                done()
-            }
-        })
-    })
-
     //Test non professional staff
     it('Test resident', (done) => {
         const res = factory.get(pt_func, "/submittable", RESIDENT_ID)

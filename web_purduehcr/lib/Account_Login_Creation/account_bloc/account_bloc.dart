@@ -52,7 +52,7 @@ class AccountBloc extends Bloc<AccountEvent, AccountState>{
       }
       on ApiError catch(apiError){
         print("GOT API ERROR: "+apiError.toString());
-        yield CreateAccountError(message: apiError.toString());
+        yield CreateAccountError(message: apiError.message);
       }
       catch (error) {
         print("GOT Create Account ERROR in BLOC: $error");
@@ -69,7 +69,7 @@ class AccountBloc extends Bloc<AccountEvent, AccountState>{
       }
       on ApiError catch(apiError){
         print("GOT API ERROR: "+apiError.toString());
-        yield new AccountError(message: apiError.toString());
+        yield new AccountError(message: apiError.message);
 
       }
       catch (error) {

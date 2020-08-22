@@ -1,57 +1,52 @@
-import * as functions from 'firebase-functions';
-import * as admin from 'firebase-admin';
-import * as express from 'express';
-import {User} from "../models/User";
-import { HouseCompetition } from '../models/HouseCompetition';
-import { Link } from '../models/Link';
-import { PointType } from '../models/PointType';
-import { Reward } from '../models/Reward';
-import { APIResponse } from '../models/APIResponse';
-import { getHouseCodes } from '../src/GetHouseCodes';
-import { getUser } from '../src/GetUser';
-import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission';
-import { UserPermissionLevel } from '../models/UserPermissionLevel';
-import { HouseWithPointLog } from '../models/House';
-import { PointLog } from '../models/PointLog';
+import * as functions from 'firebase-functions'
+import * as admin from 'firebase-admin'
+import * as express from 'express'
+import {User} from "../models/User"
+import { HouseCompetition } from '../models/HouseCompetition'
+import { Link } from '../models/Link'
+import { PointType } from '../models/PointType'
+import { Reward } from '../models/Reward'
+import { APIResponse } from '../models/APIResponse'
+import { getHouseCodes } from '../src/GetHouseCodes'
+import { getUser } from '../src/GetUser'
+import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
+import { UserPermissionLevel } from '../models/UserPermissionLevel'
+import { HouseWithPointLog } from '../models/House'
+import { PointLog } from '../models/PointLog'
+import { getSystemPreferences } from '../src/GetSystemPreferences'
+import { generateOneTimeCode, verifyOneTimeCode } from '../src/OTCGenerator'
+import { createSaveSemesterPointsEmail } from '../email_functions/SaveSemesterPointsEmail'
+import { saveAndResetSemester } from '../src/SaveAndResetSemester'
+import { createResetHouseCompetitionEmail } from '../email_functions/ResetHouseCompetitionEmail'
+import { resetHouseCompetition } from '../src/ResetHouseCompetition'
+import * as ParameterParser from '../src/ParameterParser'
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
-	admin.initializeApp(functions.config().firebase);
+	admin.initializeApp(functions.config().firebase)
 }
 
-const db = admin.firestore();
-const admin_app = express();
-const cors = require('cors');
 const nodemailer = require('nodemailer')
-const admin_main = express();
-const firestoreTools = require('../firestoreTools');
+const { google } = require("googleapis")
+const OAuth2 = google.auth.OAuth2
 
-admin_main.use(admin_app);
-admin_app.use(express.json());
-admin_app.use(express.urlencoded({ extended: false }));
+const db = admin.firestore()
+const admin_app = express()
+const cors = require('cors')
+const admin_main = express()
+const firestoreTools = require('../firestoreTools')
 
-
+admin_main.use(admin_app)
+admin_app.use(express.json())
+admin_app.use(express.urlencoded({ extended: false }))
 
 
 
 //setup Cors for cross site requests
-admin_app.use(cors({origin:true}));
+admin_app.use(cors({origin:true}))
 //Setup firestoreTools to validate user has been 
 admin_app.use(firestoreTools.flutterReformat)
-admin_app.use(firestoreTools.validateFirebaseIdToken);
-
-let auth: any
-if(functions.config().email_auth === undefined){
-	auth = require("../../development_keys/email_auth.json")
-}
-else{
-	auth = functions.config().email_auth
-}
-//Setup the Sending Email Control
-const transporter = nodemailer.createTransport({
-	service: 'gmail',
-	auth: auth
-})
+admin_app.use(firestoreTools.validateFirebaseIdToken)
 
 
 /**
@@ -73,25 +68,25 @@ admin_app.get('/json_backup', async (req, res) => {
         houseCompetition.links = Link.fromQuerySnapshot(await db.collection(HouseCompetition.LINKS_KEY).get())
         houseCompetition.pointTypes = PointType.fromQuerySnapshot(await db.collection(HouseCompetition.POINT_TYPES_KEY).get())
         houseCompetition.users = User.fromQuerySnapshot(await db.collection(HouseCompetition.USERS_KEY).get())
-        houseCompetition.rewards = Reward.fromQuerySnapshot(await db.collection(HouseCompetition.REWARDS_KEY).get())
+		houseCompetition.rewards = Reward.fromQuerySnapshot(await db.collection(HouseCompetition.REWARDS_KEY).get())
+		
+		const jsonFile = JSON.stringify(houseCompetition)
+		
         const mailOptions = {
-            from: 'Purdue HCR Contact <purduehcrcontact@gmail.com',
+            from: 'Purdue HCR Contact <purduehcr@gmail.com',
             to: req["user"]["email"],
             subject: "Backup for PurdueHCR House Competition",
-            html: "Backup for PurdueHCR House Competition",
+            html: "Backup for PurdueHCR House Competition. Please download and save it. ",
             attachments:[
                 {   // utf-8 string as an attachment
                     filename: `purduehcr-backup-${(new Date()).toString()}.json`,
-                    content: JSON.stringify(houseCompetition)
+                    content: jsonFile
                 },
             ]
         }
+        const transporter = createMailTransporter()
         //Send mail
-        transporter.sendMail(mailOptions,  (erro, _info) =>{
-            if(erro){
-                console.log("Sending email error: "+erro)
-            }
-        })
+        await transporter.sendMail(mailOptions)
         throw APIResponse.Success()
     }
     catch (error){
@@ -108,6 +103,252 @@ admin_app.get('/json_backup', async (req, res) => {
     
 })
 
+/**
+ * Request the end semester email
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permission
+ * @throws 414 - Competition must be disabled
+ * @throws 500 - Server Error
+ */
+admin_app.post('/endSemester', async (req, res) => {
+	try{
+		const user = await getUser(req["user"]["user_id"])
+		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+
+			const systemPreferences = await getSystemPreferences()
+			if(!systemPreferences.isCompetitionEnabled){
+				//Generate random key, save it to the house system and create a link 
+				const secretKey = generateOneTimeCode()
+				const path = "https://"+req.hostname+"/administration/confirmEndSemester?code="+secretKey
+
+				//Set the mail options
+				const mailOptions = {
+					from: 'Purdue HCR Contact <purduehcr@gmail.com>',
+					to: req["user"]["email"],
+					subject: "Ending The Semester in the House Competition",
+					html: createSaveSemesterPointsEmail(path)
+				}
+				const transporter = createMailTransporter()
+				await transporter.sendMail(mailOptions)
+				throw APIResponse.Success()
+
+			}
+			else{
+				console.error("Competition must be disabled to end the semester")
+				throw APIResponse.CompetitionMustBeDisabled()
+			}
+		}
+		else{
+			//User is not an REA/REC
+			console.error("User must be Professional staff to perform this action")
+			throw APIResponse.InvalidPermissionLevel()
+		}
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.error("Unknown Error on endSemester: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
+})
+
+/**
+ * Confirm the end semester. Must be called through the /endSemester endpoint
+ */
+admin_app.get('/confirmEndSemester', async (req, res) => {
+
+	try{
+		if(req.query.code === undefined || typeof req.query.code !== 'string' || req.query.code === ""){
+			throw APIResponse.MissingRequiredParameters()
+		}
+		const code = ParameterParser.parseInputForString(req.query.code)
+		verifyOneTimeCode(code)
+		const systemPreferences = await getSystemPreferences()
+		if(systemPreferences.isCompetitionEnabled){
+			throw APIResponse.CompetitionDisabled()
+		}
+		else{
+			await saveAndResetSemester(systemPreferences)
+		}
+		throw APIResponse.Success()
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.error("Unknown Error: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
+
+	
+})
+
+/**
+ * Request the reset competition email
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permission
+ * @throws 414 - Competition must be disabled
+ * @throws 500 - Server Error
+ */
+admin_app.post('/resetCompetition', async (req, res) => {
+	try{
+		const user = await getUser(req["user"]["user_id"])
+		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+
+			const systemPreferences = await getSystemPreferences()
+			if(!systemPreferences.isCompetitionEnabled){
+				//Generate random key, save it to the house system and create a link 
+				const secretKey = generateOneTimeCode()
+				console.log("Using codE: "+secretKey)
+				const path = "https://"+req.hostname+"/administration/confirmResetCompetition?code="+secretKey+"&user="+user.id
+				
+				const mailOptions = {
+					from: 'Purdue HCR Contact <purduehcr@gmail.com>',
+					to: req["user"]["email"],
+					subject: "Resetting the House Competition",
+					html: createResetHouseCompetitionEmail(path)
+				}
+				const transporter = createMailTransporter()
+				await transporter.sendMail(mailOptions)
+				throw APIResponse.Success()
+			}
+			else{
+				console.error("Competition must be disabled to end the semester")
+				throw APIResponse.CompetitionMustBeDisabled()
+			}
+		}
+		else{
+			//User is not an REA/REC
+			console.error("User must be Professional staff to perform this action")
+			throw APIResponse.InvalidPermissionLevel()
+		}
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.error("Unknown Error on endSemester: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
+})
+
+/**
+ * Confirm the reset competition. Must be called through the /resetCompetition endpoint
+ */
+admin_app.get('/confirmResetCompetition', async (req,res) => {
+	try{
+		if(req.query.code === undefined || typeof req.query.code !== 'string' || req.query.code === ""){
+			throw APIResponse.MissingRequiredParameters()
+		}
+		else if(req.query.user === undefined || typeof req.query.user !== 'string' || req.query.user === ""){
+			throw APIResponse.MissingRequiredParameters()
+		}
+		const user = await getUser(req.query.user)
+		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+			const code = ParameterParser.parseInputForString(req.query.code)
+			verifyOneTimeCode(code)
+			const systemPreferences = await getSystemPreferences()
+			if(systemPreferences.isCompetitionEnabled){
+				throw APIResponse.CompetitionMustBeDisabled()
+			}
+			else{
+				await resetHouseCompetition(user)
+			}
+			throw APIResponse.Success()
+		}
+		else{
+			throw APIResponse.InvalidPermissionLevel()
+		}
+		
+	}
+	catch (error){
+        if( error instanceof APIResponse){
+            res.status(error.code).send(error.toJson())
+        }
+        else {
+            console.error("Unknown Error: "+error.toString())
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+	}
+})
+
+// admin_app.post('/testData', async (req, res) => {
+// 	try{
+// 		const users: any[] = req.body.users
+// 		for(const user of users){
+// 			await createUser(user.id, user.code, user.first, user.last)
+// 		}
+// 		const points: any[] = req.body.points
+// 		for(const point of points){
+// 			const user = await getUser(point.user_id)
+// 			const log = new UnsubmittedPointLog(new Date(Date.now()), point.description, point.pointTypeId)
+// 			await submitPoint(user, log)
+// 			if(point.approver_id !== undefined){
+// 				await updatePointLogStatus(point.approved, point.approver_id, log.id, "Not enough details")
+// 			}
+// 		}
+// 		res.status(200).send("Success")
+// 	}
+// 	catch (error){
+//         if( error instanceof APIResponse){
+//             res.status(error.code).send(error.toJson())
+//         }
+//         else {
+//             console.error("Unknown Error on endSemester: "+error.toString())
+//             const apiResponse = APIResponse.ServerError()
+//             res.status(apiResponse.code).send(apiResponse.toJson())
+//         }
+// 	}
+// })
+
+
+function createMailTransporter(): any {
+	let auth: any
+	if(functions.config().email_auth === undefined){
+		auth = require("../../development_keys/keys.json").email_auth
+	}
+	else{
+		auth = functions.config().email_auth
+	}
+
+	const oauth2Client = new OAuth2(auth.client_id, auth.client_secret, "https://developers.google.com/oauthplayground")
+
+	oauth2Client.setCredentials({
+		refresh_token: auth.refresh_token
+	})
+
+	const accessToken = oauth2Client.getAccessToken()
+	//Setup the Sending Email Control
+	const transporter = nodemailer.createTransport({
+		service: 'gmail',
+		auth: {
+			type: "OAuth2",
+			user: auth.email,
+			clientId: auth.client_id,
+			clientSecret: auth.client_secret,
+			refreshToken: auth.refresh_token,
+			accessToken: accessToken
+		}
+	})
+	return transporter
+}
 
 // competition_main is the object to be exported. export this in index.ts
-export const administration_main = functions.https.onRequest(admin_main);
+export const administration_main = functions.runWith({
+	timeoutSeconds: 540,
+	memory: '1GB'
+}).https.onRequest(admin_main)
+

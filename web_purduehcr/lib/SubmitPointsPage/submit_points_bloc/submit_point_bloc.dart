@@ -4,11 +4,14 @@ import 'package:bloc/bloc.dart';
 import 'package:purduehcr_web/Models/ApiError.dart';
 import 'package:purduehcr_web/Models/PointType.dart';
 import 'package:purduehcr_web/SubmitPointsPage/submit_points_bloc/submit_points.dart';
+import 'package:purduehcr_web/authentication/authentication.dart';
+import 'package:purduehcr_web/authentication/authentication_bloc.dart';
 
 class SubmitPointBloc extends Bloc<SubmitPointEvent, SubmitPointState>{
   final Config config;
   SubmitPointRepository _submitPointRepository;
-  SubmitPointBloc(this.config){
+  final AuthenticationBloc authenticationBloc;
+  SubmitPointBloc(this.config, this.authenticationBloc){
     this._submitPointRepository = SubmitPointRepository(this.config);
   }
 
@@ -34,6 +37,7 @@ class SubmitPointBloc extends Bloc<SubmitPointEvent, SubmitPointState>{
         if(apiError.errorCode == 200 || apiError.errorCode == 201){
           print("SUCCESS: yield success");
           yield SubmissionSuccess(pointTypes: state.pointTypes, shouldDismissDialog: event.shouldDismissDialog);
+          authenticationBloc.add(UpdateUser());
         }
         else{
           yield SubmissionError(pointTypes: state.pointTypes, message: apiError.message, shouldDismissDialog: event.shouldDismissDialog);

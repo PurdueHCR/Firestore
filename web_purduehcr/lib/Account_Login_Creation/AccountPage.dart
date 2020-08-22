@@ -52,54 +52,43 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
-    print("did call build");
-    final bool isDesktop = isDisplayDesktop(context);
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 220, 220, 220),
-      body: Container(
-        padding: EdgeInsets.symmetric(vertical: 16),
-        alignment: Alignment.center,
-        child: BlocBuilder<AccountBloc, AccountState>(
-          bloc: _loginBloc,
-          builder: (BuildContext context, AccountState state) {
-            print("got new state update");
-            checkStateForSnackMessage(context, state);
-            print("Was not snack message");
-            if(isDesktop){
-              return _createDesktop(state);
-            }
-            else{
-              return _createMobile(state);
-            }
-          },
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          alignment: Alignment.center,
+          child: BlocBuilder<AccountBloc, AccountState>(
+            bloc: _loginBloc,
+            builder: (BuildContext context, AccountState state) {
+              checkStateForSnackMessage(context, state);
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: SizedBox(
+                      width: 200,
+                      height: 200,
+                      child: Image.asset('assets/main_icon.png'),
+                    ),
+                  ),
+                  Center(
+                      child: buildBody(state)
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
-  Widget _createDesktop( AccountState state){
-    return Scaffold(
-        body: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Container(
-                color: Colors.blue,
-              ),
-            ),
-            Expanded(child: Center(child: _createMobile(state)))
-          ],
-        ),
-    );
-  }
 
-  Widget _createMobile(AccountState state){
+  Widget buildBody(AccountState state){
     Widget child;
-    print("Create mobile");
     if(state is AccountError){
-      print("Account error");
       child = BlocProvider(
         builder: (BuildContext context) => _loginBloc,
         child: LoginCard(
@@ -134,7 +123,8 @@ class _AccountPageState extends State<AccountPage> {
     else{
       child = Text("There was a big problem");
     }
-    return Center(
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: 500),
       child: child,
     );
   }

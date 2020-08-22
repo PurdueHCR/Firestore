@@ -5,11 +5,11 @@ if [ "$1" = "build" ]; then
     echo "Building Web App"
     cd web_purduehcr
     if [ "$2" = "dev" ]; then
-        flutter build web -t lib/main_dev.dart
+        flutter build web -t lib/main_dev.dart --release
     elif [ "$2" = "test" ]; then
-        flutter build web -t lib/main_test.dart
+        flutter build web -t lib/main_test.dart --release
     elif [ "$2" = "prod" ]; then
-        flutter build web -t lib/main_prod.dart
+        flutter build web -t lib/main_prod.dart --release
     else
         echo "Invalid use. ./purduehcr build <dev,test,prod>"
         exit
@@ -23,7 +23,7 @@ if [ "$1" = "build" ]; then
     npm run build
     echo "done"
     if [ "$2" != "dev" ]; then
-        echo "Make sure you set the firebase functions:config:set applinks.key= applinks.dynamic_link_url= applinks.main_app_url="
+        echo "please run the appropriate config command before you deploy. (./production_config.sh or ./test_config.sh)"
     fi
 elif [ "$1" = "install" ]; then
     echo "Checking required tools"

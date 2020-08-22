@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:linkable/linkable.dart';
 import 'package:purduehcr_web/Config.dart';
 import 'package:purduehcr_web/ConfigWrapper.dart';
@@ -12,6 +13,7 @@ import 'package:purduehcr_web/Models/PointLogMessage.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:purduehcr_web/Utility_Views/PointLogChat/point_log_chat_bloc/point_log_chat.dart';
+import 'package:purduehcr_web/Utility_Views/PointLogList.dart';
 import 'package:purduehcr_web/authentication/authentication.dart';
 
 class PointLogChat extends StatefulWidget{
@@ -87,16 +89,31 @@ class _PointLogChatState extends State<PointLogChat>{
           children: [
             Flexible(
               fit: FlexFit.loose,
-              child: Text(widget.pointLog.description,
-                style: Theme.of(context).textTheme.headline5,
-                maxLines: null,
-              ),
-            ),
-            Flexible(
-              fit: FlexFit.loose,
-              child: Text(widget.pointLog.residentFirstName + " " +widget.pointLog.residentLastName,
-                style: Theme.of(context).textTheme.bodyText2,
-                maxLines: null,
+              child: Row(
+                children: [
+                 Flexible(
+                   flex: 5,
+                   fit: FlexFit.loose,
+                   child: Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       Text(widget.pointLog.description,
+                         style: Theme.of(context).textTheme.headline5,
+                       ),
+                       Text(widget.pointLog.residentFirstName + " " +widget.pointLog.residentLastName,
+                         style: Theme.of(context).textTheme.bodyText2,
+                       ),
+                     ],
+                   ),
+                 ),
+                  Flexible(
+                    flex: 1,
+                    child: Center(
+                        child: DateWidget(date: widget.pointLog.dateOccurred, style: Theme.of(context).textTheme.headline5,)
+                    ),
+                    fit: FlexFit.loose,
+                  )
+                ],
               ),
             ),
             Flexible(
@@ -123,6 +140,18 @@ class _PointLogChatState extends State<PointLogChat>{
                 padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
                 child: Text(widget.pointLog.pointTypeDescription,
                   style: Theme.of(context).textTheme.bodyText2,
+                ),
+              ),
+            ),
+            Flexible(
+              fit: FlexFit.loose,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
+                child: Text("Submitted on ${DateFormat.yMd('en_US').format(widget.pointLog.dateSubmitted)} ${DateFormat.jm('en_US').format(widget.pointLog.dateSubmitted)}",
+                style: TextStyle(
+                    fontSize: 10,
+                    color: Theme.of(context).textTheme.bodyText2.color
+                  ),
                 ),
               ),
             )
@@ -164,9 +193,6 @@ class _PointLogChatState extends State<PointLogChat>{
   }
 
   Widget buildActions(){
-    print("REbuilding acrtions");
-    print("WAS HANDLED: "+widget.pointLog.wasHandled().toString() );
-    print("WAS APPROVED: "+widget.pointLog.wasApproved().toString());
     if(widget.pointLog.wasHandled() && widget.pointLog.wasApproved()){
       return Row(
         mainAxisSize: MainAxisSize.max,

@@ -1,8 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:purduehcr_web/Config.dart';
 import 'package:purduehcr_web/Models/SystemPreferences.dart';
 import 'package:purduehcr_web/Utilities/CloudFunctionUtility.dart';
-import 'package:purduehcr_web/Utilities/FirebaseUtility.dart';
 
 
 class ControlRepository {
@@ -36,17 +34,13 @@ class ControlRepository {
     }
     await callCloudFunction(config, Method.PUT, "competition/settings", body: body);
   }
-
   endSemester() async {
-    await callCloudFunction(config, Method.POST, "competition/endSemester");
+    await callCloudFunction(config, Method.POST, "administration/endSemester");
   }
-
   resetCompetition() async {
-    await callCloudFunction(config, Method.POST, "competition/resetCompetition");
+    await callCloudFunction(config, Method.POST, "administration/resetCompetition");
   }
-
   requestBackup() async {
     await callCloudFunction(config, Method.GET, "administration/json_backup");
   }
-
 }

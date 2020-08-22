@@ -1,8 +1,6 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as express from 'express'
-import {createSaveSemesterPointsEmail} from "../email_functions/SaveSemesterPointsEmail"
-import {createResetHouseCompetitionEmail} from "../email_functions/ResetHouseCompetitionEmail"
 import { getUnhandledPointLogs } from '../src/GetUnhandledLogs'
 import { HouseCompetition } from '../models/HouseCompetition'
 import { PointLog } from '../models/PointLog'
@@ -14,16 +12,10 @@ import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermi
 import { getRecentHistory, getHistoryFilterUser, getHistoryFilterPointType} from '../src/GetHistory'
 import { getSystemPreferences } from '../src/GetSystemPreferences'
 import { updateSystemPreferences } from '../src/SetSystemPreference'
-import { saveAndResetSemester } from '../src/SaveAndResetSemester'
-import {verifyOneTimeCode, generateOneTimeCode} from '../src/OTCGenerator'
-import {resetHouseCompetition} from '../src/ResetHouseCompetition'
 import * as ParameterParser from '../src/ParameterParser'
 import { grantHouseAward } from '../src/GrantHouseAward'
 import { getHouseByName } from '../src/GetHouses'
-import { updateHouse, updateCompleteHouse } from '../src/UpdateHouse'
-import { getHouseCodes } from '../src/GetHouseCodes'
-import { createUser } from '../src/CreateUser'
-import { updateUser } from '../src/UpdateUser'
+import { updateHouse } from '../src/UpdateHouse'
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
@@ -33,7 +25,6 @@ if(admin.apps.length === 0){
 const comp_app = express()
 const cors = require('cors')
 const comp_main = express()
-const nodemailer = require('nodemailer')
 const firestoreTools = require('../firestoreTools')
 
 comp_main.use(comp_app)
@@ -44,19 +35,6 @@ comp_app.use(express.urlencoded({ extended: false }))
 
 // competition_main is the object to be exported. export this in index.ts
 export const competition_main = functions.https.onRequest(comp_main)
-
-let auth: any
-if(functions.config().email_auth === undefined){
-	auth = require("../../development_keys/email_auth.json")
-}
-else{
-	auth = functions.config().email_auth
-}
-//Setup the Sending Email Control
-const transporter = nodemailer.createTransport({
-	service: 'gmail',
-	auth: auth
-})
 
 
 //setup Cors for cross site requests
@@ -144,188 +122,6 @@ comp_app.put('/settings', async (req, res) => {
         }
         else {
             console.error("Unknown Error getting competition system prefernces: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
-	}
-})
-
-
-/**
- * Request the end semester email
- * @throws 400 - Unknown User
- * @throws 401 - Unauthorized
- * @throws 403 - Invalid Permission
- * @throws 414 - Competition must be disabled
- * @throws 500 - Server Error
- */
-comp_app.post('/endSemester', async (req, res) => {
-	try{
-		const user = await getUser(req["user"]["user_id"])
-		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
-
-			const systemPreferences = await getSystemPreferences()
-			if(!systemPreferences.isCompetitionEnabled){
-				//Generate random key, save it to the house system and create a link 
-				const secretKey = generateOneTimeCode()
-				const path = "https://"+req.hostname+"/competition/confirmEndSemester?code="+secretKey
-
-				//Set the mail options
-				const mailOptions = {
-					from: 'Purdue HCR Contact <purduehcrcontact@gmail.com>',
-					to: req["user"]["email"],
-					subject: "Ending The Semester in the House Competition",
-					html: createSaveSemesterPointsEmail(path)
-				}
-
-				await transporter.sendMail(mailOptions)
-				throw APIResponse.Success()
-
-			}
-			else{
-				console.error("Competition must be disabled to end the semester")
-				throw APIResponse.CompetitionMustBeDisabled()
-			}
-		}
-		else{
-			//User is not an REA/REC
-			console.error("User must be Professional staff to perform this action")
-			throw APIResponse.InvalidPermissionLevel()
-		}
-	}
-	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Unknown Error on endSemester: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
-	}
-})
-
-/**
- * Confirm the end semester. Must be called through the /endSemester endpoint
- */
-comp_app.get('/confirmEndSemester', async (req, res) => {
-
-	try{
-		if(req.query.code === undefined || typeof req.query.code !== 'string' || req.query.code === ""){
-			throw APIResponse.MissingRequiredParameters()
-		}
-		const code = ParameterParser.parseInputForString(req.query.code)
-		verifyOneTimeCode(code)
-		const systemPreferences = await getSystemPreferences()
-		if(systemPreferences.isCompetitionEnabled){
-			throw APIResponse.CompetitionDisabled()
-		}
-		else{
-			await saveAndResetSemester(systemPreferences)
-		}
-		throw APIResponse.Success()
-	}
-	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Unknown Error: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
-	}
-
-	
-})
-
-/**
- * Request the reset competition email
- * @throws 400 - Unknown User
- * @throws 401 - Unauthorized
- * @throws 403 - Invalid Permission
- * @throws 414 - Competition must be disabled
- * @throws 500 - Server Error
- */
-comp_app.post('/resetCompetition', async (req, res) => {
-	try{
-		const user = await getUser(req["user"]["user_id"])
-		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
-
-			const systemPreferences = await getSystemPreferences()
-			if(!systemPreferences.isCompetitionEnabled){
-				//Generate random key, save it to the house system and create a link 
-				const secretKey = generateOneTimeCode()
-				console.log("Using codE: "+secretKey)
-				const path = "https://"+req.hostname+"/competition/confirmResetCompetition?code="+secretKey+"&user="+user.id
-				
-				const mailOptions = {
-					from: 'Purdue HCR Contact <purduehcrcontact@gmail.com>',
-					to: req["user"]["email"],
-					subject: "Resetting the House Competition",
-					html: createResetHouseCompetitionEmail(path)
-				}
-				await transporter.sendMail(mailOptions)
-				throw APIResponse.Success()
-			}
-			else{
-				console.error("Competition must be disabled to end the semester")
-				throw APIResponse.CompetitionMustBeDisabled()
-			}
-		}
-		else{
-			//User is not an REA/REC
-			console.error("User must be Professional staff to perform this action")
-			throw APIResponse.InvalidPermissionLevel()
-		}
-	}
-	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Unknown Error on endSemester: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
-	}
-})
-
-/**
- * Confirm the reset competition. Must be called through the /resetCompetition endpoint
- */
-comp_app.get('/confirmResetCompetition', async (req,res) => {
-	try{
-		if(req.query.code === undefined || typeof req.query.code !== 'string' || req.query.code === ""){
-			throw APIResponse.MissingRequiredParameters()
-		}
-		else if(req.query.user === undefined || typeof req.query.user !== 'string' || req.query.user === ""){
-			throw APIResponse.MissingRequiredParameters()
-		}
-		const user = await getUser(req.query.user)
-		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
-			const code = ParameterParser.parseInputForString(req.query.code)
-			verifyOneTimeCode(code)
-			const systemPreferences = await getSystemPreferences()
-			if(systemPreferences.isCompetitionEnabled){
-				throw APIResponse.CompetitionMustBeDisabled()
-			}
-			else{
-				await resetHouseCompetition(user)
-			}
-			throw APIResponse.Success()
-		}
-		else{
-			throw APIResponse.InvalidPermissionLevel()
-		}
-		
-	}
-	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Unknown Error: "+error.toString())
             const apiResponse = APIResponse.ServerError()
             res.status(apiResponse.code).send(apiResponse.toJson())
         }
@@ -576,32 +372,6 @@ comp_app.get('/history', async (req, res) => {
 	}
 })
 
-comp_app.get('/testDataSetup', async (req,res) => {
-	const systemPreferences = await getSystemPreferences()
-	const houseCodes = await getHouseCodes()
-	for(const house_id of systemPreferences.houseIds){
-
-		let points = 0
-
-		for(const code of houseCodes){
-			if(code.house === house_id){
-				await createUser(code.id, code.code, code.house, code.permissionLevel === 0 ? "Resident" : code.code)
-				const user = await getUser(code.id)
-				user.totalPoints = Math.round((Math.random() * 500))
-				user.semesterPoints = Math.round(user.totalPoints * Math.random())
-				points += user.totalPoints
-				await updateUser(user)
-			}
-		}
-
-		const house = await getHouseByName(house_id)
-		house.totalPoints = points
-		house.numberOfResidents = 178
-		await updateCompleteHouse(house)
-	}
-	res.status(200).send(APIResponse.Success())
-})
-
 /**
  * If the house field is provided and the user is Proffesional Staff, use the house field. If user is not prof staff, it returns the user house
  * @param user User making request
@@ -623,4 +393,3 @@ function getHouseNameForHistory(user:User, req): string{
 	}
 	return house_name
 }
-

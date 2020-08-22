@@ -34,9 +34,9 @@ class RouteGenerator {
               switch (path[1]) {
                 case '':
                   return HomePage();
-                case 'token':
-                  //If the user is on dev or test they can access TokenTestPage
-                  return TokenTestPage();
+//                case 'token':
+//                  //If the user is on dev or test they can access TokenTestPage
+//                  return TokenTestPage();
                 case 'submit_points':
                   return SubmitPointsPage();
                 case 'handle_points':
@@ -78,7 +78,6 @@ class RouteGenerator {
               return InitializationPage();
             }
             else if (state is AuthenticatedButNoUser) {
-              print("Going to user creation page");
               if(path.length == 3){
                 return UserCreationPage(houseCode: path[2]);
               }

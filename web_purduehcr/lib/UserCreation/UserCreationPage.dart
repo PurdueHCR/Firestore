@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/Models/House.dart';
@@ -6,6 +5,7 @@ import 'package:purduehcr_web/UserCreation/user_creation/user_creation.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:purduehcr_web/authentication/authentication.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../ConfigWrapper.dart';
 
@@ -37,6 +37,10 @@ class _UserCreationPageState extends State<UserCreationPage>{
   final _nameKey = GlobalKey<FormState>();
   final _codeKey = GlobalKey<FormState>();
   bool isLoading = false;
+  bool agreeTermsAndConditions = false;
+  bool agreePrivacyPolicy = false;
+  bool termsAndConditionsError = false;
+  bool privacyPolicyError = false;
   House house;
 
 
@@ -62,7 +66,6 @@ class _UserCreationPageState extends State<UserCreationPage>{
 
   @override
   Widget build(BuildContext context) {
-    final bool isDesktop = isDisplayDesktop(context);
 
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 220, 220, 220),
@@ -72,11 +75,37 @@ class _UserCreationPageState extends State<UserCreationPage>{
         child: BlocBuilder<UserCreationBloc, UserCreationState>(
           bloc: _userCreationBloc,
           builder: (context, state) {
-            if(isDesktop){
-              return _createDesktop(context, state);
+            if(state is LoadingUserCreationInformation ){
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: LoadingWidget(),
+                  ),
+                ),
+              );
             }
-            else{
-              return _createMobile(context, state);
+            else {
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: SizedBox(
+                        width: 200,
+                        height: 200,
+                        child: Image.asset('assets/main_icon.png'),
+                      ),
+                    ),
+                    Center(
+                        child: buildBody(context, state)
+                    ),
+                  ],
+                ),
+              );
             }
           },
         ),
@@ -84,37 +113,11 @@ class _UserCreationPageState extends State<UserCreationPage>{
     );
   }
 
-  Widget _createDesktop( BuildContext context, UserCreationState state){
-    return Scaffold(
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Container(
-              color: Colors.blue,
-            ),
-          ),
-          Expanded(child: Center(child: _createMobile(context, state)))
-        ],
-      ),
-    );
-  }
 
-  Widget _createMobile(BuildContext context, UserCreationState state){
+  Widget buildBody(BuildContext context, UserCreationState state){
     Widget child;
     String title = "";
-    if(state is LoadingUserCreationInformation ){
-      child = Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SizedBox(
-          width: 100,
-            height: 100,
-          child: LoadingWidget(),
-        ),
-      );
-    }
-    else if(state is EnterHouseCodeState ){
+    if(state is EnterHouseCodeState ){
       title = "Join House Competition";
       child = buildCodeInputForm(context, state);
     }
@@ -128,22 +131,24 @@ class _UserCreationPageState extends State<UserCreationPage>{
         child: Text("There was a problem. Please reload the page."),
       );
     }
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(title,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18
-                )
-              ),
-              child
-            ],
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18
+                  )
+                ),
+                child
+              ],
+            ),
           ),
         ),
       ),
@@ -157,159 +162,256 @@ class _UserCreationPageState extends State<UserCreationPage>{
   }
 
   Widget buildCodeInputForm(BuildContext context, EnterHouseCodeState state){
-    return Builder(
-        builder: (context) => Form(
-          key: _codeKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 300),
-                  child: TextFormField(
-                    decoration:
-                    InputDecoration(
-                      labelText: 'Please Enter A House Competition Code',
-                      labelStyle: TextStyle(
-                        fontSize: 14
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Builder(
+          builder: (context) => Form(
+            key: _codeKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: 300),
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Please Enter A House Competition Code',
+                        labelStyle: TextStyle(
+                          fontSize: 14
+                        ),
+                        counterText: ""
                       ),
-                      counterText: ""
-                    ),
-                    maxLength: 6,
-                    controller: houseCodeController,
-                    textCapitalization: TextCapitalization.characters,
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please Enter A Code.';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-              ),
-              Visibility(
-                visible: state is EnterHouseCodeStateError,
-                  child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Center(
-                    child: Text(
-                        (state is EnterHouseCodeStateError)? state.message : ""
+                      maxLength: 6,
+                      controller: houseCodeController,
+                      textCapitalization: TextCapitalization.characters,
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Please Enter A Code.';
+                        }
+                        return null;
+                      },
                     ),
                   ),
                 ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Expanded(
+                Visibility(
+                  visible: state is EnterHouseCodeStateError,
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: RaisedButton(
-                        child: Text("Log Out"),
-                        onPressed: (){
-                          _authenticationBloc.add(LoggedOut());
-                        },
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(
+                      child: Text(
+                          (state is EnterHouseCodeStateError)? state.message : "",
+                        style: TextStyle(color: Theme.of(context).errorColor),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: RaisedButton(
-                        child: Text("Join"),
-                        onPressed: (){
-                          if(_codeKey.currentState.validate()){
-                            _userCreationBloc.add(EnterHouseCode(houseCodeController.text));
-                          }
-                        },
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: RaisedButton(
+                          child: Text("Log Out"),
+                          onPressed: (){
+                            _authenticationBloc.add(LoggedOut());
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              )
-            ],
-          ),
-        )
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: RaisedButton(
+                          child: Text("Join"),
+                          onPressed: (){
+                            if(_codeKey.currentState.validate()){
+                              _userCreationBloc.add(EnterHouseCode(houseCodeController.text));
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          )
+      ),
     );
   }
 
   Widget buildNameInputForm(BuildContext context, EnterFirstAndLastNameState state){
-    return Builder(
-        builder: (context) => Form(
-          key: _nameKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                decoration:
-                InputDecoration(labelText: 'First Name'),
-                textCapitalization: TextCapitalization.words,
-                maxLength: 20,
-                controller: firstNameController,
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'Please enter a name for this reward.';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                decoration:
-                InputDecoration(labelText: 'Last Name'),
-                maxLength: 30,
-                textCapitalization: TextCapitalization.words,
-                controller: lastNameController,
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'Please enter a name for this reward.';
-                  }
-                  return null;
-                },
-              ),
-              Visibility(
-                visible: state is EnterFirstAndLastNameStateError,
-                child: Padding(
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Builder(
+          builder: (context) => Form(
+            key: _nameKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Center(
-                    child: Text(
-                        (state is EnterFirstAndLastNameStateError)?
-                        (state as EnterFirstAndLastNameStateError).message
-                            :
-                            ""
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'First Name',
+                        counterText: ''
+                    ),
+                    textCapitalization: TextCapitalization.sentences,
+                    maxLength: 20,
+                    controller: firstNameController,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Please enter your preferred first name.';
+                      }
+                      String text = firstNameController.text;
+                      firstNameController.text = text.substring(0,1).toUpperCase()+text.substring(1);
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Last Name',
+                      counterText: ''
+                    ),
+                    maxLength: 30,
+                    textCapitalization: TextCapitalization.words,
+                    controller: lastNameController,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Please enter your preferred last name.';
+                      }
+                      String text = lastNameController.text;
+                      lastNameController.text = text.substring(0,1).toUpperCase()+text.substring(1);
+                      return null;
+                    },
+                  ),
+                ),
+                Visibility(
+                  visible: state is EnterFirstAndLastNameStateError,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(
+                      child: Text(
+                          (state is EnterFirstAndLastNameStateError)?
+                          state.message
+                              :
+                              "",
+                        style: TextStyle(color: Theme.of(context).errorColor),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Expanded(
-                    child: RaisedButton(
-                      child: Text("Enter Different Code"),
-                      onPressed: (){
-                        _userCreationBloc.add(ReturnToEnterHouseCode());
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: (this.termsAndConditionsError)? Colors.red : Theme.of(context).cardColor,
+                    ),
+
+                    child: CheckboxListTile(
+                      value: this.agreeTermsAndConditions,
+                      onChanged: (val){
+                        setState(() {
+                          this.agreeTermsAndConditions = val;
+                          this.termsAndConditionsError = false;
+                        });
                       },
+                      controlAffinity: ListTileControlAffinity.leading,
+                      title: Text("I agree to the Terms & Conditions"),
+                      secondary: FlatButton(
+                        child: Text("Read"),
+                        onPressed: () async {
+                          await launch('/terms-and-conditions/');
+                        },
+                      ),
                     ),
                   ),
-                  Expanded(
-                    child: RaisedButton(
-                      child: Text("Join the House Competition"),
-                      onPressed: (){
-                        if(_nameKey.currentState.validate()){
-                          _userCreationBloc.add(JoinHouse(state.preview.houseCode.code, firstNameController.text, lastNameController.text));
-                        }
-                      },
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: (this.privacyPolicyError)? Colors.red : Theme.of(context).cardColor,
                     ),
-                  )
-                ],
-              )
-            ],
-          ),
-        )
+                    child: CheckboxListTile(
+                      value: this.agreePrivacyPolicy,
+                      onChanged: (val){
+                        setState(() {
+                          this.agreePrivacyPolicy = val;
+                          this.privacyPolicyError = false;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity.leading,
+                      title: Text("I have read and understood the privacy policy."),
+                      secondary: FlatButton(
+                        child: Text("Read"),
+                        onPressed: () async {
+                          await launch('/privacy/');
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: RaisedButton(
+                          child: Text("Enter a Different Code"),
+                          onPressed: (){
+                            _userCreationBloc.add(ReturnToEnterHouseCode());
+                          },
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: RaisedButton(
+                          child: Text("Join the House Competition",
+                            textAlign: TextAlign.center,
+                          ),
+                          onPressed: (){
+                            if(_nameKey.currentState.validate() && this.agreePrivacyPolicy && this.agreeTermsAndConditions){
+                              _userCreationBloc.add(JoinHouse(state.preview.houseCode.code, firstNameController.text, lastNameController.text));
+                            }
+                            else{
+                              print("First: "+firstNameController.text);
+                              setState(() {
+                                if(!this.agreePrivacyPolicy){
+                                  this.privacyPolicyError = true;
+                                }
+                                if(!this.agreeTermsAndConditions){
+                                  this.termsAndConditionsError = true;
+                                }
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ),
+          )
+      ),
     );
   }
 

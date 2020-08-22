@@ -1,11 +1,11 @@
 {
-    "name": "purduehcr_web",
-    "short_name": "purduehcr_web",
+    "name": "PurdueHCR",
+    "short_name": "PurdueHCR",
     "start_url": ".",
     "display": "minimal-ui",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "The best way to support your Honors House and claim victory on the House Cup",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

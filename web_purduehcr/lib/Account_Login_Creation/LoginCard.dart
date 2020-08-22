@@ -4,8 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/Account_Login_Creation/account_bloc/account.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 
-class LoginCard extends StatefulWidget{
-
+class LoginCard extends StatefulWidget {
   final String error;
 
   const LoginCard({Key key, this.error = ""}) : super(key: key);
@@ -14,16 +13,12 @@ class LoginCard extends StatefulWidget{
   State<StatefulWidget> createState() {
     return _LoginCardState();
   }
-
 }
 
-class _LoginCardState extends State<LoginCard>{
-
-
+class _LoginCardState extends State<LoginCard> {
   AccountBloc _accountBloc;
   final _passwordResetKey = GlobalKey<FormState>();
   TextEditingController passwordResetController = TextEditingController();
-
 
   @override
   void initState() {
@@ -35,10 +30,9 @@ class _LoginCardState extends State<LoginCard>{
   Widget build(BuildContext context) {
     TextEditingController emailController = TextEditingController();
     TextEditingController passwordController = TextEditingController();
-    if(_accountBloc.state is AccountPageLoading){
+    if (_accountBloc.state is AccountPageLoading) {
       return LoadingWidget();
-    }
-    else{
+    } else {
       return Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
         child: Card(
@@ -52,11 +46,7 @@ class _LoginCardState extends State<LoginCard>{
                   padding: EdgeInsets.fromLTRB(16, 25, 0, 0),
                   child: Text(
                     "Log in",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 32
-                    ),
-
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32),
                   ),
                 ),
                 Padding(
@@ -65,8 +55,7 @@ class _LoginCardState extends State<LoginCard>{
                     controller: emailController,
                     decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        labelText: 'Enter your email address'
-                    ),
+                        labelText: 'Enter your email address'),
                   ),
                 ),
                 Padding(
@@ -76,31 +65,26 @@ class _LoginCardState extends State<LoginCard>{
                     controller: passwordController,
                     decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        labelText: 'Enter your password'
-                    ),
+                        labelText: 'Enter your password'),
                   ),
                 ),
                 Visibility(
-                    visible:  widget.error.isNotEmpty,
+                    visible: widget.error.isNotEmpty,
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
-                      child: Text(widget.error,
-                        style: TextStyle(
-                            color: Colors.red
-                        ),
+                      child: Text(
+                        widget.error,
+                        style: TextStyle(color: Colors.red),
                       ),
-                    )
-                ),
-
+                    )),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-
                     Expanded(
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
                         child: RaisedButton(
-                          onPressed: (){
+                          onPressed: () {
                             _accountBloc.add(CreateAccountInitialize());
                           },
                           child: Text("Create an account"),
@@ -113,9 +97,12 @@ class _LoginCardState extends State<LoginCard>{
                         child: RaisedButton(
                           onPressed: () {
                             _accountBloc.add(SetAccountPageLoading());
-                            _accountBloc.add(Login(email: emailController.text, password: passwordController.text, ));
+                            _accountBloc.add(Login(
+                              email: emailController.text,
+                              password: passwordController.text,
+                            ));
                           },
-                          child:  Text("Log In"),
+                          child: Text("Log In"),
                         ),
                       ),
                     )
@@ -126,7 +113,7 @@ class _LoginCardState extends State<LoginCard>{
                   onPressed: () {
                     showDialog(
                         context: context,
-                        builder: (BuildContext context){
+                        builder: (BuildContext context) {
                           return AlertDialog(
                             title: Text("Reset Password"),
                             content: Form(
@@ -136,27 +123,34 @@ class _LoginCardState extends State<LoginCard>{
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text("To reset your password, enter your account email below. If it exists, we will send you an email with a link to reset your password."),
-                                    TextFormField(
-                                      decoration:
-                                      InputDecoration(labelText: 'Enter the email linked to your account'),
-                                      maxLines: null,
-                                      maxLength: 100,
-                                      controller: passwordResetController,
-                                      keyboardType: TextInputType.emailAddress,
-                                      autofillHints: [AutofillHints.email],
-                                      validator: (value) {
-                                        RegExp regExp = new RegExp(
-                                          r"[A-Z0-9a-z._%+-]+@purdue\.edu",
-                                        );
-                                        if (value.isEmpty) {
-                                          return 'Please enter an email address';
-                                        }
-                                        else if(!regExp.hasMatch(value)){
-                                          return 'Please enter a valid purdue email address';
-                                        }
-                                        return null;
-                                      },
+                                    Text(
+                                        "To reset your password, enter your account email below. If it exists, we will send you an email with a link to reset your password."),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                                      child: TextFormField(
+                                        decoration: InputDecoration(
+                                            border: OutlineInputBorder(),
+                                            labelText:
+                                                'Enter the email linked to your account',
+                                            counterText: ''
+                                        ),
+                                        maxLength: 100,
+                                        controller: passwordResetController,
+                                        keyboardType:
+                                            TextInputType.emailAddress,
+                                        autofillHints: [AutofillHints.email],
+                                        validator: (value) {
+                                          RegExp regExp = new RegExp(
+                                            r"[A-Z0-9a-z._%+-]+@purdue\.edu",
+                                          );
+                                          if (value.isEmpty) {
+                                            return 'Please enter an email address';
+                                          } else if (!regExp.hasMatch(value)) {
+                                            return 'Please enter a valid purdue email address';
+                                          }
+                                          return null;
+                                        },
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -165,23 +159,24 @@ class _LoginCardState extends State<LoginCard>{
                             actions: [
                               RaisedButton(
                                 child: Text("Cancel"),
-                                onPressed: (){
+                                onPressed: () {
                                   Navigator.of(context).pop();
                                 },
                               ),
                               RaisedButton(
                                 child: Text("Request Email"),
-                                onPressed: (){
-                                  if(_passwordResetKey.currentState.validate()){
-                                    _accountBloc.add(SendPasswordResetEmail(passwordResetController.text) );
+                                onPressed: () {
+                                  if (_passwordResetKey.currentState
+                                      .validate()) {
+                                    _accountBloc.add(SendPasswordResetEmail(
+                                        passwordResetController.text));
                                     Navigator.of(context).pop();
                                   }
                                 },
                               )
                             ],
                           );
-                        }
-                    );
+                        });
                   },
                 )
               ],
@@ -190,7 +185,5 @@ class _LoginCardState extends State<LoginCard>{
         ),
       );
     }
-
   }
-
 }

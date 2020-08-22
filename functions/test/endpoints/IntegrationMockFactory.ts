@@ -79,7 +79,7 @@ export function mockConfig(){
     test.mockConfig(
         { 
             otc: { 
-            secret:"SUPERDUPERSECRET"
+                secret:"SUPERDUPERSECRET"
             }, 
             fb: {
                 token:"TEST"
@@ -90,8 +90,10 @@ export function mockConfig(){
                 key:"keykeykeykey" 
             },
             email_auth: {
-                user: "email",
-                pass: "password"
+                email: "email",
+                client_id: "password",
+                client_secret: "secret",
+                refresh_token: "token"
             }
         }
     );

@@ -7,6 +7,7 @@ import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:purduehcr_web/Utility_Views/PhcrDrawer.dart';
+import 'package:purduehcr_web/Utility_Views/TopBanner.dart';
 import 'package:purduehcr_web/authentication/authentication.dart';
 
 
@@ -91,6 +92,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
                         leading: buildLeadingButton(DisplayType.desktop_large),
                         actions: buildActions(DisplayType.desktop_large),
                       ),
+                      _buildTopBanner(),
                       Expanded(
                           child: child
                       ),
@@ -139,6 +141,7 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
                         leading: buildLeadingButton(DisplayType.desktop_small),
                         actions: buildActions(DisplayType.desktop_small),
                       ),
+                      _buildTopBanner(),
                       Expanded(
                           child: child
                       ),
@@ -180,8 +183,13 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
               actions: buildActions(DisplayType.mobile),
             ),
             drawer: PhcrDrawer(this.drawerLabel),
-            body: child,
             floatingActionButton: buildFloatingActionButton(context),
+            body: Column(
+              children: [
+                _buildTopBanner(),
+                Expanded(child: child)
+              ],
+            ),
         );
         break;
     }
@@ -232,6 +240,21 @@ abstract class BasePageState<B extends Bloc<E, S>,E, S> extends State<BasePage> 
   }
 
   List<Widget> buildActions(DisplayType displayType){
+    return null;
+  }
+
+  Widget _buildTopBanner(){
+    TopBanner banner = getTopBanner();
+    if(banner == null){
+      return SizedBox.shrink();
+    }
+    else{
+      return banner;
+    }
+  }
+
+  ///Builds a banner at the top of the screen
+  TopBanner getTopBanner(){
     return null;
   }
 

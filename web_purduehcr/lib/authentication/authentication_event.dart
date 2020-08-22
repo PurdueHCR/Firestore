@@ -36,3 +36,7 @@ class CreatedUser extends AuthenticationEvent {
 }
 
 class LoggedOut extends AuthenticationEvent {}
+
+class UpdateUser extends AuthenticationEvent{
+
+}

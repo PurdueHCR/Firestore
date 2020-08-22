@@ -7,6 +7,7 @@
     "source": "functions"
   },
   "hosting": {
+    "site": "purduehcr",
     "public": "public",
     "ignore": [
       "firebase.json",
@@ -15,21 +16,27 @@
     ],
     "headers": [
       {
-        "source": "/**",
+        "source": "**/*.html",
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "no-cache, no-store, must-revalidate"
+            "value": "no-cache, max-age=0"
           }
         ]
       },
       {
-        "source":
-          "**/*.@(jpg|jpeg|gif|png|svg|webp|js|css|eot|otf|ttf|ttc|woff|woff2|font.css)",
+        "source": "**/*.js",
+        "headers" : [{
+          "key" : "Cache-Control",
+	  "value" : "max-age=0, no-cache"
+	}]
+      },
+      {
+        "source": "**/*.@(jpg|jpeg|gif|png)",
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "max-age=604800"
+            "value": "max-age=3300"
           }
         ]
       }

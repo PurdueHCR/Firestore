@@ -34,6 +34,8 @@ class _HistoryPageState
 
   _HistoryPageState(String drawerLabel) : super(drawerLabel);
 
+  bool searchError = false;
+
 
   @override
   void didChangeDependencies() {
@@ -92,7 +94,11 @@ class _HistoryPageState
         );
       }
       else{
-        return buildBottomView(context, state);
+        return Column(
+          children: [
+            buildBottomView(context, state)
+          ],
+        );
       }
     }
 
@@ -120,7 +126,11 @@ class _HistoryPageState
         );
       }
       else{
-        return buildBottomView(context, state);
+        return Column(
+          children: [
+            buildBottomView(context, state)
+          ],
+        );
       }
     }
 
@@ -310,10 +320,12 @@ class _HistoryPageState
                         setState(() {
                           if (_selectedDate == null) {
                             recentController.text = "";
+                            searchError = false;
                           }
                           else {
                             recentController.text =
                                 DateFormat.yMd('en_US').format(_selectedDate);
+                            searchError = false;
                           }
                         });
                       },
@@ -348,7 +360,15 @@ class _HistoryPageState
                         enabledBorder: InputBorder.none,
                         errorBorder: InputBorder.none,
                         disabledBorder: InputBorder.none,
+                          fillColor: (searchError)? Colors.red : Colors.grey,
+                          filled: searchError
                       ),
+
+                      onChanged: (text){
+                        setState(() {
+                          searchError = false;
+                        });
+                      },
                     )
                         : TextField(
                       controller: pointTypeController,
@@ -359,14 +379,18 @@ class _HistoryPageState
                         enabledBorder: InputBorder.none,
                         errorBorder: InputBorder.none,
                         disabledBorder: InputBorder.none,
+                        fillColor: (searchError)? Colors.red : Colors.grey,
+                        filled: searchError
                       ),
                       onChanged: (val) {
                         setState(() {
                           if (_selectedPointType == null) {
                             pointTypeController.text = "";
+                            searchError = false;
                           }
                           else {
                             pointTypeController.text = _selectedPointType.name;
+                            searchError = false;
                           }
                         });
                       },
@@ -409,9 +433,12 @@ class _HistoryPageState
                             }
                         );
                         setState(() {
-                          _selectedPointType = pt;
-                          FocusScope.of(context).unfocus();
-                          pointTypeController.text = _selectedPointType.name;
+                          if(pt != null){
+                            _selectedPointType = pt;
+                            FocusScope.of(context).unfocus();
+                            pointTypeController.text = _selectedPointType.name;
+                            searchError = false;
+                          }
                         });
                       },
                     ),
@@ -426,12 +453,25 @@ class _HistoryPageState
                         _historyBloc.add(SearchRecent(date: _selectedDate));
                       }
                       else if (state.searchType == "user") {
-                        _historyBloc.add(SearchUser(userLastName: userController
-                            .text));
+                        if(userController.text.isNotEmpty){
+                          _historyBloc.add(SearchUser(userLastName: userController.text));
+                        }
+                        else{
+                          setState(() {
+                            searchError = true;
+                          });
+                        }
                       }
                       else {
-                        _historyBloc.add(
-                            SearchPointType(pointType: _selectedPointType));
+                        if(_selectedPointType != null){
+                          _historyBloc.add(
+                              SearchPointType(pointType: _selectedPointType));
+                        }
+                        else{
+                          setState(() {
+                            searchError = true;
+                          });
+                        }
                       }
                     },
                   ),

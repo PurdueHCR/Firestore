@@ -19,7 +19,7 @@ export async function resetHouseCompetition(user:User){
 
     let fb:{token:string}
         if(functions.config().fb === undefined || functions.config().fb.token === ""){
-            fb = require('../../development_keys/fb_token.json')
+            fb = require('../../development_keys/keys.json').fb
         }
         else{
             fb = functions.config().fb

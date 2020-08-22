@@ -9,7 +9,6 @@ import { updatePointType } from '../src/UpdatePointType'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { getPointTypes } from '../src/GetPointTypes'
 import { createPointType } from '../src/CreatePointType'
-import { getSystemPreferences } from '../src/GetSystemPreferences'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 import { getPointTypeById } from '../src/GetPointTypeById'
 import * as ParameterParser from '../src/ParameterParser'
@@ -234,16 +233,9 @@ pt_app.post('/', async (req, res) => {
 
 pt_app.get('/submittable', async (req, res) => { 
 	try{
-		const system_preferences = await getSystemPreferences()
-		if(system_preferences.isCompetitionEnabled){
-			const user = await getUser(req["user"]["user_id"])
+		const user = await getUser(req["user"]["user_id"])
 			const user_pts = await getSubmittablePointTypes(user)
 			res.status(APIResponse.SUCCESS_CODE).send({point_types:user_pts})
-		}
-		else{
-			const apiResponse = APIResponse.CompetitionDisabled()
-			res.status(apiResponse.code).send(apiResponse.toJson())
-		}
 		
 	}
 	catch(error){
