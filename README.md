@@ -4,29 +4,44 @@ PurdueHCR Firestore is the repository for the PurdueHCR web app and the PurdueHC
 
 ## Installation
 
-To install, open a bash terminal, navigate to the directory where you want to download this repository, and run 
-```
-git clone https://github.com/PurdueHCR/Firestore.git
-cd Firestore
-./purduehcr install    
-```
 
-## Usage
-Before you build and run the web app or functions, contact the PurdueHCR team to get the required configuration files. You will need:
-- dev.json
-- test.json
-- Purdue_HCR_TEST.json
+## Running
 
-To build the web page and the functions for a specific environment run `./purduehcr build <env>` where env is replaced with dev, test, or prod.
+## Deployment Instructions
+To deploy the project, make sure you have the minimum requirements
 
-To run the app locally, make sure you build first, then run ```firebase emulators:start``` This will create emulators on your computer for hosting, functions, and firestore. 
+### Key Files
+- Web
+    - prod.json
+    - test.json
+- Functions
+    - production_config.sh
+    - test_config.sh
 
-By default, your functions emulator will look at your local firestore instance for its data, so to tell your emulator to look at the TEST environment, you need to export the environment variable GOOGLE\_APPLICATION\_CREDENTIALS with the path to the Purdue\_HCR\_TEST.json file.
-```
-export GOOGLE_APPLICATION_CREDENTIALS=<PATH_TO_FILE>/Purdue_HCR_TEST.json
-```
+### Setup Minimum Dependencies
+1. Run `npm --version` to confirm version is at least 6.10.0
+2. Install the latest version of firebase-tools using npm. `npm install -g firebase-tools`
+3. Run `firebase login` and log into your firebase account.
+4. Run `firebase projects:list`and ensure that you have access to the firebase project you are deploying to. 
+    - If you don't see the project in that list, talk to an exec member to get access to the project.
 
-For more information on how to run the web page or the cloud functions, refer to the [Web](/web_purduehcr/README.md) or [Functions](/functions/README.md) README files.
+### Deploy
+1. If you are deploying the web version, Navigate to 'web_purduehcr/lib/Configuration/env'
+    1. Ensure that you have the following file for your target enviornment
+        - dev.json
+        - test.json
+        - prod.json
+    2. Delete all files that end in .g.dart
+    3. Run `flutter packages pub run build_runner build --delete-conflicting-outputs` to rebuild the .g.dart files with the correct information
+2. If you are deploying functions, in the root project directory run either `./production_config.sh` or `./test_config.sh` depending on your target environment
+3. In the root project directory run `./purduehcr build prod` or `./purduehcr build test`
+4. Modify the file firebase.json
+    - If deploying to test, make sure `site: purduehcr` is removed from line 11
+    - If deploying to prod, make sure `site: purduehcr` is added on line 11
+5. Run `firebase deploy` 
+    - Option `--only functions` 
+    - Option `--only hosting`
+
 
 ## Testing 
 To run UI, Integration, and Unit tests, run the command 
