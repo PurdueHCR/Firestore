@@ -17,6 +17,50 @@ export declare type AllHousesOptions = {
     titanium?:HouseOptions
 }
 
+export const ALL_HOUSE_DEFAULTS: AllHousesOptions = {
+    copper: {
+        color: "#5AC0C7",
+        total_points: 20,
+        num_residents: 200,
+        floor_ids: ["2N", "2S"],
+        downloadURL: "DOWNLOAD_URL",
+        description: "This is a pretty amazing house. Kudos if you are in the house."
+    },
+    palladium: {
+        color: "#5AC0C7",
+        total_points: 20,
+        num_residents: 200,
+        floor_ids: ["3N", "3S"],
+        downloadURL: "DOWNLOAD_URL",
+        description: "This is a pretty amazing house. Kudos if you are in the house."
+    },
+    platinum: {
+        color: "#5AC0C7",
+        total_points: 20,
+        num_residents: 200,
+        floor_ids: ["4N", "4S"],
+        downloadURL: "DOWNLOAD_URL",
+        description: "This is a pretty amazing house. Kudos if you are in the house."
+    },
+    silver: {
+        color: "#5AC0C7",
+        total_points: 20,
+        num_residents: 200,
+        floor_ids: ["5N", "5S"],
+        downloadURL: "DOWNLOAD_URL",
+        description: "This is a pretty amazing house. Kudos if you are in the house."
+    },
+    titanium: {
+        color: "#5AC0C7",
+        total_points: 20,
+        num_residents: 200,
+        floor_ids: ["6N", "6S"],
+        downloadURL: "DOWNLOAD_URL",
+        description: "This is a pretty amazing house. Kudos if you are in the house."
+    }
+
+}
+
 ///----------------------------------------------------------------
 
 ///------------------------ House Code OPTIONS -------------------
@@ -27,6 +71,7 @@ export declare type HouseCodeOptions = {
     floor_id?: string,
     house?: string,
     permission_level?: number
+    
 }
 
 export const HOUSE_CODE_DEFAULTS:HouseCodeOptions = {
@@ -45,12 +90,18 @@ export declare type HouseOptions = {
     color?: string
     num_residents?: number
     total_points?: number
+    downloadURL?: string
+    floor_ids?: string[]
+    description?: string
 }
 
 export const HOUSE_DEFAULTS:HouseOptions = {
     color: "#5AC0C7",
     total_points: 20,
-    num_residents: 200
+    num_residents: 200,
+    floor_ids: ["4N", "4S"],
+    downloadURL: "DOWNLOAD_URL",
+    description: "This is a pretty amazing house. Kudos if you are in the house."
 }
 
 ///----------------------------------------------------------------
@@ -161,15 +212,18 @@ export const POINT_TYPE_DEFAULTS:PointTypeOptions = {
 ///------------------------- Reward Options -----------------------
 
 export declare type RewardOptions = {
-    id?: string
-    required_ppr?: number,
-    required_value?: number
+    required_ppr?: number
+    file_name?: string
+    name?: string
+    downloadURL?:string
 }
 
 export const REWARD_DEFAULTS:RewardOptions = {
-    id: "Pizza Party",
     required_ppr: 100,
-    required_value: 20000
+    file_name: "EMPTY_FILE_NAME",
+    name:"COOL REWARD",
+    downloadURL:"DOWNLOAD_URL"
+
 }
 
 ///----------------------------------------------------------------
@@ -185,6 +239,7 @@ export declare type SystemPreferenceOptions = {
     is_competition_visible?: boolean
     is_house_enabled?: boolean
     suggested_point_ids?: string
+    houseIds?: string[]
 };
 
 export const SYSTEM_PREFERENCES_DEFAULTS:SystemPreferenceOptions = {
@@ -196,6 +251,7 @@ export const SYSTEM_PREFERENCES_DEFAULTS:SystemPreferenceOptions = {
     is_competition_visible: true,
     is_house_enabled: true,
     suggested_point_ids: "1,2,3,4",
+    houseIds: ["Copper","Palladium","Platinum","Silver","Titanium"]
 }
 
 ///----------------------------------------------------------------
@@ -208,7 +264,8 @@ export declare type UserOptions = {
     house_name?:string,
     last?:string,
     semester_points?:number,
-    total_points?:number
+    total_points?:number,
+    enabled?:boolean
 }
 
 export const USER_DEFAULTS:UserOptions = {
@@ -217,8 +274,36 @@ export const USER_DEFAULTS:UserOptions = {
     total_points: 0,
     semester_points: 0,
     house_name: "Platinum",
-    floor_id: "4N"
+    floor_id: "4N",
+    enabled: true
 }
 
+///----------------------------------------------------------------
+
+///------------------------- Event OPTIONS ------------------------
+
+export declare type EventOptions = {
+    name?: string,
+    details?: string,
+    date?: Date,
+    location?: string,
+    points?: number,
+    point_type_id?: number,
+    point_type_name?: string,
+    point_type_description?: string,
+    house?: string
+}
+
+export const EVENT_DEFAULTS:EventOptions = {
+    name: "TEST_NAME",
+    details: "TEST_DETAILS",
+    date: new Date(),
+    location: "TEST_LOCATION",
+    points: 1,
+    point_type_id: 1,
+    point_type_name: "TEST_TYPE_NAME",
+    point_type_description: "TEST_TYPE_DESCRIPTION",
+    house: "All Houses"
+}
 ///----------------------------------------------------------------
 

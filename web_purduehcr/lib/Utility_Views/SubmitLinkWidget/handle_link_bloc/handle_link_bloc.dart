@@ -1,19 +1,18 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
-import 'package:purduehcr_web/Config.dart';
-import 'package:purduehcr_web/LinkPage/link_bloc/link.dart';
+import 'package:purduehcr_web/Configuration/Config.dart';
 import 'package:purduehcr_web/Models/ApiError.dart';
 import 'package:purduehcr_web/Models/Link.dart';
+import 'package:purduehcr_web/Authentication_Bloc/authentication.dart';
 import 'handle_link.dart';
 
 
 class HandleLinkBloc extends Bloc<HandleLinkEvent, HandleLinkState>{
   HandleLinkRepository _handleLinkRepository;
+  AuthenticationBloc authenticationBloc;
   final Config config;
 
-  HandleLinkBloc({ @required this.config})  :
-        assert(config != null){
+  HandleLinkBloc(this.config, this.authenticationBloc){
     this._handleLinkRepository = new HandleLinkRepository(config);
   }
 
@@ -47,6 +46,7 @@ class HandleLinkBloc extends Bloc<HandleLinkEvent, HandleLinkState>{
         }
         else if(apiError.errorCode == 202){
           yield SubmitLinkForPointsSuccess(message: "Congrats! Your point submission has been recorded and you've got your points!");
+          authenticationBloc.add(UpdateUser());
         }
         else if(apiError.errorCode == 407){
           yield HandleLinkError(message: "Sorry, this link is currently disabled. Talk to whoever gave you the link about enabling it.");

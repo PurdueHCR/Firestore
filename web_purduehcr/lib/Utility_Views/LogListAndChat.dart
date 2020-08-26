@@ -13,8 +13,9 @@ class LogListAndChat extends StatelessWidget{
   final bool searchable;
   final bool showLoadMore;
   final Function loadMore;
+  final String house; // included for if Professional staff need it
 
-  const LogListAndChat({Key key, this.logs, this.onPressed, this.selectedPointLog, this.searchable = true, this.showLoadMore = false, this.loadMore}) : super(key: key);
+  const LogListAndChat({Key key, this.logs, this.onPressed, this.selectedPointLog, this.searchable = true, this.showLoadMore = false, this.loadMore, this.house}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,14 +33,15 @@ class LogListAndChat extends StatelessWidget{
                   searchable: searchable,
                   showLoadMoreButton: showLoadMore,
                   loadMore: loadMore,
+                  selectedItem: selectedPointLog,
               ),
             ),
           ),
-          VerticalDivider(),
           Flexible(
               child: PointLogChat(
                   key: ObjectKey(selectedPointLog),
-                  pointLog: selectedPointLog
+                  pointLog: selectedPointLog,
+                  house: house,
               )
           )
         ],
@@ -53,12 +55,14 @@ class LogListAndChat extends StatelessWidget{
             searchable: searchable,
             showLoadMoreButton: showLoadMore,
             loadMore: loadMore,
+            selectedItem: selectedPointLog,
         );
       }
       else{
         return PointLogChat(
             key: ObjectKey(selectedPointLog),
-            pointLog: selectedPointLog
+            pointLog: selectedPointLog,
+            house: house
         );
       }
     }

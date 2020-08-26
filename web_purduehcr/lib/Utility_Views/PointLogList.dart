@@ -10,8 +10,10 @@ class PointLogList extends StatefulWidget{
   final bool searchable;
   final bool showLoadMoreButton;
   final Function loadMore;
+  final bool shrinkWrap;
+  final PointLog selectedItem;
 
-  const PointLogList({Key key, @required this.pointLogs, @required this.onPressed, this.searchable = true, this.showLoadMoreButton = false, this.loadMore}):
+  const PointLogList({Key key, @required this.pointLogs, @required this.onPressed, this.searchable = true, this.showLoadMoreButton = false, this.loadMore, this.shrinkWrap = false, this.selectedItem}):
         assert(pointLogs != null), assert(onPressed != null), super(key: key);
 
   @override
@@ -39,7 +41,7 @@ class _PointLogListState extends State<PointLogList>{
     }
     else{
       mainContent = ListView.builder(
-//        shrinkWrap: true,
+        shrinkWrap: widget.shrinkWrap,
         itemCount: (this.widget.showLoadMoreButton)? visibleLogs.length + 1 : visibleLogs.length,
         itemBuilder: (BuildContext context, int index){
           if(index == visibleLogs.length){
@@ -50,7 +52,7 @@ class _PointLogListState extends State<PointLogList>{
           }
           else{
             return Card(
-              child: PointLogListTile(pointLog: visibleLogs[index], onTap: widget.onPressed),
+              child: PointLogListTile(pointLog: visibleLogs[index], onTap: widget.onPressed, selected: visibleLogs[index] == widget.selectedItem,),
             );
           }
         },
@@ -58,11 +60,14 @@ class _PointLogListState extends State<PointLogList>{
     }
 
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.max,
       children: [
         Visibility(
             visible: widget.searchable,
-            child: SearchBar(onValueChanged: _onValueChanged)
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: SearchBar(onValueChanged: _onValueChanged),
+            )
         ),
         Expanded(child: mainContent)
       ],
@@ -89,16 +94,18 @@ class _PointLogListState extends State<PointLogList>{
 
 class PointLogListTile extends StatelessWidget{
   final PointLog pointLog;
+  final bool selected;
   final Function(BuildContext context, PointLog pointLog) onTap;
 
-  const PointLogListTile({Key key, @required this.pointLog, @required this.onTap}):
+  const PointLogListTile({Key key, @required this.pointLog, @required this.onTap, this.selected}):
         assert(pointLog != null), assert(onTap != null), super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      selected: selected,
       onTap: () => onTap(context, pointLog),
-      title: Text(pointLog.residentFirstName),
+      title: Text(pointLog.residentFirstName + " "+ pointLog.residentLastName),
       subtitle: Text(pointLog.description),
       leading: PointLogStatusWidget(pointLog: pointLog),
       trailing: DateWidget(date: pointLog.dateOccurred),
@@ -109,7 +116,8 @@ class PointLogListTile extends StatelessWidget{
 
 class DateWidget extends StatelessWidget {
   final DateTime date;
-  const DateWidget({@required this.date});
+  final TextStyle style;
+  const DateWidget({@required this.date, this.style});
 
   @override
   Widget build(BuildContext context) {
@@ -118,8 +126,8 @@ class DateWidget extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(monthFormatter.format(date)),
-        Text(dayFormatter.format(date)),
+        Text(monthFormatter.format(date), style: style,),
+        Text(dayFormatter.format(date), style: style,),
       ],
     );
   }

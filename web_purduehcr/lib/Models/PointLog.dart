@@ -79,19 +79,20 @@ class PointLog{
   }
 
   void approve(){
-    if(wasHandled()){
-      description.replaceAll(REJECTED_STRING, "");
+    if(description.contains(REJECTED_STRING)){
+      print("PLASE REPLACE");
+      description = description.substring(REJECTED_STRING.length);
     }
-    else{
-      pointTypeId *= -1;
-    }
+    print("DESCRIPTION: $description");
+    pointTypeId = pointTypeId.abs();
+
   }
 
   void reject(){
-    if(!wasHandled()){
-      pointTypeId *= -1;
+    if(!description.contains(REJECTED_STRING)){
+      description = REJECTED_STRING + description;
     }
-    description = REJECTED_STRING + description;
+    pointTypeId = pointTypeId.abs();
   }
 
   bool wasApproved(){

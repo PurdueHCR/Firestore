@@ -24,26 +24,27 @@ export function createUser(id: string, permission_level: number, uOpts:Options.U
     const last = (uOpts.last !== undefined)? uOpts.last:Options.USER_DEFAULTS.last!
     const sem_points = (uOpts.semester_points !== undefined)? uOpts.semester_points: Options.USER_DEFAULTS.semester_points!
     const points = (uOpts.total_points !== undefined)? uOpts.total_points: Options.USER_DEFAULTS.total_points!
+    const enabled = (uOpts.enabled !== undefined)? uOpts.enabled : Options.USER_DEFAULTS.enabled!
     switch(permission_level){
         case 0:
             // Resident
-            return new User(first,floor_id,house,last,sem_points,permission_level,points,id)
+            return new User(first,floor_id,house,last,sem_points,permission_level,points,enabled,id)
         case 1:
             //RHP
-            return new User(first,floor_id,house,last,sem_points,permission_level,points,id)
+            return new User(first,floor_id,house,last,sem_points,permission_level,points,enabled,id)
         case 2:
             //REC
-            return new User(first,"","",last,-1,permission_level,-1,id)
+            return new User(first,"","",last,-1,permission_level,-1,enabled,id)
         case 3:
             //FHP
-            return new User(first,"",house,last,-1,permission_level,-1,id)
+            return new User(first,"",house,last,-1,permission_level,-1,enabled,id)
         case 4:
             //Privileged Resident
-            return new User(first,floor_id,house,last,sem_points,permission_level,points,id)
+            return new User(first,floor_id,house,last,sem_points,permission_level,points,enabled,id)
         case 5:
             //Non-Honors Affiliated Staff
-            return new User(first,"","",last,-1,permission_level,-1,id)
+            return new User(first,"","",last,-1,permission_level,-1,enabled,id)
         default:
-            return new User(first,floor_id,house,last,sem_points,permission_level,points,id)
+            return new User(first,floor_id,house,last,sem_points,permission_level,points,enabled,id)
     }
 }

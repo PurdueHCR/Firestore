@@ -1,5 +1,5 @@
 import * as functions from 'firebase-functions'
-import { authenticator } from 'otplib'
+import { totp } from 'otplib'
 import {APIResponse} from '../models/APIResponse'
 
 /**
@@ -8,13 +8,15 @@ import {APIResponse} from '../models/APIResponse'
 export function generateOneTimeCode():string {
     let secret:string
     if(functions.config().otc === undefined || functions.config().otc.secret === ""){
-        const data = require('../../development_keys/otc_secret.json')
+        const data = require('../../development_keys/keys.json').otc
         secret = data.secret
     }
     else{
         secret = functions.config().otc.secret
     }
-    return authenticator.generate(secret)
+    //Set timeout to 5 minutes (60 * 5)
+    totp.options = {step:300}
+    return totp.generate(secret)
 }
 
 /**
@@ -28,13 +30,15 @@ export function verifyOneTimeCode(token:string){
     try {
         let secret:string
         if(functions.config().otc === undefined || functions.config().otc.secret === ""){
-            secret = require('../../development_keys/otc_secret.json')["secret"]
+            secret = require('../../development_keys/keys.json').otc.secret
         }
         else{
             secret = functions.config().otc.secret
         }
-    
-         isValid =  authenticator.check(token, secret);
+        
+        //Set timeout to 5 minutes (60 * 5)
+        totp.options = {step:300}
+        isValid =  totp.check(token, secret);
         
     } 
     catch (err) {

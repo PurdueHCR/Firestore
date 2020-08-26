@@ -1,5 +1,6 @@
 import { MessageType } from './MessageType'
 import { UserPermissionLevel } from './UserPermissionLevel'
+import { User } from './User'
 
 export class PointLogMessage {
     static CREATION_DATE = "CreationDate"
@@ -38,7 +39,19 @@ export class PointLogMessage {
     }
 
     static getPreaprovedMessage(): PointLogMessage {
-        return new PointLogMessage(new Date(), "Preapproved", MessageType.APPROVE, "PurdueHCR", "", UserPermissionLevel.RHP)
+        return new PointLogMessage(new Date(), "Preapproved", MessageType.APPROVE, "Purdue", "HCR", UserPermissionLevel.RHP)
+    }
+
+    static getApprovalMessage(approvingUser: User): PointLogMessage {
+        return new PointLogMessage(new Date(), `${approvingUser.getFullName()} approved this point submission.`, MessageType.APPROVE, "Purdue", "HCR", approvingUser.permissionLevel)
+    }
+
+    static getRejectionMessage(rejectingUser: User, reason: string): PointLogMessage {
+        let message = reason
+        if(!(message.charAt(reason.length - 1) in ['?', '.', '!'])){
+            message += "."
+        }
+        return new PointLogMessage(new Date(), `${rejectingUser.getFullName()} rejected this point submission with the reason: ${message}`, MessageType.APPROVE, "Purdue", "HCR", rejectingUser.permissionLevel)
     }
 
     static fromQuerySnapshot(snapshot: FirebaseFirestore.QuerySnapshot): PointLogMessage[] {

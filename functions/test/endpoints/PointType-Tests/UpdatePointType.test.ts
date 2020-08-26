@@ -31,7 +31,7 @@ declare type UpdateBody = {
 
 
 //Test Suite GetUser
-describe('point_type/', () =>{
+describe('PUT point_type/', () =>{
 
     beforeAll(async () => {
         IntegrationMockFactory.mockFirebaseAdmin()
@@ -45,6 +45,8 @@ describe('point_type/', () =>{
         await FirestoreDataFactory.setUser(db, FHP_ID, 3)
         await FirestoreDataFactory.setUser(db, PRIV_RESIDENT_ID, 4)
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
+        await FirestoreDataFactory.setAllHouses(db, {})
+        await FirestoreDataFactory.setSystemPreference(db)
 
     })
 
@@ -261,6 +263,10 @@ describe('point_type/', () =>{
                 expect(pt.PermissionLevel).toBe(3)
                 expect(pt.ResidentsCanSubmit).toBeFalsy()
                 expect(pt.Value).toBe(10)
+
+                const housePointTypeCategory = await db.collection("House").doc("Platinum").collection("Details").doc("PointTypes").get()
+                expect(housePointTypeCategory.data()!["1"].name).toBe("NEW_NAME")
+
                 done()
             }
         })

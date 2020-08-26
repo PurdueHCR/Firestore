@@ -1,24 +1,26 @@
 import 'dart:async';
 
-import 'package:firebase/firebase.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:purduehcr_web/Config.dart';
-import 'package:purduehcr_web/ConfigWrapper.dart';
+import 'package:intl/intl.dart';
+import 'package:linkable/linkable.dart';
+import 'package:purduehcr_web/Configuration/Config.dart';
+import 'package:purduehcr_web/Configuration/ConfigWrapper.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
 import 'package:purduehcr_web/Models/PointLogMessage.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:purduehcr_web/Utility_Views/PointLogChat/point_log_chat_bloc/point_log_chat.dart';
-import 'package:purduehcr_web/Utility_Views/RichTextView.dart';
-import 'package:purduehcr_web/authentication/authentication.dart';
+import 'package:purduehcr_web/Utility_Views/PointLogList.dart';
+import 'package:purduehcr_web/Authentication_Bloc/authentication.dart';
 
 class PointLogChat extends StatefulWidget{
   final PointLog pointLog;
+  final String house; // included for when Professional staff need to use this
 
-  const PointLogChat({Key key, this.pointLog}) : super(key:key);
+  const PointLogChat({Key key, this.pointLog, this.house}) : super(key:key);
 
   @override
   State<StatefulWidget> createState() {
@@ -42,7 +44,7 @@ class _PointLogChatState extends State<PointLogChat>{
   void didChangeDependencies() {
     super.didChangeDependencies();
     Config config = ConfigWrapper.of(context);
-    _pointLogChatBloc = new PointLogChatBloc(config: config );
+    _pointLogChatBloc = new PointLogChatBloc(config: config, house: widget.house);
 
     authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     authState = authenticationBloc.state;
@@ -79,19 +81,82 @@ class _PointLogChatState extends State<PointLogChat>{
 
   Widget buildPointLogCard(){
     return Card(
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(widget.pointLog.residentFirstName + " " +widget.pointLog.residentLastName),
-              Text(widget.pointLog.description),
-              Text(widget.pointLog.pointTypeName),
-              Text(widget.pointLog.pointTypeDescription)
-            ],
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              fit: FlexFit.loose,
+              child: Row(
+                children: [
+                 Flexible(
+                   flex: 5,
+                   fit: FlexFit.loose,
+                   child: Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       Text(widget.pointLog.description,
+                         style: Theme.of(context).textTheme.headline5,
+                       ),
+                       Text(widget.pointLog.residentFirstName + " " +widget.pointLog.residentLastName,
+                         style: Theme.of(context).textTheme.bodyText2,
+                       ),
+                     ],
+                   ),
+                 ),
+                  Flexible(
+                    flex: 1,
+                    child: Center(
+                        child: DateWidget(date: widget.pointLog.dateOccurred, style: Theme.of(context).textTheme.headline5,)
+                    ),
+                    fit: FlexFit.loose,
+                  )
+                ],
+              ),
+            ),
+            Flexible(
+              fit: FlexFit.loose,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                child: Text("Point Category",
+                style: Theme.of(context).textTheme.headline6,
+                ),
+              ),
+            ),
+            Flexible(
+              fit: FlexFit.loose,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                child: Text(widget.pointLog.pointTypeName,
+                  style: Theme.of(context).textTheme.bodyText2,
+                ),
+              ),
+            ),
+            Flexible(
+              fit: FlexFit.loose,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                child: Text(widget.pointLog.pointTypeDescription,
+                  style: Theme.of(context).textTheme.bodyText2,
+                ),
+              ),
+            ),
+            Flexible(
+              fit: FlexFit.loose,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
+                child: Text("Submitted on ${DateFormat.yMd('en_US').format(widget.pointLog.dateSubmitted)} ${DateFormat.jm('en_US').format(widget.pointLog.dateSubmitted)}",
+                style: TextStyle(
+                    fontSize: 10,
+                    color: Theme.of(context).textTheme.bodyText2.color
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
       )
     );
   }
@@ -202,16 +267,18 @@ class _PointLogChatState extends State<PointLogChat>{
           // Edit text
           Flexible(
             child: Container(
-              child: TextField(
-                onSubmitted: (String value) => postMessage(),
-                controller: _textController,
-                style: TextStyle(color: Colors.black, fontSize: 15.0),
-                //controller: textEditingController,
-                decoration: InputDecoration.collapsed(
-                  hintText: 'Type your message...',
-                  hintStyle: TextStyle(color: Colors.grey),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: TextField(
+                  onSubmitted: (String value) => postMessage(),
+                  controller: _textController,
+                  style: TextStyle(color: Colors.black, fontSize: 15.0),
+                  //controller: textEditingController,
+                  decoration: InputDecoration.collapsed(
+                    hintText: 'Type your message...',
+                    hintStyle: TextStyle(color: Colors.grey),
+                  ),
                 ),
-//                focusNode: focusNode,
               ),
             ),
           ),
@@ -264,12 +331,12 @@ class _PointLogChatState extends State<PointLogChat>{
           senderLastName: authState.user.lastName,
           senderPermissionLevel: authState.user.permissionLevel.index
       );
-      _pointLogChatBloc.add(RejectPointLog(message: plm));
+      _pointLogChatBloc.add(RejectPointLog(message: plm, user: authState.user));
     }
   }
 
   void approve(){
-    _pointLogChatBloc.add(ApprovePointLog());
+    _pointLogChatBloc.add(ApprovePointLog(authState.user));
   }
 
   Future<String> getRejectionMessage() async {
@@ -340,9 +407,10 @@ class PointLogMessageTile extends StatelessWidget{
                   color: Colors.lightBlue,
                   child: Padding(
                     padding: EdgeInsets.all(8),
-                    child: RichTextView(
+                    child: Linkable(
                       text: message.message,
-                      style: TextStyle(color: Colors.white),
+                      textColor: Colors.white,
+                      linkColor: Colors.white,
                     )
                   ),
                 ),
@@ -378,9 +446,10 @@ class PointLogMessageTile extends StatelessWidget{
                   color: Colors.black26,
                   child: Padding(
                     padding: EdgeInsets.all(8),
-                      child: RichTextView(
+                      child: Linkable(
                         text: message.message,
-                        style: TextStyle(color: Colors.black),
+                        textColor: Colors.black,
+                        linkColor: Colors.black,
                       )
                   ),
                 ),

@@ -27,7 +27,7 @@ export async function createUser(user_id: string, code: string, first_name: stri
     catch(error){
         //Error means that the user does not already exist
 
-        if(error instanceof APIResponse && error.code === 421){
+        if(error instanceof APIResponse && error.code === 400){
             //Error code 421 means user does not exist
 
             const houseCodes = await getHouseCodes()
@@ -54,7 +54,7 @@ export async function createUser(user_id: string, code: string, first_name: stri
 }
 
 /**
- * Create a user in the database
+ * Create a user in the database and add to house user rank if applicable
  * 
  * @param user_id   id of the user to created
  * @param user      User data to be set in the database
@@ -63,7 +63,11 @@ export async function createUser(user_id: string, code: string, first_name: stri
 export async function createUserFromModel(user_id: string, user:User): Promise<void> {
     const db = admin.firestore()
     try{
-        await db.collection(HouseCompetition.USERS_KEY).doc(user_id).set(user.toJson())
+        await db.collection(HouseCompetition.USERS_KEY).doc(user_id).set(user.toFirestoreJson())
+        if(user.isParticipantInCompetition()){
+            const userHouseRank = user.getHouseRankModel().toFirestoreJson()
+            await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house).collection(HouseCompetition.HOUSE_DETAILS_KEY).doc(HouseCompetition.HOUSE_DETAILS_RANK_DOC).update(userHouseRank)
+        }
         return Promise.resolve()
     }
     catch (error){

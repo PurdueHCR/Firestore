@@ -26,7 +26,8 @@ export class FirestoreDataFactory{
             "iOS_Version":(spOpts.ios_version !== undefined)?spOpts.ios_version:Options.SYSTEM_PREFERENCES_DEFAULTS.ios_version,
             "isCompetitionVisible":(spOpts.is_competition_visible !== undefined)?spOpts.is_competition_visible:Options.SYSTEM_PREFERENCES_DEFAULTS.is_competition_visible,
             "isHouseEnabled": (spOpts.is_house_enabled !== undefined)?spOpts.is_house_enabled:Options.SYSTEM_PREFERENCES_DEFAULTS.is_house_enabled,
-            "suggestedPointIDs": (spOpts.suggested_point_ids !== undefined)?spOpts.suggested_point_ids:Options.SYSTEM_PREFERENCES_DEFAULTS.suggested_point_ids
+            "suggestedPointIDs": (spOpts.suggested_point_ids !== undefined)?spOpts.suggested_point_ids:Options.SYSTEM_PREFERENCES_DEFAULTS.suggested_point_ids,
+            "houseIDs":(spOpts.houseIds !== undefined)?spOpts.houseIds:Options.SYSTEM_PREFERENCES_DEFAULTS.houseIds
         })
     }
 
@@ -36,7 +37,13 @@ export class FirestoreDataFactory{
      * @param id - ID number for the point type
      * @param ptopts - Optional Parameters for the point type. Will be set to default if field isnt provided
      */
-    static setPointType(db: firebase.firestore.Firestore, id: number, ptopts:Options.PointTypeOptions = Options.POINT_TYPE_DEFAULTS): Promise<void>{
+    static async setPointType(db: firebase.firestore.Firestore, id: number, ptopts:Options.PointTypeOptions = Options.POINT_TYPE_DEFAULTS): Promise<void>{
+        await FirestoreDataFactory.setHousePointTypeDetails(db,"Copper", id,((ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name)!, 0,0)
+        await FirestoreDataFactory.setHousePointTypeDetails(db,"Palladium", id,((ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name)!, 0,0)
+        await FirestoreDataFactory.setHousePointTypeDetails(db,"Platinum", id,((ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name)!, 0,0)
+        await FirestoreDataFactory.setHousePointTypeDetails(db,"Silver", id,((ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name)!, 0,0)
+        await FirestoreDataFactory.setHousePointTypeDetails(db,"Titanium", id,((ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name)!, 0,0)
+        
         return db.collection("PointTypes").doc(id.toString()).set({
             "Description":(ptopts.description !== undefined)? ptopts.description: Options.POINT_TYPE_DEFAULTS.description,
             "Name":(ptopts.name !== undefined)? ptopts.name: Options.POINT_TYPE_DEFAULTS.name,
@@ -48,17 +55,73 @@ export class FirestoreDataFactory{
     }
 
     /**
-     * Create or set the value for a house with the given id
+     * Create or set the value for a house with the given id and create empty details documents
      * @param db - Test App Firestore instance (Usually from authedApp())
      * @param id - Name of the house
      * @param hOpts  - Optional Parameters for the house. Will be set to default if field isnt provided
      */
-    static setHouse(db: firebase.firestore.Firestore, id: string, hOpts:Options.HouseOptions = Options.HOUSE_DEFAULTS): Promise<void> {
-        return db.collection("House").doc(id).set({
+    static async setHouse(db: firebase.firestore.Firestore, id: string, hOpts:Options.HouseOptions = Options.HOUSE_DEFAULTS){
+        await db.collection("House").doc(id).set({
             "Color":(hOpts.color !== undefined)? hOpts.color: Options.HOUSE_DEFAULTS.color,
             "NumberOfResidents":(hOpts.num_residents !== undefined)? hOpts.num_residents: Options.HOUSE_DEFAULTS.num_residents,
-            "TotalPoints":(hOpts.total_points !== undefined)? hOpts.total_points: Options.HOUSE_DEFAULTS.total_points
+            "TotalPoints":(hOpts.total_points !== undefined)? hOpts.total_points: Options.HOUSE_DEFAULTS.total_points,
+            "FloorIds":(hOpts.floor_ids !== undefined)? hOpts.floor_ids: Options.HOUSE_DEFAULTS.floor_ids,
+            "DownloadUR":(hOpts.downloadURL !== undefined)? hOpts.downloadURL: Options.HOUSE_DEFAULTS.downloadURL,
+            "Description": (hOpts.description !== undefined)? hOpts.description: Options.HOUSE_DEFAULTS.description
         })
+
+        await db.collection("House").doc(id).collection("Details").doc("Rank").set({})
+        await db.collection("House").doc(id).collection("Details").doc("PointTypes").set({})
+    }
+
+    /**
+     * 
+     * @param db - Test App Firestore instance (Usually from authedApp())
+     * @param houseId - Id of the house to add the user rank to
+     * @param userId - id of the user 
+     * @param first - first name of the user
+     * @param last - last name of the user
+     * @param totalPoints - total points of the user
+     * @param semesterPoints - semester points of the user
+     */
+    static async setUserHouseRank(db: firebase.firestore.Firestore, houseId: string, userId:string, first:string, last:string, totalPoints: number, semesterPoints:number){
+        const userHouseRankDoc = await db.collection("House").doc(houseId).collection("Details").doc("Rank").get()
+        if(userHouseRankDoc.exists){
+            const updateData = {}
+            updateData[userId] = {
+                firstName: first,
+                lastName: last,
+                totalPoints: totalPoints,
+                semesterPoints: semesterPoints
+            }
+            await db.collection("House").doc(houseId).collection("Details").doc("Rank").update(updateData)
+        }
+        else{
+            throw Error("You havent created the house details docs yet when preparing the test")
+        }
+    }
+
+    /**
+     * 
+     * @param db - Test App Firestore instance (Usually from authedApp())
+     * @param houseId - Id of the house to add the point type count to
+     * @param pointTypeId - Id for the point type
+     * @param name - Name of the point type
+     * @param submitted - number of submissions received
+     * @param approved - number approved
+     */
+    static async setHousePointTypeDetails(db: firebase.firestore.Firestore, houseId: string, pointTypeId: number, name:string, submitted: number, approved: number){
+        const pointTypesDoc = await db.collection("House").doc(houseId).collection("Details").doc("PointTypes").get()
+        if(pointTypesDoc.exists){
+            const data = {name: name, submitted: submitted, approved: approved}
+            const map = {}
+            map[pointTypeId.toString()] = data
+
+            await db.collection("House").doc(houseId).collection("Details").doc("PointTypes").update(map)
+        }
+        else{
+            throw Error("You havent created the detail docs yet when preparing the test")
+        }
     }
 
     static setHouseCode(db: firebase.firestore.Firestore, id: string, cOpts:Options.HouseCodeOptions = Options.HOUSE_CODE_DEFAULTS): Promise<void> {
@@ -76,12 +139,12 @@ export class FirestoreDataFactory{
      * @param db - Test App Firestore instance (Usually from authedApp())
      * @param houseOpts - Optional Parameters for each of the houses. Will be set to defaults if not provided
      */
-    static async setAllHouses(db: firebase.firestore.Firestore, houseOpts:Options.AllHousesOptions){
-        await this.setHouse(db,"Copper",houseOpts.copper)
-        await this.setHouse(db,"Palladium",houseOpts.palladium)
-        await this.setHouse(db,"Platinum", houseOpts.platinum)
-        await this.setHouse(db,"Silver", houseOpts.silver)
-        await this.setHouse(db,"Titanium",houseOpts.titanium)
+    static async setAllHouses(db: firebase.firestore.Firestore, houseOpts:Options.AllHousesOptions = Options.ALL_HOUSE_DEFAULTS){
+        await this.setHouse(db,"Copper", (houseOpts.copper !== undefined) ? houseOpts.copper : Options.ALL_HOUSE_DEFAULTS.copper)
+        await this.setHouse(db,"Palladium", (houseOpts.palladium !== undefined) ? houseOpts.palladium : Options.ALL_HOUSE_DEFAULTS.palladium)
+        await this.setHouse(db,"Platinum", (houseOpts.platinum !== undefined) ? houseOpts.platinum : Options.ALL_HOUSE_DEFAULTS.platinum)
+        await this.setHouse(db,"Silver", (houseOpts.silver !== undefined) ? houseOpts.silver : Options.ALL_HOUSE_DEFAULTS.silver)
+        await this.setHouse(db,"Titanium", (houseOpts.titanium !== undefined) ? houseOpts.titanium : Options.ALL_HOUSE_DEFAULTS.titanium)
     }
 
     /**
@@ -260,14 +323,45 @@ export class FirestoreDataFactory{
      * @param db  - Test App Firestore instance (Usually from authedApp())
      * @param rOpts - Optional parameters for the Reward
      */
-    static setReward(db: firebase.firestore.Firestore, rOpts:Options.RewardOptions = Options.REWARD_DEFAULTS): Promise<void> {
-        return db.collection("Rewards").doc((rOpts.id)?rOpts.id:Options.REWARD_DEFAULTS.id).set({
-            FileName:(rOpts.id !== undefined)?rOpts.id+".png":Options.REWARD_DEFAULTS.id+".png",
+    static setReward(db: firebase.firestore.Firestore, id:string, rOpts:Options.RewardOptions = Options.REWARD_DEFAULTS): Promise<void> {
+        return db.collection("Rewards").doc(id).set({
+            FileName:(rOpts.file_name !== undefined)?rOpts.file_name:Options.REWARD_DEFAULTS.file_name,
             RequiredPPR:(rOpts.required_ppr !== undefined)?rOpts.required_ppr:Options.REWARD_DEFAULTS.required_ppr,
-            RequiredValue:(rOpts.required_value !== undefined)?rOpts.required_value:Options.REWARD_DEFAULTS.required_value
+            Name:(rOpts.name !== undefined)?rOpts.name:Options.REWARD_DEFAULTS.name,
+            DownloadURL:(rOpts.downloadURL !== undefined)?rOpts.downloadURL:Options.REWARD_DEFAULTS.downloadURL,
+
         })
     }
 
+    /**
+     * Create an event
+     * @param db 
+     * @param creator_id
+     * @param eOpts 
+     */
+    static setEvent(db: firebase.firestore.Firestore, id: string, creator_id: string, eOpts:Options.EventOptions = Options.EVENT_DEFAULTS): Promise<void> {
+        const data = {
+            "Name": (eOpts.name !== undefined)?eOpts.name:Options.EVENT_DEFAULTS.name,
+            "Details": (eOpts.details !== undefined)?eOpts.details:Options.EVENT_DEFAULTS.details,
+            "Date": (eOpts.date !== undefined)?eOpts.date:Options.EVENT_DEFAULTS.date,
+            "Location": (eOpts.location !== undefined)?eOpts.location:Options.EVENT_DEFAULTS.location,
+            "Points": (eOpts.points !== undefined)?eOpts.points:Options.EVENT_DEFAULTS.points,
+            "PointTypeID": (eOpts.point_type_id !== undefined)?eOpts.point_type_id:Options.EVENT_DEFAULTS.point_type_id,
+            "PointTypeName": (eOpts.point_type_name !== undefined)?eOpts.point_type_name:Options.EVENT_DEFAULTS.point_type_name,
+            "PointTypeDescription": (eOpts.point_type_description !== undefined)?eOpts.point_type_description:Options.EVENT_DEFAULTS.point_type_description,
+            "House": (eOpts.house !== undefined)?eOpts.house:Options.EVENT_DEFAULTS.house,
+            "CreatorID":creator_id
+        }
+        return db.collection("Events").doc(id).set(data)
+    }
+
+    /**
+     * Run this after events test to clean events
+     * @param db Test App Firestore instance
+     */
+    static async cleanEvents(db: firebase.firestore.Firestore) {
+        await FirestoreDataFactory.deleteCollection(db, "Events", 100)
+    }
 
     static async getCompetitionPointsStatus(db: firebase.firestore.Firestore, house:string, user_id:string): Promise<CompetitionPointStatus> {
         const user_doc = await db.collection("Users").doc(user_id).get()
@@ -278,6 +372,51 @@ export class FirestoreDataFactory{
             house_points: house_doc.data()!["TotalPoints"]
         }
         return new CompetitionPointStatus(status)
+    }
+
+    static async createAllHouseCodes(db: firebase.firestore.Firestore ){
+        await FirestoreDataFactory.setHouseCode(db, "2NResident", {code:"OLDCODE", code_name:"2N Resident", floor_id:"2N", house:"Copper", permission_level:0})
+        await FirestoreDataFactory.setHouseCode(db, "2SResident", {code:"OLDCODE", code_name:"2S Resident", floor_id:"2S", house:"Copper", permission_level:0})
+        await FirestoreDataFactory.setHouseCode(db, "3NResident", {code:"OLDCODE", code_name:"3N Resident", floor_id:"3N", house:"Palladium", permission_level:0})
+        await FirestoreDataFactory.setHouseCode(db, "3SResident", {code:"OLDCODE", code_name:"3S Resident", floor_id:"3S", house:"Palladium", permission_level:0})
+        await FirestoreDataFactory.setHouseCode(db, "4NResident", {code:"OLDCODE", code_name:"4N Resident", floor_id:"4N", house:"Platinum", permission_level:0})
+        await FirestoreDataFactory.setHouseCode(db, "4SResident", {code:"OLDCODE", code_name:"4S Resident", floor_id:"4S", house:"Platinum", permission_level:0})
+        await FirestoreDataFactory.setHouseCode(db, "5NResident", {code:"OLDCODE", code_name:"5N Resident", floor_id:"5N", house:"Silver", permission_level:0})
+        await FirestoreDataFactory.setHouseCode(db, "5SResident", {code:"OLDCODE", code_name:"5S Resident", floor_id:"5S", house:"Silver", permission_level:0})
+        await FirestoreDataFactory.setHouseCode(db, "6NResident", {code:"OLDCODE", code_name:"6N Resident", floor_id:"6N", house:"Titanium", permission_level:0})
+        await FirestoreDataFactory.setHouseCode(db, "6SResident", {code:"OLDCODE", code_name:"6S Resident", floor_id:"6S", house:"Titanium", permission_level:0})
+
+        await FirestoreDataFactory.setHouseCode(db, "2NRHP", {code:"OLDCODE", code_name:"2N RHP", floor_id:"2N", house:"Copper", permission_level:1})
+        await FirestoreDataFactory.setHouseCode(db, "2SRHP", {code:"OLDCODE", code_name:"2S RHP", floor_id:"2S", house:"Copper", permission_level:1})
+        await FirestoreDataFactory.setHouseCode(db, "3NRHP", {code:"OLDCODE", code_name:"3N RHP", floor_id:"3N", house:"Palladium", permission_level:1})
+        await FirestoreDataFactory.setHouseCode(db, "3SRHP", {code:"OLDCODE", code_name:"3S RHP", floor_id:"3S", house:"Palladium", permission_level:1})
+        await FirestoreDataFactory.setHouseCode(db, "4NRHP", {code:"OLDCODE", code_name:"4N RHP", floor_id:"4N", house:"Platinum", permission_level:1})
+        await FirestoreDataFactory.setHouseCode(db, "4SRHP", {code:"OLDCODE", code_name:"4S RHP", floor_id:"4S", house:"Platinum", permission_level:1})
+        await FirestoreDataFactory.setHouseCode(db, "5NRHP", {code:"OLDCODE", code_name:"5N RHP", floor_id:"5N", house:"Silver", permission_level:1})
+        await FirestoreDataFactory.setHouseCode(db, "5SRHP", {code:"OLDCODE", code_name:"5S RHP", floor_id:"5S", house:"Silver", permission_level:1})
+        await FirestoreDataFactory.setHouseCode(db, "6NRHP", {code:"OLDCODE", code_name:"6N RHP", floor_id:"6N", house:"Titanium", permission_level:1})
+        await FirestoreDataFactory.setHouseCode(db, "6SRHP", {code:"OLDCODE", code_name:"6S RHP", floor_id:"6S", house:"Titanium", permission_level:1})
+
+        await FirestoreDataFactory.setHouseCode(db, "PROFST", {code:"OLDCODE", code_name: "Professional Staff", permission_level:2})
+
+        await FirestoreDataFactory.setHouseCode(db, "CPFHP1", {code:"OLDCODE", code_name:"Copper FHP", house:"Copper", permission_level:3})
+        await FirestoreDataFactory.setHouseCode(db, "PDFHP1", {code:"OLDCODE", code_name:"Palladium RHP", house:"Palladium", permission_level:3})
+        await FirestoreDataFactory.setHouseCode(db, "PTFHP1", {code:"OLDCODE", code_name:"Platinum RHP", house:"Platinum", permission_level:3})
+        await FirestoreDataFactory.setHouseCode(db, "SIFHP1", {code:"OLDCODE", code_name:"Silver RHP", house:"Silver", permission_level:3})
+        await FirestoreDataFactory.setHouseCode(db, "TIFHP1", {code:"OLDCODE", code_name:"Titanium RHP", house:"Titanium", permission_level:3})
+
+        await FirestoreDataFactory.setHouseCode(db, "2NPRIV", {code:"OLDCODE", code_name:"2N PRIV", floor_id:"2N", house:"Copper", permission_level:4})
+        await FirestoreDataFactory.setHouseCode(db, "2SPRIV", {code:"OLDCODE", code_name:"2S PRIV", floor_id:"2S", house:"Copper", permission_level:4})
+        await FirestoreDataFactory.setHouseCode(db, "3NPRIV", {code:"OLDCODE", code_name:"3N PRIV", floor_id:"3N", house:"Palladium", permission_level:4})
+        await FirestoreDataFactory.setHouseCode(db, "3SPRIV", {code:"OLDCODE", code_name:"3S PRIV", floor_id:"3S", house:"Palladium", permission_level:4})
+        await FirestoreDataFactory.setHouseCode(db, "4NPRIV", {code:"OLDCODE", code_name:"4N PRIV", floor_id:"4N", house:"Platinum", permission_level:4})
+        await FirestoreDataFactory.setHouseCode(db, "4SPRIV", {code:"OLDCODE", code_name:"4S PRIV", floor_id:"4S", house:"Platinum", permission_level:4})
+        await FirestoreDataFactory.setHouseCode(db, "5NPRIV", {code:"OLDCODE", code_name:"5N PRIV", floor_id:"5N", house:"Silver", permission_level:4})
+        await FirestoreDataFactory.setHouseCode(db, "5SPRIV", {code:"OLDCODE", code_name:"5S PRIV", floor_id:"5S", house:"Silver", permission_level:4})
+        await FirestoreDataFactory.setHouseCode(db, "6NPRIV", {code:"OLDCODE", code_name:"6N PRIV", floor_id:"6N", house:"Titanium", permission_level:4})
+        await FirestoreDataFactory.setHouseCode(db, "6SPRIV", {code:"OLDCODE", code_name:"6S PRIV", floor_id:"6S", house:"Titanium", permission_level:4})
+
+        await FirestoreDataFactory.setHouseCode(db, "EXTADV", {code:"OLDCODE", code_name: "External Advisor", permission_level:5})
     }
 
     /**
@@ -304,14 +443,6 @@ export class FirestoreDataFactory{
         await FirestoreDataFactory.deleteCollection(db, "PointTypes",100)
         await FirestoreDataFactory.deleteCollection(db, "Rewards",100)
         await FirestoreDataFactory.deleteCollection(db, "Users",100)
-    }
-
-    /**
-     * Run this after events test to clean events
-     * @param db Test App Firestore instance
-     */
-    static async cleanEvents(db: firebase.firestore.Firestore) {
-        await FirestoreDataFactory.deleteCollection(db, "Events", 1)
     }
 
 

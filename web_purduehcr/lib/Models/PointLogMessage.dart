@@ -1,4 +1,6 @@
 
+import 'package:purduehcr_web/Models/User.dart';
+
 class PointLogMessage {
   DateTime creationDate;
   String message;
@@ -11,19 +13,19 @@ class PointLogMessage {
 
   factory PointLogMessage.fromJson(Map<String, dynamic> json){
     return PointLogMessage(
-      creationDate: json["creationDate"],
+      creationDate: DateTime.fromMicrosecondsSinceEpoch((json["creationDate"]["_seconds"] as int) * 1000000),
       message: json["message"],
-      messageType: json["messageTye"],
+      messageType: json["messageType"],
       senderFirstName: json["senderFirstName"],
       senderLastName: json["senderLastName"],
       senderPermissionLevel: json["senderPermissionLevel"]
     );
   }
 
-  static PointLogMessage createApproveMessage(){
+  static PointLogMessage createApproveMessage(User user){
     return PointLogMessage(
         creationDate: DateTime.now(),
-        message: "This submission has been approved!",
+        message: "${user.getFullName()} approved this point.",
         messageType: "approve",
         senderFirstName: "Purdue",
         senderLastName: "HCR",
@@ -31,10 +33,13 @@ class PointLogMessage {
     );
   }
 
-  static PointLogMessage createRejectionMessage(){
+  static PointLogMessage createRejectionMessage(User user, String message){
+    if(!(message.endsWith(".") || message.endsWith("?") || message.endsWith("!"))){
+      message += ".";
+    }
     return PointLogMessage(
         creationDate: DateTime.now(),
-        message: "This submission has been rejected.",
+        message: "${user.getFullName()} rejected this point submission with the reason: $message",
         messageType: "reject",
         senderFirstName: "Purdue",
         senderLastName: "HCR",

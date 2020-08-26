@@ -11,7 +11,9 @@ export function mockFirebaseAdmin(db: firebase.firestore.Firestore = getDb()){
             return db
         }
         firestore.Timestamp = admin.firestore.Timestamp
-    
+        firestore.FieldValue = {
+            delete: () => firebase.firestore.FieldValue.delete()
+        }
         return {
             apps: {
                 length: 1
@@ -38,7 +40,8 @@ export function mockFirebaseAdmin(db: firebase.firestore.Firestore = getDb()){
             },
         
             //Mocks admin.firestore() Which is often saved as db
-            firestore: firestore,
+            firestore: firestore
+            
     
         }
     })
@@ -54,7 +57,7 @@ export function mockDynamicLink(){
 export function mockOTCGenerator(){
     jest.mock('otplib', () => {
         return {
-            authenticator: {
+            totp: {
                 generate: (secret) => "TESTTOKEN",
                 check:(token, secret) => {
                     console.log("Checking "+token)
@@ -76,7 +79,7 @@ export function mockConfig(){
     test.mockConfig(
         { 
             otc: { 
-            secret:"SUPERDUPERSECRET"
+                secret:"SUPERDUPERSECRET"
             }, 
             fb: {
                 token:"TEST"
@@ -87,8 +90,10 @@ export function mockConfig(){
                 key:"keykeykeykey" 
             },
             email_auth: {
-                user: "email",
-                pass: "password"
+                email: "email",
+                client_id: "password",
+                client_secret: "secret",
+                refresh_token: "token"
             }
         }
     );

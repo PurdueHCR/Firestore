@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:purduehcr_web/ConfigWrapper.dart';
+import 'package:provider/provider.dart';
+import 'package:purduehcr_web/Configuration/ConfigWrapper.dart';
 import 'package:purduehcr_web/RouteGenerator.dart';
-import 'package:bloc/bloc.dart';
-
-import 'package:purduehcr_web/authentication/authentication.dart';
 
 
+import 'package:purduehcr_web/Authentication_Bloc/authentication.dart';
 
-class SimpleBlocDelegate extends BlocDelegate {
-  @override
-  void onTransition(Bloc bloc, Transition transition) {
-    print(transition);
-    super.onTransition(bloc, transition);
-  }
+import 'package:purduehcr_web/Utilities/ThemeNotifier.dart';
 
-}
+
 
 class PurdueHCR extends StatefulWidget {
 
@@ -27,22 +21,25 @@ class PurdueHCR extends StatefulWidget {
 
 class PurdueHCRState extends State<PurdueHCR>{
   AuthenticationBloc _authenticationBloc;
+  ThemeNotifier _themeNotifier;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _authenticationBloc = AuthenticationBloc(config: ConfigWrapper.of(context));
-    _authenticationBloc.add(AppStarted());
+    if(_authenticationBloc == null){
+      _themeNotifier = Provider.of<ThemeNotifier>(context);
+      _authenticationBloc = AuthenticationBloc(config: ConfigWrapper.of(context), themeNotifier: _themeNotifier);
+      _authenticationBloc.add(AppStarted());
+    }
   }
   @override
   Widget build(BuildContext context) {
+
     return BlocProvider<AuthenticationBloc>(
       builder: (context) => _authenticationBloc,
       child: MaterialApp(
         title: 'Purdue HCR',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
+        theme: _themeNotifier.getTheme(),
         initialRoute: '/',
         onGenerateRoute: (settings) => RouteGenerator.generateRoute(settings),
       ),

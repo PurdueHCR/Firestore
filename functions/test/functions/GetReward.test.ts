@@ -1,15 +1,14 @@
 import * as MockDataFactory from '../MockDataFactory'
 import * as House from '../../src/models/House'
 //Require the function that you will test
-const GetReward = require('../../src/src/GetReward')
+const GetReward = require('../../src/src/RewardFunctions')
 
 //Sample Firestore databse object
 const highReward: MockDataFactory.DocumentData = {
     id: "House Shirt",
     data: {
         FileName: "HouseShirt.png",
-        RequiredPPR: 30,
-        RequiredValue: 30000
+        RequiredPPR: 30
     }
 }
 
@@ -17,8 +16,7 @@ const middleReward: MockDataFactory.DocumentData = {
     id: "Pizza Party",
     data: {
         FileName: "Pizza.png",
-        RequiredPPR: 20,
-        RequiredValue: 2000
+        RequiredPPR: 20
     }
 }
 
@@ -26,8 +24,7 @@ const lowReward: MockDataFactory.DocumentData = {
     id: "Ice Cream Party",
     data: {
         FileName: "IceCream.png",
-        RequiredPPR: 10,
-        RequiredValue: 1000
+        RequiredPPR: 10
     }
 }
 
@@ -106,22 +103,9 @@ describe('GetRewardById', () =>{
         expect(result.fileName).toBe(highReward.data.FileName)
         expect(result.id).toBe(highReward.id)
         expect(result.requiredPPR).toBe(highReward.data.RequiredPPR)
-        expect(result.requiredValue).toBe(highReward.data.RequiredValue)
 
     })
 
-    //Test that a server error is correctly handled
-    test('TestServerError', async() => {
-        const id =  "Server-Error";
-        try{
-            await GetReward.getRewardById(id);
-            fail()
-        }
-        catch(err){
-            expect(err.code).toBe(500)
-        }
-        
-    })
 
     //Test that a non existant document is correctly handled
     it('Test DocumentDoesntExist', async() => {
@@ -150,31 +134,28 @@ describe('getAllRewards', () =>{
 describe('Get Next Reward for House', () => {
 
     test('Test Get First Reward', async() => {
-        let house = new House.House("#000000", 100, 0, "Copper")
+        let house = new House.House("#000000", 100, 0, ["2N","2S"],"Copper", "url", "description", [])
         let result = await GetReward.getNextRewardForHouse(house)
         expect(result.fileName).toBe(lowReward.data.FileName)
         expect(result.id).toBe(lowReward.id)
         expect(result.requiredPPR).toBe(lowReward.data.RequiredPPR)
-        expect(result.requiredValue).toBe(lowReward.data.RequiredValue)
     })
 
     test('Test Get Middle Reward', async() => {
         const ppr: number = middleReward.data.RequiredPPR * 100 - 10
-        let house = new House.House("#000000", 100, ppr, "Copper")
+        let house = new House.House("#000000", 100, ppr, ["2N","2S"],"Copper", "url", "description", [])
         let result = await GetReward.getNextRewardForHouse(house)
         expect(result.fileName).toBe(middleReward.data.FileName)
         expect(result.id).toBe(middleReward.id)
         expect(result.requiredPPR).toBe(middleReward.data.RequiredPPR)
-        expect(result.requiredValue).toBe(middleReward.data.RequiredValue)
     })
 
     test('Test Surpass all rewards', async() => {
         const ppr:number = highReward.data.RequiredPPR * 200
-        let house = new House.House("#000000", 100, ppr, "Copper")
+        let house = new House.House("#000000", 100, ppr, ["2N","2S"],"Copper", "url", "description", [])
         let result = await GetReward.getNextRewardForHouse(house)
         expect(result.fileName).toBe(highReward.data.FileName)
         expect(result.id).toBe(highReward.id)
         expect(result.requiredPPR).toBe(highReward.data.RequiredPPR)
-        expect(result.requiredValue).toBe(highReward.data.RequiredValue)
     })
 })

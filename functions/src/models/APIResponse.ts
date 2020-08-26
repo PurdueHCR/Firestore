@@ -154,6 +154,14 @@ export class APIResponse{
     }
 
     /**
+     * 415 - Unknown House Code Id
+     * There is no House Code with the provided id. Make sure you use the Id field of the House Code and not the code field.
+     */
+    static UnknownHouseCodeId(): APIResponse {
+        return new APIResponse(415, "There is no House Code with the provided id. Make sure you use the Id field of the House Code and not the code field.")
+    }
+
+    /**
      * 416 - PointLog Already Handled
      * The PointLog is already in the requested approved/rejected state
      */
@@ -248,7 +256,14 @@ export class APIResponse{
     static CanNotPostMessage(): APIResponse {
         return new APIResponse(427, "You are not allowed to post a message to this submission.")
     }
-    
+
+    /**
+     * 428 - Invalid Floor Id
+     * The floor id does not exist with the house that the user belongs to.
+     */
+    static InvalidFloorId(): APIResponse {
+        return new APIResponse(428, "The floor id does not exist with the house that the user belongs to.")
+    }
     /**
      * 430 - Insufficient Permission Level For Create a Link with that Point Type
      * The point type  
@@ -263,6 +278,22 @@ export class APIResponse{
      */
     static CanNotAccessPointLog(): APIResponse {
         return new APIResponse(431, "This user does not have the corrent ownership or permission to access this point log.")
+    }
+
+    /**
+     * 450 - Event Does Not Exist
+     * The requested event cannot be found
+     */
+    static NonExistantEvent(): APIResponse {
+        return new APIResponse(450, "The request event cannot be found.")
+    }
+
+    /**
+     * 470 - Reward Already Exists
+     * A reward with that id already exists.
+     */
+    static RewardAlreadyExists(): APIResponse {
+        return new APIResponse(470, "A reward with that id already exists.")
     }
 
     /**

@@ -1,21 +1,10 @@
 import { UserRank } from '../models/UserRank'
-import { getUser } from './GetUser'
-import { getUsersFromHouse } from './GetUsersFromHouse'
 import { User } from '../models/User'
 import { APIResponse } from '../models/APIResponse'
+import { getRankArray } from './GetRankArray'
+import { getHouseByName } from './GetHouses'
 
-/**
- * Get the UserRank for a userId
- * 
- * @param user_id Database id of the user to retrieve Rank for
- * @throws 403 - Invalid Permission Level
- * @throws 500 - ServerError
- */
-export async function getUserRank(user_id: string): Promise<UserRank> {
 
-    const user = await getUser(user_id)
-    return getRank(user);
-}
 
 /**
  * Get the UserRank for a userId
@@ -27,34 +16,24 @@ export async function getUserRank(user_id: string): Promise<UserRank> {
 export async function getRank(user:User): Promise<UserRank> {
     if (!user.isParticipantInCompetition())
         return Promise.reject(APIResponse.InvalidPermissionLevel())
-    const houseUsers = await getUsersFromHouse(user.house)
+    const house = await getHouseByName(user.house)
+    const rankArray = await getRankArray(house)
 
-    const houseResidents:User[] = []
 
-    for (const usr of houseUsers){
-        if(usr.isParticipantInCompetition()){
-            houseResidents.push(usr);
-        }
-    }
-
-    houseResidents.sort((a:User, b:User) => {
-        return b.totalPoints - a.totalPoints
-    })
+    const houseYearlyRank = rankArray.getYearlyRank()
     //Count the number of people before you
     let houseRank = 0
-    while(houseRank <= houseResidents.length - 1 && houseResidents[houseRank].totalPoints > user.totalPoints ){
+    while(houseRank < houseYearlyRank.length - 1 && houseYearlyRank[houseRank].totalPoints > user.totalPoints ){
         houseRank ++
     }
     //Add 1 to get the rank (Because there can be no 0)
     houseRank ++
 
-    houseResidents.sort((a:User, b:User) => {
-        return b.semesterPoints - a.semesterPoints
-    })
+    const houseSemesterRanks = rankArray.getSemesterRank()
 
     
     let semesterRank = 0
-    while(semesterRank <= houseResidents.length - 1 && houseResidents[semesterRank].semesterPoints > user.semesterPoints){
+    while(semesterRank < houseSemesterRanks.length - 1 && houseSemesterRanks[semesterRank].semesterPoints > user.semesterPoints){
         semesterRank ++
     }
     semesterRank++

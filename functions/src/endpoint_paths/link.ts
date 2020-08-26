@@ -8,6 +8,7 @@ import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermi
 import { getLinkById} from '../src/GetLinkById'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { LinkUpdateOptions, updateLink } from '../src/UpdateLink'
+import * as ParameterParser from '../src/ParameterParser'
 
 
 if(admin.apps.length === 0){
@@ -76,35 +77,32 @@ links_main.get('/', async (req, res) => {
  */
 links_main.post('/create' ,async (req, res) => {
 
-    if(req.body["single_use"] === undefined || req.body["point_id"] === undefined || req.body["description"] === undefined || req.body["is_enabled"] === undefined){
-		const error = APIResponse.MissingRequiredParameters()
-		res.status(error.code).send(error.toJson())
-    }
-    else{
-        try{
-            const user_id = req["user"]["user_id"]
-            const description = req.body["description"]
-            const point_id = parseInt(req.body["point_id"])
-            const is_single_use = req.body["single_use"]
-            const is_enabled = req.body["is_enabled"]
+    try{
+        if(req.body === null || req.body === undefined){
+            console.log("No body")
+            throw APIResponse.MissingRequiredParameters()
+        }
+        const user_id = req["user"]["user_id"]
+        const description = ParameterParser.parseInputForString(req.body.description)
+        const point_id = ParameterParser.parseInputForNumber(req.body.point_id)
+        const is_single_use = ParameterParser.parseInputForBoolean(req.body.single_use)
+        const is_enabled = ParameterParser.parseInputForBoolean(req.body.is_enabled)
 
-            const user = await getUser(user_id)
-            const permissions = [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.FACULTY, UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.EXTERNAL_ADVISOR]
-            verifyUserHasCorrectPermission(user, permissions)
-            const link = await createLink(user,point_id, is_single_use, is_enabled, description)
-            res.status(APIResponse.SUCCESS_CODE).send(link)
+        const user = await getUser(user_id)
+        const permissions = [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.FACULTY, UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.EXTERNAL_ADVISOR]
+        verifyUserHasCorrectPermission(user, permissions)
+        const link = await createLink(user,point_id, is_single_use, is_enabled, description)
+        res.status(APIResponse.SUCCESS_CODE).send(link)
+    }
+    catch(suberror){
+        if (suberror instanceof APIResponse){
+            res.status(suberror.code).send(suberror.toJson())
         }
-        catch(suberror){
-            if (suberror instanceof APIResponse){
-                res.status(suberror.code).send(suberror.toJson())
-            }
-            else {
-                console.log("FAILED WITH DB FROM link create ERROR: "+ suberror)
-                const apiResponse = APIResponse.ServerError()
-                res.status(apiResponse.code).send(apiResponse.toJson())
-            }
+        else {
+            console.log("FAILED WITH DB FROM link create ERROR: "+ suberror)
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
         }
-        
     }
 })
 
@@ -123,67 +121,56 @@ links_main.post('/create' ,async (req, res) => {
  */
 links_main.put('/update' ,async (req, res) => {
     //Ensure that the link id exists so that it can be updated
-    if(req.body["link_id"] === undefined ){
-		const error = APIResponse.MissingRequiredParameters()
-		res.status(error.code).send(error.toJson())
-    }
-    else{
+    try{
+        const linkId = ParameterParser.parseInputForString(req.body.link_id)
+        const link = await getLinkById(linkId)
         let hasData = false
         const data:LinkUpdateOptions = {}
-        if(req.body["archived"] !== undefined ){
+        if("archived" in req.body ){
             console.log("Updating archived");
-            data.Archived = req.body["archived"]
+            data.Archived = ParameterParser.parseInputForBoolean(req.body.archived)
             hasData = true
         }
-        if(req.body["enabled"] !== undefined ){
+        if("enabled" in req.body ){
             console.log("Updating enabled");
-            data.Enabled = req.body["enabled"]
+            data.Enabled = ParameterParser.parseInputForBoolean(req.body.enabled)
             hasData = true
         }
-        if(req.body["description"] !== undefined ){
-            if(req.body["description"] === ""){
-                const error = APIResponse.IncorrectFormat()
-                res.status(error.code).send(error.toJson())
-            }
-            else{
-                console.log("Updating description");
-                data.Description = req.body["description"]
-                hasData = true
-            }
+        if("description" in req.body ){
+            console.log("Updating description");
+            data.Description = ParameterParser.parseInputForString(req.body.description)
+            hasData = true
         }
-        if(req.body["singleUse"] !== undefined ){
+        if("singleUse" in req.body){
             console.log("Updating single_use");
-            data.SingleUse = req.body["singleUse"]
+            data.SingleUse = ParameterParser.parseInputForBoolean(req.body.singleUse)
             hasData = true
         }
         if(hasData){
-            try{
-                const link = await getLinkById(req.body["link_id"])
-                if(link.creatorId !== req["user"]["user_id"]){
-                    const error = APIResponse.LinkDoesntBelongToUser()
-                    res.status(error.code).send(error.toJson())
-                }
-                else{
-                    await updateLink(req.body["link_id"] as string, data)
-                    res.status(APIResponse.SUCCESS_CODE).send(APIResponse.Success().toJson())
-                }
+            
+            if(link.creatorId !== req["user"]["user_id"]){
+                throw APIResponse.LinkDoesntBelongToUser()
             }
-            catch(suberror){
-                if (suberror instanceof APIResponse){
-                    res.status(suberror.code).send(suberror.toJson())
-                }
-                else {
-                    console.log("FAILED WITH DB FROM link create ERROR: "+ suberror)
-                    const apiResponse = APIResponse.ServerError()
-                    res.status(apiResponse.code).send(apiResponse.toJson())
-                }
+            else{
+                await updateLink(linkId, data)
+                throw APIResponse.Success()
             }
+
         }
         else{
-            const error = APIResponse.MissingRequiredParameters()
-		    res.status(error.code).send(error.toJson())
+            throw APIResponse.MissingRequiredParameters()
         }
-
+    }
+    catch(suberror){
+        if (suberror instanceof APIResponse){
+            console.error("")
+            res.status(suberror.code).send(suberror.toJson())
+        }
+        else {
+            console.log("FAILED WITH DB FROM link create ERROR: "+ suberror)
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
     }
         
 })

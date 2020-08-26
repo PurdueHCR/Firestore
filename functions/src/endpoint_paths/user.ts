@@ -5,18 +5,21 @@ import { APIResponse } from '../models/APIResponse'
 import { UnsubmittedPointLog } from '../models/UnsubmittedPointLog'
 import { submitPoint } from '../src/SubmitPoints'
 import { submitLink} from '../src/SubmitLink'
-import { getUser } from '../src/GetUser'
+import { getUser, searchForUsers } from '../src/GetUser'
 import { createUser } from '../src/CreateUser'
 import { isInDateRange } from '../src/IsInDateRange'
-import { getUserRank } from '../src/GetUserRank'
+import { getRank } from '../src/GetUserRank'
 import { getPointLogsForUser } from '../src/GetPointLogsForUser'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { getUserLinks } from '../src/GetUserLinks'
 import { getLinkById } from '../src/GetLinkById'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
+import { updateUser, removeUserFromHouse } from '../src/UpdateUser'
+import * as ParameterParser from '../src/ParameterParser'
+import { getHouseByName } from '../src/GetHouses'
 
 if(admin.apps.length === 0){
-	admin.initializeApp(functions.config().firebase)
+	admin.initializeApp(functions.config().firestore)
 }
 
 const users_app = express()
@@ -38,11 +41,14 @@ users_app.use(firestoreTools.validateFirebaseIdToken)
  * @returns UserRank
  * @throws 400 - NonExistantUser
  * @throws 401 - Unauthroized
+ * @throws 403 - Invalid Permission
  * @throws 500 - ServerError
  */
 users_app.get('/auth-rank',  async (req, res) => {
 	try{
-		const rank = await getUserRank(req["user"]["user_id"])
+		const user = await getUser(req["user"]["user_id"])
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP, UserPermissionLevel.PRIVILEGED_RESIDENT])
+		const rank = await getRank(user)
 		res.status(APIResponse.SUCCESS_CODE).send(rank.toJson())
 	}
 	catch (error){
@@ -67,26 +73,29 @@ users_app.get('/auth-rank',  async (req, res) => {
  * @throws 	500 - ServerError
  */
 users_app.post('/create', async (req, res) => {
-	//req["user"] is assigned in the FirebaseTools after user is authenticated
-	if(req.query.first === null || req.query.last === null || req.query.code === null){
-		const error = APIResponse.MissingRequiredParameters()
-		res.status(error.code).send(error.toJson())
-	}
-	else{
-		try{
-			const success = await createUser(req["user"]["user_id"], req.query.code as string, req.query.first as string, req.query.last as string)
-			res.status(success.code).send(success.toJson())
+	console.log("Entered Create")
+	try{
+		if(req.body === undefined || req.body === null){
+			throw APIResponse.MissingRequiredParameters()
 		}
-		catch(suberror){
-            if (suberror instanceof APIResponse){
-                res.status(suberror.code).send(suberror.toJson())
-            }
-            else {
-                console.log("FAILED WITH DB FROM user ERROR: "+ suberror)
-                const apiResponse = APIResponse.ServerError()
-                res.status(apiResponse.code).send(apiResponse.toJson())
-            }
-        }
+		const first = ParameterParser.parseInputForString(req.body.first)
+		const last = ParameterParser.parseInputForString(req.body.last)
+		const code = ParameterParser.parseInputForString(req.body.code)
+		console.log("Has parameters")
+		const success = await createUser(req["user"]["user_id"], code, first, last)
+		console.log("Created USER!!")
+		const user = await getUser(req["user"]["user_id"])
+		res.status(success.code).send(user)
+	}
+	catch(suberror){
+		if (suberror instanceof APIResponse){
+			res.status(suberror.code).send(suberror.toJson())
+		}
+		else {
+			console.log("FAILED WITH DB FROM user ERROR: "+ suberror)
+			const apiResponse = APIResponse.ServerError()
+			res.status(apiResponse.code).send(apiResponse.toJson())
+		}
 	}
 	
 })
@@ -98,18 +107,11 @@ users_app.post('/create', async (req, res) => {
  * @throws  401 - Unauthorized
  * @throws 	500 - ServerError 
  */
-users_app.get('/get', async (req, res) => {
-	console.log("Running /get")
-	console.log(req.originalUrl)
-	console.log(req.hostname)
-	console.log(req.path)
-	console.log(req.route)
-	console.log(req.body)
-	console.log(req.method)
+users_app.get('/', async (req, res) => {
 
 	try{
 		const user = await getUser(req["user"]["user_id"])
-		res.status(APIResponse.SUCCESS_CODE).send(user.toJson())
+		res.status(APIResponse.SUCCESS_CODE).send(user)
 	}
 	catch(error){
 		if(error instanceof APIResponse){
@@ -300,7 +302,9 @@ users_app.get('/points', async (req, res) => {
 
 /**
  * Gets all links that a user created
- * @throws 
+ * @throws 400 -  Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 500 - Server Error
  */
 users_app.get('/links', async (req,res) => {
 	try {
@@ -319,5 +323,229 @@ users_app.get('/links', async (req,res) => {
 		}
 	}
 })
+
+
+/**
+ * Search for a user whose last name starts with the given term
+ * @param query.term String term to search for
+ * @param query.previousName The last name of the last user returned by a query with the same term
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permissions
+ * @throws 422 - Missing required Parameters
+ * @throws 426 - Invalid Format
+ * @throws 500 - Server Error
+ */
+users_app.get('/search', async (req,res) => {
+	try{
+		if(req.query === undefined || req.query === null || !("term" in req.query)){
+			if(req.query === undefined || req.query === null ){
+				console.error("Missing query")
+				throw APIResponse.MissingRequiredParameters()
+			}
+			else if(!("term" in req.query)){
+				console.error("Missing term")
+				throw APIResponse.MissingRequiredParameters()
+			}
+			else{
+				console.error("Unknown missing parameter")
+				throw APIResponse.MissingRequiredParameters()
+			}
+		}
+
+		const user = await getUser(req["user"]["user_id"])
+		verifyUserHasCorrectPermission(user,[UserPermissionLevel.PROFESSIONAL_STAFF])
+		const lastName = ParameterParser.parseInputForString(req.query.term)
+		if("previousName" in req.query){
+			const users = await searchForUsers(lastName, ParameterParser.parseInputForString(req.query.previousName))
+			res.status(APIResponse.SUCCESS_CODE).send({users: users})
+		}
+		else{
+			const users = await searchForUsers(lastName)
+			res.status(APIResponse.SUCCESS_CODE).send({users: users})
+		}
+	}
+	catch(error) {
+		if (error instanceof APIResponse) {
+			res.status(error.code).send(error.toJson())
+		}
+		else {
+			console.log("FAILED WITH DB FROM user ERROR: " + error)
+			const apiResponse = APIResponse.ServerError()
+			res.status(apiResponse.code).send(apiResponse.toJson())
+		}
+	}
+})
+
+/**
+ * Update the user model with the given fields. Every user can update their own first and last name, but only rhps and prof staff can change other aspects of the user
+ * @param body.id - Id of the user to update. If the id is null, the current user will be updated
+ * @param body.firstName - New first name for the user
+ * @param body.lastName - New last name for the user
+ * @param body.house - house name for the user. Must be an existing hosue
+ * @param body.floorId - new floor id for the user. Must match an existing floor id
+ * @param body.permissionLevel - new permission level for the user
+ * @param body.enabled - bool for if the user is enabled or not
+ * 
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permission
+ * @throws 422 - Missing Required Parameter
+ * @throws 425 - Uknown Hosue
+ * @throws 426 - Invalid Format
+ * @throws 428 - Invalid Floor Id
+ * @throws 500 - Server Error
+ */
+users_app.put('/', async (req,res) => {
+	try{
+		if(req.body === undefined || req.body === null ){
+			console.error("Missing body")
+			throw APIResponse.MissingRequiredParameters()
+		}
+
+		if(!("id" in req.body)){
+			//ID not in body means only first and last name can be updated
+			if(("firstName" in req.body || "lastName" in req.body)){
+				const user = await getUser(req["user"]["user_id"])
+				if("firstName" in req.body){
+					user.firstName = ParameterParser.parseInputForString(req.body.firstName)
+				}
+				if("lastName" in req.body){
+					user.lastName = ParameterParser.parseInputForString(req.body.lastName)
+				}
+				await updateUser(user)
+				throw APIResponse.Success()
+			}
+			else{
+				throw APIResponse.MissingRequiredParameters()
+			}
+		}
+		else{
+			const user = await getUser(req["user"]["user_id"])
+			verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.RHP])
+			if(user.permissionLevel === UserPermissionLevel.RHP){
+				if(("firstName" in req.body || "lastName" in req.body || "house" in req.body || "floorId" in req.body)){
+					const modifiedUser = await getUser(req.body.id)
+					if("firstName" in req.body){
+						modifiedUser.firstName = ParameterParser.parseInputForString(req.body.firstName)
+					}
+					if("lastName" in req.body){
+						modifiedUser.lastName = ParameterParser.parseInputForString(req.body.lastName)
+					}
+					if("house" in req.body ){
+						if(req.body.house !== modifiedUser.house){
+							if("floorId" in req.body){
+								//TODO remove the user from the current house
+								const houseId = ParameterParser.parseInputForString(req.body.house)
+								const house = await getHouseByName(houseId)
+								const floorId = ParameterParser.parseInputForString(req.body.floorId)
+								if( house.floorIds.indexOf(floorId) === -1){
+									throw APIResponse.InvalidFloorId()
+								}
+								else{
+									await removeUserFromHouse(modifiedUser)
+									modifiedUser.house = house.id
+									modifiedUser.floorId = floorId
+									modifiedUser.semesterPoints = 0
+									modifiedUser.totalPoints = 0
+								}
+								
+							}
+							else{
+								throw APIResponse.InvalidFloorId()
+							}
+						}
+					}
+					else if("floorId" in req.body){
+						//TODO remove the user from the current house
+						const house = await getHouseByName(modifiedUser.house)
+						const floorId = ParameterParser.parseInputForString(req.body.floorId)
+						if( house.floorIds.indexOf(floorId) === -1){
+							throw APIResponse.InvalidFloorId()
+						}
+						else{
+							modifiedUser.floorId = floorId
+						}
+					}
+					await updateUser(modifiedUser)
+					throw APIResponse.Success()
+				}
+				else{
+					throw APIResponse.MissingRequiredParameters()
+				}
+			}
+			else if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+				if(("firstName" in req.body || "lastName" in req.body || "house" in req.body || "floorId" in req.body || "permissionLevel" in req.body || "enabled" in req.body)){
+					const modifiedUser = await getUser(req.body.id)
+					if("firstName" in req.body){
+						modifiedUser.firstName = ParameterParser.parseInputForString(req.body.firstName)
+					}
+					if("lastName" in req.body){
+						modifiedUser.lastName = ParameterParser.parseInputForString(req.body.lastName)
+					}
+					if("permissionLevel" in req.body){
+						modifiedUser.permissionLevel = ParameterParser.parseInputForNumber(req.body.permissionLevel, 0,5)
+					}
+					if("enabled" in req.body){
+						modifiedUser.enabled = ParameterParser.parseInputForBoolean(req.body.enabled)
+					}
+
+					if("house" in req.body ){
+						if(req.body.house !== modifiedUser.house){
+							if("floorId" in req.body){
+								//TODO remove the user from the current house
+								const houseId = ParameterParser.parseInputForString(req.body.house)
+								const house = await getHouseByName(houseId)
+								const floorId = ParameterParser.parseInputForString(req.body.floorId)
+								if( house.floorIds.indexOf(floorId) === -1){
+									throw APIResponse.InvalidFloorId()
+								}
+								else{
+									await removeUserFromHouse(modifiedUser)
+									modifiedUser.house = house.id
+									modifiedUser.floorId = floorId
+									modifiedUser.semesterPoints = 0
+									modifiedUser.totalPoints = 0
+								}
+								
+							}
+							else{
+								throw APIResponse.InvalidFloorId()
+							}
+						}
+					}
+					else if("floorId" in req.body){
+						//TODO remove the user from the current house
+						const house = await getHouseByName(modifiedUser.house)
+						const floorId = ParameterParser.parseInputForString(req.body.floorId)
+						if( house.floorIds.indexOf(floorId) === -1){
+							throw APIResponse.InvalidFloorId()
+						}
+						else{
+							modifiedUser.floorId = floorId
+						}
+					}
+					await updateUser(modifiedUser)
+					throw APIResponse.Success()
+				}
+				else{
+					throw APIResponse.MissingRequiredParameters()
+				}
+			}
+		}
+		
+	}
+	catch(error) {
+		if (error instanceof APIResponse) {
+			res.status(error.code).send(error.toJson())
+		}
+		else {
+			console.log("FAILED WITH DB FROM user ERROR: " + error)
+			const apiResponse = APIResponse.ServerError()
+			res.status(apiResponse.code).send(apiResponse.toJson())
+		}
+	}
+})
+
 
 export const user_main = functions.https.onRequest(users_main)

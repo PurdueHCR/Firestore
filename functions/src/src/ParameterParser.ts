@@ -42,6 +42,8 @@ export function parseInputForBoolean(arg:any): boolean {
 /**
  * Makes sure that a field is a valid number
  * @param arg Value of field to parse (req.body.field or req.query.field)
+ * @param min Optional exclusive minimum
+ * @param max Optional exclusive maximum
  * @throws 422 - Missing Required Parameters
  * @throws 426 - Incorrect Format
  */

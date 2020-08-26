@@ -4,21 +4,21 @@ abstract class $State extends Equatable{
   const $State();
 }
 
-class $Initial extends $State {
-  const $Initial();
-  @override
-  List<Object> get props => [];
-}
 
 class $PageLoading extends $State {
-  const $Loading();
+  const $PageLoading();
   @override
   List<Object> get props => [];
 }
 
-class $Error extends $State {
-  final String message;
-  const $Error({this.message = ""});
+class $PageLoaded extends $State {
+  const $PageLoaded();
   @override
-  List<Object> get props => [message];
+  List<Object> get props => [];
+}
+
+class $PageInitializeError extends $State {
+  const $PageInitializeError();
+  @override
+  List<Object> get props => [];
 }

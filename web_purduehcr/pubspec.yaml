@@ -20,6 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^1.0.0
+  provider: ^3.1.0
   equatable: ^0.6.1
   meta: ^1.1.8
   cloud_functions: ^0.5.0
@@ -30,6 +31,8 @@ dependencies:
   charts_flutter: ^0.9.0
   url_launcher: ^5.1.4
   url_launcher_web: ^0.1.0
+  flutter_slidable: ^0.5.5
+  linkable: ^1.0.4
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -64,6 +67,7 @@ flutter:
   assets:
     - assets/main_icon.jpg
     - assets/main_icon.png
+    - assets/loading_icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

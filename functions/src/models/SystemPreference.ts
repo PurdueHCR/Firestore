@@ -7,6 +7,10 @@ export class SystemPreference {
     static IS_COMPETITION_ENABLED = "isHouseEnabled"
     static IS_COMPETITION_VISIBLE = "isCompetitionVisible"
     static SUGGESTED_POINT_IDS = "suggestedPointIDs"
+    static HOUSE_IDS = "houseIDs"
+    static SHOW_REWARDS = "ShowRewards"
+    static DEFAULT_IMAGE_URL = "DefaultImageURL"
+    static DEFAULT_IMAGE_NAME = "DefaultImageName"
 
     id: string
     androidVersion: string
@@ -16,8 +20,14 @@ export class SystemPreference {
     isCompetitionEnabled: Boolean
     suggestedPointIds: string
     isCompetitionVisible: Boolean
+    defaultImageURL: string
+    defaultImageName: string
+    showRewards: boolean
+    houseIds: string[]
 
-    constructor(id:string, androidVersion: string,  competitionDisabledMessage: string, iosVersion: string, competitionHiddenMessage:string, isCompetitionEnabled: Boolean, suggestedPointIds: string, isCompetitionVisible: Boolean){
+    constructor(id:string, androidVersion: string,  competitionDisabledMessage: string, iosVersion: string, competitionHiddenMessage:string, 
+        isCompetitionEnabled: Boolean, suggestedPointIds: string, isCompetitionVisible: Boolean, houseIds: string[], defaultImageURL: string,
+        defaultImageName: string, showRewards: boolean){
         this.id = id
         this.androidVersion = androidVersion
         this.competitionDisabledMessage = competitionDisabledMessage
@@ -26,6 +36,10 @@ export class SystemPreference {
         this.isCompetitionEnabled = isCompetitionEnabled
         this.suggestedPointIds = suggestedPointIds
         this.isCompetitionVisible = isCompetitionVisible
+        this.houseIds = houseIds
+        this.defaultImageName = defaultImageName
+        this.defaultImageURL = defaultImageURL
+        this.showRewards = showRewards
     }
 
     updateFirebaseJson(){
@@ -34,17 +48,17 @@ export class SystemPreference {
         data[SystemPreference.COMPETITION_HIDDEN_MESSAGE] = this.competitionHiddenMessage
         data[SystemPreference.IS_COMPETITION_ENABLED] = this.isCompetitionEnabled
         data[SystemPreference.IS_COMPETITION_VISIBLE] = this.isCompetitionVisible
+        data[SystemPreference.HOUSE_IDS] = this.houseIds
+        data[SystemPreference.DEFAULT_IMAGE_NAME] = this.defaultImageName
+        data[SystemPreference.DEFAULT_IMAGE_URL] = this.defaultImageURL
+        data[SystemPreference.SHOW_REWARDS] = this.showRewards
         return data
     }
 
     firebaseJson(){
-        const data= {}
+        const data = this.updateFirebaseJson()
         data[SystemPreference.ANDROID_VERSION] = this.androidVersion
-        data[SystemPreference.COMPETITION_DISABLED_MESSAGE] = this.competitionDisabledMessage
-        data[SystemPreference.COMPETITION_HIDDEN_MESSAGE] = this.competitionHiddenMessage
         data[SystemPreference.IOS_VERSION] = this.iosVersion
-        data[SystemPreference.IS_COMPETITION_ENABLED] = this.isCompetitionEnabled
-        data[SystemPreference.IS_COMPETITION_VISIBLE] = this.isCompetitionVisible
         data[SystemPreference.SUGGESTED_POINT_IDS] = this.suggestedPointIds
         return data
     }
@@ -52,13 +66,16 @@ export class SystemPreference {
     static fromDocument(document: FirebaseFirestore.DocumentSnapshot): SystemPreference{
         let id: string
         let androidVersion: string
-        // let oneTimeCode: string
         let competitionDisabledMessage: string
         let competitionHiddenMessage: string
+        let houseIds: string[]
         let iosVersion: string
         let isCompetitionEnabled: Boolean
         let suggestedPointIds: string
         let isCompetitionVisible: Boolean
+        let defaultImageURL: string
+        let defaultImageName: string
+        let showRewards: boolean
         id = document.id;
 
         if( SystemPreference.ANDROID_VERSION in document.data()!){
@@ -109,6 +126,35 @@ export class SystemPreference {
         else{
             suggestedPointIds = "";
         }
-        return new SystemPreference(id, androidVersion, competitionDisabledMessage, iosVersion, competitionHiddenMessage, isCompetitionEnabled, suggestedPointIds, isCompetitionVisible);
+
+        if( SystemPreference.HOUSE_IDS in document.data()!){
+            houseIds = document.data()![SystemPreference.HOUSE_IDS]
+        }
+        else{
+            houseIds = []
+        }
+
+        if(SystemPreference.DEFAULT_IMAGE_NAME in document.data()!){
+            defaultImageName = document.data()![SystemPreference.DEFAULT_IMAGE_NAME]
+        }
+        else{
+            defaultImageName = ""
+        }
+
+        if(SystemPreference.DEFAULT_IMAGE_URL in document.data()!){
+            defaultImageURL = document.data()![SystemPreference.DEFAULT_IMAGE_URL]
+        }
+        else{
+            defaultImageURL = ""
+        }
+
+        if(SystemPreference.SHOW_REWARDS in document.data()!){
+            showRewards = document.data()![SystemPreference.SHOW_REWARDS]
+        }
+        else{
+            showRewards = true
+        }
+
+        return new SystemPreference(id, androidVersion, competitionDisabledMessage, iosVersion, competitionHiddenMessage, isCompetitionEnabled, suggestedPointIds, isCompetitionVisible, houseIds, defaultImageURL, defaultImageName, showRewards);
     }
 }

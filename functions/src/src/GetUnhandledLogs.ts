@@ -21,6 +21,9 @@ export async function getUnhandledPointLogs( user: User,limit: number = -1) : Pr
             logs.sort((a:PointLog, b:PointLog) => {
                 return (b.dateOccurred < a.dateOccurred)? -1: 1
             })
+            logs.filter((element, index, array) => {
+                return element.floorId === user.floorId
+            })
             if(limit > 0){
                 logs = logs.slice(0,limit)
             }

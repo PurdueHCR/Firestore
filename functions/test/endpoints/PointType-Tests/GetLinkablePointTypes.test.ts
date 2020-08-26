@@ -19,23 +19,25 @@ describe('point_types/linkable', () =>{
 
         pt_func = require('../../../src/endpoint_paths/index.ts').point_type
 
+        await FirestoreDataFactory.setAllHouses(db)
+
         await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0)
         await FirestoreDataFactory.setUser(db, RHP_ID, 1)
         await FirestoreDataFactory.setUser(db, PROF_ID, 2)
         await FirestoreDataFactory.setUser(db, PRIV_RES, 4)
 
-        await FirestoreDataFactory.setPointType(db, 0, {residents_can_submit: true, is_enabled: true, permission_level: 1})
-        await FirestoreDataFactory.setPointType(db, 1, {residents_can_submit: true, is_enabled: true, permission_level: 2})
-        await FirestoreDataFactory.setPointType(db, 2, {residents_can_submit: true, is_enabled: true, permission_level: 3})
-        await FirestoreDataFactory.setPointType(db, 3, {residents_can_submit: true, is_enabled: false, permission_level: 1})
-        await FirestoreDataFactory.setPointType(db, 4, {residents_can_submit: true, is_enabled: false, permission_level: 2})
-        await FirestoreDataFactory.setPointType(db, 5, {residents_can_submit: true, is_enabled: false, permission_level: 3})
-        await FirestoreDataFactory.setPointType(db, 6, {residents_can_submit: false, is_enabled: true, permission_level: 1})
-        await FirestoreDataFactory.setPointType(db, 7, {residents_can_submit: false, is_enabled: true, permission_level: 2})
-        await FirestoreDataFactory.setPointType(db, 8, {residents_can_submit: false, is_enabled: true, permission_level: 3})
-        await FirestoreDataFactory.setPointType(db, 9, {residents_can_submit: false, is_enabled: false, permission_level: 1})
-        await FirestoreDataFactory.setPointType(db, 10, {residents_can_submit: false, is_enabled: false, permission_level: 2})
-        await FirestoreDataFactory.setPointType(db, 11, {residents_can_submit: false, is_enabled: false, permission_level: 3})
+        await FirestoreDataFactory.setPointType(db, 1, {residents_can_submit: true, is_enabled: true, permission_level: 1, value: 1})
+        await FirestoreDataFactory.setPointType(db, 2, {residents_can_submit: true, is_enabled: true, permission_level: 2, value: 2})
+        await FirestoreDataFactory.setPointType(db, 3, {residents_can_submit: true, is_enabled: true, permission_level: 3, value: 3})
+        await FirestoreDataFactory.setPointType(db, 4, {residents_can_submit: true, is_enabled: false, permission_level: 1, value: 4})
+        await FirestoreDataFactory.setPointType(db, 5, {residents_can_submit: true, is_enabled: false, permission_level: 2, value: 5})
+        await FirestoreDataFactory.setPointType(db, 6, {residents_can_submit: true, is_enabled: false, permission_level: 3, value: 6})
+        await FirestoreDataFactory.setPointType(db, 7, {residents_can_submit: false, is_enabled: true, permission_level: 1, value: 7})
+        await FirestoreDataFactory.setPointType(db, 8, {residents_can_submit: false, is_enabled: true, permission_level: 2, value: 8})
+        await FirestoreDataFactory.setPointType(db, 9, {residents_can_submit: false, is_enabled: true, permission_level: 3, value: 9})
+        await FirestoreDataFactory.setPointType(db, 10, {residents_can_submit: false, is_enabled: false, permission_level: 1, value: 10})
+        await FirestoreDataFactory.setPointType(db, 11, {residents_can_submit: false, is_enabled: false, permission_level: 2, value: 11})
+        await FirestoreDataFactory.setPointType(db, 12, {residents_can_submit: false, is_enabled: false, permission_level: 3, value: 12})
 
 
         await FirestoreDataFactory.setSystemPreference(db)
@@ -82,12 +84,12 @@ describe('point_types/linkable', () =>{
             else{
                 expect(res.status).toBe(200)
                 expect(res.body.point_types).toHaveLength(6)
-                expect(res.body.point_types[0].id).toBe("0")
-                expect(res.body.point_types[1].id).toBe("1")
-                expect(res.body.point_types[2].id).toBe("2")
-                expect(res.body.point_types[3].id).toBe("6")
-                expect(res.body.point_types[4].id).toBe("7")
-                expect(res.body.point_types[5].id).toBe("8")
+                expect(res.body.point_types[0].id).toBe("1")
+                expect(res.body.point_types[1].id).toBe("2")
+                expect(res.body.point_types[2].id).toBe("3")
+                expect(res.body.point_types[3].id).toBe("7")
+                expect(res.body.point_types[4].id).toBe("8")
+                expect(res.body.point_types[5].id).toBe("9")
                 done()
             }
         })
@@ -102,7 +104,7 @@ describe('point_types/linkable', () =>{
             }
             else{
                 expect(res.status).toBe(200)
-                expect(res.body.point_types[0].id).toBe("2")
+                expect(res.body.point_types[0].id).toBe("3")
                 done()
             }
         })
@@ -118,10 +120,10 @@ describe('point_types/linkable', () =>{
             }
             else{
                 expect(res.status).toBe(200)
-                expect(res.body.point_types[0].id).toBe("1")
-                expect(res.body.point_types[1].id).toBe("2")
-                expect(res.body.point_types[2].id).toBe("7")
-                expect(res.body.point_types[3].id).toBe("8")
+                expect(res.body.point_types[0].id).toBe("2")
+                expect(res.body.point_types[1].id).toBe("3")
+                expect(res.body.point_types[2].id).toBe("8")
+                expect(res.body.point_types[3].id).toBe("9")
                 done()
             }
         })
@@ -132,7 +134,8 @@ describe('point_types/linkable', () =>{
     })
 
     //After all of the tests are done, make sure to delete the test firestore app
-    afterAll(()=>{
+    afterAll(async ()=>{
+        await FirestoreDataFactory.cleanDatabase(db)
         Promise.all(firebase.apps().map(app => app.delete()))
     })
 

@@ -1,5 +1,6 @@
-import { UserWithPoints } from "./User"
 import { PointLog } from "./PointLog"
+import { HouseAward } from "./HouseAward"
+
 
 export class House {
     
@@ -7,19 +8,31 @@ export class House {
     static COLOR = "Color"
     static NUMBER_OF_RESIDENTS = "NumberOfResidents"
     static TOTAL_POINTS =  "TotalPoints"
+    static FLOOR_IDS = "FloorIds"
+    static DOWNLOAD_URL = "DownloadURL"
+    static DESCRIPTION = "Description"
+    static HOUSE_AWARDS = "HouseAwards"
 
     color: string
     numberOfResidents: number
     totalPoints: number
     id:string
     pointsPerResident: number
+    description: string
+    downloadURL: string
+    houseAwards: HouseAward[]
+    floorIds: string[]
 
-    constructor(color:string, numberOfResidents: number, totalPoints: number, id: string){
+    constructor(color:string, numberOfResidents: number, totalPoints: number, floorIds: string[], id: string, downloadURL:string, description:string, houseAwards: HouseAward[]){
         this.color = color
         this.numberOfResidents = numberOfResidents
         this.totalPoints = totalPoints
         this.id = id
+        this.floorIds = floorIds
         this.pointsPerResident = totalPoints/numberOfResidents
+        this.description = description
+        this.downloadURL = downloadURL
+        this.houseAwards = houseAwards
     }
 
     firestoreJson() {
@@ -27,7 +40,34 @@ export class House {
         data[House.COLOR] = this.color
         data[House.NUMBER_OF_RESIDENTS] = this.numberOfResidents
         data[House.TOTAL_POINTS] = this.totalPoints
+        data[House.FLOOR_IDS] = this.floorIds
+        data[House.DOWNLOAD_URL] = this.downloadURL
+        data[House.DESCRIPTION] = this.description
+        data[House.HOUSE_AWARDS] = this.serializeHouseAwards()
         return data
+    }
+
+    updateHouseJson(){
+        const houseAwardsData:any[] = []
+        this.houseAwards.forEach((item) => {
+            houseAwardsData.push(item.toFirestoreJson())
+        })
+        const data = {}
+        data[House.COLOR] = this.color
+        data[House.NUMBER_OF_RESIDENTS] = this.numberOfResidents
+        data[House.FLOOR_IDS] = this.floorIds
+        data[House.DOWNLOAD_URL] = this.downloadURL
+        data[House.DESCRIPTION] = this.description
+        data[House.HOUSE_AWARDS] = this.serializeHouseAwards()
+        return data
+    }
+
+    serializeHouseAwards():any[] {
+        const houseAwardsData:any[] = []
+        this.houseAwards.forEach((item) => {
+            houseAwardsData.push(item.toFirestoreJson())
+        })
+        return houseAwardsData
     }
 
     /**
@@ -36,7 +76,13 @@ export class House {
     toPointUpdateJson() {
         const data = {}
         data[House.TOTAL_POINTS] = this.totalPoints
+        data[House.HOUSE_AWARDS] = this.serializeHouseAwards()
         return data
+    }
+
+    grantHouseAward(ppr:number, description: string){
+        this.totalPoints += this.numberOfResidents * ppr
+        this.houseAwards.push(new HouseAward(description, ppr))
     }
 
     static fromDocumentSnapshot(document: FirebaseFirestore.DocumentSnapshot): House{
@@ -55,6 +101,10 @@ export class House {
         let color: string
         let numberOfResidents: number
         let totalPoints: number
+        let floorIds: string[]
+        let description: string
+        let downloadURL: string
+        let houseAwards: HouseAward[]
         const id = doc_id
 
         if( House.COLOR in document){
@@ -77,29 +127,39 @@ export class House {
         else{
             totalPoints = -1;
         }
-        return new House(color, numberOfResidents, totalPoints, id)
-    }
-}
 
-export class HouseWithUser extends House {
-    users: UserWithPoints[] = []
-
-    getUser(id:string){
-        let i = 0;
-        while( i < this.users.length){
-            if(this.users[i].id === id){
-                return this.users[i]
-            }
-            i++
+        if(House.FLOOR_IDS in document){
+            floorIds = document[House.FLOOR_IDS]
+        }
+        else{
+            floorIds = []
         }
 
-        return null
-    }
+        if(House.DOWNLOAD_URL in document){
+            downloadURL = document[House.DOWNLOAD_URL]
+        }
+        else{
+            downloadURL = ""
+        }
 
-    addUser(pl:PointLog){
-        this.users.push(pl.createUser())
+        if(House.DESCRIPTION in document){
+            description = document[House.DESCRIPTION]
+        }
+        else{
+            description = ""
+        }
+
+        if(House.HOUSE_AWARDS in document){
+            houseAwards = HouseAward.fromHouseData(document[House.HOUSE_AWARDS])
+        }
+        else{
+            houseAwards = []
+        }
+
+        return new House(color, numberOfResidents, totalPoints, floorIds, id, downloadURL, description, houseAwards)
     }
 }
+
 
 export class HouseWithPointLog extends House{
     pointLogs: PointLog[] = []
