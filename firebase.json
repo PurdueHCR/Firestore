@@ -7,7 +7,6 @@
     "source": "functions"
   },
   "hosting": {
-    "site": "purduehcr",
     "public": "public",
     "ignore": [
       "firebase.json",
