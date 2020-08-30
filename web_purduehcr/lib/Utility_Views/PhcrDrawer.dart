@@ -246,4 +246,4 @@ class _DrawerOptions {
 }
 
 const String APP_INFO_DESCRIPTION = "This app is maintained by the PurdueHCR Development Committee. The PurdueHCR Development Committee is a group of students interested in application development and is open for everyone to join.\nIf you are interested in joining, you can join our slack channel.\n";
-const String APP_CONTACT_INFO = "Contact Information:\n\tPurdueHCR: purduehcrcontact@gmail.com\n\nCommittee President\n\tBen Hardin: hardin30@purdue.edu\nResidential Life Adviser\n\tAsa Cutler: cutler4@purdue.edu\nFlutter Developer\n\tBrian Johncox: brianjohncox232@gmail.com";
+const String APP_CONTACT_INFO = "Contact Information:\n\tPurdueHCR: purduehcr@gmail.com\n\nCommittee President\n\tBen Hardin: hardin30@purdue.edu\nResidential Life Adviser\n\tAsa Cutler: cutler4@purdue.edu\nFlutter Developer\n\tBrian Johncox: brianjohncox232@gmail.com";
