@@ -51,6 +51,13 @@ To connect to the database, you will need to talk to an exec member and get at l
 
 NOTE: For each of these files that you are not sent, you will have to create, but fill with `{}`
 
+Once you have the files downloaded, created, and saved into the env folder, go back to your bash/zsh terminal and navigate into the web_purduehcr/ directory. Run the commands
+```bash
+flutter pub get
+flutter packages pub run build_runner build --delete-conflicting-outputs
+```
+This will install all of the flutter packages and create some required files to connect to the database.
+
 **Run Configuration**
 We are almost done. Lastly, we need to setup the run configurations. This will let us easily switch between environments. Let's start by setting up the test environment.
 1. In Android Studio, click on the button on the top bar labeled "Add Configuration". It is to the left of the Device Dropdown.
