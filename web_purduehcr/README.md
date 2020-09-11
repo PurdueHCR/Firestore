@@ -36,13 +36,15 @@ If you see Chrome listed as an option in the list of flutter devices, Tada! Flut
 ### Setting up Android Studio
 Let's get you ready with Android Studio! VS Code is another good option, but no one knows how to setup Flutter with that. If only someone who was really cool would update this Readme with instructions on how to setup the PurdueHCR Flutter Web app in VS Code. ¯\\_(ツ)_/¯
 
+*ACTUALLY FIRST*, use GIT to clone this repository and save it somewhere nice! `git clone https://github.com/PurdueHCR/Firestore.git`
+
 First, [download Android Studio](https://developer.android.com/studio). This will take a few decades, so budget your time accordingly. Once you get AS installed, open up the PurdueHCR-Firestore/web_purduehcr folder.
 
 **Connecting to the database**
 PurdueHCR has 3 databases that can be connected and deployed to. *Production* is our live database. This has all of the data for the current state of the House Competition. *Test* is our hosted development environment. It behaves exactly like *Production*, but you can play with it however you want and trust that you won't affect the real competition. Lastly, we have the *Dev* environment. This is the environment that you run locally on your computer. This is useful when you are working on the API and the web page at the same time because you can see in real time what the output of the API is.
 
 
-To connect to the database, you will need to talk to an exec member and get at least one of these files. Place these files in the folder web_purduehcr/lin/Configuration/env.
+To connect to the database, you will need to talk to an exec member and get at least one of these files. Place these files in the folder web_purduehcr/lib/Configuration/env.
 - prod.json
 - test.json
 - dev.json
