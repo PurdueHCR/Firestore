@@ -5,6 +5,10 @@ This is the repository for the PurdueHCR Flutter Web app. This app is hosted usi
 ## Installation and setup
 These setup instructions will guide you through the installation of Flutter and setting up your project in Android Studio. Some creative and futuristic person will have to create VS Code installation instructions.
 
+**You will need access to a bash terminal with Git enabled to install everything. If you are on Mac or Linux, you can ignore this. If you are on windows, you will need to install [Git Bash](https://git-scm.com/downloads)**
+
+If you are unfamiliar with bash, here is a helpful [Bash Cheat Sheet](https://www.educative.io/blog/bash-shell-command-cheat-sheet). In these instructions when the term **navigate** is used, you will need to use the command `cd [DIRECTORY]`.
+
 ### Installing Flutter
 Flutter is Google's cross platform development tool. This means that you can develop one code base and deploy it as a native app with almost no changes on iOS, Android, and Web. Downloading is easy, so lets get started! 
 
@@ -17,7 +21,9 @@ To use flutter in the terminal, we need to add the Flutter SDK to your PATH. If 
 - If you use zsh
     - ``touch ~/.zshrc; echo "export PATH=\"\$PATH:`pwd`/flutter/bin\"" >> ~/.zshrc``
 
-There you go! Flutter is all setup! Try closing your terminal window, reopen it and run `which flutter`. If it returns a path to the correct location, it is setup correctly. Now run `flutter doctor`. This will give you a list of steps to complete. Complete them all!
+There you go! Flutter is all setup! Try closing your terminal window, reopen it and run `which flutter`. If it prints a path to the correct location, it is setup correctly. If it does not print anything, run the command `echo $PATH` and look for the section on flutter. A common mistake is for the path to be /flutter/flutter/bin. If that is the path, you will need to modify the .\<rc file\> and fix the path. 
+
+Now run `flutter doctor`. This will give you a list of steps to complete. Don't worry about doing them now. We will complete the important steps in this tutorial. You can come back and complete the remaining steps later.
 
 Head over to [Flutter's Installation Page](https://flutter.dev/docs/get-started/install) if you have any problems with the installation.
 
@@ -40,7 +46,7 @@ First, [download Android Studio](https://developer.android.com/studio). This wil
 - Windows: File, then go to settings
 - Mac: Android Studio, Preferences
 
-Then go to the plugins option on settings. Search for and install the Flutter and Dart plug-ins. Once installed, go back to settings/preferences and select the section label Languages & Frameworks. Click on the Flutter option and set the Flutter SDK path to be the folder where you installed Flutter. 
+Now, select **Plugins**. Search for and install the *Flutter* and *Dart* plug-ins. Once installed, go back to the settings and select the section labeled **Languages & Frameworks**. Click on the **Flutter** and set the Flutter SDK path to be the folder where you installed Flutter. 
 
 Restart Android Studio. If nothing crashes, do yourself a favor and install the plugin Nyan Progress bar. *You'll thank us later.*
 
@@ -67,7 +73,10 @@ flutter packages pub run build_runner build --delete-conflicting-outputs
 ```
 This will install all of the flutter packages and create some required files to connect to the database.
 
+*Note: If the command never stops, talk to an Exec board member about getting the compiled files. Those are test.g.dart, prod.g.dart, dev.g.dart, and config.g.dart. You can manually add test, prod, and dev to the /lib/Configuration/env folder and config to lib/Configuration/ folder.*
+
 **Run Configuration**
+
 We are almost done. Lastly, we need to setup the run configurations. This will let us easily switch between environments. Let's start by setting up the test environment.
 1. In Android Studio, click on the button on the top bar labeled "Add Configuration". It is to the left of the Device Dropdown.
 2. In the pop-up window, click on the plus button on the top left to create a new configuration. 
