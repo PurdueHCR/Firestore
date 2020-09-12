@@ -38,9 +38,20 @@ Let's get you ready with Android Studio! VS Code is another good option, but no 
 
 *ACTUALLY FIRST*, use GIT to clone this repository and save it somewhere nice! `git clone https://github.com/PurdueHCR/Firestore.git`
 
-First, [download Android Studio](https://developer.android.com/studio). This will take a few decades, so budget your time accordingly. Once you get AS installed, open up the PurdueHCR-Firestore/web_purduehcr folder.
+First, [download Android Studio](https://developer.android.com/studio). This will take a few decades, so budget your time accordingly. Once AS is done installing, open it and go to 
+- Windows: File, then go to settings
+- Mac: Android Studio, Preferences
+
+Then go to the plugins option on settings. Search for and install the Flutter and Dart plug-ins. Once installed, go back to settings/preferences and select the section label Languages & Frameworks. Click on the Flutter option and set the Flutter SDK path to be the folder where you installed Flutter. 
+
+Restart Android Studio. If nothing crashes, do yourself a favor and install the plugin Nyan Progress bar. *You'll thank us later.*
+
+**Clone the Git Repository**
+
+Up next is installing our code! Open up your bash terminal, navigate to a safe folder where you want to download the code and run `git clone https://github.com/PurdueHCR/Firestore.git`. Now in Android Studio, go to the top bar, File, Open, and navigate to the directory where you cloned the git repository. You want to make sure that you select the web_purduehcr folder when you press open for Android Studio. Do not open the Android folder as that will break things. If Android studio opens up and in the Project Manager on the left you see a folder called lib, you are in the right place.
 
 **Connecting to the database**
+
 PurdueHCR has 3 databases that can be connected and deployed to. *Production* is our live database. This has all of the data for the current state of the House Competition. *Test* is our hosted development environment. It behaves exactly like *Production*, but you can play with it however you want and trust that you won't affect the real competition. Lastly, we have the *Dev* environment. This is the environment that you run locally on your computer. This is useful when you are working on the API and the web page at the same time because you can see in real time what the output of the API is.
 
 
