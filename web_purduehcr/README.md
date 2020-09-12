@@ -36,8 +36,6 @@ If you see Chrome listed as an option in the list of flutter devices, Tada! Flut
 ### Setting up Android Studio
 Let's get you ready with Android Studio! VS Code is another good option, but no one knows how to setup Flutter with that. If only someone who was really cool would update this Readme with instructions on how to setup the PurdueHCR Flutter Web app in VS Code. ¯\\_(ツ)_/¯
 
-*ACTUALLY FIRST*, use GIT to clone this repository and save it somewhere nice! `git clone https://github.com/PurdueHCR/Firestore.git`
-
 First, [download Android Studio](https://developer.android.com/studio). This will take a few decades, so budget your time accordingly. Once AS is done installing, open it and go to 
 - Windows: File, then go to settings
 - Mac: Android Studio, Preferences
