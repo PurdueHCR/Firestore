@@ -22,16 +22,19 @@ git checkout dev
 cd functions/
 npm install -g firebase-tools ts-node typescript
 npm install
+firebase login
 ```
 3. Talk to an exec member to download the following 2 key files and save them in the functions/development_keys folder.
 	- dev.json
 	- keys.json
 4. In your bash terminal, run `npm run emulate`. You should get a message that "All emulators ready!" and the terminal should hang, while it waits for an api endpoint to be called.
-5. Open Google and search for [Advanced REST Client (ARC)](https://chrome.google.com/webstore/detail/advanced-rest-client/hgmloofddffdnphfgcellkdfbfbjeloo?hl=en-US) and install it.
-6. Now open the PurdueHCR Webapp and naivgate to the [token page](https://purdue-hcr-test.firebaseapp.com/#/token). Log in, and copy the token.
+5. Open Google and search for [Advanced REST Client (ARC)](https://chrome.google.com/webstore/detail/advanced-rest-client/hgmloofddffdnphfgcellkdfbfbjeloo?hl=en-US) and install it. This is a tool that will allow us to test our HTTP Requests.
+6. Now open the PurdueHCR Webapp and naivgate to the [token page](https://purdue-hcr-test.firebaseapp.com/#/token). Log in, and copy the token. This is the authenitation token used to identify what user is making a request.
 	- If you are not taken to a page with a token, make sure you are logged in and the url ends in /token.
+	- If this still does not work, you will need to either reset your browser cache for this page or try opening this in another browser.
+	- If this still does not work, ask for help.
 7. Open ARC and type into the following fields:
-	- Request URL: http://localhost:5001/purdue-hcr-test/us-central1/user/get
+	- Request URL: http://localhost:5001/purdue-hcr-test/us-central1/user/
 		- or optionally 
 			- Host: http://localhost:5001
 			- Path: /purdue-hcr-test/us-central1/user/get
