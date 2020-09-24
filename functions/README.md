@@ -18,6 +18,7 @@
 1. If you haven't already cloned this repository, in your bash terminal, use the `cd` command to navigate to a directory that you won't delete. Then run the command `git clone https://github.com/PurdueHCR/Firestore.git` to clone the repository.
 2. Run the following commands:
 ``` bash
+cd Firestore/
 git checkout dev
 cd functions/
 npm install -g firebase-tools ts-node typescript
@@ -37,7 +38,7 @@ firebase login
 	- Request URL: http://localhost:5001/purdue-hcr-test/us-central1/user/
 		- or optionally 
 			- Host: http://localhost:5001
-			- Path: /purdue-hcr-test/us-central1/user/get
+			- Path: /purdue-hcr-test/us-central1/user/
 	- Parameters
 		- Headers
 			- Header Name: Authorization
