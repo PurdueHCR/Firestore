@@ -162,6 +162,7 @@ export async function getFacultyProfile(user:User): Promise<FacultyProfile>{
 	}
 
 	const nextReward = Object.assign({}, getNextRewardForHouse) as any
+	data.next_reward = []
 	data.next_reward.push(nextReward)
 	
 	return data
