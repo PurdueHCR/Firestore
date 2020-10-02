@@ -136,3 +136,38 @@ export async function getProfessionalStaffProfile(user:User): Promise<Profession
 export declare type ProfessionalStaffProfile = {
 	houses?: any[]
 }
+
+
+/**
+ * Gets all information for the overview page if user is faculty
+ *  *** and temporaryly, rhp and privileged res
+ * @param user User for which to get profile
+ * @throws 403 - Invalid permissions
+ * @throws 500 - Server Error
+ */
+export async function getFacultyProfile(user:User): Promise<FacultyProfile>{
+	verifyUserHasCorrectPermission(user, [UserPermissionLevel.FACULTY])
+	const data:FacultyProfile = {}
+	const housesModels = await getAllHouses()
+	data.houses = []
+	for(const houseModel of housesModels){
+		//Convert the house into a JSON model
+		const house = Object.assign({}, houseModel) as any
+		const rankArray = await getRankArray(houseModel)
+		const pointTypes = await getHousePointTypeHistory(houseModel)
+		house.yearRank = rankArray.getYearlyRank()
+		house.semesterRank = rankArray.getSemesterRank()
+		house.submissions = pointTypes.housePointTypes
+		data.houses.push(house)
+	}
+
+	const nextReward = Object.assign({}, getNextRewardForHouse) as any
+	data.next_reward.push(nextReward)
+	
+	return data
+}
+
+export declare type FacultyProfile = {
+	next_reward?: any[]
+	houses?: any[]
+}
