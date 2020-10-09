@@ -117,7 +117,7 @@ web_controls_app.get('/userOverview', async (req, res) => {
 		}
 		else if(user.permissionLevel === UserPermissionLevel.FACULTY) {
 			const faculty_profile = await getFacultyProfile(user)
-			res.status(APIResponse.SUCCESS_CODE).send({"faculty_staff_profile":faculty_profile})
+			res.status(APIResponse.SUCCESS_CODE).send({"fhp":faculty_profile})
 		}
 		else{
 			console.error("Other user permissions not yet implemented")

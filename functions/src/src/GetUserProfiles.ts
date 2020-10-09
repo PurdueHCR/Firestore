@@ -148,19 +148,15 @@ export declare type ProfessionalStaffProfile = {
 export async function getFacultyProfile(user:User): Promise<FacultyProfile>{
 	verifyUserHasCorrectPermission(user, [UserPermissionLevel.FACULTY])
 	const data:FacultyProfile = {}
-	const housesModels = await getAllHouses()
-	data.houses = []
-	for(const houseModel of housesModels){
-		//Convert the house into a JSON model
-		const house = Object.assign({}, houseModel) as any
-		const rankArray = await getRankArray(houseModel)
-		const pointTypes = await getHousePointTypeHistory(houseModel)
-		house.yearRank = rankArray.getYearlyRank()
-		house.semesterRank = rankArray.getSemesterRank()
-		house.submissions = pointTypes.housePointTypes
-		data.houses.push(house)
+	const houses = await getAllHouses()
+	let user_house: House = houses[0]
+	for(const house of houses){
+		if(house.id === user.house){
+			user_house = house
+			break
+		}
 	}
-
+	data.house = user_house
 	const nextReward = Object.assign({}, getNextRewardForHouse) as any
 	data.next_reward = []
 	data.next_reward.push(nextReward)
@@ -169,6 +165,6 @@ export async function getFacultyProfile(user:User): Promise<FacultyProfile>{
 }
 
 export declare type FacultyProfile = {
-	next_reward?: any[]
-	houses?: any[]
+	next_reward?: any[],
+	house?: any
 }
