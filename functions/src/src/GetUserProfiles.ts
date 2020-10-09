@@ -150,21 +150,20 @@ export async function getFacultyProfile(user:User): Promise<FacultyProfile>{
 	const data:FacultyProfile = {}
 	const houses = await getAllHouses()
 	let user_house: House = houses[0]
+	data.houses = []
 	for(const house of houses){
-		if(house.id === user.house){
+		if (house.id == user.house) {
 			user_house = house
-			break
 		}
+		data.houses.push(house)
 	}
-	data.house = user_house
-	const nextReward = Object.assign({}, getNextRewardForHouse) as any
-	data.next_reward = []
-	data.next_reward.push(nextReward)
+	const next_reward = await getNextRewardForHouse(user_house)
+	data.next_reward = next_reward
 	
 	return data
 }
 
 export declare type FacultyProfile = {
-	next_reward?: any[],
-	house?: any
+	next_reward?: any,
+	houses?: any[]
 }
