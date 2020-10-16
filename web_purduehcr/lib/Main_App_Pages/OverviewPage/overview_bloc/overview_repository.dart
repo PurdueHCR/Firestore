@@ -30,6 +30,7 @@ class OverviewRepository {
         return _getProfessionalStaffLoaded();
       case UserPermissionLevel.FHP:
       case UserPermissionLevel.EXTERNAL_ADVISER:
+        return _getExternalAdviserLoaded();
       default:
         return Future.error(UnimplementedError());
     }
@@ -88,7 +89,7 @@ class OverviewRepository {
   ///Call the api to get the information for the resident overview
   Future<ResidentOverviewLoaded> _getPrivilegeResidentOverview() async {
     Map<String,dynamic> data = (await callCloudFunction(config, Method.GET, "web/userOverview"));
-    Map<String,dynamic> residentOverview = data["privilege_resident"];
+    Map<String,dynamic> residentOverview = data["privileged_resident"];
     UserRank rank = UserRank.fromJson(residentOverview["user_rank"]);
     Reward nextReward = Reward.fromJson(residentOverview["next_reward"]);
 
@@ -119,6 +120,21 @@ class OverviewRepository {
       houses.add(House.fromJson(element));
     });
     return ProfessionalStaffLoaded(houses: houses);
+  }
+
+  Future<ExternalAdviserLoaded> _getExternalAdviserLoaded() async {
+    Map<String,dynamic> data = (await callCloudFunction(config, Method.GET, "web/userOverview"));
+    print(data.toString());
+    Map<String,dynamic> residentOverview = data["ea"];
+
+
+    print("Checking houses");
+    Set<Map<String, dynamic>> houseList = Set.from(residentOverview["houses"]);
+    List<House> houses = new List();
+    houseList.forEach((element) {
+      houses.add(House.fromJson(element));
+    });
+    return ExternalAdviserLoaded(houses: houses);
   }
 
   grantHouseAward(String house, String description, double pointsPerResident) async {
