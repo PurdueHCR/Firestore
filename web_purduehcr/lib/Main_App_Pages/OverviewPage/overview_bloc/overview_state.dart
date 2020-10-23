@@ -58,6 +58,14 @@ class ProfessionalStaffLoaded extends OverviewState {
   List<Object> get props => [UniqueKey()];
 }
 
+class ExternalAdviserLoaded extends OverviewState {
+  final List<House> houses;
+
+  const ExternalAdviserLoaded({@required this.houses});
+  @override
+  List<Object> get props => [UniqueKey()];
+}
+
 class OverviewError extends OverviewState {
   final Error error;
   const OverviewError({@required this.error});
