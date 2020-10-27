@@ -157,6 +157,8 @@ export async function getFacultyProfile(user:User): Promise<FacultyProfile>{
 		}
 	}
 	const next_reward = await getNextRewardForHouse(user_house)
+
+	data.user_house = user_house
 	data.next_reward = next_reward
 	data.houses = houses
 
@@ -164,6 +166,7 @@ export async function getFacultyProfile(user:User): Promise<FacultyProfile>{
 }
 
 export declare type FacultyProfile = {
+    user_house?: any,
 	next_reward?: any,
 	houses?: any[]
 }
