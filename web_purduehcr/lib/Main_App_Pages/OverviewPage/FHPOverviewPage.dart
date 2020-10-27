@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import 'package:purduehcr_web/Main_App_Pages/OverviewPage/overview_cards/HouseCompetitionCard.dart';
+import 'package:purduehcr_web/Main_App_Pages/OverviewPage/overview_cards/RewardsCard.dart';
 import 'package:purduehcr_web/Utility_Views/BasePage.dart';
 import 'package:purduehcr_web/Models/User.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
@@ -7,6 +9,8 @@ import 'package:purduehcr_web/Main_App_Pages/OverviewPage/overview_bloc/overview
 
 import 'package:purduehcr_web/Configuration/Config.dart';
 import 'package:purduehcr_web/Configuration/ConfigWrapper.dart';
+import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
+import 'package:purduehcr_web/Utility_Views/SubmitLinkWidget/SubmitLinkWidget.dart';
 
 class FHPOverviewPage extends BasePage {
 
@@ -22,9 +26,17 @@ class FHPOverviewPage extends BasePage {
 class _FHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, OverviewState> {
   User user;
   OverviewBloc _overviewBloc;
+  String linkId;
 
-  _FHPOverviewPageState(String drawerLabel):super(drawerLabel);
+  _FHPOverviewPageState(String drawerLabel, {this.linkId}):super(drawerLabel);
 
+  @override
+  void initState() {
+    super.initState();
+    //When the view is finished loading, handle link
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => handleLink());
+  }
 
   @override
   void didChangeDependencies() {
@@ -54,9 +66,26 @@ class _FHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
   }
 
   Widget _buildBody(OverviewState state){
-    return Center(
-      child: Text("Please Build Me....."),
-    );
+    if(state is FHPOverviewLoaded){
+      return SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(
+              width: getActiveAreaWidth(context),
+              height: getActiveAreaWidth(context) * 0.3,
+              child:HouseCompetitionCard(
+                houses: state.houses,
+                preferences: authState.preferences,
+              ),
+            ),
+            RewardsCard(reward: state.reward, house: state.myHouse,)
+          ],
+        ),
+      );
+    }
+    else{
+      return LoadingWidget();
+    }
   }
 
   @override
@@ -71,6 +100,21 @@ class _FHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
 
   @override
   UserPermissionSet getAcceptedPermissionLevels() {
-    return UserPermissionSet([UserPermissionLevel.PROFESSIONAL_STAFF].toSet());
+    return UserPermissionSet([UserPermissionLevel.FHP].toSet());
+  }
+
+  void handleLink(){
+    if(linkId != null){
+      showDialog(
+          context: context,
+          builder: (BuildContext context){
+            return SubmitLinkWidget(linkId: linkId,);
+          }
+      ).then((didSubmit) {
+        if(didSubmit){
+          _overviewBloc.add(ReloadOverview(permissionLevel: user.permissionLevel));
+        }
+      });
+    }
   }
 }

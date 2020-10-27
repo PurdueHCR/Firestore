@@ -29,6 +29,7 @@ class OverviewRepository {
       case UserPermissionLevel.PROFESSIONAL_STAFF:
         return _getProfessionalStaffLoaded();
       case UserPermissionLevel.FHP:
+        return _getFHPOverview();
       case UserPermissionLevel.EXTERNAL_ADVISER:
       default:
         return Future.error(UnimplementedError());
@@ -119,6 +120,23 @@ class OverviewRepository {
       houses.add(House.fromJson(element));
     });
     return ProfessionalStaffLoaded(houses: houses);
+  }
+
+  Future<FHPOverviewLoaded> _getFHPOverview() async {
+    Map<String,dynamic> data = (await callCloudFunction(config, Method.GET, "web/userOverview"));
+    Map<String,dynamic> residentOverview = data["fhp"];
+
+    Reward nextReward = Reward.fromJson(residentOverview["next_reward"]);
+
+    Set<Map<String, dynamic>> houseList = Set.from(residentOverview["houses"]);
+    List<House> houses = new List();
+    houseList.forEach((element) {
+      houses.add(House.fromJson(element));
+    });
+
+    House myHouse = House.fromJson(residentOverview["user_house"]);
+
+    return FHPOverviewLoaded(houses: houses, reward: nextReward, key: UniqueKey(), myHouse: myHouse);
   }
 
   grantHouseAward(String house, String description, double pointsPerResident) async {
