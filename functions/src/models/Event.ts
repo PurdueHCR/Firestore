@@ -1,9 +1,9 @@
-
 export class Event {
 
     static NAME = "Name"
     static DETAILS = "Details"
-    static DATE = "Date"
+    static START_DATE = "StartDate"
+    static END_DATE = "EndDate"
     static LOCATION = "Location"
     static POINTS = "Points"
     static POINT_TYPE_ID = "PointTypeID"
@@ -11,10 +11,12 @@ export class Event {
     static POINT_TYPE_DESCRIPTION = "PointTypeDescription"
     static HOUSE = "House"
     static CREATOR_ID = "CreatorID"
+    static HOST = "Host"
     
     name: string
     details: string
-    date: Date
+    startDate: Date
+    endDate: Date
     location: string
     points: number
     point_type_id: number
@@ -23,13 +25,15 @@ export class Event {
     house: string
     creator_id: string
     id: string
+    host: string
 
-    constructor(name: string, details: string, date: Date, location: string, 
+    constructor(name: string, details: string, startDate: Date, endDate: Date, location: string, 
                 points: number, point_type_id: number, point_type_name:string,
-                point_type_description: string, house: string, creator_id: string, id: string) {
+                point_type_description: string, house: string, creator_id: string, id: string, host: string) {
             this.name = name
             this.details = details
-            this.date = date
+            this.startDate = startDate
+            this.endDate = endDate
             this.location = location
             this.points = points
             this.point_type_id = point_type_id
@@ -38,6 +42,7 @@ export class Event {
             this.house = house
             this.creator_id = creator_id
             this.id = id
+            this.host = host
         }
 
     /**
@@ -77,7 +82,8 @@ export class Event {
     static fromData(docId: string, documentData: FirebaseFirestore.DocumentData) {
         let name: string
         let details: string
-        let date: Date
+        let startDate: Date
+        let endDate: Date
         let location: string
         let points: number
         let point_type_id: number
@@ -86,6 +92,7 @@ export class Event {
         let house: string
         let creator_id: string
         const id = docId
+        let host: string
 
         if (Event.NAME in documentData) {
             name = documentData[Event.NAME]
@@ -97,10 +104,15 @@ export class Event {
         } else {
             details = ""
         }
-        if (Event.DATE in documentData) {
-            date = documentData[Event.DATE]
+        if (Event.START_DATE in documentData) {
+            startDate = documentData[Event.START_DATE]
         } else {
-            date = new Date()
+            startDate = new Date()
+        }
+        if (Event.END_DATE in documentData) {
+            endDate = documentData[Event.END_DATE]
+        } else {
+            endDate = new Date()
         }
         if (Event.LOCATION in documentData) {
             location = documentData[Event.LOCATION]
@@ -137,10 +149,15 @@ export class Event {
         } else {
             creator_id = ""
         }
+        if (Event.HOST in documentData) {
+            host = documentData[Event.HOST]
+        } else {
+            host = ""
+        }
 
-        return new Event(name, details, date, location,
+        return new Event(name, details, startDate, endDate, location,
                         points, point_type_id, point_type_name,
-                        point_type_description, house, creator_id, id)
+                        point_type_description, house, creator_id, id, host)
     }
 
     /**
@@ -152,7 +169,8 @@ export class Event {
         const data = {}
         data[Event.NAME] = this.name
         data[Event.DETAILS] = this.details
-        data[Event.DATE] = this.date
+        data[Event.START_DATE] = this.startDate
+        data[Event.END_DATE] = this.endDate
         data[Event.LOCATION] = this.location
         data[Event.POINTS] = this.points
         data[Event.POINT_TYPE_ID] = this.point_type_id
@@ -160,6 +178,7 @@ export class Event {
         data[Event.POINT_TYPE_DESCRIPTION] = this.point_type_description
         data[Event.HOUSE] = this.house
         data[Event.CREATOR_ID] = this.creator_id
+        data[Event.HOST] = this.host
 
         return data
     }
