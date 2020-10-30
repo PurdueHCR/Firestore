@@ -295,7 +295,13 @@ describe('GET web/userOverview', () =>{
                 done(err)
             }
             else{
-                expect(res.status).toBe(403)
+                expect(res.status).toBe(200)
+                expect(res.body.resident).toBeUndefined();
+                expect(res.body.rhp).toBeUndefined();
+                expect(res.body.proffesional_staff).toBeUndefined();
+                expect(res.body.fhp).toBeUndefined();
+                expect(res.body.privileged_res).toBeUndefined();
+                expect(res.body.ea).toBeDefined();
                 done()
             }
         })

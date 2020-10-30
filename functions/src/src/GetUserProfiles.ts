@@ -35,6 +35,10 @@ export async function getResidentProfile(user:User): Promise<ResidentProfile>{
 	data.next_reward = await getNextRewardForHouse(user_house)
 	data.houses = houses
 
+	const rankArray = await getRankArray(user_house)
+	data.year_rank = rankArray.getYearlyRank()
+	data.semester_rank = rankArray.getSemesterRank()
+
 	if(!systemPreferences.isCompetitionVisible){
 		data.user_rank = {}
 		data.next_reward = {}
@@ -54,7 +58,9 @@ export declare type ResidentProfile = {
     user_house: any[],
     user_rank: any,
     next_reward: any,
-    last_submissions: any[]
+	last_submissions: any[],
+	year_rank: any,
+	semester_rank: any
 }
 
 /**
@@ -81,6 +87,10 @@ export async function getRHPProfile(user:User): Promise<RHPProfile>{
 	data.next_reward = await getNextRewardForHouse(user_house)
 	data.houses = houses
 
+	const rankArray = await getRankArray(user_house)
+	data.year_rank = rankArray.getYearlyRank()
+	data.semester_rank = rankArray.getSemesterRank()
+
 	if(!systemPreferences.isCompetitionVisible){
 		data.user_rank = {}
 		data.next_reward = {}
@@ -104,8 +114,41 @@ export declare type RHPProfile = {
 	last_submissions?: any[],
 	house_codes?: any[],
 	houses?: any[]
+	year_rank?: any,
+	semester_rank?: any
 }
 
+
+/**
+ * Gets all information for the overview page if user is an 
+ * external advisor
+ * @param user User for which to get profile
+ * @throws 403 - Invalid permissions
+ * @throws 500 - Server Error
+ */
+export async function getExternalAdvisorProfile(user:User): Promise<ExternalAdvisorProfile>{
+	verifyUserHasCorrectPermission(user, [UserPermissionLevel.EXTERNAL_ADVISOR])
+	const data:ExternalAdvisorProfile = {}
+	const housesModels = await getAllHouses()
+	data.houses = []
+	for(const houseModel of housesModels){
+		//Convert the house into a JSON model
+		const house = Object.assign({}, houseModel) as any
+		house.color = houseModel.color
+		house.numberOfResidents = houseModel.numberOfResidents
+		house.totalPoints = houseModel.totalPoints
+		house.id = houseModel.id
+		house.pointsPerResident = houseModel.pointsPerResident
+		data.houses.push(house)
+	}
+	
+	return data
+}
+
+
+export declare type ExternalAdvisorProfile = {
+	houses?: any[]
+}
 /**
  * Gets all information for the overview page if user is resident
  *  *** and temporaryly, rhp and privileged res
