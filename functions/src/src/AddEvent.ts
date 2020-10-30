@@ -1,6 +1,6 @@
-import * as admin from 'firebase-admin'
-import { HouseCompetition } from '../models/HouseCompetition'
-import { Event } from '../models/Event'
+// import * as admin from 'firebase-admin'
+// import { HouseCompetition } from '../models/HouseCompetition'
+// import { Event } from '../models/Event'
 import { PointType } from '../models/PointType'
 
 /**
@@ -22,9 +22,9 @@ import { PointType } from '../models/PointType'
 
 export async function addEvent(name: string, details: string, date: Date, location: string,
                                 point_type: PointType, house: string, creator_id: string) {
-    const event = new Event(name, details, date, location, point_type.value, Number(point_type.id), point_type.name.toString(),
-                        point_type.description.toString(), house, creator_id, "")
-    const db = admin.firestore()
-    const data = event.toFirestoreJson()
-    await db.collection(HouseCompetition.EVENTS_KEY).add(data)
+    // const event = new Event(name, details, date, location, point_type.value, Number(point_type.id), point_type.name.toString(),
+    //                     point_type.description.toString(), house, creator_id, "")
+    // const db = admin.firestore()
+    // const data = event.toFirestoreJson()
+    // await db.collection(HouseCompetition.EVENTS_KEY).add(data)
 }
