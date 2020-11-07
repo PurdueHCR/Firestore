@@ -1,21 +1,22 @@
 export class Event {
+
     name: string
     details: string
     startDate: Date
     endDate: Date
     location: string
     points: number
-    pointTypeId: number
+    pointTypeId: string
     pointTypeName: string
     pointTypeDescription: string
-    house: string
+    floorIds: string[]
     creatorId: string
     id: string
     host: string
 
     constructor(name: string, details: string, startDate: Date, endDate: Date, location: string, 
-                points: number, pointTypeId: number, pointTypeName:string,
-                pointTypeDescription: string, house: string, creatorId: string, id: string, host: string) {
+                points: number, pointTypeId: string, pointTypeName:string,
+                pointTypeDescription: string, floorIds: string[], creatorId: string, id: string, host: string) {
             this.name = name
             this.details = details
             this.startDate = startDate
@@ -25,11 +26,11 @@ export class Event {
             this.pointTypeId = pointTypeId
             this.pointTypeName = pointTypeName
             this.pointTypeDescription = pointTypeDescription
-            this.house = house
+            this.floorIds = floorIds
             this.creatorId = creatorId
             this.id = id
             this.host = host
-        }
+    }
 
     /**
      * This method takes a querysnapshot that you get by retrieving a collection and turns it into a list of event model.
@@ -72,17 +73,17 @@ export class Event {
         let endDate: Date = documentData.endDate
         let location: string = documentData.location
         let points: number = documentData.points
-        let pointTypeId: number = documentData.pointTypeId
+        let pointTypeId: string = documentData.pointTypeId
         let pointTypeName: string = documentData.pointTypeName
         let pointTypeDescription: string = documentData.pointTypeDescription
-        let house: string = documentData.house
+        let floorIds: string[] = documentData.floorIds
         let creatorId: string = documentData.creatorId
         const id = docId
         let host: string = documentData.host
 
         return new Event(name, details, startDate, endDate, location,
                         points, pointTypeId, pointTypeName,
-                        pointTypeDescription, house, creatorId, id, host)
+                        pointTypeDescription, floorIds, creatorId, id, host)
     }
 
     /**
@@ -91,6 +92,8 @@ export class Event {
      * @returns a dictionary of the object's data
      */
     toFirestoreJson() {
-        return this
+        const data = Object.assign({}, this) as any
+        delete data.id;
+        return data
     }
 }

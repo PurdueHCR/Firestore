@@ -72,3 +72,72 @@ export function parseInputForNumber(arg:any, min:number = Number.MIN_SAFE_INTEGE
         throw APIResponse.IncorrectFormat()
     }
 }
+
+/**
+ * Parse the field for a date
+ * @param arg Value of the field to parse for the date
+ * @param minDate Optional Date minimum
+ * @param maxDate Optional Date maximum
+ * @throws 422 - Missing Required Parameters
+ * @throws 423 - InvalidDateFormat
+ * @throws 424 - DateNotInRange
+ * @throws 500 - Server Error
+ */
+export function parseInputForDate(arg:any, minDate?:Date, maxDate?:Date): Date{
+    if(arg === undefined || arg === null){
+        throw APIResponse.MissingRequiredParameters()
+    }
+    else {
+        let date:Date
+        try{
+            date = new Date(arg)
+        }
+        catch(error){
+			console.error("FAILED To Parse Date because of an error: "+ error.toString())
+			if(error instanceof TypeError){
+				throw APIResponse.InvalidDateFormat()
+            }
+            else{
+                throw APIResponse.ServerError()
+            }
+        }
+        if(maxDate && date > maxDate){
+            throw APIResponse.DateNotInRange()
+        }
+        else if(minDate && date < minDate){
+            throw APIResponse.DateNotInRange()
+        }
+        else{
+            return date
+        }
+    }
+}
+
+/**
+ * Parses the input for an array
+ * @param arg Value of the field to parse for an array
+ * @throws 422 - Missing Required Parameters
+ * @throws 426 - Incorrect Format
+ * @throws 500 - Server Error
+ */
+export function parseInputForArray(arg:any): any[] {
+    if(arg === undefined || arg === null){
+        throw APIResponse.MissingRequiredParameters()
+    }
+    else {
+        let array:any[]
+        try{
+            array = arg as any[]
+            return array
+        }
+        catch(error){
+			console.error("FAILED To Parse array because of an error: "+ error.toString())
+			if(error instanceof TypeError){
+				throw APIResponse.IncorrectFormat()
+            }
+            else{
+                throw APIResponse.ServerError()
+            }
+        }
+    }
+}
