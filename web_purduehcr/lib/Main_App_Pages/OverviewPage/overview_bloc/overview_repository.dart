@@ -29,6 +29,7 @@ class OverviewRepository {
       case UserPermissionLevel.PROFESSIONAL_STAFF:
         return _getProfessionalStaffLoaded();
       case UserPermissionLevel.FHP:
+        return _getFHPOverview();
       case UserPermissionLevel.EXTERNAL_ADVISER:
         return _getExternalAdviserLoaded();
       default:
@@ -122,18 +123,38 @@ class OverviewRepository {
     return ProfessionalStaffLoaded(houses: houses);
   }
 
-  Future<ExternalAdviserLoaded> _getExternalAdviserLoaded() async {
-    Map<String,dynamic> data = (await callCloudFunction(config, Method.GET, "web/userOverview"));
-    print(data.toString());
-    Map<String,dynamic> residentOverview = data["ea"];
+  Future<FHPOverviewLoaded> _getFHPOverview() async {
+    Map<String, dynamic> data = (await callCloudFunction(
+        config, Method.GET, "web/userOverview"));
+    Map<String, dynamic> residentOverview = data["fhp"];
 
+    Reward nextReward = Reward.fromJson(residentOverview["next_reward"]);
 
-    print("Checking houses");
     Set<Map<String, dynamic>> houseList = Set.from(residentOverview["houses"]);
     List<House> houses = new List();
     houseList.forEach((element) {
       houses.add(House.fromJson(element));
     });
+
+    House myHouse = House.fromJson(residentOverview["user_house"]);
+
+    return FHPOverviewLoaded(
+        houses: houses, reward: nextReward, key: UniqueKey(), myHouse: myHouse);
+  }
+
+  Future<ExternalAdviserLoaded> _getExternalAdviserLoaded() async {
+    Map<String,dynamic> data = (await callCloudFunction(config, Method.GET, "web/userOverview"));
+    print(data.toString());
+    Map<String,dynamic> residentOverview = data["ea"];
+
+    print("Checking houses");
+
+    Set<Map<String, dynamic>> houseList = Set.from(residentOverview["houses"]);
+    List<House> houses = new List();
+    houseList.forEach((element) {
+      houses.add(House.fromJson(element));
+    });
+
     return ExternalAdviserLoaded(houses: houses);
   }
 
