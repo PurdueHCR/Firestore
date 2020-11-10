@@ -48,6 +48,7 @@ events_app.use(firestoreTools.validateFirebaseIdToken)
  * @throws 417 - Unknown Point Type
  * @throws 418 - Point Type Is Disabled
  * @throws 422 - Missing Required Parameters
+ * @throws 423 - Invalid Date Format
  * @throws 424 - Date Not In Range
  * @throws 430 - Insufficient Permission Level For Create a Link with that Point Type
  * @throws 500 - Server Error
