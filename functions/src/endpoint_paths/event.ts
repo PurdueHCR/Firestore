@@ -37,11 +37,13 @@ events_app.use(firestoreTools.validateFirebaseIdToken)
  * 
  * @param name event name
  * @param details event details
- * @param date event date
+ * @param startDate event start date
+ * @param endDate event end date
  * @param location event location string
  * @param points number of points for attending the event
  * @param point_type_id id of the PointType associated with the event
  * @param house house name for attending event
+ * @param host event host
  * 
  * @throws 403 - Invalid Permission Level
  * @throws 412 - Competition Disabled
@@ -55,7 +57,7 @@ events_app.use(firestoreTools.validateFirebaseIdToken)
 events_app.post('/add', async (req, res) => {
     
     if (!req.body || !req.body.name || req.body.name === "" || !req.body.details || req.body.details === ""
-        || !req.body.date || req.body.date === "" || !req.body.location || req.body.location === ""
+        || !req.body.date || req.body.date === "" || !req.body.endDate || req.body.date === "" || !req.body.location || req.body.location === ""
         || !req.body.point_type_id || req.body.point_type_id === "" || !req.body.house || req.body.house === "") {
             if (!req.body) {
                 console.error("Missing Body")
@@ -195,6 +197,7 @@ events_app.get("/get_by_id", async (req, res) => {
 /**
  * Get all events created by the user
  * 
+ * @throws 403 - Invalid Permission Level
  * @throws 500 - Server Error
  * 
  * @returns an array of events created by the user
@@ -202,6 +205,9 @@ events_app.get("/get_by_id", async (req, res) => {
 events_app.get('/get_by_creator_id', async (req, res) => {
     try {
         const user = await getUser(req["user"]["user_id"])
+        const valid_users = [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.EXTERNAL_ADVISOR,
+            UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.FACULTY]
+        verifyUserHasCorrectPermission(user, valid_users)
         const event_logs = await getEventsByCreatorId(user.id)
         res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
     } catch (error) {

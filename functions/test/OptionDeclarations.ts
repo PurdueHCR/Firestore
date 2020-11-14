@@ -240,6 +240,7 @@ export declare type SystemPreferenceOptions = {
     is_house_enabled?: boolean
     suggested_point_ids?: string
     houseIds?: string[]
+    floorIds?: string[]
 };
 
 export const SYSTEM_PREFERENCES_DEFAULTS:SystemPreferenceOptions = {
@@ -251,7 +252,8 @@ export const SYSTEM_PREFERENCES_DEFAULTS:SystemPreferenceOptions = {
     is_competition_visible: true,
     is_house_enabled: true,
     suggested_point_ids: "1,2,3,4",
-    houseIds: ["Copper","Palladium","Platinum","Silver","Titanium"]
+    houseIds: ["Copper","Palladium","Platinum","Silver","Titanium"],
+    floorIds: ["2N", "2S", "3N", "3S", "4N", "4S", "5N", "5S", "6N", "6S"]
 }
 
 ///----------------------------------------------------------------

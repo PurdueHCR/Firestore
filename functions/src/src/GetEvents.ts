@@ -1,8 +1,8 @@
-// import * as admin from 'firebase-admin'
+import * as admin from 'firebase-admin'
 import { User } from '../models/User'
 import { Event } from '../models/Event'
-// import { UserPermissionLevel } from '../models/UserPermissionLevel'
-// import { HouseCompetition } from '../models/HouseCompetition'
+import { UserPermissionLevel } from '../models/UserPermissionLevel'
+import { HouseCompetition } from '../models/HouseCompetition'
 
 /**
  * This function returns all events available to the user
@@ -32,5 +32,6 @@ export async function getEvents(user: User): Promise<Event[]> {
     //     return Promise.resolve(events)
        
     // }
+
     return []
 }
