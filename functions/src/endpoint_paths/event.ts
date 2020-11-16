@@ -5,12 +5,13 @@ import { APIResponse } from '../models/APIResponse'
 import { createEvent } from '../src/CreateEvent'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { getUser } from '../src/GetUser'
-import { getEvents } from '../src/GetEvents'
+import { getEvents, getEventsFeed } from '../src/GetEvents'
 import { getPointTypeById } from '../src/GetPointTypeById'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 import { getEventsByCreatorId } from '../src/GetEventsByCreatorId'
 import { getEventById } from '../src/GetEventById'
 import * as ParameterParser from '../src/ParameterParser'
+import { getSystemPreferences } from '../src/GetSystemPreferences'
 
 // Made sure that the app is only initialized one time
 if (admin.apps.length === 0) {
@@ -71,15 +72,23 @@ events_app.post('/', async (req, res) => {
         const endDate = ParameterParser.parseInputForDate(req.body.endDate, minDate)
         const location = ParameterParser.parseInputForString(req.body.location)
         const pointTypeId = ParameterParser.parseInputForNumber(req.body.pointTypeId)
-        const floorIds = ParameterParser.parseInputForArray(req.body.floorIds)
         const host = ParameterParser.parseInputForString(req.body.host)
+        const isPublicEvent = ParameterParser.parseInputForBoolean(req.body.isPublicEvent)
+        const isAllFloors = ParameterParser.parseInputForBoolean(req.body.isAllFloors)
+        let floorIds: string[];
+        if(!isAllFloors){
+            floorIds = ParameterParser.parseInputForArray(req.body.floorIds)
+        }
+        else{
+            floorIds = (await getSystemPreferences()).floorIds;
+        }
 
         const user = await getUser(req["user"]["user_id"])
         const valid_users = [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.EXTERNAL_ADVISOR,
                                 UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.FACULTY]
         verifyUserHasCorrectPermission(user, valid_users)
         const pointType = await getPointTypeById(pointTypeId)
-        const event = await createEvent(user, name, details, startDate, endDate, location, pointType, floorIds, host)
+        const event = await createEvent(user, name, details, startDate, endDate, location, pointType, floorIds, host, isPublicEvent, isAllFloors)
         res.status(APIResponse.SUCCESS_CODE).json(event)
 
     } catch (error) {
@@ -107,6 +116,28 @@ events_app.get('/', async (req, res) => {
     try {
         const user = await getUser(req["user"]["user_id"])
         const event_logs = await getEvents(user)
+        res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
+    } catch (error) {
+        console.error("FAILED WITH ERROR: " + error.toString())
+        if (error instanceof APIResponse) {
+            res.status(error.code).send(error.toJson())
+        } else {
+            const apiResponse = APIResponse.ServerError()
+            res.status(apiResponse.code).send(apiResponse.toJson())
+        }
+    }
+})
+
+/**
+ * Get all events available to the user
+ * 
+ * @throws 500 - Server Error
+ */
+events_app.get('/feed', async (req, res) => {
+
+    try {
+        const user = await getUser(req["user"]["user_id"])
+        const event_logs = await getEventsFeed(user)
         res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
     } catch (error) {
         console.error("FAILED WITH ERROR: " + error.toString())

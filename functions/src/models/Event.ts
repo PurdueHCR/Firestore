@@ -10,13 +10,16 @@ export class Event {
     pointTypeName: string
     pointTypeDescription: string
     floorIds: string[]
+    floorColors: string[]
     creatorId: string
     id: string
     host: string
+    isPublicEvent: boolean
 
     constructor(name: string, details: string, startDate: Date, endDate: Date, location: string, 
                 points: number, pointTypeId: string, pointTypeName:string,
-                pointTypeDescription: string, floorIds: string[], creatorId: string, id: string, host: string) {
+                pointTypeDescription: string, floorIds: string[], creatorId: string, id: string, host: string,
+                floorColors: string[], isPublicEvent:boolean) {
             this.name = name
             this.details = details
             this.startDate = startDate
@@ -30,6 +33,8 @@ export class Event {
             this.creatorId = creatorId
             this.id = id
             this.host = host
+            this.floorColors = floorColors
+            this.isPublicEvent = isPublicEvent
     }
 
     /**
@@ -67,23 +72,25 @@ export class Event {
      * @returns the Event object from the data
      */
     static fromData(docId: string, documentData: FirebaseFirestore.DocumentData) {
-        let name: string = documentData.name
-        let details: string = documentData.details
-        let startDate: Date = documentData.startDate
-        let endDate: Date = documentData.endDate
-        let location: string = documentData.location
-        let points: number = documentData.points
-        let pointTypeId: string = documentData.pointTypeId
-        let pointTypeName: string = documentData.pointTypeName
-        let pointTypeDescription: string = documentData.pointTypeDescription
-        let floorIds: string[] = documentData.floorIds
-        let creatorId: string = documentData.creatorId
+        const name: string = documentData.name
+        const details: string = documentData.details
+        const startDate: Date = documentData.startDate
+        const endDate: Date = documentData.endDate
+        const location: string = documentData.location
+        const points: number = documentData.points
+        const pointTypeId: string = documentData.pointTypeId
+        const pointTypeName: string = documentData.pointTypeName
+        const pointTypeDescription: string = documentData.pointTypeDescription
+        const floorIds: string[] = documentData.floorIds
+        const creatorId: string = documentData.creatorId
         const id = docId
-        let host: string = documentData.host
+        const host: string = documentData.host
+        const floorColors: string[] = documentData.floorColors
+        const isPublicEvent: boolean = documentData.isPublicEvent
 
         return new Event(name, details, startDate, endDate, location,
                         points, pointTypeId, pointTypeName,
-                        pointTypeDescription, floorIds, creatorId, id, host)
+                        pointTypeDescription, floorIds, creatorId, id, host, floorColors, isPublicEvent)
     }
 
     /**

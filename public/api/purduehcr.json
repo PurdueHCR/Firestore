@@ -2721,7 +2721,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/EventCreateAndUpdate"
+                "$ref" : "#/components/schemas/EventCreate"
               }
             }
           },
@@ -2733,7 +2733,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Reward"
+                  "$ref" : "#/components/schemas/Event"
                 }
               }
             }
@@ -2820,7 +2820,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/EventCreateAndUpdate"
+                "$ref" : "#/components/schemas/EventUpdate"
               }
             }
           },
@@ -2945,7 +2945,7 @@
                 "schema" : {
                   "type" : "object",
                   "properties": {
-                    "rewards": {
+                    "events": {
                       "type" : "array",
                       "items" : {
                         "$ref" : "#/components/schemas/Event"
@@ -3648,10 +3648,21 @@
           "host" : {
             "type" : "string",
             "example" : "The Society"
+          },
+          "floorColors" : {
+            "type" : "array",
+            "items":{
+              "oneOf": [
+                {
+                  "type": "string",
+                  "example": "#5AC0C7"
+                }
+              ]
+            }
           }
         }
       },
-      "EventCreateAndUpdate" : {
+      "EventCreate" : {
         "type" : "object",
         "properties" : {
           "name" : {
@@ -3687,9 +3698,71 @@
               ]
             }
           },
+          "isPublicEvent" : {
+            "type" : "boolean",
+            "example" : false
+          },
+          "isAllFloors" : {
+            "type" : "boolean",
+            "example" : false
+          },
           "host" : {
             "type" : "string",
             "example" : "The Society"
+          }
+        }
+      },
+      "EventUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "example" : "A Very Fun Event"
+          },
+          "details" : {
+            "type" : "string",
+            "example" : "A very fun event by me!"
+          },
+          "startDate" : {
+            "$ref" : "#/components/schemas/DateTime"
+          },
+          "id" : {
+            "type" : "string",
+            "example" : "akjhwb3vo9iaukjw3fv"
+          },
+          "endDate" : {
+            "$ref" : "#/components/schemas/DateTime"
+          },
+          "location" : {
+            "type" : "string",
+            "example" : "HCRS 1066"
+          },
+          "pointTypeId" : {
+            "type" : "integer",
+            "example" : 22
+          },
+          "floorIds" : {
+            "type" : "array",
+            "items":{
+              "oneOf": [
+                {
+                  "type": "string",
+                  "example": "2N"
+                }
+              ]
+            }
+          },
+          "host" : {
+            "type" : "string",
+            "example" : "The Society"
+          },
+          "isPublicEvent" : {
+            "type" : "boolean",
+            "example" : false
+          },
+          "isAllFloors" : {
+            "type" : "boolean",
+            "example" : false
           }
         }
       },
@@ -4129,17 +4202,8 @@
         }
       },
       "DateTime" : {
-        "type" : "object",
-        "properties" : {
-          "_seconds" : {
-            "type" : "number",
-            "example" : 156463200
-          },
-          "_nanoseconds" : {
-            "type" : "number",
-            "example" : 0
-          }
-        }
+        "type" : "string",
+        "example": "2020-11-08T10:00:00+04:00"
       },
       "NonExistantUser" : {
         "type" : "object",

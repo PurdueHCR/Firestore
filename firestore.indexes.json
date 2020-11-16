@@ -27,6 +27,48 @@
           "order": "ASCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "Points",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ResidentLastName",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "DateSubmitted",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Points",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ResidentId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ResidentNotifications",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Events",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "floorIds",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "ResidentNotifications",
+          "order": "DESCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []

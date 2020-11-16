@@ -11,6 +11,7 @@ export class SystemPreference {
     static SHOW_REWARDS = "ShowRewards"
     static DEFAULT_IMAGE_URL = "DefaultImageURL"
     static DEFAULT_IMAGE_NAME = "DefaultImageName"
+    static FLOOR_IDS = "floorIds"
 
     id: string
     androidVersion: string
@@ -24,10 +25,11 @@ export class SystemPreference {
     defaultImageName: string
     showRewards: boolean
     houseIds: string[]
+    floorIds: string[]
 
     constructor(id:string, androidVersion: string,  competitionDisabledMessage: string, iosVersion: string, competitionHiddenMessage:string, 
         isCompetitionEnabled: Boolean, suggestedPointIds: string, isCompetitionVisible: Boolean, houseIds: string[], defaultImageURL: string,
-        defaultImageName: string, showRewards: boolean){
+        defaultImageName: string, showRewards: boolean, floorIds:string[]){
         this.id = id
         this.androidVersion = androidVersion
         this.competitionDisabledMessage = competitionDisabledMessage
@@ -40,6 +42,7 @@ export class SystemPreference {
         this.defaultImageName = defaultImageName
         this.defaultImageURL = defaultImageURL
         this.showRewards = showRewards
+        this.floorIds = floorIds
     }
 
     updateFirebaseJson(){
@@ -69,6 +72,7 @@ export class SystemPreference {
         let competitionDisabledMessage: string
         let competitionHiddenMessage: string
         let houseIds: string[]
+        let floorIds: string[]
         let iosVersion: string
         let isCompetitionEnabled: Boolean
         let suggestedPointIds: string
@@ -134,6 +138,13 @@ export class SystemPreference {
             houseIds = []
         }
 
+        if( SystemPreference.FLOOR_IDS in document.data()!){
+            floorIds = document.data()![SystemPreference.FLOOR_IDS]
+        }
+        else{
+            floorIds = []
+        }
+
         if(SystemPreference.DEFAULT_IMAGE_NAME in document.data()!){
             defaultImageName = document.data()![SystemPreference.DEFAULT_IMAGE_NAME]
         }
@@ -155,6 +166,6 @@ export class SystemPreference {
             showRewards = true
         }
 
-        return new SystemPreference(id, androidVersion, competitionDisabledMessage, iosVersion, competitionHiddenMessage, isCompetitionEnabled, suggestedPointIds, isCompetitionVisible, houseIds, defaultImageURL, defaultImageName, showRewards);
+        return new SystemPreference(id, androidVersion, competitionDisabledMessage, iosVersion, competitionHiddenMessage, isCompetitionEnabled, suggestedPointIds, isCompetitionVisible, houseIds, defaultImageURL, defaultImageName, showRewards, floorIds);
     }
 }
