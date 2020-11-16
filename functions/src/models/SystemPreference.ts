@@ -12,7 +12,6 @@ export class SystemPreference {
     static SHOW_REWARDS = "ShowRewards"
     static DEFAULT_IMAGE_URL = "DefaultImageURL"
     static DEFAULT_IMAGE_NAME = "DefaultImageName"
-    static FLOOR_IDS = "floorIds"
 
     id: string
     androidVersion: string

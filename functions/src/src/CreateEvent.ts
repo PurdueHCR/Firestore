@@ -23,6 +23,8 @@ import { getHousesFromFloorIds } from './GetHouses'
  */
 export async function createEvent(user:User, name: string, details: string, startDate: Date, endDate: Date, location: string, pointType: PointType, floorIds: string[], host: string, isPublicEvent:boolean, isAllFloors:boolean) : Promise<Event>{
     const db = admin.firestore()
+    console.log(pointType.firestoreJson())
+    console.log("Can it do it: "+pointType.canUserGenerateLinks(user.permissionLevel))
     if (!pointType.canUserGenerateLinks(user.permissionLevel)) {
         throw APIResponse.InsufficientPointTypePermissionForLink()
     }

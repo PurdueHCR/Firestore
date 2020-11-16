@@ -287,25 +287,36 @@ export const USER_DEFAULTS:UserOptions = {
 export declare type EventOptions = {
     name?: string,
     details?: string,
-    date?: Date,
+    startDate?: Date,
+    endDate?: Date,
     location?: string,
     points?: number,
-    point_type_id?: number,
-    point_type_name?: string,
-    point_type_description?: string,
-    house?: string
+    pointTypeId?: number,
+    pointTypeName?: string,
+    pointTypeDescription?: string,
+    floorIds?: string[],
+    floorColors?:string[],
+    creatorId?:string,
+    id?:string,
+    host?:string,
+    isPublicEvent?:boolean
 }
 
 export const EVENT_DEFAULTS:EventOptions = {
     name: "TEST_NAME",
     details: "TEST_DETAILS",
-    date: new Date(),
+    startDate: new Date('2100-02-18T19:00:00+05:00'),
+    endDate: new Date('2100-02-18T22:00:00+05:00'),
     location: "TEST_LOCATION",
     points: 1,
-    point_type_id: 1,
-    point_type_name: "TEST_TYPE_NAME",
-    point_type_description: "TEST_TYPE_DESCRIPTION",
-    house: "All Houses"
+    pointTypeName:'Point Type Name',
+    pointTypeDescription:'Description',
+    floorIds:['4N'],
+    floorColors:['COLOr'],
+    creatorId:'asdfasdfa',
+    id:'asdfasdfsad',
+    host:'HOST',
+    isPublicEvent:false
 }
 ///----------------------------------------------------------------
 

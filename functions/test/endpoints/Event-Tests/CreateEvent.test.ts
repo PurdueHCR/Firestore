@@ -3,7 +3,6 @@ import * as firebase from "@firebase/testing"
 import * as IntegrationMockFactory from '../IntegrationMockFactory'
 import * as request from 'supertest'
 import { FirestoreDataFactory } from '../FirestoreDataFactory'
-import { start } from 'repl'
 
 let post_event_func
 let db: firebase.firestore.Firestore
@@ -14,12 +13,10 @@ let RHP_ID = "RHP"
 let PRIV_RES = "PRIV_RES"
 let FACULTY = "FACULTY"
 let EA_ID = "EA_ID"
-let HOUSE_NAME = "Platinum"
-let HOUSE_CODE = "4N1234"
 let POST_EVENT_PATH = "/"
 
 // Test Suite AddEvent
-describe('event/', () => {
+describe('POST event/', () => {
 
     beforeAll(async() => {
         firebase.apps().map(app => app.delete())
@@ -34,22 +31,20 @@ describe('event/', () => {
         post_event_func = require('../../../src/endpoint_paths/index.ts').event
     
         // Create sample data for tests
+        await FirestoreDataFactory.setAllHouses(db)
         await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0)
         await FirestoreDataFactory.setUser(db, RHP_ID, 1)
         await FirestoreDataFactory.setUser(db, REC_ID, 2)
         await FirestoreDataFactory.setUser(db, FACULTY, 3)
         await FirestoreDataFactory.setUser(db, PRIV_RES, 4)
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
-        await FirestoreDataFactory.setPointType(db, 1, {permission_level:3})
-        await FirestoreDataFactory.setPointType(db, 2, {residents_can_submit:false, permission_level:1})
-        await FirestoreDataFactory.setPointType(db, 3, {is_enabled:false, permission_level:3})
-        await FirestoreDataFactory.setHouse(db, HOUSE_NAME)
-        await FirestoreDataFactory.setHouseCode(db, HOUSE_CODE)
+        await FirestoreDataFactory.setPointType(db, 1, {permission_level:3, name:"PT 1"})
+        await FirestoreDataFactory.setPointType(db, 2, {residents_can_submit:false, permission_level:1, name:"PT 2"})
+        await FirestoreDataFactory.setPointType(db, 3, {is_enabled:false, permission_level:3, name:"PT 3"})
     })
 
     beforeEach(async () => {
         await FirestoreDataFactory.setSystemPreference(db)
-        await FirestoreDataFactory.cleanEvents(db)
     })
 
     // Test if no body is provided
@@ -98,14 +93,34 @@ describe('event/', () => {
     })
 
     // Test if no date provided
-    it('Too Early Date', async(done) => {
+    it('Too Early start Date', async(done) => {
         const body = createDefaultEventBody()
+        const date = new Date()
+        date.setFullYear(1990)
+        body.startDate = date.toISOString()
         const res: request.Test = factory.post(post_event_func, POST_EVENT_PATH, body, RHP_ID)
         res.end(function (err, res) {
             if (err) {
                 done(err)
             } else {
-                expect(res.status).toBe(422)
+                expect(res.status).toBe(424)
+                done()
+            }
+        })
+    })
+
+    // Test if no date provided
+    it('End date before start date', async(done) => {
+        const body = createDefaultEventBody()
+        const date = new Date()
+        date.setFullYear(1990)
+        body.endDate = date.toISOString()
+        const res: request.Test = factory.post(post_event_func, POST_EVENT_PATH, body, RHP_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(424)
                 done()
             }
         })
@@ -115,7 +130,7 @@ describe('event/', () => {
     // Test incorrect permission point type for RHP
     it('Test incorrect permission point type for RHP', async(done) => {
         let body = createDefaultEventBody()
-        body['point_type_id'] = 2
+        body.pointTypeId = 2
         const res: request.Test = factory.post(post_event_func, POST_EVENT_PATH, body, RHP_ID)
         res.end(function (err, res) {
             if (err) {
@@ -163,18 +178,10 @@ describe('event/', () => {
                 done(err)
             } else {
                 expect(res.status).toBe(200)
-
-                let doc = await db.collection("Events").where('Name','==','test event').limit(1).get()
-                expect(doc.docs[0]).toBeDefined()
-                let data = doc.docs[0].data()
-                expect(data).toBeDefined()
-                expect(data.Name).toBe("test event")
-                expect(data.Details).toBe("test details")
-                expect(data.Date).toBeDefined()
-                expect(data.Location).toBe("test location")
-                expect(data.Points).toBe(1)
-                expect(data.House).toBe("test house")
-                expect(data.CreatorID).toBe(RHP_ID)
+                expect(res.body.name).toBeDefined()
+                expect(res.body.id).toBeDefined()
+                expect(res.body.floorColors).toBeDefined()
+                expect(res.body.creatorId).toBeDefined()
 
                 done()
             }
@@ -255,11 +262,13 @@ function createDefaultEventBody() {
     return {
         name: "Test Name",
         details: "Test details",
-        startDate: startDate,
-        endDate: endDate,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
         location: "Here",
-        pointTypeId:4,
-        floorIds:["4N"],
-        host:"HOst"
+        pointTypeId:1,
+        floorIds:["4N","2N"],
+        host:"Host",
+        isPublicEvent: false,
+        isAllFloors: false
     }
 }

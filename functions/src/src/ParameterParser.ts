@@ -26,6 +26,7 @@ export function parseInputForString(arg:any): string {
  */
 export function parseInputForBoolean(arg:any): boolean {
     if(arg === undefined || arg === null){
+        console.error("Could not parse boolean")
         throw APIResponse.MissingRequiredParameters()
     }
     else if(arg === 'false' || arg === 'true'){
@@ -85,16 +86,21 @@ export function parseInputForNumber(arg:any, min:number = Number.MIN_SAFE_INTEGE
  */
 export function parseInputForDate(arg:any, minDate?:Date, maxDate?:Date): Date{
     if(arg === undefined || arg === null){
+        console.error("Could not find date")
         throw APIResponse.MissingRequiredParameters()
     }
     else {
         let date:Date
         try{
             date = new Date(arg)
+            console.log(date.toISOString())
         }
         catch(error){
 			console.error("FAILED To Parse Date because of an error: "+ error.toString())
 			if(error instanceof TypeError){
+				throw APIResponse.InvalidDateFormat()
+            }
+            else if(error instanceof RangeError){
 				throw APIResponse.InvalidDateFormat()
             }
             else{
@@ -122,6 +128,8 @@ export function parseInputForDate(arg:any, minDate?:Date, maxDate?:Date): Date{
  */
 export function parseInputForArray(arg:any): any[] {
     if(arg === undefined || arg === null){
+        //If you are sure that the array is defined, make sure that express.urlencoded({extended:true})
+        console.error("The array was undefined")
         throw APIResponse.MissingRequiredParameters()
     }
     else {

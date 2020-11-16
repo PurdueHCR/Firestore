@@ -24,7 +24,7 @@ const events_main = express()
 
 events_main.use(events_app)
 events_app.use(express.json())
-events_app.use(express.urlencoded({ extended: false }))
+events_app.use(express.urlencoded({ extended: true }))
 
 const firestoreTools = require('../firestoreTools')
 export const event_main = functions.https.onRequest(events_main)
@@ -45,6 +45,8 @@ events_app.use(firestoreTools.validateFirebaseIdToken)
  * @param point_type_id id of the PointType associated with the event
  * @param house house name for attending event
  * @param host event host
+ * @param isPublicEvent boolean for can people not in the house competition see this event
+ * @param isAllFloors boolean shortcut to make this available to everyone in the house competition
  * 
  * @throws 403 - Invalid Permission Level
  * @throws 412 - Competition Disabled
@@ -219,3 +221,16 @@ events_app.get('/get_by_creator_id', async (req, res) => {
     }
 })
 
+
+declare type EventCreationBody = {
+    name:string,
+    details:string,
+    startDate:string,
+    endDate:string,
+    location:string,
+    pointTypeId:number,
+    floorIds:string[],
+    host:string,
+    isPublicEvent:boolean,
+    isAllFloors:boolean
+}
