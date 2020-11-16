@@ -33,6 +33,7 @@ export async function getEvents(user: User): Promise<Event[]> {
     //     return Promise.resolve(events)
        
     // }
+
     return []
 }
 
