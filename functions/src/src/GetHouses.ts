@@ -64,6 +64,6 @@ export async function getHouseByNameWithTransaction(db: FirebaseFirestore.Firest
  * @param floorIds String[] of all ids to get the house for
  */
 export async function getHousesFromFloorIds(db:FirebaseFirestore.Firestore, floorIds:string[]): Promise<House[]> {
-	const houseQuerySnapshot = await db.collection(HouseCompetition.HOUSE_KEY).where('items','array-contains-any',floorIds).get()
+	const houseQuerySnapshot = await db.collection(HouseCompetition.HOUSE_KEY).where(House.FLOOR_IDS,'array-contains-any',floorIds).get()
 	return House.fromQuerySnapshot(houseQuerySnapshot)
 }

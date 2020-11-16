@@ -8,10 +8,10 @@ export class SystemPreference {
     static IS_COMPETITION_VISIBLE = "isCompetitionVisible"
     static SUGGESTED_POINT_IDS = "suggestedPointIDs"
     static HOUSE_IDS = "houseIDs"
-    static FLOOR_IDS = "floorIDs"
+    static FLOOR_IDS = "floorIds"
     static SHOW_REWARDS = "ShowRewards"
     static DEFAULT_IMAGE_URL = "DefaultImageURL"
-    static DEFAULT_IMAGE_NAME = "DefaultImageName"
+    static DEFAULT_IMAGE_NAME = "DefaultImagceName"
 
     id: string
     androidVersion: string
