@@ -39,6 +39,9 @@ describe('user/submitLink', async () =>{
         //Get the User function from the index to test
         user_func = require('../../../src/endpoint_paths/index.ts').user
 
+        //Create House
+        await FirestoreDataFactory.setAllHouses(db)
+
         //Create sample users
         await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0)
         await FirestoreDataFactory.setUser(db, RHP_ID, 1)
@@ -46,9 +49,6 @@ describe('user/submitLink', async () =>{
         await FirestoreDataFactory.setUser(db, FACULTY_ID, 3)
         await FirestoreDataFactory.setUser(db, PRIV_RES_ID, 4)
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
-
-        //Create House
-        await FirestoreDataFactory.setHouse(db,HOUSE_NAME)
 
         //Create Point Types
         await FirestoreDataFactory.setPointType(db, PT_CAN_SUBMIT_AND_IS_ENABLED_ID, {residents_can_submit: true, is_enabled: true, description: "PT_CAN_SUBMIT_AND_IS_ENABLED_ID", value: 1})

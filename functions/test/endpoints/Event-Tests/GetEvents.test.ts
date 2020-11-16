@@ -98,7 +98,7 @@ describe('GET event/feed', () => {
                 done(err)
             } else {
                 expect(res.status).toBe(200)
-                expect(res.body.events).toHaveLength(4)
+                expect(res.body.events).toHaveLength(5)
                 done()
             }
         })

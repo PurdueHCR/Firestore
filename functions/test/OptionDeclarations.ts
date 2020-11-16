@@ -309,6 +309,7 @@ export const EVENT_DEFAULTS:EventOptions = {
     endDate: new Date('2100-02-18T22:00:00+05:00'),
     location: "TEST_LOCATION",
     points: 1,
+    pointTypeId:1,
     pointTypeName:'Point Type Name',
     pointTypeDescription:'Description',
     floorIds:['4N'],

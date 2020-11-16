@@ -342,21 +342,21 @@ export class FirestoreDataFactory{
      */
     static setEvent(db: firebase.firestore.Firestore, id: string, creator_id: string, eOpts:Options.EventOptions = Options.EVENT_DEFAULTS): Promise<void> {
         const data = {
-            "name": (eOpts.name !== undefined)?eOpts.name:Options.EVENT_DEFAULTS.name,
-            "details": (eOpts.details !== undefined)?eOpts.details:Options.EVENT_DEFAULTS.details,
-            "startDate": (eOpts.startDate !== undefined)?eOpts.startDate:Options.EVENT_DEFAULTS.startDate,
-            "endDate": (eOpts.endDate !== undefined)?eOpts.endDate:Options.EVENT_DEFAULTS.endDate,
-            "Location": (eOpts.location !== undefined)?eOpts.location:Options.EVENT_DEFAULTS.location,
-            "points": (eOpts.points !== undefined)?eOpts.points:Options.EVENT_DEFAULTS.points,
-            "pointTypeId": (eOpts.pointTypeId !== undefined)?eOpts.pointTypeId:Options.EVENT_DEFAULTS.pointTypeId,
-            "pointTypeName": (eOpts.pointTypeName !== undefined)?eOpts.pointTypeName:Options.EVENT_DEFAULTS.pointTypeName,
-            "pointTypeDescription": (eOpts.pointTypeDescription !== undefined)?eOpts.pointTypeDescription:Options.EVENT_DEFAULTS.pointTypeDescription,
-            "floorIds": (eOpts.floorIds !== undefined)?eOpts.floorIds:Options.EVENT_DEFAULTS.floorIds,
-            "floorColors": (eOpts.floorColors !== undefined)?eOpts.floorColors:Options.EVENT_DEFAULTS.floorColors,
-            "creatorId":creator_id,
-            "id":id,
-            "host":(eOpts.host !== undefined)?eOpts.host:Options.EVENT_DEFAULTS.host,
-            "isPublicEvent":(eOpts.isPublicEvent !== undefined)?eOpts.isPublicEvent:Options.EVENT_DEFAULTS.isPublicEvent
+            name: (eOpts.name !== undefined)?eOpts.name:Options.EVENT_DEFAULTS.name,
+            details: (eOpts.details !== undefined)?eOpts.details:Options.EVENT_DEFAULTS.details,
+            startDate: (eOpts.startDate !== undefined)?eOpts.startDate:Options.EVENT_DEFAULTS.startDate,
+            endDate: (eOpts.endDate !== undefined)?eOpts.endDate:Options.EVENT_DEFAULTS.endDate,
+            Location: (eOpts.location !== undefined)?eOpts.location:Options.EVENT_DEFAULTS.location,
+            points: (eOpts.points !== undefined)?eOpts.points:Options.EVENT_DEFAULTS.points,
+            pointTypeId: (eOpts.pointTypeId !== undefined)?eOpts.pointTypeId:Options.EVENT_DEFAULTS.pointTypeId,
+            pointTypeName: (eOpts.pointTypeName !== undefined)?eOpts.pointTypeName:Options.EVENT_DEFAULTS.pointTypeName,
+            pointTypeDescription: (eOpts.pointTypeDescription !== undefined)?eOpts.pointTypeDescription:Options.EVENT_DEFAULTS.pointTypeDescription,
+            floorIds: (eOpts.floorIds !== undefined)?eOpts.floorIds:Options.EVENT_DEFAULTS.floorIds,
+            floorColors: (eOpts.floorColors !== undefined)?eOpts.floorColors:Options.EVENT_DEFAULTS.floorColors,
+            creatorId:creator_id,
+            id:id,
+            host:(eOpts.host !== undefined)?eOpts.host:Options.EVENT_DEFAULTS.host,
+            isPublicEvent:(eOpts.isPublicEvent !== undefined)?eOpts.isPublicEvent:Options.EVENT_DEFAULTS.isPublicEvent
         }
         return db.collection("Events").doc(id).set(data)
     }
