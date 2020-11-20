@@ -1,7 +1,5 @@
-import * as factory from '../../HTTPRequestFactory'
 import * as firebase from "@firebase/testing"
 import * as IntegrationMockFactory from '../IntegrationMockFactory'
-import * as request from 'supertest'
 import { FirestoreDataFactory } from '../FirestoreDataFactory'
 
 let get_events_func
@@ -12,7 +10,7 @@ let PROFESSIONAL_STAFF_ID = "PROFESSIONAL_STAFF_ID"
 let COPPER_FHP_ID = "COPPER_FHP"
 let PALLADIUM_PRIV_RES = "PALLADIUM_PRIV_RES"
 let EA_ID = "EA_ID"
-let GET_EVENTS_PATH = "/"
+// let GET_EVENTS_PATH = "/"
 
 // Test Suite GetEvents
 describe('GET event/', () => {
@@ -49,7 +47,7 @@ describe('GET event/', () => {
     })
 
     // Test Platinum Resident
-    it('Test Platinum Resident', async(done) => {
+    it.skip('Test Platinum Resident', async(done) => {
         // const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, PLATINUM_RESIDENT)
         // res.end(function (err, res) {
         //     if (err) {
@@ -63,7 +61,7 @@ describe('GET event/', () => {
     })
 
     // Test Palladium Privileged Resident
-    it('Test Palladium Privileged Resident', async(done) => {
+    it.skip('Test Palladium Privileged Resident', async(done) => {
         // const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, PALLADIUM_PRIV_RES)
         // res.end(function (err, res) {
         //     if (err) {
@@ -77,7 +75,7 @@ describe('GET event/', () => {
     })
 
     // Test Copper FHP
-    it('Test Copper FHP', async(done) => {
+    it.skip('Test Copper FHP', async(done) => {
         // const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, COPPER_FHP_ID)
         // res.end(function (err, res) {
         //     if (err) {
@@ -91,7 +89,7 @@ describe('GET event/', () => {
     })
 
     // Test Professional Staff
-    it('Test Professional Staff', async(done) => {
+    it.skip('Test Professional Staff', async(done) => {
         // const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, PROFESSIONAL_STAFF_ID)
         // res.end(function (err, res) {
         //     if (err) {
@@ -105,7 +103,7 @@ describe('GET event/', () => {
     })
 
     // Test External Advisor
-    it('Test External Advisor', async(done) => {
+    it.skip('Test External Advisor', async(done) => {
         // const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, EA_ID)
         // res.end(function (err, res) {
         //     if (err) {
