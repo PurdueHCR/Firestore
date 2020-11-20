@@ -12,10 +12,10 @@ let PROFESSIONAL_STAFF_ID = "PROFESSIONAL_STAFF_ID"
 let COPPER_FHP_ID = "COPPER_FHP"
 let PALLADIUM_PRIV_RES = "PALLADIUM_PRIV_RES"
 let EA_ID = "EA_ID"
-let GET_EVENTS_PATH = "/"
+let GET_EVENTS_PATH = "/feed"
 
 // Test Suite GetEvents
-describe('GET event/', () => {
+describe('GET event/feed', () => {
     beforeAll(async() => {
         firebase.apps().map(app => app.delete())
 
@@ -50,72 +50,72 @@ describe('GET event/', () => {
 
     // Test Platinum Resident
     it('Test Platinum Resident', async(done) => {
-        // const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, PLATINUM_RESIDENT)
-        // res.end(function (err, res) {
-        //     if (err) {
-        //         done(err)
-        //     } else {
-        //         expect(res.status).toBe(200)
-        //         expect(res.body.events).toHaveLength(2)
-        //         done()
-        //     }
-        // })
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, PLATINUM_RESIDENT)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(res.body.events).toHaveLength(2)
+                done()
+            }
+        })
     })
 
     // Test Palladium Privileged Resident
     it('Test Palladium Privileged Resident', async(done) => {
-        // const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, PALLADIUM_PRIV_RES)
-        // res.end(function (err, res) {
-        //     if (err) {
-        //         done(err)
-        //     } else {
-        //         expect(res.status).toBe(200)
-        //         expect(res.body.events).toHaveLength(2)
-        //         done()
-        //     }
-        // })
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, PALLADIUM_PRIV_RES)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(res.body.events).toHaveLength(2)
+                done()
+            }
+        })
     })
 
     // Test Copper FHP
     it('Test Copper FHP', async(done) => {
-        // const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, COPPER_FHP_ID)
-        // res.end(function (err, res) {
-        //     if (err) {
-        //         done(err)
-        //     } else {
-        //         expect(res.status).toBe(200)
-        //         expect(res.body.events).toHaveLength(3)
-        //         done()
-        //     }
-        // })
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, COPPER_FHP_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(res.body.events).toHaveLength(3)
+                done()
+            }
+        })
     })
 
     // Test Professional Staff
     it('Test Professional Staff', async(done) => {
-        // const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, PROFESSIONAL_STAFF_ID)
-        // res.end(function (err, res) {
-        //     if (err) {
-        //         done(err)
-        //     } else {
-        //         expect(res.status).toBe(200)
-        //         expect(res.body.events).toHaveLength(5)
-        //         done()
-        //     }
-        // })
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, PROFESSIONAL_STAFF_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(res.body.events).toHaveLength(5)
+                done()
+            }
+        })
     })
 
     // Test External Advisor
     it('Test External Advisor', async(done) => {
-        // const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, EA_ID)
-        // res.end(function (err, res) {
-        //     if (err) {
-        //         done(err)
-        //     } else {
-        //         expect(res.status).toBe(200)
-        //         expect(res.body.events).toHaveLength(1)
-        //         done()
-        //     }
-        // })
+        const res: request.Test = factory.get(get_events_func, GET_EVENTS_PATH, EA_ID)
+        res.end(function (err, res) {
+            if (err) {
+                done(err)
+            } else {
+                expect(res.status).toBe(200)
+                expect(res.body.events).toHaveLength(1)
+                done()
+            }
+        })
     })
 
     
