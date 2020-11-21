@@ -1,7 +1,8 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as express from 'express'
-// import { APIResponse } from '../models/APIResponse'
+import { APIResponse } from '../models/APIResponse'
+import { getMachines } from '../src/GetMachines'
 
 if(admin.apps.length === 0){
 	admin.initializeApp(functions.config().firebase)
@@ -24,6 +25,7 @@ laundry_app.use(firestoreTools.validateFirebaseIdToken)
 
 export const laundry_main = functions.https.onRequest(laundry_controls_main)
 
-laundry_app.get("/", (req, res) => {
-	res.status(501).send("Unimplemented")
+laundry_app.get("/", async (req, res) => {
+	const machines = await getMachines()
+	res.status(APIResponse.SUCCESS_CODE).send({"machines": machines})
 })
