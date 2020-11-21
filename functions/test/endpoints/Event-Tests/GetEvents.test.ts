@@ -2,7 +2,7 @@ import * as firebase from "@firebase/testing"
 import * as IntegrationMockFactory from '../IntegrationMockFactory'
 import { FirestoreDataFactory } from '../FirestoreDataFactory'
 
-let get_events_func
+// let get_events_func
 let db: firebase.firestore.Firestore
 
 let PLATINUM_RESIDENT = "PLATINUM_RESIDENT"
@@ -24,7 +24,7 @@ describe('GET event/', () => {
         db = IntegrationMockFactory.getDb()
 
         // Get the event function from the index to test
-        get_events_func = require('../../../src/endpoint_paths/index.ts').event
+        // get_events_func = require('../../../src/endpoint_paths/index.ts').event
     
         // Create sample data for tests
         await FirestoreDataFactory.setUser(db, PLATINUM_RESIDENT, 0, {house_name:"Platinum", floor_id:"4N"})
