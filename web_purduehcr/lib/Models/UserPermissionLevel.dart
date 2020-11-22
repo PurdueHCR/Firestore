@@ -1,14 +1,15 @@
 enum UserPermissionLevel {
   RESIDENT,
-  RHP,  //Resident Honors Preceptor (RA)
+  RHP, //Resident Honors Preceptor (RA)
   PROFESSIONAL_STAFF,
-  FHP,  //Faculty Honors Preceptor
+  FHP, //Faculty Honors Preceptor
   PRIVILEGED_RESIDENT,
   EXTERNAL_ADVISER // External Adviser to the competition
 }
-class UserPermissionLevelConverter{
-  static UserPermissionLevel fromNum(num value){
-    switch(value){
+
+class UserPermissionLevelConverter {
+  static UserPermissionLevel fromNum(num value) {
+    switch (value) {
       case 1:
         return UserPermissionLevel.RHP;
       case 2:
@@ -18,13 +19,14 @@ class UserPermissionLevelConverter{
       case 4:
         return UserPermissionLevel.PRIVILEGED_RESIDENT;
       case 5:
-        return  UserPermissionLevel.EXTERNAL_ADVISER;
+        return UserPermissionLevel.EXTERNAL_ADVISER;
       default:
         return UserPermissionLevel.RESIDENT;
     }
   }
-  static String convertPermissionToString(UserPermissionLevel permissionLevel){
-    switch(permissionLevel){
+
+  static String convertPermissionToString(UserPermissionLevel permissionLevel) {
+    switch (permissionLevel) {
       case UserPermissionLevel.RESIDENT:
         return "Resident";
       case UserPermissionLevel.RHP:
@@ -42,27 +44,89 @@ class UserPermissionLevelConverter{
   }
 }
 
-class UserPermissionSet{
+class UserPermissionSet {
   Set<UserPermissionLevel> permissionSet;
   UserPermissionSet(this.permissionSet);
 
-  bool contains(UserPermissionLevel permissionLevel){
+  bool contains(UserPermissionLevel permissionLevel) {
     return permissionSet.contains(permissionLevel);
+  }
+
+  static getActivityPlanners() {
+    return UserPermissionSet([
+      UserPermissionLevel.RHP,
+      UserPermissionLevel.PROFESSIONAL_STAFF,
+      UserPermissionLevel.FHP,
+      UserPermissionLevel.PRIVILEGED_RESIDENT,
+      UserPermissionLevel.EXTERNAL_ADVISER
+    ].toSet());
+  }
+
+  static getAll() {
+    return UserPermissionSet([
+      UserPermissionLevel.RESIDENT,
+      UserPermissionLevel.RHP,
+      UserPermissionLevel.PROFESSIONAL_STAFF,
+      UserPermissionLevel.FHP,
+      UserPermissionLevel.PRIVILEGED_RESIDENT,
+      UserPermissionLevel.EXTERNAL_ADVISER
+    ].toSet());
+  }
+
+  static getCompetitionParticipants() {
+    return UserPermissionSet([
+      UserPermissionLevel.RESIDENT,
+      UserPermissionLevel.RHP,
+      UserPermissionLevel.PRIVILEGED_RESIDENT
+    ].toSet());
+  }
+
+  static getResidentiallifeStaff() {
+    return UserPermissionSet([
+      UserPermissionLevel.RHP,
+      UserPermissionLevel.PROFESSIONAL_STAFF
+    ].toSet());
   }
 }
 
-class ResidentialLifeStaffSet extends UserPermissionSet{
-  ResidentialLifeStaffSet(): super([UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF].toSet());
+@deprecated
+class ResidentialLifeStaffSet extends UserPermissionSet {
+  ResidentialLifeStaffSet()
+      : super([UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF]
+            .toSet());
 }
 
-class ActivityPlannerSet extends UserPermissionSet{
-  ActivityPlannerSet(): super([UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.FHP, UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.EXTERNAL_ADVISER].toSet());
+@deprecated
+class ActivityPlannerSet extends UserPermissionSet {
+  ActivityPlannerSet()
+      : super([
+          UserPermissionLevel.RHP,
+          UserPermissionLevel.PROFESSIONAL_STAFF,
+          UserPermissionLevel.FHP,
+          UserPermissionLevel.PRIVILEGED_RESIDENT,
+          UserPermissionLevel.EXTERNAL_ADVISER
+        ].toSet());
 }
 
-class CompetitionParticipantsSet extends UserPermissionSet{
-  CompetitionParticipantsSet(): super([UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP, UserPermissionLevel.PRIVILEGED_RESIDENT].toSet());
+@deprecated
+class CompetitionParticipantsSet extends UserPermissionSet {
+  CompetitionParticipantsSet()
+      : super([
+          UserPermissionLevel.RESIDENT,
+          UserPermissionLevel.RHP,
+          UserPermissionLevel.PRIVILEGED_RESIDENT
+        ].toSet());
 }
 
-class AllPermissionsSet extends UserPermissionSet{
-  AllPermissionsSet(): super([UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.FHP, UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.EXTERNAL_ADVISER].toSet());
+@deprecated
+class AllPermissionsSet extends UserPermissionSet {
+  AllPermissionsSet()
+      : super([
+          UserPermissionLevel.RESIDENT,
+          UserPermissionLevel.RHP,
+          UserPermissionLevel.PROFESSIONAL_STAFF,
+          UserPermissionLevel.FHP,
+          UserPermissionLevel.PRIVILEGED_RESIDENT,
+          UserPermissionLevel.EXTERNAL_ADVISER
+        ].toSet());
 }
