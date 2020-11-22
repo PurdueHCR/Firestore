@@ -45,6 +45,8 @@ describe('point_log/handle', async ()  => {
         // Get the User function from the index to test
         point_log_func = require('../../../src/endpoint_paths/index.ts').point_log
 
+        await FirestoreDataFactory.setAllHouses(db)
+
         // Create sample data for tests
         await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0)
         await FirestoreDataFactory.setUser(db, RHP_ID, 1)
@@ -56,7 +58,6 @@ describe('point_log/handle', async ()  => {
         await FirestoreDataFactory.setPointType(db, 1, {description: PT_1_DETAILS, name: PT_1_DETAILS, value: 10})
         await FirestoreDataFactory.setPointType(db, 2, {residents_can_submit: false, value: 10})
         await FirestoreDataFactory.setPointType(db, 3, {is_enabled:false, value: 10})
-        await FirestoreDataFactory.setHouse(db, HOUSE_NAME)
 
         await FirestoreDataFactory.setPointLog(db, HOUSE_NAME, RESIDENT_ID, false, {id: PARAM_CHECKS_LOG_ID})
         await FirestoreDataFactory.setPointLog(db, HOUSE_NAME, RESIDENT_ID, true, {id: REJECT_LOG_ID, description: REJECT_LOG_ID, point_type_id: 1, approved: false})
