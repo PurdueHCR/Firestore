@@ -19,12 +19,12 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "ResidentId",
+          "fieldPath": "PointTypeId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "ResidentNotifications",
-          "order": "ASCENDING"
+          "fieldPath": "DateOccurred",
+          "order": "DESCENDING"
         }
       ]
     },
@@ -52,7 +52,21 @@
         },
         {
           "fieldPath": "ResidentNotifications",
-          "order": "DESCENDING"
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Events",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "floorIds",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "endDate",
+          "order": "ASCENDING"
         }
       ]
     },
@@ -65,8 +79,8 @@
           "arrayConfig": "CONTAINS"
         },
         {
-          "fieldPath": "ResidentNotifications",
-          "order": "DESCENDING"
+          "fieldPath": "endDate",
+          "order": "ASCENDING"
         }
       ]
     }
