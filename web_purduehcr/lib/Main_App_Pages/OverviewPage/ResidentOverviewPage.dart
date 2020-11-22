@@ -90,14 +90,14 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
                   },
                 ),
               ),
-              ConstrainedBox(
-                constraints: BoxConstraints(minHeight: 350, maxHeight: 350),
-                child: UserScoreCard(
-                  yearScores: state.myHouse.overallScores,
-                  semesterScores: state.myHouse.semesterScores,
-                  key: ObjectKey(state.myHouse),
-                ),
-              ),
+              // ConstrainedBox(
+              //   constraints: BoxConstraints(minHeight: 350, maxHeight: 350),
+              //   child: UserScoreCard(
+              //     yearScores: state.myHouse.overallScores,
+              //     semesterScores: state.myHouse.semesterScores,
+              //     key: ObjectKey(state.myHouse),
+              //   ),
+              // ),
             ],
           ),
         );
@@ -173,14 +173,14 @@ class _ResidentOverviewPageState extends BasePageState<OverviewBloc, OverviewEve
                   },
                 ),
               ),
-              ConstrainedBox(
-                constraints: BoxConstraints(minHeight: 350, maxHeight: 350),
-                child: UserScoreCard(
-                  yearScores: state.myHouse.overallScores,
-                  semesterScores: state.myHouse.semesterScores,
-                  key: ObjectKey(state.myHouse),
-                ),
-              ),
+              // ConstrainedBox(
+              //   constraints: BoxConstraints(minHeight: 350, maxHeight: 350),
+              //   child: UserScoreCard(
+              //     yearScores: state.myHouse.overallScores,
+              //     semesterScores: state.myHouse.semesterScores,
+              //     key: ObjectKey(state.myHouse),
+              //   ),
+              // ),
             ],
           ),
         );

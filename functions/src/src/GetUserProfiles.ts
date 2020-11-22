@@ -35,9 +35,9 @@ export async function getResidentProfile(user:User): Promise<ResidentProfile>{
 	data.next_reward = await getNextRewardForHouse(user_house)
 	data.houses = houses
 
-	const rankArray = await getRankArray(user_house)
-	data.year_rank = rankArray.getYearlyRank()
-	data.semester_rank = rankArray.getSemesterRank()
+	// const rankArray = await getRankArray(user_house)
+	// data.year_rank = rankArray.getYearlyRank()
+	// data.semester_rank = rankArray.getSemesterRank()
 
 	if(!systemPreferences.isCompetitionVisible){
 		data.user_rank = {}
@@ -58,9 +58,10 @@ export declare type ResidentProfile = {
     user_house: any[],
     user_rank: any,
     next_reward: any,
-	last_submissions: any[],
-	year_rank: any,
-	semester_rank: any
+	last_submissions: any[]
+	// ,
+	// year_rank: any,
+	// semester_rank: any
 }
 
 /**
@@ -87,9 +88,9 @@ export async function getRHPProfile(user:User): Promise<RHPProfile>{
 	data.next_reward = await getNextRewardForHouse(user_house)
 	data.houses = houses
 
-	const rankArray = await getRankArray(user_house)
-	data.year_rank = rankArray.getYearlyRank()
-	data.semester_rank = rankArray.getSemesterRank()
+	// const rankArray = await getRankArray(user_house)
+	// data.year_rank = rankArray.getYearlyRank()
+	// data.semester_rank = rankArray.getSemesterRank()
 
 	if(!systemPreferences.isCompetitionVisible){
 		data.user_rank = {}
@@ -114,8 +115,8 @@ export declare type RHPProfile = {
 	last_submissions?: any[],
 	house_codes?: any[],
 	houses?: any[]
-	year_rank?: any,
-	semester_rank?: any
+	// year_rank?: any,
+	// semester_rank?: any
 }
 
 
