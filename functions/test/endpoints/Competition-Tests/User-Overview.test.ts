@@ -211,7 +211,31 @@ describe('GET web/userOverview', () =>{
                 done(err)
             }
             else{
-                expect(res.status).toBe(403)
+                expect(res.status).toBe(200)
+                expect(res.body.resident).toBeUndefined();
+                expect(res.body.rhp).toBeUndefined();
+                expect(res.body.proffesional_staff).toBeUndefined();
+                expect(res.body.fhp).toBeDefined();
+                expect(res.body.privileged_res).toBeUndefined();
+                expect(res.body.ea).toBeUndefined();
+ 
+                // Test next reward
+                expect(res.body.fhp.next_reward.id).toBe(REWARD_100PPR)
+                expect(res.body.fhp.next_reward.fileName).toBe(REWARD_DEFAULTS.file_name)
+                expect(res.body.fhp.next_reward.requiredPPR).toBe(REWARD_DEFAULTS.required_ppr)
+
+                // Test houses
+                expect(res.body.fhp.houses[0].id).toBe("Platinum")
+                expect(res.body.fhp.houses[0].pointsPerResident).toBe(10)
+                expect(res.body.fhp.houses[1].id).toBe("Titanium")
+                expect(res.body.fhp.houses[1].pointsPerResident).toBe(8)
+                expect(res.body.fhp.houses[2].id).toBe("Silver")
+                expect(res.body.fhp.houses[2].pointsPerResident).toBe(3)
+                expect(res.body.fhp.houses[3].id).toBe("Palladium")
+                expect(res.body.fhp.houses[3].pointsPerResident).toBe(1)
+                expect(res.body.fhp.houses[4].id).toBe("Copper")
+                expect(res.body.fhp.houses[4].pointsPerResident).toBe(0)
+
                 done()
             }
         })
@@ -271,7 +295,13 @@ describe('GET web/userOverview', () =>{
                 done(err)
             }
             else{
-                expect(res.status).toBe(403)
+                expect(res.status).toBe(200)
+                expect(res.body.resident).toBeUndefined();
+                expect(res.body.rhp).toBeUndefined();
+                expect(res.body.proffesional_staff).toBeUndefined();
+                expect(res.body.fhp).toBeUndefined();
+                expect(res.body.privileged_res).toBeUndefined();
+                expect(res.body.ea).toBeDefined();
                 done()
             }
         })

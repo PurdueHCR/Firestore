@@ -19,11 +19,67 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
+          "fieldPath": "PointTypeID",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "DateOccurred",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Points",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ResidentLastName",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "DateOccurred",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Points",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
           "fieldPath": "ResidentId",
           "order": "ASCENDING"
         },
         {
           "fieldPath": "ResidentNotifications",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Events",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "floorIds",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "endDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Events",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "floorIds",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "endDate",
           "order": "ASCENDING"
         }
       ]
