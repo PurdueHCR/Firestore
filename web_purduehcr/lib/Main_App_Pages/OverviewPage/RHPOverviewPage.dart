@@ -97,14 +97,14 @@ class _RHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
                         ),
                       )
                   ),
-                  Expanded(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(minHeight: 300, maxHeight: 300),
-                      child: HouseCodesCard(
-                        houseCodes: state.houseCodes,
-                      ),
-                    ),
-                  )
+                  // Expanded(
+                  //   child: ConstrainedBox(
+                  //     constraints: BoxConstraints(minHeight: 300, maxHeight: 300),
+                  //     child: HouseCodesCard(
+                  //       houseCodes: state.houseCodes,
+                  //     ),
+                  //   ),
+                  // )
                 ],
               ),
 
@@ -168,14 +168,14 @@ class _RHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
                   houseCodes: state.houseCodes,
                 ),
               ),
-              ConstrainedBox(
-                constraints: BoxConstraints( maxHeight: 300),
-                child: UserScoreCard(
-                  yearScores: state.myHouse.overallScores,
-                  semesterScores: state.myHouse.semesterScores,
-                  key: ObjectKey(state.myHouse),
-                ), //UserScoreCard
-              ),
+              // ConstrainedBox(
+              //   constraints: BoxConstraints( maxHeight: 300),
+              //   child: UserScoreCard(
+              //     yearScores: state.myHouse.overallScores,
+              //     semesterScores: state.myHouse.semesterScores,
+              //     key: ObjectKey(state.myHouse),
+              //   ), //UserScoreCard
+              // ),
             ],
           ),
         );

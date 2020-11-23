@@ -15,7 +15,7 @@ import { House } from '../models/House'
 import { getSystemPreferences } from '../src/GetSystemPreferences'
 import { getHouseByName } from '../src/GetHouses'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
-import { getResidentProfile, getRHPProfile, getProfessionalStaffProfile, getExternalAdvisorProfile } from '../src/GetUserProfiles'
+import { getResidentProfile, getRHPProfile, getProfessionalStaffProfile, getExternalAdvisorProfile, getFacultyProfile } from '../src/GetUserProfiles'
 
 
 if(admin.apps.length === 0){
@@ -114,6 +114,10 @@ web_controls_app.get('/userOverview', async (req, res) => {
 			//This is sufficient for the first version, but we will eventually want to add more to their home screen
 			const resident_profile = await getResidentProfile(user)
 			res.status(APIResponse.SUCCESS_CODE).send({"privileged_resident":resident_profile})
+		}
+		else if(user.permissionLevel === UserPermissionLevel.FACULTY) {
+			const faculty_profile = await getFacultyProfile(user)
+			res.status(APIResponse.SUCCESS_CODE).send({"fhp":faculty_profile})
 		}
 		else if(user.permissionLevel === UserPermissionLevel.EXTERNAL_ADVISOR){
 			//This is sufficient for the first version, but we will eventually want to add more to their home screen
