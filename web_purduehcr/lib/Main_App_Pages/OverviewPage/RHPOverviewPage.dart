@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:purduehcr_web/Main_App_Pages/OverviewPage/overview_cards/UserRankCard.dart';
 import 'package:purduehcr_web/Utility_Views/BasePage.dart';
 import 'package:purduehcr_web/Models/PointLog.dart';
 import 'package:purduehcr_web/Models/User.dart';
@@ -96,14 +97,14 @@ class _RHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
                         ),
                       )
                   ),
-                  Expanded(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(minHeight: 300, maxHeight: 300),
-                      child: HouseCodesCard(
-                        houseCodes: state.houseCodes,
-                      ),
-                    ),
-                  )
+                  // Expanded(
+                  //   child: ConstrainedBox(
+                  //     constraints: BoxConstraints(minHeight: 300, maxHeight: 300),
+                  //     child: HouseCodesCard(
+                  //       houseCodes: state.houseCodes,
+                  //     ),
+                  //   ),
+                  // )
                 ],
               ),
 
@@ -167,6 +168,14 @@ class _RHPOverviewPageState extends BasePageState<OverviewBloc, OverviewEvent, O
                   houseCodes: state.houseCodes,
                 ),
               ),
+              // ConstrainedBox(
+              //   constraints: BoxConstraints( maxHeight: 300),
+              //   child: UserScoreCard(
+              //     yearScores: state.myHouse.overallScores,
+              //     semesterScores: state.myHouse.semesterScores,
+              //     key: ObjectKey(state.myHouse),
+              //   ), //UserScoreCard
+              // ),
             ],
           ),
         );

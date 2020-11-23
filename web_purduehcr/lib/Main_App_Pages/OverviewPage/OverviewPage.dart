@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purduehcr_web/Main_App_Pages/OverviewPage/FHPOverviewPage.dart';
 import 'package:purduehcr_web/Main_App_Pages/OverviewPage/ProfessionalStaffOverviewPage.dart';
 import 'package:purduehcr_web/Main_App_Pages/OverviewPage/RHPOverviewPage.dart';
 import 'package:purduehcr_web/Authentication_Bloc/authentication.dart';
@@ -8,6 +9,8 @@ import 'package:purduehcr_web/Utility_Views/BasePage.dart';
 import 'package:purduehcr_web/Models/User.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:purduehcr_web/Main_App_Pages/OverviewPage/ResidentOverviewPage.dart';
+
+import 'ExternalAdviserOverviewPage.dart';
 
 class HomePage extends StatelessWidget {
   final String linkId;
@@ -19,13 +22,15 @@ class HomePage extends StatelessWidget {
     switch(user.permissionLevel){
       case UserPermissionLevel.RESIDENT:
       case UserPermissionLevel.PRIVILEGED_RESIDENT:
-      return ResidentOverviewPage(linkId: linkId,);
+      return ResidentOverviewPage(linkId: linkId);
       case UserPermissionLevel.RHP:
         return RHPOverviewPage(linkId: linkId,);
       case UserPermissionLevel.PROFESSIONAL_STAFF:
         return ProfessionalStaffOverviewPage();
       case UserPermissionLevel.FHP:
+        return FHPOverviewPage(key:ObjectKey(user));
       case UserPermissionLevel.EXTERNAL_ADVISER:
+        return ExternalAdviserOverviewPage(key:ObjectKey(user));
       default:
         return UnimplementedPage(drawerLabel: "Overview");
     }

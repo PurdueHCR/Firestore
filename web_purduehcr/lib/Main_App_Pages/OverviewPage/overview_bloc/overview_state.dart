@@ -58,6 +58,27 @@ class ProfessionalStaffLoaded extends OverviewState {
   List<Object> get props => [UniqueKey()];
 }
 
+class FHPOverviewLoaded extends OverviewState {
+  final Reward reward;
+  final List<House> houses;
+  final House myHouse;
+  final Key key;
+
+  const FHPOverviewLoaded(
+      {@required this.reward, @required this.houses, @required this.key, @required this.myHouse});
+
+  @override
+  List<Object> get props => [reward, houses, key];
+}
+
+class ExternalAdviserLoaded extends OverviewState {
+  final List<House> houses;
+
+  const ExternalAdviserLoaded({@required this.houses});
+  @override
+  List<Object> get props => [UniqueKey()];
+}
+
 class OverviewError extends OverviewState {
   final Error error;
   const OverviewError({@required this.error});
