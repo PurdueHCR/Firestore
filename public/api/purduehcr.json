@@ -25,8 +25,7 @@
     "name" : "point_log"
   },{
     "name" : "house_codes"
-  },
-  {
+  },{
     "name" : "events"
   },{
     "name" : "web",
@@ -1078,7 +1077,7 @@
         },
         "responses" : {
           "201" : {
-            "description" : "The Point Log was successfully submitted for the resident and an approval request was sent to an RHP.",
+            "description" : "The submission was successful and an approval request was sent to an RHP.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -1088,7 +1087,7 @@
             }
           },
           "202" : {
-            "description" : "The Point Log was successfully submitted and was automatically approved.",
+            "description" : "The submission was successful and was automatically approved.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -1127,6 +1126,16 @@
               }
             }
           },
+          "409" : {
+            "description" : "Points Already Claimed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointsAlreadyClaimed"
+                }
+              }
+            }
+          },
           "412" : {
             "description" : "House Competition is disabled.",
             "content" : {
@@ -1147,22 +1156,32 @@
               }
             }
           },
-          "419" : {
-            "description" : "Users can not self submit this point type.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PointTypeSelfSubmissionDisabled"
-                }
-              }
-            }
-          },
           "422" : {
             "description" : "Required parameters are missing.",
             "content" : {
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "429" : {
+            "description" : "Event submission not open.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EventSubmissionNotOpen"
+                }
+              }
+            }
+          },
+          "432" : {
+            "description" : "Can not access event",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CanNotAccessEvent"
                 }
               }
             }
@@ -4250,12 +4269,12 @@
           }
         }
       },
-      "LinkAlreadySubmitted" : {
+      "PointsAlreadyClaimed" : {
         "type" : "object",
         "properties" : {
           "message" : {
             "type" : "string",
-            "example" : "The Link Has Already Been Submitted"
+            "example" : "You already claimed points for this."
           }
         }
       },
@@ -4394,6 +4413,15 @@
           }
         }
       },
+      "EventSubimssionsNotOpen" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "This event is not accepting submissions at this time."
+          }
+        }
+      },
       "CanNotPostMessage" : {
         "type" : "object",
         "properties" : {
@@ -4418,6 +4446,15 @@
           "message" : {
             "type" : "string",
             "example" : "This user does not have the corrent ownership or permission to access this point log."
+          }
+        }
+      },
+      "CanNotAccessEvent" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "This user does not have the correct ownership, permission, or invitation to access this event."
           }
         }
       },

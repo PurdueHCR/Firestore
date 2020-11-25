@@ -299,7 +299,8 @@ export declare type EventOptions = {
     creatorId?:string,
     id?:string,
     host?:string,
-    isPublicEvent?:boolean
+    isPublicEvent?:boolean,
+    claimedCount?:number
 }
 
 export const EVENT_DEFAULTS:EventOptions = {
@@ -317,7 +318,8 @@ export const EVENT_DEFAULTS:EventOptions = {
     creatorId:'asdfasdfa',
     id:'asdfasdfsad',
     host:'HOST',
-    isPublicEvent:false
+    isPublicEvent:false,
+    claimedCount: 0
 }
 ///----------------------------------------------------------------
 

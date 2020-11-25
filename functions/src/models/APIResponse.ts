@@ -106,11 +106,11 @@ export class APIResponse{
     }
 
     /**
-     * 409 - This Link Has Already Been Submitted
-     * The Link/QR-code which was scanned is a single use code and this user has already scanned it
+     * 409 - Points Already Claimed
+     * Points were already claimed for this link or event
      */
-    static LinkAlreadySubmitted(): APIResponse {
-        return new APIResponse(409, "This Link Has Already Been Submitted")
+    static PointsAlreadyClaimed(): APIResponse {
+        return new APIResponse(409, "You already claimed points for this.")
     }
 
     /**
@@ -212,9 +212,15 @@ export class APIResponse{
     /**
      * 422 - Missing Required Parameters
      * Required parameters for this endpoint does not exist
+     * @param msg Optional message to send with missing parameters
      */
-    static MissingRequiredParameters(): APIResponse {
-        return new APIResponse(422, "Missing Required Parameters")
+    static MissingRequiredParameters(msg?:any): APIResponse {
+        if(msg){
+            return new APIResponse(422, "Missing Required Parameters: "+msg)
+        }
+        else{
+            return new APIResponse(422, "Missing Required Parameters")
+        }
     }
 
     /**
@@ -227,10 +233,23 @@ export class APIResponse{
 
     /**
      * 424 - Date Is Not Allowed
-     * Could not parse date format
+     * Could not parse date format.
+     * @param min Optional date for minimum allowed date
+     * @param max Optional date for max allowed date
      */
-    static DateNotInRange(): APIResponse {
-        return new APIResponse(424, "Date Is Not Allowed")
+    static DateNotInRange(min?:Date, max?:Date): APIResponse {
+        let msg = "Date is not allowed."
+        if(max && min){
+            msg += ` [${min.toISOString()} < DATE < ${max.toISOString()}]`
+        }
+        else if(min){
+            msg += ` [${min.toISOString()} < DATE]`
+        }
+        else if (max){
+            msg += ` [DATE < ${max.toISOString()}]`
+        }
+        
+        return new APIResponse(424, msg)
     }
 
     /**
@@ -244,9 +263,15 @@ export class APIResponse{
     /**
      * 426 - Incorrect Format
      * One or more fields provided were in an invalid format to save in the database
+     * @param msg Optional message to send with incorrect Format
      */
-    static IncorrectFormat(): APIResponse {
-        return new APIResponse(426, "Data provided is in the incorrect format.")
+    static IncorrectFormat(msg?:string): APIResponse {
+        if(msg){
+            return new APIResponse(426, "Data provided is in the incorrect format: "+msg)
+        }
+        else{
+            return new APIResponse(426, "Data provided is in the incorrect format.")
+        }
     }
 
     /**
@@ -264,6 +289,15 @@ export class APIResponse{
     static InvalidFloorId(): APIResponse {
         return new APIResponse(428, "The floor id does not exist with the house that the user belongs to.")
     }
+
+    /**
+     * 429 - Event Submissions Not Open
+     * The event is not currently accepting event submissions.
+     */
+    static EventSubimssionsNotOpen(): APIResponse {
+        return new APIResponse(429, `This event is not accepting submissions at this time.`)
+    }
+
     /**
      * 430 - Insufficient Permission Level For Create a Link with that Point Type
      * The point type  
@@ -277,7 +311,15 @@ export class APIResponse{
      * This user does not have the corrent ownership or permission to access this point log
      */
     static CanNotAccessPointLog(): APIResponse {
-        return new APIResponse(431, "This user does not have the corrent ownership or permission to access this point log.")
+        return new APIResponse(431, "This user does not have the correct ownership or permission to access this point log.")
+    }
+
+    /**
+     * 432 - Can Not Access Event
+     * This user does not have the correct ownership, permission, or invitation to access this event.
+     */
+    static CanNotAccessEvent(): APIResponse {
+        return new APIResponse(432, "This user does not have the correct ownership, permission, or invitation to access this event.")
     }
 
     /**

@@ -17,6 +17,9 @@ import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermi
 import { updateUser, removeUserFromHouse } from '../src/UpdateUser'
 import * as ParameterParser from '../src/ParameterParser'
 import { getHouseByName } from '../src/GetHouses'
+import APIUtility from './APIUtility'
+import { getEvent } from '../src/GetEventById'
+import { submitPointsForEvent } from '../src/SubmitPointsForEvent'
 
 if(admin.apps.length === 0){
 	admin.initializeApp(functions.config().firestore)
@@ -133,7 +136,7 @@ users_app.get('/', async (req, res) => {
  * @throws 401 - Unauthorized
  * @throws 403 - Invalid Permission Level
  * @throws 408 - Link Doesnt Exist
- * @throws 409 - This Link Has Already Been Submitted
+ * @throws 409 - Already Claimed this point
  * @throws 412 - House Competition Is Disabled
  * @throws 417 - Unknown Point Type
  * @throws 418 - Point Type Is Disabled
@@ -184,6 +187,56 @@ users_app.post('/submitLink', async (req, res) => {
 })
 
 /**
+ * Submit a point with an event
+ * @params body.eventId
+ * @returns 201 - Success/ Point Awaits Approval
+ * @returns 202 - Success/ Point Approved
+ * 
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permission Level
+ * @throws 409 - Points already claimed
+ * @throws 412 - House Competition Is Disabled
+ * @throws 418 - Point Type Is Disabled
+ * @throws 426 - Invalid Format
+ * @throws 429 - Event Submission Not Open
+ * @throws 432 - Can Not Access Event
+ * @throws 450 - Nonexistant Event
+ * @throws 500 - Server Error
+ */
+users_app.post('/submitEvent', async (req, res) => {
+	try{
+		//Validate the input
+		APIUtility.validateRequest(req)
+		const eventId = APIUtility.parseInputForString(req.body, 'eventId')
+
+		//Retrieve the user and enforce security
+		const user = await getUser(req["user"]["user_id"])
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP, UserPermissionLevel.PRIVILEGED_RESIDENT])
+
+		//Get the event
+		const event = await getEvent(eventId)
+
+		//Perform point submission logic
+		const didAddPoints = await submitPointsForEvent(user,event)
+
+		//Respond with success messages		
+		if(!didAddPoints){
+			const success = APIResponse.SuccessAwaitsApproval()
+			res.status(201).send(success.toJson())
+		}
+		else {
+			const success = APIResponse.SuccessAndApproved()
+			res.status(202).send(success.toJson())
+		}
+
+	}
+	catch(error){
+		APIUtility.handleError(res, error)
+	}
+})
+
+/**
  * Submit a point for this user
  * 
  * @throws  401 - Unauthorized
@@ -222,7 +275,7 @@ users_app.post('/submitPoint', async (req, res) => {
 			if (isInDateRange(date_occurred)) {
 				const log = new UnsubmittedPointLog(date_occurred, req.body.description, parseInt(req.body.point_type_id))
 				const user = await getUser(req["user"]["user_id"])
-				const didAddPoints = await submitPoint(user, log)
+				const didAddPoints = await submitPoint(user, log, user.permissionLevel === UserPermissionLevel.RHP)
 				const success = APIResponse.Success()
 				if(didAddPoints){
 					res.status(201).send(success.toJson())

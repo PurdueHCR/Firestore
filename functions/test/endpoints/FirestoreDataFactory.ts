@@ -356,7 +356,8 @@ export class FirestoreDataFactory{
             creatorId:creator_id,
             id:id,
             host:(eOpts.host !== undefined)?eOpts.host:Options.EVENT_DEFAULTS.host,
-            isPublicEvent:(eOpts.isPublicEvent !== undefined)?eOpts.isPublicEvent:Options.EVENT_DEFAULTS.isPublicEvent
+            isPublicEvent:(eOpts.isPublicEvent !== undefined)?eOpts.isPublicEvent:Options.EVENT_DEFAULTS.isPublicEvent,
+            claimedCount:(eOpts.claimedCount !== undefined)?eOpts.claimedCount:Options.EVENT_DEFAULTS.claimedCount
         }
         return db.collection("Events").doc(id).set(data)
     }
