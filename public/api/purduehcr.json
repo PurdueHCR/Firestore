@@ -26,7 +26,7 @@
   },{
     "name" : "house_codes"
   },{
-    "name" : "events"
+    "name" : "event"
   },{
     "name" : "web",
     "description": "Endpoints used by the Flutter Web app to minimize api calls."
@@ -2643,9 +2643,9 @@
         }
       }
     },
-    "/events/" : {
+    "/event/" : {
       "get" : {
-        "tags" : [ "events" ],
+        "tags" : [ "event" ],
         "summary" : "Retrieves all Events that were created by the user.",
         "parameters" : [ {
           "name" : "Authorization",
@@ -2721,7 +2721,7 @@
         }
       },
       "post" : {
-        "tags": [ "events"],
+        "tags": [ "event"],
         "summary": "Create an Event",
         "parameters" : [ {
           "name" : "Authorization",
@@ -2820,7 +2820,7 @@
         }
       },
       "put": {
-        "tags": [ "events"],
+        "tags": [ "event"],
         "summary": "Update an Event",
         "parameters" : [ {
           "name" : "Authorization",
@@ -2940,9 +2940,9 @@
       }
 
     },
-    "/events/feed": {
+    "/event/feed": {
       "get" : {
-        "tags" : [ "events" ],
+        "tags" : [ "event" ],
         "summary" : "Retrieves upcoming Events that the user could attend",
         "parameters" : [ {
           "name" : "Authorization",
