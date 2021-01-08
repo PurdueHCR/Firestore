@@ -40,7 +40,7 @@ export default class APIUtility {
             throw APIResponse.IncorrectFormat(`Correct format is [${name}]: string`)
         }
         else{
-            return arg as string
+            return arg
         }
     }
 

@@ -12,6 +12,7 @@ import { getEventsByCreatorId } from '../src/GetEventsByCreatorId'
 import { getEventById } from '../src/GetEventById'
 import * as ParameterParser from '../src/ParameterParser'
 import { getSystemPreferences } from '../src/GetSystemPreferences'
+import APIUtility from './APIUtility'
 
 // Made sure that the app is only initialized one time
 if (admin.apps.length === 0) {
@@ -41,9 +42,7 @@ events_app.use(firestoreTools.validateFirebaseIdToken)
  * @param startDate event start date
  * @param endDate event end date
  * @param location event location string
- * @param points number of points for attending the event
  * @param point_type_id id of the PointType associated with the event
- * @param house house name for attending event
  * @param host event host
  * @param isPublicEvent boolean for can people not in the house competition see this event
  * @param isAllFloors boolean shortcut to make this available to everyone in the house competition
@@ -61,27 +60,25 @@ events_app.use(firestoreTools.validateFirebaseIdToken)
 events_app.post('/', async (req, res) => {
 
     try{
-        if(!req.body){
-            console.error("Missing body")
-			throw APIResponse.MissingRequiredParameters()
-        }
+        APIUtility.validateRequest(req)
 
         const minDate = new Date()
         minDate.setHours(0,0,0,0)
 
         //Check for fields
-        const name = ParameterParser.parseInputForString(req.body.name)
-        const details = ParameterParser.parseInputForString(req.body.details)
-        const startDate = ParameterParser.parseInputForDate(req.body.startDate, minDate)
-        const endDate = ParameterParser.parseInputForDate(req.body.endDate, minDate)
-        const location = ParameterParser.parseInputForString(req.body.location)
-        const pointTypeId = ParameterParser.parseInputForNumber(req.body.pointTypeId)
-        const host = ParameterParser.parseInputForString(req.body.host)
-        const isPublicEvent = ParameterParser.parseInputForBoolean(req.body.isPublicEvent)
-        const isAllFloors = ParameterParser.parseInputForBoolean(req.body.isAllFloors)
+        
+        const name = APIUtility.parseInputForString(req.body, 'name')
+        const details = APIUtility.parseInputForString(req.body, 'details')
+        const startDate = APIUtility.parseInputForDate(req.body, 'startDate', minDate)
+        const endDate = APIUtility.parseInputForDate(req.body, 'endDate', minDate)
+        const location = APIUtility.parseInputForString(req.body, 'location')
+        const pointTypeId = APIUtility.parseInputForNumber(req.body, 'pointTypeId')
+        const host = APIUtility.parseInputForString(req.body, 'host')
+        const isPublicEvent = APIUtility.parseInputForBoolean(req.body, 'isPublicEvent')
+        const isAllFloors = APIUtility.parseInputForBoolean(req.body, 'isAllFloors')
         let floorIds: string[];
         if(!isAllFloors){
-            floorIds = ParameterParser.parseInputForArray(req.body.floorIds)
+            floorIds = APIUtility.parseInputForArray(req.body, 'floorIds')
         }
         else{
             floorIds = (await getSystemPreferences()).floorIds;
