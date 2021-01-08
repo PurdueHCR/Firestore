@@ -1,5 +1,16 @@
 import {APIResponse} from '../models/APIResponse'
+import { User } from '../models/User'
+import { getUser } from '../src/GetUser'
 export default class APIUtility {
+
+
+    /**
+     * Retrieves the User from the request
+     * @param req Requet Body
+     */
+    static async getUser(req:any): Promise<User> {
+        return getUser(req["user"]["user_id"])
+    }
 
     /**
      * Verifies that the request and query or body is defined (depending on GET or POST/PUT respectively)
@@ -11,6 +22,9 @@ export default class APIUtility {
         if(req === undefined || req === null ){
             console.error('The request was undefined or null')
             throw APIResponse.MissingRequiredParameters('The request was undefined or null')
+        }
+        else if(req.header('Content-Type') !== 'application/json'){
+            throw APIResponse.InvalidContentType(req.header('Content-Type'))
         }
         else if(!acceptEmptyInput){
             if((req.method === "POST" || req.method === "PUT") && (req.body === undefined || req.body === null)){
@@ -138,10 +152,10 @@ export default class APIUtility {
                 }
             }
             if(maxDate && date > maxDate){
-                throw APIResponse.DateNotInRange(undefined,maxDate)
+                throw APIResponse.DateNotInRange(undefined,maxDate, name)
             }
             else if(minDate && date < minDate){
-                throw APIResponse.DateNotInRange(minDate)
+                throw APIResponse.DateNotInRange(minDate, undefined, name)
             }
             else{
                 return date

@@ -237,16 +237,22 @@ export class APIResponse{
      * @param min Optional date for minimum allowed date
      * @param max Optional date for max allowed date
      */
-    static DateNotInRange(min?:Date, max?:Date): APIResponse {
-        let msg = "Date is not allowed."
+    static DateNotInRange(min?:Date, max?:Date, fieldName?:string): APIResponse {
+        let msg
+        if(fieldName){
+            msg = `Date [${fieldName}] is not in the valid range. `
+        }
+        else{
+            msg = "The Date provided is not in the valid range. "
+        }
         if(max && min){
-            msg += ` [${min.toISOString()} < DATE < ${max.toISOString()}]`
+            msg += `[${fieldName?fieldName:"DATE"}] must come after ${min.toISOString()} but before ${max.toISOString()}.`
         }
         else if(min){
-            msg += ` [${min.toISOString()} < DATE]`
+            msg += `[${fieldName?fieldName:"DATE"}] must come after ${min.toISOString()}.`
         }
         else if (max){
-            msg += ` [DATE < ${max.toISOString()}]`
+            msg += `[${fieldName?fieldName:"DATE"}] muser come before ${max.toISOString()}.`
         }
         
         return new APIResponse(424, msg)
@@ -336,6 +342,14 @@ export class APIResponse{
      */
     static RewardAlreadyExists(): APIResponse {
         return new APIResponse(470, "A reward with that id already exists.")
+    }
+
+    /**
+     * 499 - Invalid Content Type
+     * A reward with that id already exists.
+     */
+    static InvalidContentType(currentType:string): APIResponse {
+        return new APIResponse(499, `Invalid Content-Type. The request header was set to '${currentType}' but needs to be 'application/json'.`)
     }
 
     /**

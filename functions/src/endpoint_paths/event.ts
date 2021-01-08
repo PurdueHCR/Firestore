@@ -65,7 +65,7 @@ events_app.post('/', async (req, res) => {
         minDate.setHours(0,0,0,0)
 
         //Check for fields
-        
+        console.log(JSON.stringify(req.body))
         const name = APIUtility.parseInputForString(req.body, 'name')
         const details = APIUtility.parseInputForString(req.body, 'details')
         const startDate = APIUtility.parseInputForDate(req.body, 'startDate', minDate)

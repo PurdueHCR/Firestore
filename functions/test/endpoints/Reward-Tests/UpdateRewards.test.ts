@@ -129,7 +129,7 @@ describe('PUT reward/', () =>{
     })
 
     it('Test number as id still returns unknown reward', async (done) => {
-        const body = {id:4, requiredPPR:14}
+        const body = {id:'4', requiredPPR:14}
         const res = factory.put(rewards_func, ENDPOINT, body,  PROF_ID)
         res.end(async function (err, res) {
             if(err){
