@@ -10,7 +10,6 @@ import { getPointTypeById } from '../src/GetPointTypeById'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 import { getEventsByCreatorId } from '../src/GetEventsByCreatorId'
 import { getEventById } from '../src/GetEventById'
-import * as ParameterParser from '../src/ParameterParser'
 import { getSystemPreferences } from '../src/GetSystemPreferences'
 import APIUtility from './APIUtility'
 
