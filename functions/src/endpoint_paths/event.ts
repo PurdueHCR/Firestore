@@ -92,17 +92,8 @@ events_app.post('/', async (req, res) => {
         res.status(APIResponse.SUCCESS_CODE).json(event)
 
     } catch (error) {
-        console.error("FAILED WITH ERROR: " + error.toString())
-        if (error instanceof TypeError) {
-            const apiResponse = APIResponse.InvalidDateFormat()
-            res.status(apiResponse.code).json(apiResponse.toJson())
-        }
-        else if (error instanceof APIResponse) {
-            res.status(error.code).json(error.toJson())
-        } else {
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).json(apiResponse.toJson())
-        }
+        console.error("POST event/ failed with: " + error.toString())
+		APIUtility.handleError(res, error)
     }
 })
 
@@ -118,13 +109,8 @@ events_app.get('/', async (req, res) => {
         const event_logs = await getEvents(user)
         res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
     } catch (error) {
-        console.error("FAILED WITH ERROR: " + error.toString())
-        if (error instanceof APIResponse) {
-            res.status(error.code).send(error.toJson())
-        } else {
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        console.error("GET event/ failed with: " + error.toString())
+		APIUtility.handleError(res, error)
     }
 })
 
@@ -136,17 +122,13 @@ events_app.get('/', async (req, res) => {
 events_app.get('/feed', async (req, res) => {
 
     try {
-        const user = await getUser(req["user"]["user_id"])
+        APIUtility.validateRequest(req)
+        const user = await APIUtility.getUser(req)
         const event_logs = await getEventsFeed(user)
         res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
     } catch (error) {
-        console.error("FAILED WITH ERROR: " + error.toString())
-        if (error instanceof APIResponse) {
-            res.status(error.code).send(error.toJson())
-        } else {
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        console.error("GET event/feed failed with: " + error.toString())
+		APIUtility.handleError(res, error)
     }
 })
 
@@ -179,13 +161,8 @@ events_app.get("/get_by_id", async (req, res) => {
             res.status(APIResponse.SUCCESS_CODE).send({event:event_log})
 
         } catch (error) {
-            console.error("FAILED WITH ERROR: " + error.toString())
-            if (error instanceof APIResponse) {
-                res.status(error.code).send(error.toJson())
-            } else {
-                const apiResponse = APIResponse.ServerError()
-                res.status(apiResponse.code).send(apiResponse.toJson())
-            }
+            console.error("GET event/get_by_id failed with: " + error.toString())
+		    APIUtility.handleError(res, error)
         }
     }
 })
@@ -207,13 +184,8 @@ events_app.get('/get_by_creator_id', async (req, res) => {
         const event_logs = await getEventsByCreatorId(user.id)
         res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
     } catch (error) {
-        console.error("FAILED WITH ERROR: " + error.toString())
-        if (error instanceof APIResponse) {
-            res.status(error.code).send(error.toJson())
-        } else {
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        console.error("GET event/get_by_creator_id failed with: " + error.toString())
+		APIUtility.handleError(res, error)
     }
 })
 
