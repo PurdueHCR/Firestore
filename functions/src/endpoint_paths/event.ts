@@ -9,7 +9,8 @@ import { getEvents, getEventsFeed } from '../src/GetEvents'
 import { getPointTypeById } from '../src/GetPointTypeById'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 import { getEventsByCreatorId } from '../src/GetEventsByCreatorId'
-import { getEventById } from '../src/GetEventById'
+import { getEvent } from '../src/GetEventById'
+import { deleteEvent } from '../src/DeleteEvent'
 import { getSystemPreferences } from '../src/GetSystemPreferences'
 import APIUtility from './APIUtility'
 
@@ -145,25 +146,16 @@ events_app.get('/feed', async (req, res) => {
  * @returns an event
  */
 events_app.get("/get_by_id", async (req, res) => {
-    if (!req.query || !req.query.event_id || req.query.event_id === "") {
-        if (!req.query) {
-            console.error("Missing query")
-        }
-        else if (!req.query.event_id || req.query.event_id === "") {
-            console.error("Missing event_id")
-        }
-        const error = APIResponse.MissingRequiredParameters()
-        res.status(error.code).send(error.toJson())
-    } else {
-        try {
-            const user = await getUser(req["user"]["user_id"])
-            const event_log = await getEventById(req.query.event_id as string, user)
-            res.status(APIResponse.SUCCESS_CODE).send({event:event_log})
 
-        } catch (error) {
-            console.error("GET event/get_by_id failed with: " + error.toString())
-		    APIUtility.handleError(res, error)
-        }
+    try {
+        APIUtility.validateRequest(req)
+        const eventId = APIUtility.parseInputForString(req.query, "event_id")
+        const event = await getEvent(eventId)
+        res.status(APIResponse.SUCCESS_CODE).send({event:event})
+
+    } catch (error) {
+        console.error("GET event/get_by_id failed with: " + error.toString())
+        APIUtility.handleError(res, error)
     }
 })
 
@@ -185,6 +177,36 @@ events_app.get('/get_by_creator_id', async (req, res) => {
         res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
     } catch (error) {
         console.error("GET event/get_by_creator_id failed with: " + error.toString())
+		APIUtility.handleError(res, error)
+    }
+})
+
+/**
+ * Delete event with the provided Id
+ * @params eventId
+ * 
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permission
+ * @throws 420 - Unknown Reward
+ * @throws 422 - MissingRequiredParameter
+ * @throws 500 - ServerError
+ */
+events_app.delete('/:eventId', async (req, res) => {
+    try {
+        APIUtility.validateRequest(req)
+        const user = await APIUtility.getUser(req)
+        const eventId = await APIUtility.parseInputForString(req.params, 'eventId')
+        const event = await getEvent(eventId)
+        if(event.id === user.id){
+            await deleteEvent(event)
+            throw APIResponse.Success()
+        }
+        else{
+            throw APIResponse.CanNotAccessEvent()
+        }
+    } catch (error) {
+        console.error("DELETE event/ failed with: " + error.toString())
 		APIUtility.handleError(res, error)
     }
 })

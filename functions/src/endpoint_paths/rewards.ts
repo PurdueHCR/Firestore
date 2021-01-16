@@ -144,17 +144,17 @@ reward_app.post('/', async (req, res) =>{
 
 /**
  * Delete a reward
- * @param  body.id
+ * @param  rewardId
  * @throws 400 - Unknown User
  * @throws 401 - Unauthorized
  * @throws 403 - Invalid Permission
  * @throws 420 - Unknown Reward
  * @throws 500 - ServerError
  */
-reward_app.delete('/', async (req, res) =>{
+reward_app.delete('/:rewardId', async (req, res) =>{
     try{
         APIUtility.validateRequest(req)
-        const id = APIUtility.parseInputForString(req.body,'id')
+        const id = APIUtility.parseInputForString(req.params,'rewardId')
 
         const user = await APIUtility.getUser(req)
         verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])

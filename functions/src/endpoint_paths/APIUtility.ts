@@ -23,7 +23,7 @@ export default class APIUtility {
             console.error('The request was undefined or null')
             throw APIResponse.MissingRequiredParameters('The request was undefined or null')
         }
-        else if(req.header('Content-Type') !== 'application/json'){
+        else if((req.method === "POST" || req.method === "PUT") && req.header('Content-Type') !== 'application/json'){
             throw APIResponse.InvalidContentType(req.header('Content-Type'))
         }
         else if(!acceptEmptyInput){
@@ -33,6 +33,10 @@ export default class APIUtility {
             }
             else if(req.method === "GET" && (req.query === undefined || req.query === null)){
                 console.error(`The ${req.method} request came without query fields, but a query field is required`)
+                throw APIResponse.MissingRequiredParameters(`The ${req.method} request came without query fields, but a query field is required`)
+            }
+            else if(req.method === "DELETE" && req.params === undefined || req.params === null){
+                console.error(`The ${req.method} request came without an ID to delete`)
                 throw APIResponse.MissingRequiredParameters(`The ${req.method} request came without query fields, but a query field is required`)
             }
         }
