@@ -18,9 +18,7 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState>{
   Stream<OverviewState> mapEventToState( OverviewEvent event) async* {
     if(event is OverviewLaunchedEvent){
       try{
-        print("Trying to yield");
         yield await overviewRepository.getUserOverview(event.permissionLevel);
-        print("Yielded state");
       }
       catch(error){
         print("Got error from Overview Bloc: " +error.toString());

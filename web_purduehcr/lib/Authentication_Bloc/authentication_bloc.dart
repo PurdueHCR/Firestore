@@ -28,6 +28,7 @@ class AuthenticationBloc
 
   @override
   Stream<AuthenticationState> mapEventToState(AuthenticationEvent event) async* {
+    print('Printing state');
     if (event is AppStarted && state.preferences == null) {
       SystemPreference preferences;
       try{
@@ -48,6 +49,7 @@ class AuthenticationBloc
         }
       }
       catch(error){
+        print('Start App unknown error: '+error.toString());
         yield ConnectionErrorState(preferences: preferences);
       }
     }
