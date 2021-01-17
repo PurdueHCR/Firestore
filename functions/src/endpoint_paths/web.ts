@@ -7,7 +7,6 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as express from 'express'
-import { getUser } from '../src/GetUser'
 import { APIResponse } from '../models/APIResponse'
 import { User } from '../models/User'
 import { SystemPreference } from '../models/SystemPreference'
@@ -16,6 +15,7 @@ import { getSystemPreferences } from '../src/GetSystemPreferences'
 import { getHouseByName } from '../src/GetHouses'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { getResidentProfile, getRHPProfile, getProfessionalStaffProfile, getExternalAdvisorProfile, getFacultyProfile } from '../src/GetUserProfiles'
+import APIUtility from './APIUtility'
 
 
 if(admin.apps.length === 0){
@@ -59,9 +59,10 @@ declare type InitializationData = {
 web_controls_app.get('/initialization',  async (req, res) => {
     console.log("Running web/initialization")
 	try{
+		APIUtility.validateRequest(req)
         const initializationData: InitializationData = {}
 
-        initializationData.user = await getUser(req["user"]["user_id"])
+        initializationData.user = await APIUtility.getUser(req)
         initializationData.settings = await getSystemPreferences()
 
         //If the user belongs to a house, get the house as well
@@ -69,18 +70,11 @@ web_controls_app.get('/initialization',  async (req, res) => {
             initializationData.house = await getHouseByName(initializationData.user.house)
         }
         
-		res.status(APIResponse.SUCCESS_CODE).send(initializationData)
+		res.status(APIResponse.SUCCESS_CODE).json(initializationData)
 	}
 	catch (error){
-        if( error instanceof APIResponse){
-            console.error("Web Initialization API Error: "+error.toString())
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Web Initialization Server Error: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        console.error('Error in GET web/initialization: '+error.toString())
+        APIUtility.handleError(res,error)
     }
 })
 
@@ -93,53 +87,46 @@ web_controls_app.get('/initialization',  async (req, res) => {
  * @throws 500 - Server Error
  */
 web_controls_app.get('/userOverview', async (req, res) => {
-    console.log("Running web/userOverview")
 	try{
-		const user = await getUser(req["user"]["user_id"])
+		APIUtility.validateRequest(req)
+		const user = await APIUtility.getUser(req)
 		if(user.permissionLevel === UserPermissionLevel.RESIDENT){
 			const resident_profile = await getResidentProfile(user)
-			res.status(APIResponse.SUCCESS_CODE).send({"resident":resident_profile})
+			res.status(APIResponse.SUCCESS_CODE).json({"resident":resident_profile})
 		}
 		else if(user.permissionLevel === UserPermissionLevel.RHP){
 			//This is sufficient for the first version, but we will eventually want to add more to their home screen
 			const resident_profile = await getRHPProfile(user)
-			res.status(APIResponse.SUCCESS_CODE).send({"rhp":resident_profile})
+			res.status(APIResponse.SUCCESS_CODE).json({"rhp":resident_profile})
 		}
 		else if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
 			//This is sufficient for the first version, but we will eventually want to add more to their home screen
 			const prof_staff_profile = await getProfessionalStaffProfile(user)
-			res.status(APIResponse.SUCCESS_CODE).send({"professional_staff":prof_staff_profile})
+			res.status(APIResponse.SUCCESS_CODE).json({"professional_staff":prof_staff_profile})
 		}
 		else if(user.permissionLevel === UserPermissionLevel.PRIVILEGED_RESIDENT){
 			//This is sufficient for the first version, but we will eventually want to add more to their home screen
 			const resident_profile = await getResidentProfile(user)
-			res.status(APIResponse.SUCCESS_CODE).send({"privileged_resident":resident_profile})
+			res.status(APIResponse.SUCCESS_CODE).json({"privileged_resident":resident_profile})
 		}
 		else if(user.permissionLevel === UserPermissionLevel.FACULTY) {
 			const faculty_profile = await getFacultyProfile(user)
-			res.status(APIResponse.SUCCESS_CODE).send({"fhp":faculty_profile})
+			res.status(APIResponse.SUCCESS_CODE).json({"fhp":faculty_profile})
 		}
 		else if(user.permissionLevel === UserPermissionLevel.EXTERNAL_ADVISOR){
 			//This is sufficient for the first version, but we will eventually want to add more to their home screen
 			const external_advisor_profile = await getExternalAdvisorProfile(user)
-			res.status(APIResponse.SUCCESS_CODE).send({"ea":external_advisor_profile})
+			res.status(APIResponse.SUCCESS_CODE).json({"ea":external_advisor_profile})
 		}
 		else{
 			console.error("Other user permissions not yet implemented")
 			const apiResponse = APIResponse.InvalidPermissionLevel()
-            res.status(apiResponse.code).send(apiResponse.toJson())
+            res.status(apiResponse.code).json(apiResponse.toJson())
 		}
 		
 	}
 	catch (error){
-        if( error instanceof APIResponse){
-            console.error("Web User Overview API Error: "+error.toString())
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Web User Overview Server Error: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        console.error('Error in GET web/userOverview: '+error.toString())
+        APIUtility.handleError(res,error)
 	}
 })

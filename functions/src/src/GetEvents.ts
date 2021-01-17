@@ -46,7 +46,6 @@ export async function getEventsFeed(user: User): Promise<Event[]> {
     const db = admin.firestore()
     let eventQuerySnapshot: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>
     let now = new Date()
-    console.log('NOW: '+JSON.stringify(user))
 
     switch(user.permissionLevel){
         case UserPermissionLevel.PROFESSIONAL_STAFF:
@@ -60,7 +59,6 @@ export async function getEventsFeed(user: User): Promise<Event[]> {
         case UserPermissionLevel.RESIDENT:
         case UserPermissionLevel.PRIVILEGED_RESIDENT:
             eventQuerySnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('floorIds','array-contains', user.floorId).where('endDate', '>=', now).orderBy('endDate','asc').get()
-            console.log(JSON.stringify(eventQuerySnapshot.docs))
             break
         case UserPermissionLevel.EXTERNAL_ADVISOR:
             eventQuerySnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('isPublicEvent', '==',true).where('endDate', '>=', now).orderBy('endDate','asc').get()

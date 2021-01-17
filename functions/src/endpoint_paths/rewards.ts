@@ -154,9 +154,8 @@ reward_app.post('/', async (req, res) =>{
 reward_app.delete('/:rewardId', async (req, res) =>{
     try{
         APIUtility.validateRequest(req)
-        const id = APIUtility.parseInputForString(req.params,'rewardId')
-
         const user = await APIUtility.getUser(req)
+        const id = APIUtility.parseInputForString(req.params,'rewardId')
         verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
         const reward = await RewardFunctions.getRewardById(id)
 

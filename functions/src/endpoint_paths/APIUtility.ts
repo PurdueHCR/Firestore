@@ -7,6 +7,7 @@ export default class APIUtility {
     /**
      * Retrieves the User from the request
      * @param req Requet Body
+     * @throws 400 - NonexistantUser
      */
     static async getUser(req:any): Promise<User> {
         return getUser(req["user"]["user_id"])
@@ -151,9 +152,15 @@ export default class APIUtility {
                 else if(error instanceof RangeError){
                     throw APIResponse.InvalidDateFormat()
                 }
+                else if(error.toString() === 'RangeError: Invalid time value'){
+                    throw APIResponse.InvalidDateFormat()
+                }
                 else{
                     throw APIResponse.ServerError()
                 }
+            }
+            if(date.toString() === 'Invalid Date'){
+                throw APIResponse.InvalidDateFormat()
             }
             if(maxDate && date > maxDate){
                 throw APIResponse.DateNotInRange(undefined,maxDate, name)
@@ -207,7 +214,7 @@ export default class APIUtility {
     static handleError(res:any, error:any){
         if(error instanceof APIResponse){
 			res.status(error.code).json(error.toJson())
-		}
+        }
 		else{
 			console.log("APIUtility is handling an unhandled error: "+ error)
 			const apiResponse = APIResponse.ServerError()

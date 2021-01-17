@@ -190,12 +190,12 @@
         "parameters" : [ {
           "name" : "type",
           "in" : "query",
-          "description" : "Type of search to perform. {'recent','user','point_type'}.",
+          "description" : "Type of search to perform.",
           "required" : true,
-          "style" : "form",
           "explode" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "string",
+            "enum": ["recent", "user", "point_type"],
           },
           "example" : "user"
         }, {
@@ -203,7 +203,6 @@
           "in" : "query",
           "description" : "Search term used for finding point submissions for users with the given last name. Required if the search type is 'user'.",
           "required" : false,
-          "style" : "form",
           "explode" : true,
           "schema" : {
             "type" : "string"
@@ -214,7 +213,6 @@
           "in" : "query",
           "description" : "Id for the point type to get submissions for. (Only applies when the type is 'point_type'. This will only find point submissions which were handled.",
           "required" : false,
-          "style" : "form",
           "explode" : true,
           "schema" : {
             "type" : "integer"
@@ -225,7 +223,6 @@
           "in" : "query",
           "description" : "Defines the date to get point submissions that occurred on or before. (Only applies when the type is 'recent'.)",
           "required" : false,
-          "style" : "form",
           "explode" : true,
           "schema" : {
             "type" : "string"
@@ -236,7 +233,6 @@
           "in" : "query",
           "description" : "Oldest date returned in the previous query. This is used for pagination.",
           "required" : false,
-          "style" : "form",
           "explode" : true,
           "schema" : {
             "type" : "string"

@@ -126,9 +126,9 @@ events_app.get('/feed', async (req, res) => {
         APIUtility.validateRequest(req)
         const user = await APIUtility.getUser(req)
         const event_logs = await getEventsFeed(user)
-        res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
+        res.status(APIResponse.SUCCESS_CODE).json({events:event_logs})
     } catch (error) {
-        console.error("GET event/feed failed with: " + error.toString())
+        console.log("GET event/feed failed with: " + error)
 		APIUtility.handleError(res, error)
     }
 })
