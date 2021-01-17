@@ -170,9 +170,11 @@ events_app.put('/', async(req, res) => {
 events_app.get('/', async (req, res) => {
 
     try {
-        const user = await getUser(req["user"]["user_id"])
+        APIUtility.validateRequest(req)
+        const user = await APIUtility.getUser(req)
+        verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP, UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.FACULTY, UserPermissionLevel.EXTERNAL_ADVISOR])
         const event_logs = await getEvents(user)
-        res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
+        res.status(APIResponse.SUCCESS_CODE).json({events:event_logs})
     } catch (error) {
         console.error("GET event/ failed with: " + error.toString())
 		APIUtility.handleError(res, error)

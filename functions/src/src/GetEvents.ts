@@ -16,25 +16,9 @@ import { getHouseByName } from './GetHouses'
  */
 export async function getEvents(user: User): Promise<Event[]> {
 
-    // const db = admin.firestore()
-    // if (user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF) {
-    //     // Professional staff should see all events
-    //     const events = Event.fromQuerySnapshot(await db.collection(HouseCompetition.EVENTS_KEY).get())
-    //     events.sort((a:Event, b:Event) => {
-    //         return (b.date < a.date)? -1: 1
-    //     })
-    //     return Promise.resolve(events)
-    // } else {
-    //     const eventsSnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('House', 'in', [user.house, "All Houses"]).get()
-    //     const events = Event.fromQuerySnapshot(eventsSnapshot)
-    //     events.sort((a:Event, b:Event) => {
-    //         return (b.date < a.date)? -1: 1
-    //     })
-    //     return Promise.resolve(events)
-       
-    // }
-
-    return []
+    const db = admin.firestore()
+    const events = Event.fromQuerySnapshot(await db.collection(HouseCompetition.EVENTS_KEY).where('creatorId', "==",user.id).orderBy('startDate','asc').get())
+    return events
 }
 
 /**
