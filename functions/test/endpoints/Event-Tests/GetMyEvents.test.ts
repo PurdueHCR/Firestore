@@ -14,7 +14,7 @@ const ENDPOINT = '/'
 let db:firebase.firestore.Firestore
 
 //Test Suite GetUser
-describe('DELETE Event/', () =>{
+describe('GET Event/', () =>{
 
     beforeAll(async () => {
         IntegrationMockFactory.mockFirebaseAdmin()

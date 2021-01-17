@@ -17,15 +17,13 @@ export default class APIUtility {
      * Verifies that the request and query or body is defined (depending on GET or POST/PUT respectively)
      * @param req 
      * @param acceptEmptyInput (Optional) boolean for if the 
-     * @throws 422
+     * @throws 422 - Missing Required Parameters
+     * @throws 499 - Invalid Content Type
      */
     static validateRequest(req:any, acceptEmptyInput:boolean = false){
         if(req === undefined || req === null ){
             console.error('The request was undefined or null')
             throw APIResponse.MissingRequiredParameters('The request was undefined or null')
-        }
-        else if((req.method === "POST" || req.method === "PUT") && req.header('Content-Type') !== 'application/json'){
-            throw APIResponse.InvalidContentType(req.header('Content-Type'))
         }
         else if(!acceptEmptyInput){
             if((req.method === "POST" || req.method === "PUT") && (req.body === undefined || req.body === null)){

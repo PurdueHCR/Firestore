@@ -92,6 +92,19 @@ events_app.post('/', async (req, res) => {
     }
 })
 
+/**
+ * Update the event 
+ * 
+ * @throws 400 - Non Existant User
+ * @throws 417 - Unknown Point Type Id
+ * @throws 422 - Missing Required Parameter
+ * @throws 426 - Incorrect Format
+ * @throws 430 - Insufficient Point Type Permission For Link
+ * @throws 432 - Can Not Access Event
+ * @throws 450 - Non-Existant Event
+ * @throws 499 - Invalid Content Type
+ * @thrwos 500 - Server Error
+ */
 events_app.put('/', async(req, res) => {
     try{
         APIUtility.validateRequest(req)
@@ -155,6 +168,7 @@ events_app.put('/', async(req, res) => {
             await setFloors(event,floorIds)
         }
         await EventFunctions.updateEvent(event)
+        res.status(APIResponse.SUCCESS_CODE).json(event)
     } 
     catch (error) {
         console.error("PUT event/ failed with: " + error.toString())
@@ -165,6 +179,10 @@ events_app.put('/', async(req, res) => {
 /**
  * Get all events available to the user
  * 
+ * @throws 400 - Non Existant User
+ * @throws 403 - Invalid Permission
+ * @throws 422 - Missing Required Parameter
+ * @throws 499 - Invalid Content Type
  * @throws 500 - Server Error
  */
 events_app.get('/', async (req, res) => {
