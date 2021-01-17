@@ -2,16 +2,16 @@ import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as express from 'express'
 import { APIResponse } from '../models/APIResponse'
-import { createEvent } from '../src/CreateEvent'
+import { createEvent, setAllFloors, setFloors } from '../src/CreateEvent'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { getUser } from '../src/GetUser'
 import { getEvents, getEventsFeed } from '../src/GetEvents'
 import { getPointTypeById } from '../src/GetPointTypeById'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
-import { getEventsByCreatorId } from '../src/GetEventsByCreatorId'
 import { getEvent } from '../src/GetEventById'
 import { deleteEvent } from '../src/DeleteEvent'
 import { getSystemPreferences } from '../src/GetSystemPreferences'
+import { EventFunctions } from '../src/EventFunctions'
 import APIUtility from './APIUtility'
 
 // Made sure that the app is only initialized one time
@@ -62,11 +62,16 @@ events_app.post('/', async (req, res) => {
     try{
         APIUtility.validateRequest(req)
 
+        const user = await getUser(req["user"]["user_id"])
+        const valid_users = [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.EXTERNAL_ADVISOR,
+                                UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.FACULTY]
+        verifyUserHasCorrectPermission(user, valid_users)
+
         const minDate = new Date()
         minDate.setHours(0,0,0,0)
+        
 
         //Check for fields
-        console.log(JSON.stringify(req.body))
         const name = APIUtility.parseInputForString(req.body, 'name')
         const details = APIUtility.parseInputForString(req.body, 'details')
         const startDate = APIUtility.parseInputForDate(req.body, 'startDate', minDate)
@@ -76,24 +81,83 @@ events_app.post('/', async (req, res) => {
         const host = APIUtility.parseInputForString(req.body, 'host')
         const isPublicEvent = APIUtility.parseInputForBoolean(req.body, 'isPublicEvent')
         const isAllFloors = APIUtility.parseInputForBoolean(req.body, 'isAllFloors')
-        let floorIds: string[];
-        if(!isAllFloors){
-            floorIds = APIUtility.parseInputForArray(req.body, 'floorIds')
-        }
-        else{
-            floorIds = (await getSystemPreferences()).floorIds;
-        }
-
-        const user = await getUser(req["user"]["user_id"])
-        const valid_users = [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.EXTERNAL_ADVISOR,
-                                UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.FACULTY]
-        verifyUserHasCorrectPermission(user, valid_users)
+        const floorIds = isAllFloors?(await getSystemPreferences()).floorIds : APIUtility.parseInputForArray(req.body, 'floorIds')
         const pointType = await getPointTypeById(pointTypeId)
         const event = await createEvent(user, name, details, startDate, endDate, location, pointType, floorIds, host, isPublicEvent, isAllFloors)
         res.status(APIResponse.SUCCESS_CODE).json(event)
 
     } catch (error) {
         console.error("POST event/ failed with: " + error.toString())
+		APIUtility.handleError(res, error)
+    }
+})
+
+events_app.put('/', async(req, res) => {
+    try{
+        APIUtility.validateRequest(req)
+        const user = await APIUtility.getUser(req)
+        const id = APIUtility.parseInputForString(req.body, 'id')
+        const event = await getEvent(id)
+        if(event.creatorId !== user.id){
+            throw APIResponse.CanNotAccessEvent()
+        }
+        if('name' in req.body){
+            event.name = APIUtility.parseInputForString(req.body, 'name')
+        }
+        if('details' in req.body){
+            event.details = APIUtility.parseInputForString(req.body, 'details')
+        }
+        if('startDate' in req.body){
+            event.startDate = APIUtility.parseInputForDate(req.body,'startDate')
+        }
+        if('endDate' in req.body){
+            event.endDate = APIUtility.parseInputForDate(req.body, 'endDate')
+        }
+        if('location' in req.body){
+            event.location = APIUtility.parseInputForString(req.body, 'location')
+        }
+        if('pointTypeId' in req.body){
+            const pointTypeId = APIUtility.parseInputForNumber(req.body, 'pointTypeId')
+            const pointType = await getPointTypeById(pointTypeId)
+            if(pointType.canUserGenerateLinks(user.permissionLevel)){
+                event.pointTypeDescription = pointType.description
+                event.pointTypeId = pointType.id
+                event.pointTypeName = pointType.name
+                event.points = pointType.value
+            }
+            else{
+                throw APIResponse.InsufficientPointTypePermissionForLink()
+            }
+        }
+
+        if('host' in req.body){
+            event.host = APIUtility.parseInputForString(req.body, 'host')
+        }
+        
+        if('isPublicEvent' in req.body){
+            event.isPublicEvent = APIUtility.parseInputForBoolean(req.body, 'isPublicEvent')
+            //Add all floors
+            await setAllFloors(event)
+        }
+        else if('isAllFloors' in req.body){
+            const isAllFloors = APIUtility.parseInputForBoolean(req.body, 'isAllFloors')
+            //Add all floors
+            if(isAllFloors){
+                await setAllFloors(event)
+            }
+            else if(! ('floorIds' in req.body)){
+                throw APIResponse.IncorrectFormat('If isAllFloors is set to False, floorIds must be provided.')
+            }
+        }
+        else if(!event.isPublicEvent && 'floorIds' in req.body){
+            const floorIds = APIUtility.parseInputForArray(req.body, 'floorIds')
+            //Fix floor colors
+            await setFloors(event,floorIds)
+        }
+        await EventFunctions.updateEvent(event)
+    } 
+    catch (error) {
+        console.error("PUT event/ failed with: " + error.toString())
 		APIUtility.handleError(res, error)
     }
 })
@@ -134,54 +198,6 @@ events_app.get('/feed', async (req, res) => {
 })
 
 /**
- * Get an Event by its ID
- * 
- * @param event_id id of the event
- * 
- * @throws 403 - Invalid Permission Level
- * @throws 422 - Missing Required Parameters
- * @throws 450 - Non-Existant Event
- * @throws 500 - Server Error
- * 
- * @returns an event
- */
-events_app.get("/get_by_id", async (req, res) => {
-
-    try {
-        APIUtility.validateRequest(req)
-        const eventId = APIUtility.parseInputForString(req.query, "event_id")
-        const event = await getEvent(eventId)
-        res.status(APIResponse.SUCCESS_CODE).send({event:event})
-
-    } catch (error) {
-        console.error("GET event/get_by_id failed with: " + error.toString())
-        APIUtility.handleError(res, error)
-    }
-})
-
-/**
- * Get all events created by the user
- * 
- * @throws 403 - Invalid Permission Level
- * @throws 500 - Server Error
- * 
- * @returns an array of events created by the user
- */
-events_app.get('/get_by_creator_id', async (req, res) => {
-    try {
-        const user = await getUser(req["user"]["user_id"])
-        const valid_users = [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.EXTERNAL_ADVISOR,
-            UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.FACULTY]
-        verifyUserHasCorrectPermission(user, valid_users)
-        const event_logs = await getEventsByCreatorId(user.id)
-        res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
-    } catch (error) {
-        console.error("GET event/get_by_creator_id failed with: " + error.toString())
-		APIUtility.handleError(res, error)
-    }
-})
-
-/**
  * Delete event with the provided Id
  * @params eventId
  * 
@@ -190,15 +206,17 @@ events_app.get('/get_by_creator_id', async (req, res) => {
  * @throws 403 - Invalid Permission
  * @throws 420 - Unknown Reward
  * @throws 422 - MissingRequiredParameter
+ * @throws 432 - Can Not Access Event
+ * @throws 450 - Non-ExistantEvent
  * @throws 500 - ServerError
  */
 events_app.delete('/:eventId', async (req, res) => {
     try {
         APIUtility.validateRequest(req)
         const user = await APIUtility.getUser(req)
-        const eventId = await APIUtility.parseInputForString(req.params, 'eventId')
+        const eventId = APIUtility.parseInputForString(req.params, 'eventId')
         const event = await getEvent(eventId)
-        if(event.id === user.id){
+        if(event.creatorId === user.id){
             await deleteEvent(event)
             throw APIResponse.Success()
         }
@@ -210,17 +228,3 @@ events_app.delete('/:eventId', async (req, res) => {
 		APIUtility.handleError(res, error)
     }
 })
-
-
-declare type EventCreationBody = {
-    name:string,
-    details:string,
-    startDate:string,
-    endDate:string,
-    location:string,
-    pointTypeId:number,
-    floorIds:string[],
-    host:string,
-    isPublicEvent:boolean,
-    isAllFloors:boolean
-}

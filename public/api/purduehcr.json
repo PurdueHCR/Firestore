@@ -195,7 +195,7 @@
           "explode" : true,
           "schema" : {
             "type" : "string",
-            "enum": ["recent", "user", "point_type"],
+            "enum": ["recent", "user", "point_type"]
           },
           "example" : "user"
         }, {
