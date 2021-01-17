@@ -74,8 +74,8 @@ export default class APIUtility {
         if(arg === undefined || arg === null){
             throw APIResponse.MissingRequiredParameters(`[${name}]: boolean`)
         }
-        else if(arg === 'false' || arg === 'true'){
-            return arg === 'true'
+        else if(arg === 'false' || arg === 'true' || arg === '0' || arg === '1'){
+            return arg === 'true' || arg === '1'
         }
         else if(arg === true || arg === false){
             return arg
