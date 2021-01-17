@@ -81,7 +81,7 @@ export default class APIUtility {
             return arg
         }
         else{
-            throw APIResponse.IncorrectFormat(`Correct format is [${name}]: boolean`)
+            throw APIResponse.IncorrectFormat(`[${name}] has a type of ${typeof(arg)}. Correct format is [${name}]: boolean`)
         }
     }
 
