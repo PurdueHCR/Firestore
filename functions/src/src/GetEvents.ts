@@ -58,7 +58,7 @@ export async function getEventsFeed(user: User): Promise<Event[]> {
         case UserPermissionLevel.RHP:
         case UserPermissionLevel.RESIDENT:
         case UserPermissionLevel.PRIVILEGED_RESIDENT:
-            eventQuerySnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('floorIds','array-contains-any', [user.floorId]).where('endDate', '>=', now).orderBy('endDate','asc').get()
+            eventQuerySnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('floorIds','array-contains', user.floorId).where('endDate', '>=', now).orderBy('endDate','asc').get()
             break
         case UserPermissionLevel.EXTERNAL_ADVISOR:
             eventQuerySnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('isPublicEvent', '==',true).where('endDate', '>=', now).orderBy('endDate','asc').get()

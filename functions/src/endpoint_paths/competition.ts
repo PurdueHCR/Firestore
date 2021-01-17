@@ -6,16 +6,15 @@ import { HouseCompetition } from '../models/HouseCompetition'
 import { PointLog } from '../models/PointLog'
 import { User } from '../models/User'
 import { APIResponse } from '../models/APIResponse'
-import { getUser } from '../src/GetUser'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 import { getRecentHistory, getHistoryFilterUser, getHistoryFilterPointType} from '../src/GetHistory'
 import { getSystemPreferences } from '../src/GetSystemPreferences'
 import { updateSystemPreferences } from '../src/SetSystemPreference'
-import * as ParameterParser from '../src/ParameterParser'
 import { grantHouseAward } from '../src/GrantHouseAward'
 import { getHouseByName } from '../src/GetHouses'
 import { updateHouse } from '../src/UpdateHouse'
+import APIUtility from './APIUtility'
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
@@ -52,21 +51,14 @@ comp_app.use(firestoreTools.validateFirebaseIdToken)
  * @throws 500 - Server Error
  */
 comp_app.get('/settings', async (req, res) => {
-	console.log("Running GET competition/settings")
 	try{
+		APIUtility.validateRequest(req, true)
 		const systemPreferences = await getSystemPreferences();
 		
-		res.status(APIResponse.SUCCESS_CODE).send({settings:systemPreferences})
+		res.status(APIResponse.SUCCESS_CODE).json({settings:systemPreferences})
 	}
 	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Unknown Error getting competition system prefernces: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        APIUtility.handleError(res,error)
 	}
 })
 
@@ -85,31 +77,30 @@ comp_app.get('/settings', async (req, res) => {
  */
 comp_app.put('/settings', async (req, res) => {
 	try{
-		if(req.body === undefined || req.body === null)
-			throw APIResponse.MissingRequiredParameters()
+		APIUtility.validateRequest(req)
 
-		const user = await getUser(req["user"]["user_id"])
+		const user = await APIUtility.getUser(req)
 		verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
 		const systemPreferences = await getSystemPreferences();
 		
 		if("isCompetitionVisible" in req.body){
-			systemPreferences.isCompetitionVisible = ParameterParser.parseInputForBoolean(req.body.isCompetitionVisible)
+			systemPreferences.isCompetitionVisible = APIUtility.parseInputForBoolean(req.body,'isCompetitionVisible')
 		}
 
 		if("competitionHiddenMessage" in req.body){
-			systemPreferences.competitionHiddenMessage = ParameterParser.parseInputForString(req.body.competitionHiddenMessage)
+			systemPreferences.competitionHiddenMessage = APIUtility.parseInputForString(req.body,'competitionHiddenMessage')
 		}
 
 		if("isShowingRewards" in req.body){
-			systemPreferences.showRewards = ParameterParser.parseInputForBoolean(req.body.isShowingRewards)
+			systemPreferences.showRewards = APIUtility.parseInputForBoolean(req.body,'isShowingRewards')
 		}
 
 		if( "isCompetitionEnabled"  in req.body){
-			systemPreferences.isCompetitionEnabled = ParameterParser.parseInputForBoolean(req.body.isCompetitionEnabled)
+			systemPreferences.isCompetitionEnabled = APIUtility.parseInputForBoolean(req.body,'isCompetitionEnabled')
 		}
 
 		if("competitionDisabledMessage" in req.body){
-			systemPreferences.competitionDisabledMessage = ParameterParser.parseInputForString(req.body.competitionDisabledMessage)
+			systemPreferences.competitionDisabledMessage = APIUtility.parseInputForString(req.body,'competitionDisabledMessage')
 		}
 
 		await updateSystemPreferences(systemPreferences)
@@ -117,14 +108,7 @@ comp_app.put('/settings', async (req, res) => {
 		throw APIResponse.Success()
 	}
 	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Unknown Error getting competition system prefernces: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        APIUtility.handleError(res,error)
 	}
 })
 
@@ -138,26 +122,21 @@ comp_app.put('/settings', async (req, res) => {
  */
 comp_app.get('/getUnhandledPoints', async (req, res) => {
 	try{
-		const user = await getUser(req["user"]["user_id"])
+		APIUtility.validateRequest(req)
+		const user = await APIUtility.getUser(req)
 		let logs: PointLog[]
 		if(req.query.limit !== undefined){
-			logs = await getUnhandledPointLogs(user, parseInt(req.query.limit as string))
+			const limit = APIUtility.parseInputForNumber(req.query,'limit',0)
+			logs = await getUnhandledPointLogs(user, limit)
 		}
 		else{
 			logs = await getUnhandledPointLogs(user)
 		}
 		
-		res.status(APIResponse.SUCCESS_CODE).send({point_logs:logs})
+		res.status(APIResponse.SUCCESS_CODE).json({point_logs:logs})
 	}
 	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Unknown Error: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        APIUtility.handleError(res,error)
 	}
 })
 
@@ -166,16 +145,13 @@ comp_app.get('/getUnhandledPoints', async (req, res) => {
  */
 comp_app.post('/houseAward', async (req, res) => {
 	try{
-		if(req.body === undefined || req.body === null){
-			throw APIResponse.MissingRequiredParameters()
-		}
+		APIUtility.validateRequest(req)
+		const user = await APIUtility.getUser(req)
 
-		const house_name = ParameterParser.parseInputForString(req.body.house)
-		const ppr = ParameterParser.parseInputForNumber(req.body.ppr, 1)
-		const description = ParameterParser.parseInputForString(req.body.description)
+		const house_name = APIUtility.parseInputForString(req.body,'house')
+		const ppr = APIUtility.parseInputForNumber(req.body,'ppr', 1)
+		const description = APIUtility.parseInputForString(req.body,'description')
 
-
-		const user = await getUser(req["user"]["user_id"])
 		verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
 
 		await grantHouseAward(house_name, ppr, description)
@@ -183,14 +159,7 @@ comp_app.post('/houseAward', async (req, res) => {
 		throw APIResponse.Success()
 	}
 	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Unknown Error: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        APIUtility.handleError(res,error)
 	}
 })
 
@@ -210,21 +179,19 @@ comp_app.post('/houseAward', async (req, res) => {
  */
 comp_app.post('/updateHouse', async (req, res) => {
 	try{
-		if(req.body === undefined || req.body === null){
-			throw APIResponse.MissingRequiredParameters()
-		}
+		APIUtility.validateRequest(req)
+		const user = await APIUtility.getUser(req)
 
-		const house_id = ParameterParser.parseInputForString(req.body.house)
+		const house_id = APIUtility.parseInputForString(req.body,'house')
 
-		const user = await getUser(req["user"]["user_id"])
 		verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
 
 		const house = await getHouseByName(house_id)
 		if( "numberOfResidents" in req.body){
-			house.numberOfResidents = ParameterParser.parseInputForNumber(req.body.numberOfResidents, 0)
+			house.numberOfResidents = APIUtility.parseInputForNumber(req.body,'numberOfResidents', 0)
 		}
 		if( "description" in req.body){
-			house.description = ParameterParser.parseInputForString(req.body.description)
+			house.description = APIUtility.parseInputForString(req.body,'description')
 		}
 		//TODO Add rhps[] and floorIds[] 
 		await updateHouse(house)
@@ -232,14 +199,7 @@ comp_app.post('/updateHouse', async (req, res) => {
 
 	}
 	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Unknown Error: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        APIUtility.handleError(res,error)
 	}
 })
 
@@ -263,112 +223,43 @@ comp_app.post('/updateHouse', async (req, res) => {
  */
 comp_app.get('/history', async (req, res) => {
 	try{
-		if(req.query === undefined || req.query.type === undefined){
-			console.error("Query is not defined or type is not defined.")
-			const error = APIResponse.MissingRequiredParameters()
-			res.status(error.code).send(error.toJson())
+		APIUtility.validateRequest(req)
+		const type = APIUtility.parseInputForString(req.query, 'type')
+		const user = await APIUtility.getUser(req)
+		let point_logs: PointLog[] = []
+		const house_name = getHouseNameForHistory(user, req)
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF])
+		let startAt:any = undefined
+		if('startAt' in req.query){
+			startAt = APIUtility.parseInputForDate(req.query, 'startAt')
 		}
-		else{
-			
-			let startAt:Date | null = null
-			if(req.query.startAt !== undefined && !isNaN(Date.parse(req.query.startAt as string))){
-				startAt = new Date(Date.parse(req.query.startAt as string))
-			}
-			else if (req.query.startAt !== undefined && isNaN(Date.parse(req.query.startAt as string))){
-				console.error("Invalid date")
-				throw APIResponse.InvalidDateFormat()
-			}
 
-			if(req.query.type === "recent"){
-				let date:Date = new Date(Date.now())
-				if(req.query.date !== undefined && !isNaN(Date.parse(req.query.date as string))){
-					date = new Date(Date.parse(req.query.date as string))
-					
-				}
-				else if (req.query.date !== undefined && isNaN(Date.parse(req.query.date as string))){
-					console.error("Invalid date")
-					throw APIResponse.InvalidDateFormat()
-				}
+		switch(type){
+			case 'recent':
+				let date = new Date()
+				if('date' in req.query){
+					date = APIUtility.parseInputForDate(req.query, 'date')
+				} 
 				date.setHours(23,59,59)
-				const user = await getUser(req["user"]["user_id"])
-				verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF])
-				const house_name = getHouseNameForHistory(user, req)
-				
-				let point_logs: PointLog[]
-				if(startAt === null){
-					point_logs = await getRecentHistory(house_name, date)
-				}
-				else{
-					point_logs = await getRecentHistory(house_name, date, startAt)
-				}
-				res.status(APIResponse.SUCCESS_CODE).send({point_logs:point_logs})
-				
-
-			}
-			else if(req.query.type === "user"){
-				if(req.query.last_name === undefined || req.query.last_name === ""){
-					const error = APIResponse.MissingRequiredParameters()
-						res.status(error.code).send(error.toJson())
-				}
-				else{
-					const user = await getUser(req["user"]["user_id"])
-					verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF])
-					const house_name = getHouseNameForHistory(user, req)
-					let point_logs: PointLog[]
-					if(startAt === null){
-						point_logs = await getHistoryFilterUser(house_name, req.query.last_name as string)
-					}
-					else{
-						point_logs = await getHistoryFilterUser(house_name, req.query.last_name as string, startAt)
-					}
-
-					res.status(APIResponse.SUCCESS_CODE).send({point_logs:point_logs})
-				}
-				
-			}
-			else if(req.query.type === "point_type"){
-				if(req.query.point_type_id === undefined){
-					console.error("Point type id is not provided")
-					throw APIResponse.MissingRequiredParameters()
-				}
-				else if(parseInt(req.query.point_type_id as string) <= 0){
-					console.error("Point type id can not be 0 or a negative number")
-					throw APIResponse.IncorrectFormat()
-				}
-				else{
-					const user = await getUser(req["user"]["user_id"])
-					verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF])
-					const house_name = getHouseNameForHistory(user, req)
-					let point_logs: PointLog[]
-					if(startAt === null){
-						point_logs = await getHistoryFilterPointType(house_name, parseInt(req.query.point_type_id as string))
-					}
-					else{
-						point_logs = await getHistoryFilterPointType(house_name, parseInt(req.query.point_type_id as string), startAt)
-					}
-					res.status(APIResponse.SUCCESS_CODE).send({point_logs:point_logs})
-				}
-			}
-			else{
+				point_logs = await getRecentHistory(house_name, date, startAt)
+				break
+			case 'user':
+				const lastName = APIUtility.parseInputForString(req.query, 'last_name')
+				point_logs = await getHistoryFilterUser(house_name, lastName, startAt)
+				break
+			case 'point_type':
+				const pointTypeId = APIUtility.parseInputForNumber(req.query, 'point_type_id',0)
+				point_logs = await getHistoryFilterPointType(house_name, pointTypeId, startAt)
+				break
+			default:
 				console.error("Type parameter is not a valid format.")
 				throw APIResponse.IncorrectFormat()
-			}
 		}
+		res.status(APIResponse.SUCCESS_CODE).json({point_logs:point_logs})
 	}
 	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-		}
-		else if(error instanceof TypeError){
-			console.error("Got a typeof error: "+error)
-			const apiResponse = APIResponse.IncorrectFormat()
-			res.status(apiResponse.code).send(apiResponse.toJson())
-		}
-        else {
-            console.error("Unknown Error: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+		console.error("GET competition/history failed with: " + error.toString())
+        APIUtility.handleError(res,error)
 	}
 })
 

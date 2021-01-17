@@ -1,7 +1,7 @@
 import {APIResponse} from '../models/APIResponse'
 
 /**
- * Makes sure that a field is a valid string
+ * @deprecated Use the APIUtility instead
  * @param arg Value of field to parse (req.body.field or req.query.field)
  * @throws 422 - Missing Required Parameters
  * @throws 426 - Incorrect Format
@@ -19,7 +19,7 @@ export function parseInputForString(arg:any): string {
 }
 
 /**
- * Makes sure that a field is a valid boolean
+ * @deprecated Use the APIUtility instead
  * @param arg Value of field to parse (req.body.field or req.query.field)
  * @throws 422 - Missing Required Parameters
  * @throws 426 - Incorrect Format
@@ -41,7 +41,7 @@ export function parseInputForBoolean(arg:any): boolean {
 }
 
 /**
- * Makes sure that a field is a valid number
+ * @deprecated Use the APIUtility instead
  * @param arg Value of field to parse (req.body.field or req.query.field)
  * @param min Optional exclusive minimum
  * @param max Optional exclusive maximum
@@ -75,7 +75,7 @@ export function parseInputForNumber(arg:any, min:number = Number.MIN_SAFE_INTEGE
 }
 
 /**
- * Parse the field for a date
+ * @deprecated Use the APIUtility instead
  * @param arg Value of the field to parse for the date
  * @param minDate Optional Date minimum
  * @param maxDate Optional Date maximum
@@ -120,7 +120,7 @@ export function parseInputForDate(arg:any, minDate?:Date, maxDate?:Date): Date{
 }
 
 /**
- * Parses the input for an array
+ * @deprecated Use the APIUtility instead
  * @param arg Value of the field to parse for an array
  * @throws 422 - Missing Required Parameters
  * @throws 426 - Incorrect Format

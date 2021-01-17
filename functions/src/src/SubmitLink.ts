@@ -5,6 +5,7 @@ import {submitPoint} from "./SubmitPoints"
 import { UnsubmittedPointLog } from "../models/UnsubmittedPointLog"
 import { APIResponse } from "../models/APIResponse"
 import { HouseCompetition } from '../models/HouseCompetition'
+import { UserPermissionLevel } from '../models/UserPermissionLevel'
 
 /**
  * Submit a link for points
@@ -27,12 +28,13 @@ export async function submitLink(user:User, link:Link): Promise<Boolean>{
         const log = new UnsubmittedPointLog(new Date(Date.now()), link.description, link.pointId)
         let approved: Boolean
         if(link.singleUse){
-            console.log("Is single use")
-            approved = await submitPoint(user,log, user.id+link.id, true)
+            approved = await submitPoint(user,log, true, user.id+link.id, true)
         }
         else{
-            approved = await submitPoint(user,log,null, true)
+            approved = await submitPoint(user,log,user.permissionLevel === UserPermissionLevel.RHP, null, true)
         }
+
+        //Update the count of scans on the link
         await db.runTransaction(async (transaction) => {
 			//Get the current house
 			const linkSnapshot = await transaction.get(db.collection(HouseCompetition.LINKS_KEY).doc(link.id))

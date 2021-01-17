@@ -9,9 +9,10 @@ import { getEvents, getEventsFeed } from '../src/GetEvents'
 import { getPointTypeById } from '../src/GetPointTypeById'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 import { getEventsByCreatorId } from '../src/GetEventsByCreatorId'
-import { getEventById } from '../src/GetEventById'
-import * as ParameterParser from '../src/ParameterParser'
+import { getEvent } from '../src/GetEventById'
+import { deleteEvent } from '../src/DeleteEvent'
 import { getSystemPreferences } from '../src/GetSystemPreferences'
+import APIUtility from './APIUtility'
 
 // Made sure that the app is only initialized one time
 if (admin.apps.length === 0) {
@@ -41,9 +42,7 @@ events_app.use(firestoreTools.validateFirebaseIdToken)
  * @param startDate event start date
  * @param endDate event end date
  * @param location event location string
- * @param points number of points for attending the event
  * @param point_type_id id of the PointType associated with the event
- * @param house house name for attending event
  * @param host event host
  * @param isPublicEvent boolean for can people not in the house competition see this event
  * @param isAllFloors boolean shortcut to make this available to everyone in the house competition
@@ -61,27 +60,25 @@ events_app.use(firestoreTools.validateFirebaseIdToken)
 events_app.post('/', async (req, res) => {
 
     try{
-        if(!req.body){
-            console.error("Missing body")
-			throw APIResponse.MissingRequiredParameters()
-        }
+        APIUtility.validateRequest(req)
 
         const minDate = new Date()
         minDate.setHours(0,0,0,0)
 
         //Check for fields
-        const name = ParameterParser.parseInputForString(req.body.name)
-        const details = ParameterParser.parseInputForString(req.body.details)
-        const startDate = ParameterParser.parseInputForDate(req.body.startDate, minDate)
-        const endDate = ParameterParser.parseInputForDate(req.body.endDate, minDate)
-        const location = ParameterParser.parseInputForString(req.body.location)
-        const pointTypeId = ParameterParser.parseInputForNumber(req.body.pointTypeId)
-        const host = ParameterParser.parseInputForString(req.body.host)
-        const isPublicEvent = ParameterParser.parseInputForBoolean(req.body.isPublicEvent)
-        const isAllFloors = ParameterParser.parseInputForBoolean(req.body.isAllFloors)
+        console.log(JSON.stringify(req.body))
+        const name = APIUtility.parseInputForString(req.body, 'name')
+        const details = APIUtility.parseInputForString(req.body, 'details')
+        const startDate = APIUtility.parseInputForDate(req.body, 'startDate', minDate)
+        const endDate = APIUtility.parseInputForDate(req.body, 'endDate', minDate)
+        const location = APIUtility.parseInputForString(req.body, 'location')
+        const pointTypeId = APIUtility.parseInputForNumber(req.body, 'pointTypeId')
+        const host = APIUtility.parseInputForString(req.body, 'host')
+        const isPublicEvent = APIUtility.parseInputForBoolean(req.body, 'isPublicEvent')
+        const isAllFloors = APIUtility.parseInputForBoolean(req.body, 'isAllFloors')
         let floorIds: string[];
         if(!isAllFloors){
-            floorIds = ParameterParser.parseInputForArray(req.body.floorIds)
+            floorIds = APIUtility.parseInputForArray(req.body, 'floorIds')
         }
         else{
             floorIds = (await getSystemPreferences()).floorIds;
@@ -96,17 +93,8 @@ events_app.post('/', async (req, res) => {
         res.status(APIResponse.SUCCESS_CODE).json(event)
 
     } catch (error) {
-        console.error("FAILED WITH ERROR: " + error.toString())
-        if (error instanceof TypeError) {
-            const apiResponse = APIResponse.InvalidDateFormat()
-            res.status(apiResponse.code).json(apiResponse.toJson())
-        }
-        else if (error instanceof APIResponse) {
-            res.status(error.code).json(error.toJson())
-        } else {
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).json(apiResponse.toJson())
-        }
+        console.error("POST event/ failed with: " + error.toString())
+		APIUtility.handleError(res, error)
     }
 })
 
@@ -122,13 +110,8 @@ events_app.get('/', async (req, res) => {
         const event_logs = await getEvents(user)
         res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
     } catch (error) {
-        console.error("FAILED WITH ERROR: " + error.toString())
-        if (error instanceof APIResponse) {
-            res.status(error.code).send(error.toJson())
-        } else {
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        console.error("GET event/ failed with: " + error.toString())
+		APIUtility.handleError(res, error)
     }
 })
 
@@ -140,17 +123,13 @@ events_app.get('/', async (req, res) => {
 events_app.get('/feed', async (req, res) => {
 
     try {
-        const user = await getUser(req["user"]["user_id"])
+        APIUtility.validateRequest(req)
+        const user = await APIUtility.getUser(req)
         const event_logs = await getEventsFeed(user)
-        res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
+        res.status(APIResponse.SUCCESS_CODE).json({events:event_logs})
     } catch (error) {
-        console.error("FAILED WITH ERROR: " + error.toString())
-        if (error instanceof APIResponse) {
-            res.status(error.code).send(error.toJson())
-        } else {
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        console.log("GET event/feed failed with: " + error)
+		APIUtility.handleError(res, error)
     }
 })
 
@@ -167,30 +146,16 @@ events_app.get('/feed', async (req, res) => {
  * @returns an event
  */
 events_app.get("/get_by_id", async (req, res) => {
-    if (!req.query || !req.query.event_id || req.query.event_id === "") {
-        if (!req.query) {
-            console.error("Missing query")
-        }
-        else if (!req.query.event_id || req.query.event_id === "") {
-            console.error("Missing event_id")
-        }
-        const error = APIResponse.MissingRequiredParameters()
-        res.status(error.code).send(error.toJson())
-    } else {
-        try {
-            const user = await getUser(req["user"]["user_id"])
-            const event_log = await getEventById(req.query.event_id as string, user)
-            res.status(APIResponse.SUCCESS_CODE).send({event:event_log})
 
-        } catch (error) {
-            console.error("FAILED WITH ERROR: " + error.toString())
-            if (error instanceof APIResponse) {
-                res.status(error.code).send(error.toJson())
-            } else {
-                const apiResponse = APIResponse.ServerError()
-                res.status(apiResponse.code).send(apiResponse.toJson())
-            }
-        }
+    try {
+        APIUtility.validateRequest(req)
+        const eventId = APIUtility.parseInputForString(req.query, "event_id")
+        const event = await getEvent(eventId)
+        res.status(APIResponse.SUCCESS_CODE).send({event:event})
+
+    } catch (error) {
+        console.error("GET event/get_by_id failed with: " + error.toString())
+        APIUtility.handleError(res, error)
     }
 })
 
@@ -211,13 +176,38 @@ events_app.get('/get_by_creator_id', async (req, res) => {
         const event_logs = await getEventsByCreatorId(user.id)
         res.status(APIResponse.SUCCESS_CODE).send({events:event_logs})
     } catch (error) {
-        console.error("FAILED WITH ERROR: " + error.toString())
-        if (error instanceof APIResponse) {
-            res.status(error.code).send(error.toJson())
-        } else {
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
+        console.error("GET event/get_by_creator_id failed with: " + error.toString())
+		APIUtility.handleError(res, error)
+    }
+})
+
+/**
+ * Delete event with the provided Id
+ * @params eventId
+ * 
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permission
+ * @throws 420 - Unknown Reward
+ * @throws 422 - MissingRequiredParameter
+ * @throws 500 - ServerError
+ */
+events_app.delete('/:eventId', async (req, res) => {
+    try {
+        APIUtility.validateRequest(req)
+        const user = await APIUtility.getUser(req)
+        const eventId = await APIUtility.parseInputForString(req.params, 'eventId')
+        const event = await getEvent(eventId)
+        if(event.id === user.id){
+            await deleteEvent(event)
+            throw APIResponse.Success()
         }
+        else{
+            throw APIResponse.CanNotAccessEvent()
+        }
+    } catch (error) {
+        console.error("DELETE event/ failed with: " + error.toString())
+		APIUtility.handleError(res, error)
     }
 })
 
