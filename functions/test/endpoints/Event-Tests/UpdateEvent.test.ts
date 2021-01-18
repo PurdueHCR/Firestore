@@ -11,6 +11,12 @@ const EA_ID = "PROFFESSIONAL_STAFF"
 const ENDPOINT = '/'
 const NOT_OWNED_BY_EA_EVENT_ID = 'NOT_OWNED_BY_EA_EVENT_ID'
 const EVENT_TO_UPDATE_ALL_FIELDS = 'EVENT_TO_UPDATE_ALL_FIELDS'
+const MAKE_IS_PUBLIC_EVENT_ADD_ALL_FLOORS = 'MAKE_IS_PUBLIC_EVENT_ADD_ALL_FLOORS'
+const UPDATE_IS_ALL_FLOORS_TO_TRUE = 'UPDATE_IS_ALL_FLOORS_TO_TRUE'
+const UPDATE_IS_ALL_FLOORS_TO_FALSE_WITH_FLOOR_IDS = 'UPDATE_IS_ALL_FLOORS_TO_FALSE_WITH_FLOOR_IDS'
+const UPDATE_IS_ALL_FLOORS_TO_FALSE_WITHOUT_FLOOR_IDS = 'UPDATE_IS_ALL_FLOORS_TO_FALSE_WITHOUTFLOOR_IDS'
+const MAKE_EVENT_PUBLIC_WITH_FLOORS = 'MAKE_EVENT_PUBLIC_WITH_FLOORS'
+const PUBLIC_EVENT_SET_FLOORS = 'PUBLIC_EVENT_SET_FLOORS'
 
 
 let db:firebase.firestore.Firestore
@@ -25,6 +31,7 @@ describe('Update Event/', () =>{
         event_function = require('../../../src/endpoint_paths/index.ts').event
 
         await FirestoreDataFactory.setAllHouses(db)
+        await FirestoreDataFactory.setSystemPreference(db)
         await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0)
         await FirestoreDataFactory.setUser(db, RHP_ID, 1, {house_name:"Platinum", floor_id:"4N"})
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
@@ -33,9 +40,13 @@ describe('Update Event/', () =>{
 
 
         await FirestoreDataFactory.setEvent(db, NOT_OWNED_BY_EA_EVENT_ID, RHP_ID)
-        await FirestoreDataFactory.setEvent(db, EVENT_TO_UPDATE_ALL_FIELDS, RHP_ID)
-        await FirestoreDataFactory.setEvent(db, 'EVENT 3', RHP_ID)
-
+        await FirestoreDataFactory.setEvent(db, EVENT_TO_UPDATE_ALL_FIELDS, RHP_ID, {isPublicEvent:false})
+        await FirestoreDataFactory.setEvent(db, UPDATE_IS_ALL_FLOORS_TO_TRUE, RHP_ID)
+        await FirestoreDataFactory.setEvent(db, MAKE_IS_PUBLIC_EVENT_ADD_ALL_FLOORS, RHP_ID, {floorIds:["2N"]})
+        await FirestoreDataFactory.setEvent(db, UPDATE_IS_ALL_FLOORS_TO_FALSE_WITH_FLOOR_IDS, RHP_ID, {floorIds:["2N","2S","3N","3S","4N","4S","5N","5S","6N","6S"]})
+        await FirestoreDataFactory.setEvent(db, UPDATE_IS_ALL_FLOORS_TO_FALSE_WITHOUT_FLOOR_IDS, RHP_ID, {floorIds:["2N","2S","3N","3S","4N","4S","5N","5S","6N","6S"]})
+        await FirestoreDataFactory.setEvent(db, MAKE_EVENT_PUBLIC_WITH_FLOORS, RHP_ID)
+        await FirestoreDataFactory.setEvent(db, PUBLIC_EVENT_SET_FLOORS, RHP_ID, {floorIds:["2N","2S","3N","3S","4N","4S","5N","5S","6N","6S"], isPublicEvent: true})
     })
 
     it('Missing Event Id in body', async (done) => {
@@ -52,7 +63,7 @@ describe('Update Event/', () =>{
     })
 
     it('Event Id doesn\'t exist ', async (done) => {
-        const res = 2
+        const res = factory.put(event_function, ENDPOINT, {id:"NON EXISTANT"}, RHP_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -109,9 +120,9 @@ describe('Update Event/', () =>{
                 expect(res.body.location).toBe('update_all_fields_location')
                 expect(res.body.pointTypeId).toBe('2')
                 expect(res.body.points).toBe(22)
-                expect(res.body.pointTypName).toBe('pt name')
+                expect(res.body.pointTypeName).toBe('pt name')
                 expect(res.body.pointTypeDescription).toBe('point type description')
-                expect(res.body.floorIds).toBe(['6N','6s'])
+                expect(JSON.stringify(res.body.floorIds)).toBe(JSON.stringify(['6N','6S']))
                 expect(res.body)
 
                 done()
@@ -120,78 +131,113 @@ describe('Update Event/', () =>{
     })
 
     it('Update publicEvent overrides all floors', async (done) => {
-        const res = factory.get(event_function, ENDPOINT, RESIDENT_ID)
+        const body = {
+            id:MAKE_IS_PUBLIC_EVENT_ADD_ALL_FLOORS,
+            isPublicEvent:true
+        }
+        const res = factory.put(event_function, ENDPOINT,body , RHP_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)
             }
             else{
-                expect(res.status).toBe(403)
+                expect(res.status).toBe(200)
+                expect(res.body.isPublicEvent).toBeTruthy()
+                expect(res.body.floorIds).toHaveLength(10) // This number may need to increase in the future if more floors added
+                expect(JSON.stringify(res.body.floorColors)).toBe(JSON.stringify(["#CFB991"]))
                 done()
             } 
         })
     })
 
     it('Update is all floors sets all floors and colors', async (done) => {
-        const res = factory.get(event_function, ENDPOINT, RESIDENT_ID)
+        const body = {
+            id:UPDATE_IS_ALL_FLOORS_TO_TRUE,
+            isAllFloors:true
+        }
+        const res = factory.put(event_function, ENDPOINT,body , RHP_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)
             }
             else{
-                expect(res.status).toBe(403)
+                expect(res.status).toBe(200)
+                expect(res.body.floorIds).toHaveLength(10) // This number may need to increase in the future if more floors added
+                expect(JSON.stringify(res.body.floorColors)).toBe(JSON.stringify(["#CFB991"]))
                 done()
             } 
         })
     })
 
     it('Set is all floors to false with floor ids', async (done) => {
-        const res = factory.get(event_function, ENDPOINT, RESIDENT_ID)
+        const body = {
+            id:UPDATE_IS_ALL_FLOORS_TO_FALSE_WITH_FLOOR_IDS,
+            isAllFloors:false,
+            floorIds:["5N","6S"]
+        }
+        const res = factory.put(event_function, ENDPOINT,body , RHP_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)
             }
             else{
-                expect(res.status).toBe(403)
+                expect(res.status).toBe(200)
+                expect(JSON.stringify(res.body.floorIds)).toBe(JSON.stringify(["5N","6S"]))
                 done()
             } 
         })
     })
 
     it('Set is allFloors event to false without floor ids', async (done) => {
-        const res = factory.get(event_function, ENDPOINT, RESIDENT_ID)
+        const body = {
+            id:UPDATE_IS_ALL_FLOORS_TO_FALSE_WITHOUT_FLOOR_IDS,
+            isAllFloors:false,
+        }
+        const res = factory.put(event_function, ENDPOINT,body , RHP_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)
             }
             else{
-                expect(res.status).toBe(403)
+                //If an event is told to update isAllFloors to false, it should also provide floorIds
+                expect(res.status).toBe(426)
                 done()
             } 
         })
     })
 
     it('Set is public event to true with floor ids', async (done) => {
-        const res = factory.get(event_function, ENDPOINT, RESIDENT_ID)
+        const body = {
+            id:MAKE_EVENT_PUBLIC_WITH_FLOORS,
+            isPublicEvent:true,
+            floorIds:["2N"]
+        }
+        const res = factory.put(event_function, ENDPOINT,body , RHP_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)
             }
             else{
-                expect(res.status).toBe(403)
+                //If an event is public, you can't tell it to have specific floor ids. It has to be for all floors
+                expect(res.status).toBe(426)
                 done()
             } 
         })
     })
 
-    it('Set is public event to false', async (done) => {
-        const res = factory.get(event_function, ENDPOINT, RESIDENT_ID)
+    it('Set Floor Ids of Public Event', async (done) => {
+        const body = {
+            id:PUBLIC_EVENT_SET_FLOORS,
+            floorIds:["2N"]
+        }
+        const res = factory.put(event_function, ENDPOINT,body , RHP_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)
             }
             else{
-                expect(res.status).toBe(403)
+                //If an event is public, you can't tell it to set floors
+                expect(res.status).toBe(426)
                 done()
             } 
         })

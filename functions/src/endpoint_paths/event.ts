@@ -149,8 +149,13 @@ events_app.put('/', async(req, res) => {
         
         if('isPublicEvent' in req.body){
             event.isPublicEvent = APIUtility.parseInputForBoolean(req.body, 'isPublicEvent')
-            //Add all floors
-            await setAllFloors(event)
+            if(event.isPublicEvent && 'floorIds' in req.body){
+                throw APIResponse.IncorrectFormat('If isPublicEvent is set to true, floorIds can not be provided') 
+            }
+            else{
+                //Add all floors
+                await setAllFloors(event)
+            }
         }
         else if('isAllFloors' in req.body){
             const isAllFloors = APIUtility.parseInputForBoolean(req.body, 'isAllFloors')
@@ -162,11 +167,17 @@ events_app.put('/', async(req, res) => {
                 throw APIResponse.IncorrectFormat('If isAllFloors is set to False, floorIds must be provided.')
             }
         }
-        else if(!event.isPublicEvent && 'floorIds' in req.body){
-            const floorIds = APIUtility.parseInputForArray(req.body, 'floorIds')
-            //Fix floor colors
-            await setFloors(event,floorIds)
+        if('floorIds' in req.body){
+            if(event.isPublicEvent){
+                throw APIResponse.IncorrectFormat('If isPublicEvent is set to true, floorIds can not be provided') 
+            }
+            else{
+                const floorIds = APIUtility.parseInputForArray(req.body, 'floorIds')
+                //Fix floor colors
+                await setFloors(event,floorIds)
+            }
         }
+        console.log(event)
         await EventFunctions.updateEvent(event)
         res.status(APIResponse.SUCCESS_CODE).json(event)
     } 

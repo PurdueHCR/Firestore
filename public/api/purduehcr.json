@@ -1922,88 +1922,6 @@
       }
     },
     "/rewards/" : {
-      "delete" : {
-        "tags" : [ "rewards" ],
-        "summary" : "Delete reward",
-        "description" : "Deletes the reward with the given id. This endpoint can only be used by professional staff",
-        "security" : [ {
-          "bearerAuth" : [ ]
-        } ],
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "query",
-          "description" : "Id  for the reward",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Ice Cream Party"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Message Successfully Saved",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Success"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm The Token Is Valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "420" : {
-            "description" : "Could not find the reward with the given Id",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/UnknownReward"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      },
       "get" : {
         "tags" : [ "rewards" ],
         "summary" : "Retrieve an award",
@@ -2276,6 +2194,88 @@
           }
         }
       }
+    },
+    "/rewards/{rewardId}":{
+      "delete" : {
+        "tags" : [ "rewards" ],
+        "summary" : "Delete reward",
+        "description" : "Deletes the reward with the given id. This endpoint can only be used by professional staff",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "rewardId",
+          "in" : "path",
+          "description" : "Id of the reward to delete",
+          "required" : true,
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Message Successfully Saved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "420" : {
+            "description" : "Could not find the reward with the given Id",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownReward"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
     },
     "/user/" : {
       "put" : {
