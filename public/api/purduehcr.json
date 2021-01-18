@@ -655,22 +655,12 @@
               }
             }
           },
-          "403" : {
-            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
+          "417" : {
+            "description" : "Unknown Point Type Id",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "420" : {
-            "description" : "The Id provided for the reward was not found.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/UnknownReward"
+                  "$ref" : "#/components/schemas/PointTypeDoesNotExist"
                 }
               }
             }
@@ -685,12 +675,52 @@
               }
             }
           },
+          "423" : {
+            "description" : "Could not parse the date. Check the message body for more details",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDateFormat"
+                }
+              }
+            }
+          },
+          "424" : {
+            "description" : "Date is not in range. Start Date must be greater than or equal to the current date and the End Date must come after the Start Date",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DateNotInRage"
+                }
+              }
+            }
+          },
           "426" : {
             "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
             "content" : {
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "430" : {
+            "description" : "You don't have the correct permission to use this point type for an event",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InsufficientPointTypePermissionForLink"
+                }
+              }
+            }
+          },
+          "432" : {
+            "description" : "You don't have the correct permission to edit this event.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CanNotAccessEvent"
                 }
               }
             }
@@ -2275,7 +2305,7 @@
             }
           }
         }
-      },
+      }
     },
     "/user/" : {
       "put" : {

@@ -75,7 +75,7 @@ events_app.post('/', async (req, res) => {
         const name = APIUtility.parseInputForString(req.body, 'name')
         const details = APIUtility.parseInputForString(req.body, 'details')
         const startDate = APIUtility.parseInputForDate(req.body, 'startDate', minDate)
-        const endDate = APIUtility.parseInputForDate(req.body, 'endDate', minDate)
+        const endDate = APIUtility.parseInputForDate(req.body, 'endDate', startDate)
         const location = APIUtility.parseInputForString(req.body, 'location')
         const pointTypeId = APIUtility.parseInputForNumber(req.body, 'pointTypeId')
         const host = APIUtility.parseInputForString(req.body, 'host')
@@ -96,13 +96,15 @@ events_app.post('/', async (req, res) => {
  * Update the event 
  * 
  * @throws 400 - Non Existant User
+ * @throws 401 - Unauthorized
  * @throws 417 - Unknown Point Type Id
  * @throws 422 - Missing Required Parameter
+ * @throws 423 - Invalid Date Format
+ * @throws 424 - Date not in range
  * @throws 426 - Incorrect Format
  * @throws 430 - Insufficient Point Type Permission For Link
  * @throws 432 - Can Not Access Event
  * @throws 450 - Non-Existant Event
- * @throws 499 - Invalid Content Type
  * @thrwos 500 - Server Error
  */
 events_app.put('/', async(req, res) => {
@@ -111,6 +113,8 @@ events_app.put('/', async(req, res) => {
         const user = await APIUtility.getUser(req)
         const id = APIUtility.parseInputForString(req.body, 'id')
         const event = await getEvent(id)
+        const minDate = new Date()
+        minDate.setHours(0,0,0,0)
         if(event.creatorId !== user.id){
             throw APIResponse.CanNotAccessEvent()
         }
@@ -121,10 +125,10 @@ events_app.put('/', async(req, res) => {
             event.details = APIUtility.parseInputForString(req.body, 'details')
         }
         if('startDate' in req.body){
-            event.startDate = APIUtility.parseInputForDate(req.body,'startDate')
+            event.startDate = APIUtility.parseInputForDate(req.body,'startDate', minDate)
         }
         if('endDate' in req.body){
-            event.endDate = APIUtility.parseInputForDate(req.body, 'endDate')
+            event.endDate = APIUtility.parseInputForDate(req.body, 'endDate', event.startDate)
         }
         if('location' in req.body){
             event.location = APIUtility.parseInputForString(req.body, 'location')
