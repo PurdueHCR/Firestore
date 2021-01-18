@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:linkable/linkable.dart';
 import 'package:purduehcr_web/Authentication_Bloc/authentication.dart';
+import 'package:purduehcr_web/Configuration/ConfigWrapper.dart';
 import 'package:purduehcr_web/Models/User.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -193,6 +194,7 @@ class PhcrDrawer extends Drawer {
                                           ),
                                         ],
                                       ),
+                                      Text("Version: "+ConfigWrapper.of(context).version),
                                       Text(APP_INFO_DESCRIPTION),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,

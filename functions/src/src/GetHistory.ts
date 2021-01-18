@@ -13,8 +13,8 @@ export async function getRecentHistory(house:string, date:Date, startAt?:Date): 
     console.log("Date: "+date.toString())
     const db = admin.firestore()
     let ref = db.collection(HouseCompetition.HOUSE_KEY)
-                .doc(house).collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).where("DateSubmitted", "<=", date)
-                .orderBy("DateSubmitted","desc").limit(25)
+                .doc(house).collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).where(PointLog.DATE_OCCURRED, "<=", date)
+                .orderBy(PointLog.DATE_OCCURRED,"desc").limit(25)
     if(startAt !== undefined){
         ref = ref.startAfter(startAt)
     }
@@ -33,7 +33,7 @@ export async function getHistoryFilterUser(house:string, name:string, startAt?:D
     const db = admin.firestore()
     let ref = db.collection(HouseCompetition.HOUSE_KEY)
                         .doc(house).collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY)
-                        .where("ResidentLastName","==",name).orderBy("DateSubmitted","desc").limit(25)
+                        .where(PointLog.RESIDENT_LAST_NAME,"==",name).orderBy(PointLog.DATE_OCCURRED,"desc").limit(25)
 
     if(startAt !== undefined){
         ref = ref.startAfter(startAt)
@@ -53,7 +53,7 @@ export async function getHistoryFilterPointType(house:string, point_type_id:numb
     const db = admin.firestore()
     let ref = db.collection(HouseCompetition.HOUSE_KEY)
     .doc(house).collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY)
-    .where("PointTypeID","==",point_type_id).orderBy("DateSubmitted","desc").limit(25)
+    .where(PointLog.POINT_TYPE_ID,"==",point_type_id).orderBy(PointLog.DATE_OCCURRED,"desc").limit(25)
                         
     if(startAt !== undefined){
         ref = ref.startAfter(startAt)

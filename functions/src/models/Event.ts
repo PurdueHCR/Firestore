@@ -12,6 +12,7 @@ export class Event {
     floorIds: string[]
     floorColors: string[]
     creatorId: string
+    claimedCount:number
     id: string
     host: string
     isPublicEvent: boolean
@@ -19,7 +20,7 @@ export class Event {
     constructor(name: string, details: string, startDate: Date, endDate: Date, location: string, 
                 points: number, pointTypeId: string, pointTypeName:string,
                 pointTypeDescription: string, floorIds: string[], creatorId: string, id: string, host: string,
-                floorColors: string[], isPublicEvent:boolean) {
+                floorColors: string[], isPublicEvent:boolean, claimedCount:number) {
             this.name = name
             this.details = details
             this.startDate = startDate
@@ -35,6 +36,7 @@ export class Event {
             this.host = host
             this.floorColors = floorColors
             this.isPublicEvent = isPublicEvent
+            this.claimedCount = claimedCount
     }
 
     /**
@@ -74,8 +76,8 @@ export class Event {
     static fromData(docId: string, documentData: FirebaseFirestore.DocumentData) {
         const name: string = documentData.name
         const details: string = documentData.details
-        const startDate: Date = documentData.startDate
-        const endDate: Date = documentData.endDate
+        const startDate: Date = documentData.startDate.toDate()
+        const endDate: Date = documentData.endDate.toDate()
         const location: string = documentData.location
         const points: number = documentData.points
         const pointTypeId: string = documentData.pointTypeId
@@ -87,10 +89,11 @@ export class Event {
         const host: string = documentData.host
         const floorColors: string[] = documentData.floorColors
         const isPublicEvent: boolean = documentData.isPublicEvent
+        const claimedCount: number = documentData.claimedCount
 
         return new Event(name, details, startDate, endDate, location,
                         points, pointTypeId, pointTypeName,
-                        pointTypeDescription, floorIds, creatorId, id, host, floorColors, isPublicEvent)
+                        pointTypeDescription, floorIds, creatorId, id, host, floorColors, isPublicEvent, claimedCount)
     }
 
     /**
@@ -102,5 +105,15 @@ export class Event {
         const data = Object.assign({}, this) as any
         delete data.id;
         return data
+    }
+
+    /**
+     * Get a map of fields to update for updating the claimed count
+     * @returns firestore map
+     */
+    public getUpdateClaimedCountJson(){
+        return {
+            claimedCount:this.claimedCount
+        }
     }
 }

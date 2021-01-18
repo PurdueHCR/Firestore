@@ -26,19 +26,20 @@ To deploy the project, make sure you have the minimum requirements
     - If you don't see the project in that list, talk to an exec member to get access to the project.
 
 ### Deploy
-1. If you are deploying the web version, Navigate to 'web_purduehcr/lib/Configuration/env'
+1. Navigate to 'web_purduehcr/lib/Configuration/Config.dart' and set the `version` variable to the correct version.
+2. If you are deploying the web version, Navigate to 'web_purduehcr/lib/Configuration/env'
     1. Ensure that you have the following file for your target enviornment
         - dev.json
         - test.json
         - prod.json
-    2. Delete all files that end in .g.dart
-    3. Run `flutter packages pub run build_runner build --delete-conflicting-outputs` to rebuild the .g.dart files with the correct information
-2. If you are deploying functions, in the root project directory run either `./production_config.sh` or `./test_config.sh` depending on your target environment
+    2. Ensure that the .g.dart file for the target matches the .json file. ie (dev.g.dart) 
+        - If not, run `flutter packages pub run build_runner build --delete-conflicting-outputs` to rebuild the .g.dart files with the correct information
 3. In the root project directory run `./purduehcr build prod` or `./purduehcr build test`
-4. Modify the file firebase.json
+4. If you are deploying functions, in the root project directory run either `./production_config.sh` or `./test_config.sh` depending on your target environment
+5. Modify the file firebase.json
     - If deploying to test, make sure `site: purduehcr` is removed from line 11
     - If deploying to prod, make sure `site: purduehcr` is added on line 11
-5. Run `firebase deploy` 
+6. Run `firebase deploy` 
     - Option `--only functions` 
     - Option `--only hosting`
 

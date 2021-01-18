@@ -28,7 +28,7 @@ export class FirestoreDataFactory{
             "isHouseEnabled": (spOpts.is_house_enabled !== undefined)?spOpts.is_house_enabled:Options.SYSTEM_PREFERENCES_DEFAULTS.is_house_enabled,
             "suggestedPointIDs": (spOpts.suggested_point_ids !== undefined)?spOpts.suggested_point_ids:Options.SYSTEM_PREFERENCES_DEFAULTS.suggested_point_ids,
             "houseIDs":(spOpts.houseIds !== undefined)?spOpts.houseIds:Options.SYSTEM_PREFERENCES_DEFAULTS.houseIds,
-            "floorIDs": (spOpts.floorIds !== undefined)?spOpts.floorIds:Options.SYSTEM_PREFERENCES_DEFAULTS.floorIds
+            "floorIds": (spOpts.floorIds !== undefined)?spOpts.floorIds:Options.SYSTEM_PREFERENCES_DEFAULTS.floorIds
         })
     }
 
@@ -346,7 +346,7 @@ export class FirestoreDataFactory{
             details: (eOpts.details !== undefined)?eOpts.details:Options.EVENT_DEFAULTS.details,
             startDate: (eOpts.startDate !== undefined)?eOpts.startDate:Options.EVENT_DEFAULTS.startDate,
             endDate: (eOpts.endDate !== undefined)?eOpts.endDate:Options.EVENT_DEFAULTS.endDate,
-            Location: (eOpts.location !== undefined)?eOpts.location:Options.EVENT_DEFAULTS.location,
+            location: (eOpts.location !== undefined)?eOpts.location:Options.EVENT_DEFAULTS.location,
             points: (eOpts.points !== undefined)?eOpts.points:Options.EVENT_DEFAULTS.points,
             pointTypeId: (eOpts.pointTypeId !== undefined)?eOpts.pointTypeId:Options.EVENT_DEFAULTS.pointTypeId,
             pointTypeName: (eOpts.pointTypeName !== undefined)?eOpts.pointTypeName:Options.EVENT_DEFAULTS.pointTypeName,
@@ -356,7 +356,8 @@ export class FirestoreDataFactory{
             creatorId:creator_id,
             id:id,
             host:(eOpts.host !== undefined)?eOpts.host:Options.EVENT_DEFAULTS.host,
-            isPublicEvent:(eOpts.isPublicEvent !== undefined)?eOpts.isPublicEvent:Options.EVENT_DEFAULTS.isPublicEvent
+            isPublicEvent:(eOpts.isPublicEvent !== undefined)?eOpts.isPublicEvent:Options.EVENT_DEFAULTS.isPublicEvent,
+            claimedCount:(eOpts.claimedCount !== undefined)?eOpts.claimedCount:Options.EVENT_DEFAULTS.claimedCount
         }
         return db.collection("Events").doc(id).set(data)
     }

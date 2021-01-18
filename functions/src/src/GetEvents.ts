@@ -16,25 +16,9 @@ import { getHouseByName } from './GetHouses'
  */
 export async function getEvents(user: User): Promise<Event[]> {
 
-    // const db = admin.firestore()
-    // if (user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF) {
-    //     // Professional staff should see all events
-    //     const events = Event.fromQuerySnapshot(await db.collection(HouseCompetition.EVENTS_KEY).get())
-    //     events.sort((a:Event, b:Event) => {
-    //         return (b.date < a.date)? -1: 1
-    //     })
-    //     return Promise.resolve(events)
-    // } else {
-    //     const eventsSnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('House', 'in', [user.house, "All Houses"]).get()
-    //     const events = Event.fromQuerySnapshot(eventsSnapshot)
-    //     events.sort((a:Event, b:Event) => {
-    //         return (b.date < a.date)? -1: 1
-    //     })
-    //     return Promise.resolve(events)
-       
-    // }
-
-    return []
+    const db = admin.firestore()
+    const events = Event.fromQuerySnapshot(await db.collection(HouseCompetition.EVENTS_KEY).where('creatorId', "==",user.id).orderBy('startDate','asc').get())
+    return events
 }
 
 /**
@@ -49,20 +33,22 @@ export async function getEventsFeed(user: User): Promise<Event[]> {
 
     switch(user.permissionLevel){
         case UserPermissionLevel.PROFESSIONAL_STAFF:
-            eventQuerySnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('endDate', '>=', now).orderBy('endDate','asc').get()
+            eventQuerySnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('endDate', '>=', now).get()
             break
         case UserPermissionLevel.FACULTY:
             const house = await getHouseByName(user.house)
-            eventQuerySnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('floorIds','array-contains-any', house.floorIds).where('endDate', '>=', now).orderBy('endDate','asc').get()
+            eventQuerySnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('floorIds','array-contains-any', house.floorIds).where('endDate', '>=', now).get()
             break
         case UserPermissionLevel.RHP:
         case UserPermissionLevel.RESIDENT:
         case UserPermissionLevel.PRIVILEGED_RESIDENT:
-            eventQuerySnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('floorIds','array-contains-any', [user.floorId]).where('endDate', '>=', now).orderBy('endDate','asc').get()
+            eventQuerySnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('floorIds','array-contains', user.floorId).where('endDate', '>=', now).get()
             break
         case UserPermissionLevel.EXTERNAL_ADVISOR:
-            eventQuerySnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('isPublicEvent', '==',true).where('endDate', '>=', now).orderBy('endDate','asc').get()
+            eventQuerySnapshot = await db.collection(HouseCompetition.EVENTS_KEY).where('isPublicEvent', '==',true).where('endDate', '>=', now).get()
             break
     }
-    return Event.fromQuerySnapshot(eventQuerySnapshot)
+    const events = Event.fromQuerySnapshot(eventQuerySnapshot)
+    events.sort((a:Event, b:Event) => a.startDate.getTime() - b.startDate.getTime())
+    return events
 }

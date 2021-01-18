@@ -2,11 +2,10 @@ import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as express from 'express'
 import { APIResponse } from '../models/APIResponse'
-import { getUser } from '../src/GetUser'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import * as RewardFunctions from '../src/RewardFunctions'
-import * as ParameterParser from '../src/ParameterParser'
+import APIUtility from './APIUtility'
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
@@ -42,24 +41,19 @@ reward_app.use(firestoreTools.validateFirebaseIdToken)
  */
 reward_app.get('/', async (req, res) =>{
     try{
-        if(req.query.id && req.query.id !== ""){
-            const reward = await RewardFunctions.getRewardById(req.query.id as string)
-            res.status(APIResponse.SUCCESS_CODE).send({"rewards":reward})
+        APIUtility.validateRequest(req, true)
+        if('id' in req.query){
+            const reward = await RewardFunctions.getRewardById(APIUtility.parseInputForString(req.query,'id'))
+            res.status(APIResponse.SUCCESS_CODE).json({"rewards":reward})
         }
         else {
             const rewards = await RewardFunctions.getAllRewards()
-            res.status(APIResponse.SUCCESS_CODE).send({"rewards":rewards})
+            res.status(APIResponse.SUCCESS_CODE).json({"rewards":rewards})
         }
     }
     catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.log("Unknown Error: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        console.error("GET rewards/ failed with: " + error.toString())
+        APIUtility.handleError(res, error)
     }
 })
 
@@ -81,51 +75,37 @@ reward_app.get('/', async (req, res) =>{
  */
 reward_app.put('/', async (req, res) =>{
     try{
-        if(req.body === undefined || req.body === null || req.body.id === undefined || req.body.id === "" || 
-		! ("name" in req.body || "requiredPPR" in req.body || "downloadURL" in req.body || "fileName" in req.body)){
-			if(req.body === undefined || req.body === null){
-				console.error("Missing body")
-				throw APIResponse.MissingRequiredParameters()
-			}
-			else if(req.body.id === undefined || req.body.id === ""){
-				console.error("Missing point type id")
-				throw APIResponse.MissingRequiredParameters()
-			}
-			else{
-				console.error("At least one field must have an update")
-				throw APIResponse.MissingRequiredParameters()
-			}
+        APIUtility.validateRequest(req)
+
+        const user = await APIUtility.getUser(req)
+        verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
+        const id = APIUtility.parseInputForString(req.body,'id')
+        const reward = await RewardFunctions.getRewardById(id)
+
+        //At least one field must be present to update
+        if(!("name" in req.body || "requiredPPR" in req.body || "downloadURL" in req.body || "fileName" in req.body)){
+            throw APIResponse.MissingRequiredParameters("At least one field must have an update. [name, requiredPPR, downloadURL, fileName")
 		}
 
-        const user = await getUser(req["user"]["user_id"])
-        verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
-        const id = ParameterParser.parseInputForString(req.body.id)
-        const reward = await RewardFunctions.getRewardById(id)
         if("name" in req.body){
-            reward.name = ParameterParser.parseInputForString(req.body.name)
+            reward.name = APIUtility.parseInputForString(req.body,'name')
         }
         if("requiredPPR" in req.body){
-            reward.requiredPPR = ParameterParser.parseInputForNumber(req.body.requiredPPR, 1)
+            reward.requiredPPR = APIUtility.parseInputForNumber(req.body,'requiredPPR', 1)
         }
         if("downloadURL" in req.body){
-            reward.downloadURL = ParameterParser.parseInputForString(req.body.downloadURL)
+            reward.downloadURL = APIUtility.parseInputForString(req.body,'downloadURL')
         }
         if("fileName" in req.body){
-            reward.fileName = ParameterParser.parseInputForString(req.body.fileName)
+            reward.fileName = APIUtility.parseInputForString(req.body,'fileName')
         }
         await RewardFunctions.updateReward(reward)
         throw APIResponse.Success()
 
     }
     catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.log("Unknown Error: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        console.error("POST rewards/ failed with: " + error.toString())
+        APIUtility.handleError(res, error)
     }
 })
 
@@ -145,67 +125,38 @@ reward_app.put('/', async (req, res) =>{
  */
 reward_app.post('/', async (req, res) =>{
     try{
-        if(req.body === undefined || req.body === null || !( "fileName" in req.body && "requiredPPR" in req.body && "downloadURL" in req.body && "name" in req.body )){
-			if(req.body === undefined || req.body === null){
-				console.error("Missing body")
-				throw APIResponse.MissingRequiredParameters()
-			}
-			else{
-				console.error("All fields must be present to create a reward")
-				throw APIResponse.MissingRequiredParameters()
-			}
-		}
+        APIUtility.validateRequest(req)
 
-        const user = await getUser(req["user"]["user_id"])
+        const user = await APIUtility.getUser(req)
         verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
-        const ppr = ParameterParser.parseInputForNumber(req.body.requiredPPR, 1)
-        const name = ParameterParser.parseInputForString(req.body.name)
-        const fileName = ParameterParser.parseInputForString(req.body.fileName)
-        const downloadURL = ParameterParser.parseInputForString(req.body.downloadURL)
+        const ppr = APIUtility.parseInputForNumber(req.body,'requiredPPR', 1)
+        const name = APIUtility.parseInputForString(req.body,'name')
+        const fileName = APIUtility.parseInputForString(req.body,'fileName')
+        const downloadURL = APIUtility.parseInputForString(req.body,'downloadURL')
         const reward = await RewardFunctions.createReward(name, fileName, downloadURL,ppr)
         res.status(APIResponse.SUCCESS_CODE).send(reward)
     }
     catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.log("Unknown Error: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        console.error("POST rewards/ failed with: " + error.toString())
+        APIUtility.handleError(res, error)
     }
 })
 
 /**
  * Delete a reward
- * @param  body.id
+ * @param  rewardId
  * @throws 400 - Unknown User
  * @throws 401 - Unauthorized
  * @throws 403 - Invalid Permission
  * @throws 420 - Unknown Reward
  * @throws 500 - ServerError
  */
-reward_app.delete('/', async (req, res) =>{
+reward_app.delete('/:rewardId', async (req, res) =>{
     try{
-        if(req.body === undefined || req.body === null || !("id" in req.body)){
-			if(req.body === undefined || req.body === null){
-				console.error("Missing body")
-				throw APIResponse.MissingRequiredParameters()
-			}
-			else if(!("id" in req.body)){
-				console.error("Missing reward id")
-				throw APIResponse.MissingRequiredParameters()
-			}
-			else{
-				console.error("Unknown problem in deleting reward")
-				throw APIResponse.MissingRequiredParameters()
-			}
-		}
-
-        const user = await getUser(req["user"]["user_id"])
+        APIUtility.validateRequest(req)
+        const user = await APIUtility.getUser(req)
+        const id = APIUtility.parseInputForString(req.params,'rewardId')
         verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
-        const id = ParameterParser.parseInputForString(req.body.id)
         const reward = await RewardFunctions.getRewardById(id)
 
         await RewardFunctions.deleteReward(reward)
@@ -213,13 +164,7 @@ reward_app.delete('/', async (req, res) =>{
 
     }
     catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.log("Unknown Error: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        console.error("DELETE rewards/ failed with: " + error.toString())
+        APIUtility.handleError(res, error)
     }
 })

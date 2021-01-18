@@ -2,13 +2,12 @@ import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as express from 'express'
 import { APIResponse } from '../models/APIResponse'
-import { getUser } from '../src/GetUser'
 import { createLink } from '../src/CreateLink'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 import { getLinkById} from '../src/GetLinkById'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { LinkUpdateOptions, updateLink } from '../src/UpdateLink'
-import * as ParameterParser from '../src/ParameterParser'
+import APIUtility from './APIUtility'
 
 
 if(admin.apps.length === 0){
@@ -39,24 +38,14 @@ links_app.use(firestoreTools.validateFirebaseIdToken)
  */
 links_main.get('/', async (req, res) => {
 
-    if(!req.query.id || req.query.id === ""){
-        const error = APIResponse.MissingRequiredParameters()
-		res.status(error.code).send(error.toJson())
+    try{
+        APIUtility.validateRequest(req)
+        const id = APIUtility.parseInputForString(req.query, 'id')
+        res.status(APIResponse.SUCCESS_CODE).send(await getLinkById(id))
     }
-    else{
-        try{
-            res.status(APIResponse.SUCCESS_CODE).send(await getLinkById(req.query.id as string))
-        }
-        catch(suberror){
-            if (suberror instanceof APIResponse){
-                res.status(suberror.code).send(suberror.toJson())
-            }
-            else {
-                console.log("FAILED WITH DB FROM link create ERROR: "+ suberror)
-                const apiResponse = APIResponse.ServerError()
-                res.status(apiResponse.code).send(apiResponse.toJson())
-            }
-        }
+    catch(error){
+        console.error('Error in GET links/: '+error.toString())
+        APIUtility.handleError(res,error)
     }
 
 })
@@ -78,31 +67,23 @@ links_main.get('/', async (req, res) => {
 links_main.post('/create' ,async (req, res) => {
 
     try{
-        if(req.body === null || req.body === undefined){
-            console.log("No body")
-            throw APIResponse.MissingRequiredParameters()
-        }
-        const user_id = req["user"]["user_id"]
-        const description = ParameterParser.parseInputForString(req.body.description)
-        const point_id = ParameterParser.parseInputForNumber(req.body.point_id)
-        const is_single_use = ParameterParser.parseInputForBoolean(req.body.single_use)
-        const is_enabled = ParameterParser.parseInputForBoolean(req.body.is_enabled)
-
-        const user = await getUser(user_id)
+        APIUtility.validateRequest(req)
+        const user = await APIUtility.getUser(req)
         const permissions = [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.FACULTY, UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.EXTERNAL_ADVISOR]
         verifyUserHasCorrectPermission(user, permissions)
+        
+        const description = APIUtility.parseInputForString(req.body, 'description')
+        const point_id = APIUtility.parseInputForNumber(req.body, 'point_id')
+        const is_single_use = APIUtility.parseInputForBoolean(req.body, 'single_use')
+        const is_enabled = APIUtility.parseInputForBoolean(req.body, 'is_enabled')
+
+        
         const link = await createLink(user,point_id, is_single_use, is_enabled, description)
-        res.status(APIResponse.SUCCESS_CODE).send(link)
+        res.status(APIResponse.SUCCESS_CODE).json(link)
     }
-    catch(suberror){
-        if (suberror instanceof APIResponse){
-            res.status(suberror.code).send(suberror.toJson())
-        }
-        else {
-            console.log("FAILED WITH DB FROM link create ERROR: "+ suberror)
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+    catch(error){
+        console.error('Error in POST links/create: '+error.toString())
+        APIUtility.handleError(res,error)
     }
 })
 
@@ -122,33 +103,35 @@ links_main.post('/create' ,async (req, res) => {
 links_main.put('/update' ,async (req, res) => {
     //Ensure that the link id exists so that it can be updated
     try{
-        const linkId = ParameterParser.parseInputForString(req.body.link_id)
+        APIUtility.validateRequest(req)
+        const user = await APIUtility.getUser(req)
+        const linkId = APIUtility.parseInputForString(req.body, 'link_id')
         const link = await getLinkById(linkId)
         let hasData = false
         const data:LinkUpdateOptions = {}
         if("archived" in req.body ){
             console.log("Updating archived");
-            data.Archived = ParameterParser.parseInputForBoolean(req.body.archived)
+            data.Archived = APIUtility.parseInputForBoolean(req.body, 'archived')
             hasData = true
         }
         if("enabled" in req.body ){
             console.log("Updating enabled");
-            data.Enabled = ParameterParser.parseInputForBoolean(req.body.enabled)
+            data.Enabled = APIUtility.parseInputForBoolean(req.body, 'enabled')
             hasData = true
         }
         if("description" in req.body ){
             console.log("Updating description");
-            data.Description = ParameterParser.parseInputForString(req.body.description)
+            data.Description = APIUtility.parseInputForString(req.body, 'description')
             hasData = true
         }
         if("singleUse" in req.body){
             console.log("Updating single_use");
-            data.SingleUse = ParameterParser.parseInputForBoolean(req.body.singleUse)
+            data.SingleUse = APIUtility.parseInputForBoolean(req.body, 'singleUse')
             hasData = true
         }
         if(hasData){
             
-            if(link.creatorId !== req["user"]["user_id"]){
+            if(link.creatorId !== user.id){
                 throw APIResponse.LinkDoesntBelongToUser()
             }
             else{
@@ -161,16 +144,9 @@ links_main.put('/update' ,async (req, res) => {
             throw APIResponse.MissingRequiredParameters()
         }
     }
-    catch(suberror){
-        if (suberror instanceof APIResponse){
-            console.error("")
-            res.status(suberror.code).send(suberror.toJson())
-        }
-        else {
-            console.log("FAILED WITH DB FROM link create ERROR: "+ suberror)
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+    catch(error){
+        console.error('Error in POST links/create: '+error.toString())
+        APIUtility.handleError(res,error)
     }
         
 })

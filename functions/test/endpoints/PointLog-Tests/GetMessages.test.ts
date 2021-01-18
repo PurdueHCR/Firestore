@@ -32,6 +32,8 @@ describe('GET point_log/messages', async ()  => {
         // Get the User function from the index to test
         point_log_func = require("../../../src/endpoint_paths/index").point_log
 
+        await FirestoreDataFactory.setAllHouses(db)
+
         // Create sample data for tests
         await FirestoreDataFactory.setUser(db, RESIDENT_PLAT, 0)
         await FirestoreDataFactory.setUser(db, RESIDENT_PLAT_2, 0)
@@ -41,9 +43,6 @@ describe('GET point_log/messages', async ()  => {
         await FirestoreDataFactory.setUser(db, FACULTY, 3)
         await FirestoreDataFactory.setUser(db, PRIV_RES, 4, {house_name: PLATINUM_NAME})
         await FirestoreDataFactory.setUser(db, EA_ID, 5)
-
-        await FirestoreDataFactory.setHouse(db, PLATINUM_NAME)
-        await FirestoreDataFactory.setHouse(db, COPPER_NAME)
 
         await FirestoreDataFactory.setPointLog(db, PLATINUM_NAME, RESIDENT_PLAT, false,{id: RESIDENT_PLAT+"_LOG_1"} )
         await FirestoreDataFactory.setPointLog(db, PLATINUM_NAME, RESIDENT_PLAT_2, false,{id: RESIDENT_PLAT_2+"_LOG_1"} )
@@ -166,19 +165,6 @@ describe('GET point_log/messages', async ()  => {
             } else {
                 expect(res.status).toBe(200)
                 expect(res.body.messages).toHaveLength(3)
-                done()
-            }
-        })
-    })
-
-    it.skip('REC results in Invalid Permissions', async(done) => {
-        const query = {"log_id": RESIDENT_PLAT+"_LOG_1"}
-        const res = factory.get(point_log_func, "/messages",REC_ID, query)
-        res.end(function (err, res) {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.status).toBe(403)
                 done()
             }
         })

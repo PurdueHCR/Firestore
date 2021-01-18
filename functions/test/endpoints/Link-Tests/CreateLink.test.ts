@@ -19,7 +19,7 @@ const PROF_RHP_DESCRIPTION =  "Link can only be made with RHP/Prof_Staff"
 const ALL_DESCRIPTION = "Link can be made by all"
 
 //Test Suite GetUser
-describe('link/create', async () =>{
+describe('link/create', () =>{
 
     beforeAll(async () => {
         IntegrationMockFactory.mockFirebaseAdmin()
@@ -27,6 +27,8 @@ describe('link/create', async () =>{
         db = IntegrationMockFactory.getDb()
 
         link_function = require('../../../src/endpoint_paths/index.ts').link
+
+        await FirestoreDataFactory.setAllHouses(db)
 
         await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0)
         await FirestoreDataFactory.setUser(db, RHP_ID, 1)

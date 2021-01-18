@@ -1,14 +1,13 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as express from 'express';
-import { getUser } from '../src/GetUser';
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission';
 import { UserPermissionLevel } from '../models/UserPermissionLevel';
 import { APIResponse } from '../models/APIResponse';
 import { getViewableHouseCodes, getHouseCodeById, getHouseCodeByCode } from '../src/GetHouseCodes';
 import { refreshHouseCode, refreshHouseCodes } from '../src/RefreshHouseCode';
-import *  as ParameterParser from '../src/ParameterParser'
 import { getHouseByName } from '../src/GetHouses';
+import APIUtility from './APIUtility';
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
@@ -43,7 +42,8 @@ house_codes_app.use(firestoreTools.validateFirebaseIdToken);
  */
 house_codes_app.get("/", async( req,res) => {
     try{
-        const user = await getUser(req["user"]["user_id"])
+        APIUtility.validateRequest(req)
+        const user = await APIUtility.getUser(req)
         verifyUserHasCorrectPermission(user, [UserPermissionLevel.FACULTY, UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.RHP])
         const codes = await getViewableHouseCodes(user)
         codes.sort((a,b) => {
@@ -57,16 +57,11 @@ house_codes_app.get("/", async( req,res) => {
                 return a.permissionLevel - b.permissionLevel
             }
         })
-        res.status(APIResponse.SUCCESS_CODE).send({house_codes:codes})
+        res.status(APIResponse.SUCCESS_CODE).json({house_codes:codes})
     }
     catch (error) {
-        if (error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        } else {
-            console.log("FAILED TO GET HOUSE CODES WITH ERROR: "+ error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        console.error('Error in GET house_codes/: '+error.toString())
+        APIUtility.handleError(res,error)
     }
 })
 
@@ -82,11 +77,11 @@ house_codes_app.get("/", async( req,res) => {
  */
 house_codes_app.post("/refresh", async( req,res) => {
     try{
-
-        if( req.body !== undefined && req.body !== null && "id" in req.body){
-            const user = await getUser(req["user"]["user_id"])
+        APIUtility.validateRequest(req)
+        const user = await APIUtility.getUser(req)
+        if( "id" in req.body){
             verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.RHP])
-            const id = ParameterParser.parseInputForString(req.body.id)
+            const id = APIUtility.parseInputForString(req.body,'id')
             const code = await getHouseCodeById(id)
             if(user.permissionLevel === UserPermissionLevel.RHP && code.house !== user.house){
                 throw APIResponse.InvalidPermissionLevel()
@@ -95,7 +90,6 @@ house_codes_app.post("/refresh", async( req,res) => {
             res.status(APIResponse.SUCCESS_CODE).send({house_codes:[code]})
         }
         else{
-            const user = await getUser(req["user"]["user_id"])
             verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
             const codes = await getViewableHouseCodes(user)
             codes.sort((a,b) => {
@@ -107,26 +101,19 @@ house_codes_app.post("/refresh", async( req,res) => {
                 }
             })
             await refreshHouseCodes(codes)
-            res.status(APIResponse.SUCCESS_CODE).send({house_codes:codes})
+            res.status(APIResponse.SUCCESS_CODE).json({house_codes:codes})
         }
     }
     catch (error) {
-        if (error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        } else {
-            console.log("FAILED TO GET HOUSE CODES WITH ERROR: "+ error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        console.error('Error in POST house_codes/refresh: '+error.toString())
+        APIUtility.handleError(res,error)
     }
 })
 
 house_codes_app.get("/preview", async(req,res) => {
     try{
-        if(req.query === undefined || req.query === null){
-            throw APIResponse.MissingRequiredParameters()
-        }
-        const code = ParameterParser.parseInputForString(req.query.code)
+        APIUtility.validateRequest(req)
+        const code = APIUtility.parseInputForString(req.query,'code')
         const response:any = {}
         
         const houseCode = await getHouseCodeByCode(code)
@@ -135,17 +122,11 @@ house_codes_app.get("/preview", async(req,res) => {
             const house = await getHouseByName(houseCode.house)
             response.house = house
         }
-        res.status(APIResponse.SUCCESS_CODE).send(response)
+        res.status(APIResponse.SUCCESS_CODE).json(response)
     }
     catch (error) {
-        if (error instanceof APIResponse){
-            console.error("GOT API ERROR: "+error.toString() )
-            res.status(error.code).send(error.toJson())
-        } else {
-            console.log("FAILED TO GET HOUSE CODES WITH ERROR: "+ error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        console.error('Error in GET house_codes/preview: '+error.toString())
+        APIUtility.handleError(res,error)
     }
 })
 

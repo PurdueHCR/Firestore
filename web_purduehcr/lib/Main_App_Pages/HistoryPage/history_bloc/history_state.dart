@@ -19,6 +19,11 @@ class HistoryPageLoading extends HistoryState {
         super(searchType:searchType, logs:logs, lastEvent: lastEvent, house:house);
 }
 
+class HistoryPageContentLoading extends HistoryState {
+  const HistoryPageContentLoading({List<PointLog> logs, String searchType, SearchEvent lastEvent , int currentIndex, String house}):
+        super(searchType:searchType, logs:logs, lastEvent: lastEvent, house:house);
+}
+
 class HistoryPageLoaded extends HistoryState {
   const HistoryPageLoaded({List<PointLog> logs, String searchType, SearchEvent lastEvent , int currentIndex, String house}):
         super(searchType:searchType, logs:logs, lastEvent: lastEvent, house:house);
