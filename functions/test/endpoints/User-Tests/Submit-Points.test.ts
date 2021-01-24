@@ -343,9 +343,7 @@ describe('user/submitpoint', async () =>{
     it('Privileged Resident Submission Success with documentID Provided', async(done) => {
         const date = new Date()
         const descr = "Privileged Resident Submission Success with documentID Provided"
-        console.log(date.toString())
-        var docID = PRIV_RES + HOUSE_CODE
-        const body = {"point_type_id":6, "date_occurred":date.toString(), "description":descr, "document_id":docID}
+        const body = {"point_type_id":6, "date_occurred":date.toString(), "description":descr}
         const res: request.Test = factory.post(user_func, SUBMIT_POINTS_PATH, body , PRIV_RES)
         res.end(async function (err, res) {
             if(err){

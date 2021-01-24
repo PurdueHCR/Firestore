@@ -5,13 +5,12 @@ import { APIResponse } from '../models/APIResponse'
 import { updatePointLogStatus } from '../src/UpdatePointLogStatus'
 import { getPointLogMessages } from '../src/GetPointLogMessages'
 import { submitPointLogMessage } from '../src/SubmitPointLogMessage'
-import { getUser } from '../src/GetUser'
 import { getPointLog } from '../src/GetPointLog'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { PointLogMessage } from '../models/PointLogMessage'
 import { MessageType } from '../models/MessageType'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
-import * as ParameterParser from '../src/ParameterParser'
+import APIUtility from './APIUtility'
 
 if(admin.apps.length === 0){
 	admin.initializeApp(functions.config().firebase)
@@ -50,50 +49,22 @@ logs_app.use(firestoreTools.validateFirebaseIdToken)
  *  @throws 500 - Server Error
  */
 logs_app.post('/handle', async (req, res) => {
-	if (!req.body || !req.body.approve || req.body.approve === ""
-			|| !req.body.point_log_id || req.body.point_log_id === "") {
-		if (!req.body) {
-			console.error("Missing Body")
-		}
-		else if (!req.body.approve || req.body.approve === "") {
-			console.error("Missing approve")
-		}
-		else if (!req.body.point_log_id || req.body.point_log_id === "") {
-			console.error("Missing point_log_id")
-		} else {
-			console.error("Unknown missing parameter")
-		}
-		const error = APIResponse.MissingRequiredParameters()
-		res.status(error.code).send(error.toJson())
-	}
-	else if (req.body.approve !== "false" && req.body.approve !== "true") {
-		console.error("Invalid approve")
-		const error = APIResponse.IncorrectFormat()
-		res.status(error.code).send(error.toJson())
-	} else {
-
-		const should_approve = (req.body.approve === 'true');
-		if(!should_approve && (!req.body.message || req.body.message === "")){
-			console.error("If approve is false, you must send a message.")
-			const error = APIResponse.MissingRequiredParameters()
-			res.status(error.code).send(error.toJson())
+	try{
+		APIUtility.validateRequest(req)
+		const approve = APIUtility.parseInputForBoolean(req.body, 'approve')
+		const pointLogId = APIUtility.parseInputForString(req.body, 'point_log_id')
+		if(approve){
+			await updatePointLogStatus(approve, req["user"]["user_id"], pointLogId)
 		}
 		else{
-			try {
-				const didUpdate = await updatePointLogStatus(should_approve, req["user"]["user_id"], req.body.point_log_id, req.body.message)
-				if (didUpdate) {
-					res.status(201).send(APIResponse.Success().toJson())
-				}
-			} catch (error) {
-				console.log("FAILED WITH ERROR: "+ error.toString())
-				if (error instanceof APIResponse){
-					res.status(error.code).send(error.toJson())
-				} else {
-					const apiResponse = APIResponse.ServerError()
-					res.status(apiResponse.code).send(apiResponse.toJson())
-				}
-			}
+			const message = APIUtility.parseInputForString(req.body, 'message')
+			await updatePointLogStatus(approve, req["user"]["user_id"], pointLogId, message)
 		}
+		res.status(201).json(APIResponse.Success().toJson())
+	}
+	catch(error){
+		console.error("POST point_log/handle failed with: " + error.toString())
+		APIUtility.handleError(res, error)
 	}
 })
 
@@ -111,92 +82,59 @@ logs_app.post('/handle', async (req, res) => {
  * 
  */
 logs_app.post('/messages', async (req, res) => {
-	if(!req.body.log_id || req.body.log_id === "" || !req.body.message || req.body.message === ""){
-		if(!req.body.log_id){
-			console.log("Missing field: log_id")
-		}
-		else if(!req.body.message){
-			console.log("Missing field: message")
+	try {
+		APIUtility.validateRequest(req)
+		const logId = APIUtility.parseInputForString(req.body, 'log_id')
+		const msg = APIUtility.parseInputForString(req.body, 'message')
+		const user = await APIUtility.getUser(req)
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF])
+		
+		let house = ""
+		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+			house = APIUtility.parseInputForString(req.body, 'house')
 		}
 		else{
-			console.log("WTF")
-			console.log(req.body.log_id)
-			console.log(req.body.message)
+			house = user.house
 		}
-		const error = APIResponse.MissingRequiredParameters()
-		res.status(error.code).send(error.toJson())
-	}
-	else {
-		try {
-			const user = await getUser(req["user"]["user_id"])
-			verifyUserHasCorrectPermission(user, [UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF])
-			
-			let house = ""
-			if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
-				house = ParameterParser.parseInputForString(req.body.house)
-			}
-			else{
-				house = user.house
-			}
-			const log_id = ParameterParser.parseInputForString(req.body.log_id)
-			const msg = ParameterParser.parseInputForString(req.body.message)
 
-			const pointLog = await getPointLog(user, house, log_id)
-			const message = new PointLogMessage(new Date(Date.now()), msg, MessageType.COMMENT, user.firstName, user.lastName, user.permissionLevel)
-			
-			await submitPointLogMessage(house, pointLog, message, [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF].includes(user.permissionLevel ))
-			throw APIResponse.Success()
-			
+		const pointLog = await getPointLog(user, house, logId)
+		const message = new PointLogMessage(new Date(Date.now()), msg, MessageType.COMMENT, user.firstName, user.lastName, user.permissionLevel)
+		
+		await submitPointLogMessage(house, pointLog, message, [UserPermissionLevel.RHP, UserPermissionLevel.PROFESSIONAL_STAFF].includes(user.permissionLevel ))
+		throw APIResponse.Success()
+		
 
-		} catch (error) {
-			console.log("FAILED TO POST NEW MESSAGE WITH ERROR: "+ error.toString())
-			if (error instanceof APIResponse){
-				res.status(error.code).send(error.toJson())
-			} else {
-				const apiResponse = APIResponse.ServerError()
-				res.status(apiResponse.code).send(apiResponse.toJson())
-			}
-		}
+	} catch (error) {
+		console.error("POST point_log/messages failed with: " + error.toString())
+		APIUtility.handleError(res, error)
 	}
 })
 
 logs_app.get('/messages', async (req, res) => {
-	console.log("IN MESSAGES GET ENDPOINT")
-	if(!req.query.log_id || req.query.log_id === "" ){
-		console.log("Missing field: log_id")
-		const error = APIResponse.MissingRequiredParameters()
-		res.status(error.code).send(error.toJson())
-	}
-	else {
-		try {
-			const user = await getUser(req["user"]["user_id"])
-			verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP, UserPermissionLevel.RESIDENT, UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.PROFESSIONAL_STAFF])
+	try {
+		APIUtility.validateRequest(req)
 
-			const log_id = ParameterParser.parseInputForString(req.query.log_id)
+		const user = await APIUtility.getUser(req)
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP, UserPermissionLevel.RESIDENT, UserPermissionLevel.PRIVILEGED_RESIDENT, UserPermissionLevel.PROFESSIONAL_STAFF])
 
-			let house = ""
-			if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
-				house = ParameterParser.parseInputForString(req.query.house)
-			}
-			else{
-				house = user.house
-			}
+		const log_id = APIUtility.parseInputForString(req.query, 'log_id')
 
-			//Makes sure PointLog exists and user has permissions to edit
-			await getPointLog(user, house, log_id)
-			
-			const messages = await getPointLogMessages(house,log_id)
-			res.status(APIResponse.SUCCESS_CODE).send({messages:messages})
-			
-		} catch(suberror){
-            if (suberror instanceof APIResponse){
-                res.status(suberror.code).send(suberror.toJson())
-            }
-            else {
-                console.log("FAILED WITH DB FROM get messages ERROR: "+ suberror)
-                const apiResponse = APIResponse.ServerError()
-                res.status(apiResponse.code).send(apiResponse.toJson())
-            }
-        }
+		let house = ""
+		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
+			house = APIUtility.parseInputForString(req.query, 'house')
+		}
+		else{
+			house = user.house
+		}
+
+		//Makes sure PointLog exists and user has permissions to edit
+		await getPointLog(user, house, log_id)
+		
+		const messages = await getPointLogMessages(house,log_id)
+		res.status(APIResponse.SUCCESS_CODE).json({messages:messages})
+		
+	} catch(error){
+		console.error("GET point_log/messages failed with: " + error.toString())
+		APIUtility.handleError(res, error)
 	}
 })

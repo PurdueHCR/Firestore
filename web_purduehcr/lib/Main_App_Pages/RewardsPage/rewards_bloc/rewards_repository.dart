@@ -45,9 +45,7 @@ class RewardsRepository {
   }
 
   deleteReward(Reward reward) async {
-    Map<String, dynamic> body = Map();
-    body["id"] = reward.id;
-    await callCloudFunction(config, Method.DELETE, "rewards/", body: body);
+    await callCloudFunction(config, Method.DELETE, "rewards/"+reward.id);
   }
 
 }

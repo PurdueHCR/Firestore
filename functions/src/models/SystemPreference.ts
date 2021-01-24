@@ -8,9 +8,10 @@ export class SystemPreference {
     static IS_COMPETITION_VISIBLE = "isCompetitionVisible"
     static SUGGESTED_POINT_IDS = "suggestedPointIDs"
     static HOUSE_IDS = "houseIDs"
+    static FLOOR_IDS = "floorIds"
     static SHOW_REWARDS = "ShowRewards"
     static DEFAULT_IMAGE_URL = "DefaultImageURL"
-    static DEFAULT_IMAGE_NAME = "DefaultImageName"
+    static DEFAULT_IMAGE_NAME = "DefaultImagceName"
 
     id: string
     androidVersion: string
@@ -24,9 +25,10 @@ export class SystemPreference {
     defaultImageName: string
     showRewards: boolean
     houseIds: string[]
+    floorIds: string[]
 
     constructor(id:string, androidVersion: string,  competitionDisabledMessage: string, iosVersion: string, competitionHiddenMessage:string, 
-        isCompetitionEnabled: Boolean, suggestedPointIds: string, isCompetitionVisible: Boolean, houseIds: string[], defaultImageURL: string,
+        isCompetitionEnabled: Boolean, suggestedPointIds: string, isCompetitionVisible: Boolean, houseIds: string[], floorIds: string[], defaultImageURL: string,
         defaultImageName: string, showRewards: boolean){
         this.id = id
         this.androidVersion = androidVersion
@@ -37,9 +39,11 @@ export class SystemPreference {
         this.suggestedPointIds = suggestedPointIds
         this.isCompetitionVisible = isCompetitionVisible
         this.houseIds = houseIds
+        this.floorIds = floorIds
         this.defaultImageName = defaultImageName
         this.defaultImageURL = defaultImageURL
         this.showRewards = showRewards
+        this.floorIds = floorIds
     }
 
     updateFirebaseJson(){
@@ -49,6 +53,7 @@ export class SystemPreference {
         data[SystemPreference.IS_COMPETITION_ENABLED] = this.isCompetitionEnabled
         data[SystemPreference.IS_COMPETITION_VISIBLE] = this.isCompetitionVisible
         data[SystemPreference.HOUSE_IDS] = this.houseIds
+        data[SystemPreference.FLOOR_IDS] = this.floorIds
         data[SystemPreference.DEFAULT_IMAGE_NAME] = this.defaultImageName
         data[SystemPreference.DEFAULT_IMAGE_URL] = this.defaultImageURL
         data[SystemPreference.SHOW_REWARDS] = this.showRewards
@@ -69,6 +74,7 @@ export class SystemPreference {
         let competitionDisabledMessage: string
         let competitionHiddenMessage: string
         let houseIds: string[]
+        let floorIds: string[]
         let iosVersion: string
         let isCompetitionEnabled: Boolean
         let suggestedPointIds: string
@@ -134,6 +140,13 @@ export class SystemPreference {
             houseIds = []
         }
 
+        if( SystemPreference.FLOOR_IDS in document.data()!){
+            floorIds = document.data()![SystemPreference.FLOOR_IDS]
+        }
+        else{
+            floorIds = []
+        }
+
         if(SystemPreference.DEFAULT_IMAGE_NAME in document.data()!){
             defaultImageName = document.data()![SystemPreference.DEFAULT_IMAGE_NAME]
         }
@@ -155,6 +168,6 @@ export class SystemPreference {
             showRewards = true
         }
 
-        return new SystemPreference(id, androidVersion, competitionDisabledMessage, iosVersion, competitionHiddenMessage, isCompetitionEnabled, suggestedPointIds, isCompetitionVisible, houseIds, defaultImageURL, defaultImageName, showRewards);
+        return new SystemPreference(id, androidVersion, competitionDisabledMessage, iosVersion, competitionHiddenMessage, isCompetitionEnabled, suggestedPointIds, isCompetitionVisible, houseIds, floorIds, defaultImageURL, defaultImageName, showRewards);
     }
 }

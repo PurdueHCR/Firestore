@@ -51,7 +51,7 @@ export class PointLogMessage {
         if(!(message.charAt(reason.length - 1) in ['?', '.', '!'])){
             message += "."
         }
-        return new PointLogMessage(new Date(), `${rejectingUser.getFullName()} rejected this point submission with the reason: ${message}`, MessageType.APPROVE, "Purdue", "HCR", rejectingUser.permissionLevel)
+        return new PointLogMessage(new Date(), `${rejectingUser.getFullName()} rejected this point submission with the reason: ${message}`, MessageType.REJECT, "Purdue", "HCR", rejectingUser.permissionLevel)
     }
 
     static fromQuerySnapshot(snapshot: FirebaseFirestore.QuerySnapshot): PointLogMessage[] {

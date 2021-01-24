@@ -25,25 +25,24 @@ const REJECTED_STRING = "DENIED: "
  * @throws 416 - PointLogAlreadyHandled
  * @throws 500 - Server Error
  */
-export async function updatePointLogStatus(approve: boolean, approver_id: string, document_id: string, rejectionMessage?:string): Promise<boolean> {
+export async function updatePointLogStatus(approve: boolean, approver_id: string, document_id: string, rejectionMessage?:string) {
     
     const system_preferences = await getSystemPreferences()
     if (!system_preferences.isCompetitionEnabled) {
-        return Promise.reject(APIResponse.CompetitionDisabled())
+        throw APIResponse.CompetitionDisabled()
     }
 
     const user = await getUser(approver_id)
     if (user.permissionLevel !== UserPermissionLevel.RHP) {
-        return Promise.reject(APIResponse.InvalidPermissionLevel())
+        throw APIResponse.InvalidPermissionLevel()
     }
     const db = admin.firestore()
-    try {
-        const doc_ref = db.collection(HouseCompetition.HOUSE_KEY).doc(user.house.toString())
+    const doc_ref = db.collection(HouseCompetition.HOUSE_KEY).doc(user.house.toString())
         .collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).doc(document_id)
         const doc = await doc_ref.get()
         if (!doc.exists) {
             // PointLog could not be found
-            return Promise.reject(APIResponse.UnknownPointLog())
+            throw APIResponse.UnknownPointLog()
         } else {
 
             const log = PointLog.fromDocumentSnapshot(doc)
@@ -63,8 +62,7 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
             // If reject check to know if need to subtract points
             if (!approve) {
                 if (log.description.includes(REJECTED_STRING)) {
-                    const response = APIResponse.PointLogAlreadyHandled()
-                    return Promise.reject(response)
+                    throw APIResponse.PointLogAlreadyHandled()
                 } else {
                     log.description = REJECTED_STRING + log.description
                     log.approveLog(user)
@@ -90,20 +88,8 @@ export async function updatePointLogStatus(approve: boolean, approver_id: string
                     await submitPointLogMessage(user.house, log, messageObj, true)
                 } else {
                     // Log has already been approved so points should not be added
-                    const response = APIResponse.PointLogAlreadyHandled()
-                    return Promise.reject(response)
+                    throw APIResponse.PointLogAlreadyHandled()
                 }
             }
-            return Promise.resolve(true)
         }
-    }
-    catch (error) {
-        if (error instanceof APIResponse) {
-            return Promise.reject(error)
-        } else {
-            console.error(error)
-            const apiError = APIResponse.ServerError()
-            return Promise.reject(apiError)
-        }
-    }
 }

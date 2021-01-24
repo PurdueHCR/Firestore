@@ -87,19 +87,6 @@ describe('GetUser', () =>{
 
     })
 
-    //Test that a server error is correctly handled
-    test('TestServerError', async() => {
-        const id =  "Server-Error";
-        try{
-            await GetUser.getUser(id);
-            fail()
-        }
-        catch(err){
-            expect(err.code).toBe(500)
-        }
-        
-    })
-
     //Test that a non existant document is correctly handled
     it('TestDocumentDoesntExist', async() => {
         const id =  "";
