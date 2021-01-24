@@ -4,6 +4,7 @@ import 'package:purduehcr_web/Configuration/Config.dart';
 import 'package:purduehcr_web/Configuration/ConfigWrapper.dart';
 import 'package:purduehcr_web/Models/Reward.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
+import 'package:purduehcr_web/Utilities/FunctionUtilities.dart';
 import 'package:purduehcr_web/Utility_Views/BasePage.dart';
 import 'package:purduehcr_web/Main_App_Pages/RewardsPage/EditRewardForm.dart';
 import 'package:purduehcr_web/Main_App_Pages/RewardsPage/RewardCreationForm.dart';
@@ -153,69 +154,22 @@ class _RewardsPageState
 
   _handleSnackChatState(BuildContext context, RewardsState state) {
     if (state is CreateRewardsSuccess) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pop();
-      });
-      final snackBar = SnackBar(
-        backgroundColor: Colors.green,
-        content: Text('The reward has been created!'),
-      );
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Scaffold.of(context).showSnackBar(snackBar);
-        _rewardsBloc.add(RewardHandleMessage());
-      });
+      FunctionUtilities.showSnackBar(context, Colors.green, 'The reward has been created!', _rewardsBloc, RewardHandleMessage(), popContext: true);
     }
     else if (state is CreateRewardsError) {
-      final snackBar = SnackBar(
-        backgroundColor: Colors.red,
-        content:
-            Text('There was an error creating the reward. Please try again.'),
-      );
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-
-        Scaffold.of(context).showSnackBar(snackBar);
-        _rewardsBloc.add(RewardHandleMessage());
-      });
+      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error creating the reward. Please try again.', _rewardsBloc, RewardHandleMessage());
     }
     else if (state is UpdateRewardsError) {
-      final snackBar = SnackBar(
-        backgroundColor: Colors.red,
-        content:
-            Text('There was an error updating the reward. Please try again.'),
-      );
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Scaffold.of(context).showSnackBar(snackBar);
-        _rewardsBloc.add(RewardHandleMessage());
-      });
+      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error updating the reward. Please try again.', _rewardsBloc, RewardHandleMessage());
     }
     else if (state is DeleteRewardSuccess) {
+      FunctionUtilities.showSnackBar(context, Colors.green, 'The reward was successfully deleted', _rewardsBloc, RewardHandleMessage(), popContext: true);
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pop();
-      });
-      final snackBar = SnackBar(
-        backgroundColor: Colors.green,
-        content:
-        Text('The reward was successfully deleted'),
-      );
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Scaffold.of(context).showSnackBar(snackBar);
         _selectedReward = null;
-        _rewardsBloc.add(RewardHandleMessage());
       });
     }
     else if (state is DeleteRewardsError) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pop();
-      });
-      final snackBar = SnackBar(
-        backgroundColor: Colors.red,
-        content:
-            Text('There was an error deleting the reward. Please try again.'),
-      );
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Scaffold.of(context).showSnackBar(snackBar);
-        _rewardsBloc.add(RewardHandleMessage());
-      });
+      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error deleting the reward. Please try again.', _rewardsBloc, RewardHandleMessage(), popContext: true);
     }
   }
 
