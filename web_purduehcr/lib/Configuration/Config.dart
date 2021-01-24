@@ -10,13 +10,19 @@ class Config {
   final String databaseURL;
   final String projectId;
   final String storageBucket;
-  final String version = "1.0.1";
+  final String version = "1.0.2";
 
-  Config({this.env, this.apiKey, this.authDomain, this.databaseURL, this.projectId, this.storageBucket});
+  Config(
+      {this.env,
+      this.apiKey,
+      this.authDomain,
+      this.databaseURL,
+      this.projectId,
+      this.storageBucket});
   factory Config.fromJson(Map<String, dynamic> json) => _$ConfigFromJson(json);
 
   @override
   String toString() {
-    return "ENV: "+env + " "+ projectId;
+    return "ENV: " + env + " " + projectId;
   }
 }

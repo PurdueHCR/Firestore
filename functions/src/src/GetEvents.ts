@@ -29,7 +29,7 @@ export async function getEventsFeed(user: User): Promise<Event[]> {
 
     const db = admin.firestore()
     let eventQuerySnapshot: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>
-    let now = new Date()
+    const now = new Date()
 
     switch(user.permissionLevel){
         case UserPermissionLevel.PROFESSIONAL_STAFF:

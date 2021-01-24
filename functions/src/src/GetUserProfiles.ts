@@ -195,7 +195,7 @@ export async function getFacultyProfile(user:User): Promise<FacultyProfile>{
 	const houses = await getAllHouses()
 	let user_house: House = houses[0]
 	for(const house of houses){
-		if (house.id == user.house) {
+		if (house.id === user.house) {
 			user_house = house
 			break
 		}

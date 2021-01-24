@@ -16,7 +16,7 @@ export async function refreshHouseCode(code:HouseCode){
  * @param codes House Codes to refresh with new codes
  */
 export async function refreshHouseCodes(codes:HouseCode[]){
-    for(let code of codes){
+    for(const code of codes){
         await refreshHouseCode(code)
     }
 }
