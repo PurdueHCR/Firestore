@@ -75,6 +75,20 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
+          "fieldPath": "creatorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "startDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Events",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
           "fieldPath": "floorIds",
           "arrayConfig": "CONTAINS"
         },

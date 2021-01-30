@@ -41,8 +41,7 @@ describe('DELETE reward/', () =>{
 
     
     it('Test resident results in error', async (done) => {
-        const body = {id: FIRST_REWARD}
-        const res = factory.deleteCommand(rewards_func, ENDPOINT, RESIDENT_ID, body)
+        const res = factory.deleteCommand(rewards_func, ENDPOINT+`${FIRST_REWARD}`, RESIDENT_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -57,8 +56,7 @@ describe('DELETE reward/', () =>{
     })
 
     it('Test rhp results in success', async (done) => {
-        const body = {id: FIRST_REWARD}
-        const res = factory.deleteCommand(rewards_func, ENDPOINT, RHP_ID, body)
+        const res = factory.deleteCommand(rewards_func, ENDPOINT+`${FIRST_REWARD}`, RHP_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -73,8 +71,7 @@ describe('DELETE reward/', () =>{
     })
 
     it('Test Professional staff results in success', async (done) => {
-        const body = {id: FIRST_REWARD}
-        const res = factory.deleteCommand(rewards_func, ENDPOINT, PROF_ID, body)
+        const res = factory.deleteCommand(rewards_func, ENDPOINT+`${FIRST_REWARD}`, PROF_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -90,8 +87,7 @@ describe('DELETE reward/', () =>{
     })
 
     it('Test FHP results in success', async (done) => {
-        const body = {id: FIRST_REWARD}
-        const res = factory.deleteCommand(rewards_func, ENDPOINT, FACULTY, body)
+        const res = factory.deleteCommand(rewards_func, ENDPOINT+`${FIRST_REWARD}`, FACULTY)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -106,8 +102,7 @@ describe('DELETE reward/', () =>{
     })
 
     it('Test PRIV REs results in success', async (done) => {
-        const body = {id: FIRST_REWARD}
-        const res = factory.deleteCommand(rewards_func, ENDPOINT, PRIV_RES, body)
+        const res = factory.deleteCommand(rewards_func, ENDPOINT+`${FIRST_REWARD}`, PRIV_RES)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -122,8 +117,7 @@ describe('DELETE reward/', () =>{
     })
 
     it('Test ea results in success', async (done) => {
-        const body = {id: FIRST_REWARD}
-        const res = factory.deleteCommand(rewards_func, ENDPOINT, EA_ID, body)
+        const res = factory.deleteCommand(rewards_func, ENDPOINT+`${FIRST_REWARD}`, EA_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)
@@ -138,8 +132,7 @@ describe('DELETE reward/', () =>{
     })
 
     it('Nonexistant id returns unknown reward', async (done) => {
-        const body = {id: "unknown"}
-        const res = factory.deleteCommand(rewards_func, ENDPOINT, PROF_ID, body)
+        const res = factory.deleteCommand(rewards_func, ENDPOINT+`unknown`, PROF_ID)
         res.end(async function (err, res) {
             if(err){
                 done(err)

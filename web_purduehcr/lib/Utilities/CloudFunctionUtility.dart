@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:purduehcr_web/Models/ApiError.dart';
 
@@ -14,12 +16,20 @@ callCloudFunction(Config config, Method method, String path, {Map<String, dynami
     "method":method.toString().split('.').last,
     "payload": body
   });
-
-  if(result.data["message"] != null){
-    String errorString = result.data["message"];
-    throw new ApiError(int.parse(errorString.split(": ")[0]), errorString.split(": ")[1]);
+  Map<String, dynamic> responseMap;
+  if(result.data is String){
+    responseMap = jsonDecode(result.data);
   }
-  return result.data;
+  else{
+    responseMap = result.data;
+  }
+  if(responseMap["message"] != null){
+    String errorString = responseMap["message"];
+    int errorCode = int.parse(errorString.split(": ")[0]);
+    String errorMessage = errorString.substring(errorString.indexOf(':') +1);
+    throw new ApiError(errorCode, errorMessage);
+  }
+  return responseMap;
 }
 
 String _serializeParams(Map<String, dynamic> params) {
