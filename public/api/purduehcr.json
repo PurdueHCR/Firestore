@@ -690,7 +690,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/DateNotInRage"
+                  "$ref" : "#/components/schemas/DateNotInRange"
                 }
               }
             }

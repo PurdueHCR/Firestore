@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purduehcr_web/Main_App_Pages/LaundryPage/LaundryPage.dart';
 import 'package:purduehcr_web/Utility_Views/InitializationPage.dart';
 import 'package:purduehcr_web/Main_App_Pages/OverviewPage/OverviewPage.dart';
 import 'package:purduehcr_web/Account_And_User_Pages/Account_Login_Creation/AccountPage.dart';
@@ -47,6 +48,8 @@ class RouteGenerator {
                   return ControlsPage();
                 case 'point_type_controls':
                   return PointTypesControlPage();
+                case 'laundry':
+                  return LaundryPage();
                 case 'house_codes':
                   return HouseCodePage();
                 case 'find_users':
