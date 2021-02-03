@@ -3,6 +3,7 @@ import * as admin from 'firebase-admin'
 import * as express from 'express'
 import { APIResponse } from '../models/APIResponse'
 import { getMachines } from '../src/GetMachines'
+import APIUtility from './APIUtility'
 
 if(admin.apps.length === 0){
 	admin.initializeApp(functions.config().firebase)
@@ -26,6 +27,12 @@ laundry_app.use(firestoreTools.validateFirebaseIdToken)
 export const laundry_main = functions.https.onRequest(laundry_controls_main)
 
 laundry_app.get("/", async (req, res) => {
-	const machines = await getMachines()
-	res.status(APIResponse.SUCCESS_CODE).send({"machines": machines})
+	try {
+		const machines = await getMachines()
+		res.status(APIResponse.SUCCESS_CODE).json({"machines": machines})
+	}
+	catch (error) {
+		console.error("GET laundry/ failed with: " + error.toString())
+		APIUtility.handleError(res, error)
+	}
 })
