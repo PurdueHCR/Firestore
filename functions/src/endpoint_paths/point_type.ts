@@ -1,7 +1,6 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as express from 'express'
-import { getUser } from '../src/GetUser'
 import { APIResponse } from '../models/APIResponse'
 import { getSubmittablePointTypes } from '../src/GetSubmittablePointTypes'
 import { getLinkablePointTypes } from '../src/GetLinkablePointTypes'
@@ -11,7 +10,7 @@ import { getPointTypes } from '../src/GetPointTypes'
 import { createPointType } from '../src/CreatePointType'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 import { getPointTypeById } from '../src/GetPointTypeById'
-import * as ParameterParser from '../src/ParameterParser'
+import APIUtility from './APIUtility'
 
 
 //Make sure that the app is only initialized one time 
@@ -54,20 +53,15 @@ pt_app.use(firestoreTools.validateFirebaseIdToken)
 
 pt_app.get('/', async (req, res) => { 
 	try{
-		const user = await getUser(req["user"]["user_id"])
+		APIUtility.validateRequest(req, true)
+		const user = await APIUtility.getUser(req)
 		verifyUserHasCorrectPermission(user,[UserPermissionLevel.PROFESSIONAL_STAFF])
 		const user_pts = await getPointTypes()
-		res.status(APIResponse.SUCCESS_CODE).send({point_types:user_pts})
+		res.status(APIResponse.SUCCESS_CODE).json({point_types:user_pts})
 	}
 	catch(error){
-		if(error instanceof APIResponse){
-			res.status(error.code).send(error.toJson())
-		}
-		else{
-			console.log("FAILED WITH DB FROM user ERROR: "+ error)
-			const apiResponse = APIResponse.ServerError()
-			res.status(apiResponse.code).send(apiResponse.toJson())
-		}
+		console.error("GET point_type/ failed with: " + error.toString())
+        APIUtility.handleError(res, error)
 	}
 })
 
@@ -91,58 +85,40 @@ pt_app.get('/', async (req, res) => {
  */
 pt_app.put('/', async (req, res) => {
 	try{
-		const user = await getUser(req["user"]["user_id"])
+		APIUtility.validateRequest(req)
+		const user = await APIUtility.getUser(req)
 		verifyUserHasCorrectPermission(user,[UserPermissionLevel.PROFESSIONAL_STAFF])
 
-		if(req.body === undefined || req.body.id === undefined || req.body.id === "" || 
-		! ("description" in req.body || "enabled" in req.body || "name" in req.body || "permissionLevel" in req.body || "residentsCanSubmit" in req.body || "value" in req.body)){
-			if(req.body === undefined){
-				console.error("Missing body")
-				throw APIResponse.MissingRequiredParameters()
-			}
-			else if(req.body.id === undefined || req.body.id === ""){
-				console.error("Missing point type id")
-				throw APIResponse.MissingRequiredParameters()
-			}
-			else{
-				console.error("At least one field must have an update")
-				throw APIResponse.MissingRequiredParameters()
-			}
+		if(!("description" in req.body || "enabled" in req.body || "name" in req.body || "permissionLevel" in req.body || "residentsCanSubmit" in req.body || "value" in req.body)){
+			throw APIResponse.MissingRequiredParameters("At least one field must be provided to update: [description, enabled, name, permissionLevel, residentsCanSubmit, value]")
 		}
-		const id = ParameterParser.parseInputForNumber(req.body.id)
+		const id = APIUtility.parseInputForNumber(req.body,'id')
 		const pointType = await getPointTypeById(id)
 		if("description" in req.body){
-			pointType.description = ParameterParser.parseInputForString(req.body.description)
+			pointType.description = APIUtility.parseInputForString(req.body,'description')
 		}
 		if("enabled" in req.body){
-			pointType.enabled = ParameterParser.parseInputForBoolean(req.body.enabled)
+			pointType.enabled = APIUtility.parseInputForBoolean(req.body,'enabled')
 		}
 		if("name" in req.body){
-			pointType.name = ParameterParser.parseInputForString(req.body.name)
+			pointType.name = APIUtility.parseInputForString(req.body,'name')
 		}
 		if("residentsCanSubmit" in req.body){
-			pointType.residentsCanSubmit = ParameterParser.parseInputForBoolean(req.body.residentsCanSubmit)
+			pointType.residentsCanSubmit = APIUtility.parseInputForBoolean(req.body,'residentsCanSubmit')
 		}
 		if("permissionLevel" in req.body){
-			pointType.permissionLevel = ParameterParser.parseInputForNumber(req.body.permissionLevel,1,3)
+			pointType.permissionLevel = APIUtility.parseInputForNumber(req.body,'permissionLevel',1,3)
 		}
 		if("value" in req.body){
-			pointType.value = ParameterParser.parseInputForNumber(req.body.value, 1)
+			pointType.value = APIUtility.parseInputForNumber(req.body,'value', 1)
 		}
-		console.log("Updating point type")
 		await updatePointType(pointType)
 		throw APIResponse.Success()
 
 	}
 	catch(error){
-		if(error instanceof APIResponse){
-			res.status(error.code).send(error.toJson())
-		}
-		else{
-			console.log("FAILED WITH DB FROM user ERROR: "+ error)
-			const apiResponse = APIResponse.ServerError()
-			res.status(apiResponse.code).send(apiResponse.toJson())
-		}
+		console.error("PUT point_type/ failed with: " + error.toString())
+        APIUtility.handleError(res, error)
 	}
 })
 
@@ -164,62 +140,24 @@ pt_app.put('/', async (req, res) => {
  */
 pt_app.post('/', async (req, res) => {
 	try{
-		const user = await getUser(req["user"]["user_id"])
+		APIUtility.validateRequest(req)
+		const user = await APIUtility.getUser(req)
 		verifyUserHasCorrectPermission(user,[UserPermissionLevel.PROFESSIONAL_STAFF])
 
-		if(req.body === undefined || !("description" in req.body && "enabled" in req.body && "name" in req.body && "permissionLevel" in req.body && "residentsCanSubmit" in req.body && "value" in req.body)){
-			if(req.body === undefined){
-				console.error("Missing body")
-			}
-			else if("description" in req.body){
-				console.error("Required Parameter missing: description")
-			}
-			else if("enabled" in req.body){
-				console.error("Required Parameter missing: enabled")
-			}
-			else if("name" in req.body){
-				console.error("Required Parameter missing: name")
-			}
-			else if("permissionLevel" in req.body){
-				console.error("Required Parameter missing: permissionLevel")
-			}
-			else if("residentsCanSubmit" in req.body){
-				console.error("Required Parameter missing: description")
-			}
-			else if("value" in req.body){
-				console.error("Required Parameter missing: value")
-			}
-			else{
-				console.error("Unkown missing parameter")
-				
-			}
-			throw APIResponse.MissingRequiredParameters()
-		}
-		else{
-			const description = ParameterParser.parseInputForString(req.body.description)
-			const enabled = ParameterParser.parseInputForBoolean(req.body.enabled)
-			const name = ParameterParser.parseInputForString(req.body.name)
-			const residentCanSubmit = ParameterParser.parseInputForBoolean(req.body.residentsCanSubmit)
-			const level = ParameterParser.parseInputForNumber(req.body.permissionLevel, 1, 3)
-			const value = ParameterParser.parseInputForNumber(req.body.value, 1)
+		const description = APIUtility.parseInputForString(req.body,'description')
+		const enabled = APIUtility.parseInputForBoolean(req.body,'enabled')
+		const name = APIUtility.parseInputForString(req.body,'name')
+		const residentCanSubmit = APIUtility.parseInputForBoolean(req.body,'residentsCanSubmit')
+		const level = APIUtility.parseInputForNumber(req.body,'permissionLevel', 1, 3)
+		const value = APIUtility.parseInputForNumber(req.body,'value', 1)
 
-
-			
-			const type = await createPointType(description, enabled, name, residentCanSubmit, level, value)
-			res.status(APIResponse.SUCCESS_CODE).send({point_type: type})
-			
-		}
+		const type = await createPointType(description, enabled, name, residentCanSubmit, level, value)
+		res.status(APIResponse.SUCCESS_CODE).json({point_type: type})
 
 	}
 	catch(error){
-		if(error instanceof APIResponse){
-			res.status(error.code).send(error.toJson())
-		}
-		else{
-			console.log("FAILED WITH DB FROM user ERROR: "+ error)
-			const apiResponse = APIResponse.ServerError()
-			res.status(apiResponse.code).send(apiResponse.toJson())
-		}
+		console.error("POST point_type/ failed with: " + error.toString())
+        APIUtility.handleError(res, error)
 	}
 })
 
@@ -233,20 +171,15 @@ pt_app.post('/', async (req, res) => {
 
 pt_app.get('/submittable', async (req, res) => { 
 	try{
-		const user = await getUser(req["user"]["user_id"])
-			const user_pts = await getSubmittablePointTypes(user)
-			res.status(APIResponse.SUCCESS_CODE).send({point_types:user_pts})
+		APIUtility.validateRequest(req, true)
+		const user = await APIUtility.getUser(req)
+		const user_pts = await getSubmittablePointTypes(user)
+		res.status(APIResponse.SUCCESS_CODE).json({point_types:user_pts})
 		
 	}
 	catch(error){
-		if(error instanceof APIResponse){
-			res.status(error.code).send(error.toJson())
-		}
-		else{
-			console.log("FAILED WITH DB FROM user ERROR: "+ error)
-			const apiResponse = APIResponse.ServerError()
-			res.status(apiResponse.code).send(apiResponse.toJson())
-		}
+		console.error("GET point_type/submittable failed with: " + error.toString())
+        APIUtility.handleError(res, error)
 	}
 })
 
@@ -260,18 +193,13 @@ pt_app.get('/submittable', async (req, res) => {
 
 pt_app.get('/linkable', async (req, res) => { 
 	try{
-		const user = await getUser(req["user"]["user_id"])
+		APIUtility.validateRequest(req, true)
+		const user = await APIUtility.getUser(req)
 		const user_pts = await getLinkablePointTypes(user)
-		res.status(APIResponse.SUCCESS_CODE).send({point_types:user_pts})
+		res.status(APIResponse.SUCCESS_CODE).json({point_types:user_pts})
 	}
 	catch(error){
-		if(error instanceof APIResponse){
-			res.status(error.code).send(error.toJson())
-		}
-		else{
-			console.log("FAILED WITH DB FROM user ERROR: "+ error)
-			const apiResponse = APIResponse.ServerError()
-			res.status(apiResponse.code).send(apiResponse.toJson())
-		}
+		console.error("GET point_type/ failed with: " + error.toString())
+        APIUtility.handleError(res, error)
 	}
 })

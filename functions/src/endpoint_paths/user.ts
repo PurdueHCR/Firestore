@@ -7,7 +7,6 @@ import { submitPoint } from '../src/SubmitPoints'
 import { submitLink} from '../src/SubmitLink'
 import { getUser, searchForUsers } from '../src/GetUser'
 import { createUser } from '../src/CreateUser'
-import { isInDateRange } from '../src/IsInDateRange'
 import { getRank } from '../src/GetUserRank'
 import { getPointLogsForUser } from '../src/GetPointLogsForUser'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
@@ -15,8 +14,10 @@ import { getUserLinks } from '../src/GetUserLinks'
 import { getLinkById } from '../src/GetLinkById'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 import { updateUser, removeUserFromHouse } from '../src/UpdateUser'
-import * as ParameterParser from '../src/ParameterParser'
 import { getHouseByName } from '../src/GetHouses'
+import APIUtility from './APIUtility'
+import { getEvent } from '../src/GetEventById'
+import { submitPointsForEvent } from '../src/SubmitPointsForEvent'
 
 if(admin.apps.length === 0){
 	admin.initializeApp(functions.config().firestore)
@@ -46,20 +47,15 @@ users_app.use(firestoreTools.validateFirebaseIdToken)
  */
 users_app.get('/auth-rank',  async (req, res) => {
 	try{
-		const user = await getUser(req["user"]["user_id"])
+		APIUtility.validateRequest(req)
+		const user = await APIUtility.getUser(req)
 		verifyUserHasCorrectPermission(user, [UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP, UserPermissionLevel.PRIVILEGED_RESIDENT])
 		const rank = await getRank(user)
-		res.status(APIResponse.SUCCESS_CODE).send(rank.toJson())
+		res.status(APIResponse.SUCCESS_CODE).json(rank.toJson())
 	}
 	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.log("Unknown Error: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        console.error("GET user/auth-rank failed with: " + error.toString())
+		APIUtility.handleError(res, error)
     }
 })
 
@@ -73,29 +69,18 @@ users_app.get('/auth-rank',  async (req, res) => {
  * @throws 	500 - ServerError
  */
 users_app.post('/create', async (req, res) => {
-	console.log("Entered Create")
 	try{
-		if(req.body === undefined || req.body === null){
-			throw APIResponse.MissingRequiredParameters()
-		}
-		const first = ParameterParser.parseInputForString(req.body.first)
-		const last = ParameterParser.parseInputForString(req.body.last)
-		const code = ParameterParser.parseInputForString(req.body.code)
-		console.log("Has parameters")
+		APIUtility.validateRequest(req)
+		const first = APIUtility.parseInputForString(req.body,'first')
+		const last = APIUtility.parseInputForString(req.body,'last')
+		const code = APIUtility.parseInputForString(req.body,'code')
 		const success = await createUser(req["user"]["user_id"], code, first, last)
-		console.log("Created USER!!")
-		const user = await getUser(req["user"]["user_id"])
-		res.status(success.code).send(user)
+		const user = await APIUtility.getUser(req)
+		res.status(success.code).json(user)
 	}
-	catch(suberror){
-		if (suberror instanceof APIResponse){
-			res.status(suberror.code).send(suberror.toJson())
-		}
-		else {
-			console.log("FAILED WITH DB FROM user ERROR: "+ suberror)
-			const apiResponse = APIResponse.ServerError()
-			res.status(apiResponse.code).send(apiResponse.toJson())
-		}
+	catch(error){
+		console.error("POST user/create failed with: " + error.toString())
+		APIUtility.handleError(res, error)
 	}
 	
 })
@@ -110,18 +95,13 @@ users_app.post('/create', async (req, res) => {
 users_app.get('/', async (req, res) => {
 
 	try{
-		const user = await getUser(req["user"]["user_id"])
-		res.status(APIResponse.SUCCESS_CODE).send(user)
+		APIUtility.validateRequest(req,true)
+		const user = await APIUtility.getUser(req)
+		res.status(APIResponse.SUCCESS_CODE).json(user)
 	}
 	catch(error){
-		if(error instanceof APIResponse){
-			res.status(error.code).send(error.toJson())
-		}
-		else{
-			console.log("FAILED WITH DB FROM user ERROR: "+ error)
-			const apiResponse = APIResponse.ServerError()
-			res.status(apiResponse.code).send(apiResponse.toJson())
-		}
+		console.error("GET user/ failed with: " + error.toString())
+		APIUtility.handleError(res, error)
 	}
 })
 
@@ -133,7 +113,7 @@ users_app.get('/', async (req, res) => {
  * @throws 401 - Unauthorized
  * @throws 403 - Invalid Permission Level
  * @throws 408 - Link Doesnt Exist
- * @throws 409 - This Link Has Already Been Submitted
+ * @throws 409 - Already Claimed this point
  * @throws 412 - House Competition Is Disabled
  * @throws 417 - Unknown Point Type
  * @throws 418 - Point Type Is Disabled
@@ -141,45 +121,77 @@ users_app.get('/', async (req, res) => {
  * @throws 500 - Server Error
  */
 users_app.post('/submitLink', async (req, res) => {
-	if(!req.body || !req.body.link_id ||  req.body.link_id === "" ){
-		if(!req.body){
-			console.error("Missing Body")
+	try{
+		APIUtility.validateRequest(req)
+		const linkId = APIUtility.parseInputForString(req.body,'link_id')
+		const link = await getLinkById(linkId)
+		const user = await APIUtility.getUser(req)
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP, UserPermissionLevel.PRIVILEGED_RESIDENT])
+		const didAddPoints = await submitLink(user,link)
+			
+		if(!didAddPoints){
+			const success = APIResponse.SuccessAwaitsApproval()
+			res.status(201).json(success.toJson())
 		}
-		else if(!req.body.link_id || req.body.link_id === "" ){
-			console.error("Missing link")
+		else {
+			const success = APIResponse.SuccessAndApproved()
+			res.status(202).json(success.toJson())
 		}
-		else{
-			console.error("Unkown missing parameter??? This shouldnt be called")
-		}
-		const error = APIResponse.MissingRequiredParameters()
-		res.status(error.code).send(error.toJson())
 	}
-	else{
-		try{
-			const link = await getLinkById(req.body.link_id)
-			const user = await getUser(req["user"]["user_id"])
-			verifyUserHasCorrectPermission(user, [UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP, UserPermissionLevel.PRIVILEGED_RESIDENT])
-			const didAddPoints = await submitLink(user,link)
-				
-			if(!didAddPoints){
-				const success = APIResponse.SuccessAwaitsApproval()
-				res.status(201).send(success.toJson())
-			}
-			else {
-				const success = APIResponse.SuccessAndApproved()
-				res.status(202).send(success.toJson())
-			}
+	catch(error){
+		console.error("POST user/submitLink failed with: " + error.toString())
+		APIUtility.handleError(res, error)
+	}
+})
+
+/**
+ * Submit a point with an event
+ * @params body.eventId
+ * @returns 201 - Success/ Point Awaits Approval
+ * @returns 202 - Success/ Point Approved
+ * 
+ * @throws 400 - Unknown User
+ * @throws 401 - Unauthorized
+ * @throws 403 - Invalid Permission Level
+ * @throws 409 - Points already claimed
+ * @throws 412 - House Competition Is Disabled
+ * @throws 418 - Point Type Is Disabled
+ * @throws 426 - Invalid Format
+ * @throws 429 - Event Submission Not Open
+ * @throws 432 - Can Not Access Event
+ * @throws 450 - Nonexistant Event
+ * @throws 500 - Server Error
+ */
+users_app.post('/submitEvent', async (req, res) => {
+	try{
+		//Validate the input
+		APIUtility.validateRequest(req)
+		const eventId = APIUtility.parseInputForString(req.body, 'eventId')
+
+		//Retrieve the user and enforce security
+		const user = await APIUtility.getUser(req)
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP, UserPermissionLevel.PRIVILEGED_RESIDENT])
+
+		//Get the event
+		const event = await getEvent(eventId)
+
+		//Perform point submission logic
+		const didAddPoints = await submitPointsForEvent(user,event)
+
+		//Respond with success messages		
+		if(!didAddPoints){
+			const success = APIResponse.SuccessAwaitsApproval()
+			res.status(201).send(success.toJson())
 		}
-		catch(error){
-			if(error instanceof APIResponse){
-				res.status(error.code).send(error.toJson())
-			}
-			else{
-				console.log("FAILED WITH DB FROM user ERROR: "+ error)
-				const apiResponse = APIResponse.ServerError()
-				res.status(apiResponse.code).send(apiResponse.toJson())
-			}
+		else {
+			const success = APIResponse.SuccessAndApproved()
+			res.status(202).send(success.toJson())
 		}
+
+	}
+	catch(error){
+		console.error("POST user/submitEvent failed with: " + error.toString())
+		APIUtility.handleError(res, error)
 	}
 })
 
@@ -195,66 +207,34 @@ users_app.post('/submitLink', async (req, res) => {
  * @throws  500 - Server Error
  */
 users_app.post('/submitPoint', async (req, res) => {
-	if(!req.body || !req.body.point_type_id ||  req.body.point_type_id === "" || !req.body.description ||
-	 req.body.description === "" || !req.body.date_occurred || req.body.date_occurred === ""){
-		if(!req.body){
-			console.error("Missing Body")
-		}
-		else if(!req.body.point_type_id || req.body.point_type_id === "" ){
-			console.error("Missing point_type_id")
-		}
-		else if(!req.body.description || req.body.description === ""){
-			console.error("Missing description")
-		}
-		else if(!req.body.date_occurred || req.body.date_occurred === ""){
-			console.error("Missing date_occurred")
-		}
-		else{
-			console.error("Unkown missing parameter??? This shouldnt be called")
-		}
-		const error = APIResponse.MissingRequiredParameters()
-		res.status(error.code).send(error.toJson())
-	}
-	else{
-		console.log("DESCRIPTION: "+req.body.description)
-		try{
-			const date_occurred = new Date(req.body.date_occurred)
-			if (isInDateRange(date_occurred)) {
-				const log = new UnsubmittedPointLog(date_occurred, req.body.description, parseInt(req.body.point_type_id))
-				const user = await getUser(req["user"]["user_id"])
-				const didAddPoints = await submitPoint(user, log)
-				const success = APIResponse.Success()
-				if(didAddPoints){
-					res.status(201).send(success.toJson())
-				}
-				else {
-					res.status(202).send(success.toJson())
-				}
-				
-			}
-			else {
-				const apiResponse = APIResponse.DateNotInRange()
-				res.status(apiResponse.code).send(apiResponse.toJson())
-			}
-			
-		}
-		catch(error){
-			console.error("FAILED WITH ERROR: "+ error.toString())
-			if(error instanceof TypeError){
-				const apiResponse = APIResponse.InvalidDateFormat()
-				res.status(apiResponse.code).send(apiResponse.toJson())
-			}
-			else if(error instanceof APIResponse){
-				res.status(error.code).send(error.toJson())
-			}
-			else{
-				const apiResponse = APIResponse.ServerError()
-				res.status(apiResponse.code).send(apiResponse.toJson())
-			}
-			
-		}
-	}
 
+	try{
+		const max = new Date()
+		let min_year = max.getFullYear()
+		if(max.getMonth() < 7 ){
+			min_year --;
+		}
+		const min = new Date(min_year, 7)
+
+		APIUtility.validateRequest(req)
+		const pointTypeId = APIUtility.parseInputForNumber(req.body, 'point_type_id', 0)
+		const description = APIUtility.parseInputForString(req.body, 'description')
+		const dateOccurred = APIUtility.parseInputForDate(req.body, 'date_occurred', min, max)
+		const log = new UnsubmittedPointLog(dateOccurred, description, pointTypeId)
+		const user = await APIUtility.getUser(req)
+		const didAddPoints = await submitPoint(user, log, user.permissionLevel === UserPermissionLevel.RHP)
+		const success = APIResponse.Success()
+		//WARNING- This endpoint has the incorrect response codes. if points are added, the standard is 202, but this will resturn 201. In the future, we need to fix this
+		if(didAddPoints){
+			res.status(201).json(success.toJson())
+		}
+		else {
+			res.status(202).json(success.toJson())
+		}
+	} catch (error) {
+		console.error("POST user/submitPoint failed with: " + error.toString())
+		APIUtility.handleError(res, error)
+	}
 })
 
 
@@ -269,33 +249,24 @@ users_app.post('/submitPoint', async (req, res) => {
  */
 users_app.get('/points', async (req, res) => {
 	try {
-		const user = await getUser(req["user"]["user_id"])
-		if(user.permissionLevel === UserPermissionLevel.RESIDENT || user.permissionLevel === UserPermissionLevel.RHP
-			|| user.permissionLevel === UserPermissionLevel.PRIVILEGED_RESIDENT
-			){
-				let pointLogs
-				if(req.query.limit !== undefined){
-					pointLogs = await getPointLogsForUser(user, parseInt(req.query.limit as string))
-				}
-				else{
-					pointLogs = await getPointLogsForUser(user)
-				}
-				res.status(APIResponse.SUCCESS_CODE).send({points:pointLogs})
+		APIUtility.validateRequest(req, true)
+		const user = await APIUtility.getUser(req)
+
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.RESIDENT, UserPermissionLevel.RHP, UserPermissionLevel.PRIVILEGED_RESIDENT])
+		let pointLogs
+		if("limit" in req.query){
+			const limit = APIUtility.parseInputForNumber(req.query, 'limit')
+			pointLogs = await getPointLogsForUser(user, limit)
 		}
-		else {
-			throw APIResponse.InvalidPermissionLevel()
+		else{
+			pointLogs = await getPointLogsForUser(user)
 		}
+		res.status(APIResponse.SUCCESS_CODE).json({points:pointLogs})
 		
 	}
-	catch(error) {
-		if (error instanceof APIResponse) {
-			res.status(error.code).send(error.toJson())
-		}
-		else {
-			console.log("FAILED WITH DB FROM user ERROR: " + error)
-			const apiResponse = APIResponse.ServerError()
-			res.status(apiResponse.code).send(apiResponse.toJson())
-		}
+	catch (error) {
+		console.error("GET user/points failed with: " + error.toString())
+		APIUtility.handleError(res, error)
 	}
 
 })
@@ -308,19 +279,14 @@ users_app.get('/points', async (req, res) => {
  */
 users_app.get('/links', async (req,res) => {
 	try {
-		const user = await getUser(req["user"]["user_id"])
+		APIUtility.validateRequest(req, true)
+		const user = await APIUtility.getUser(req)
 		const links = await getUserLinks(user.id)
 		res.status(APIResponse.SUCCESS_CODE).send({links:links})
 	}
-	catch(error) {
-		if (error instanceof APIResponse) {
-			res.status(error.code).send(error.toJson())
-		}
-		else {
-			console.log("FAILED WITH DB FROM user ERROR: " + error)
-			const apiResponse = APIResponse.ServerError()
-			res.status(apiResponse.code).send(apiResponse.toJson())
-		}
+	catch (error) {
+		console.error("GET user/links failed with: " + error.toString())
+		APIUtility.handleError(res, error)
 	}
 })
 
@@ -338,42 +304,24 @@ users_app.get('/links', async (req,res) => {
  */
 users_app.get('/search', async (req,res) => {
 	try{
-		if(req.query === undefined || req.query === null || !("term" in req.query)){
-			if(req.query === undefined || req.query === null ){
-				console.error("Missing query")
-				throw APIResponse.MissingRequiredParameters()
-			}
-			else if(!("term" in req.query)){
-				console.error("Missing term")
-				throw APIResponse.MissingRequiredParameters()
-			}
-			else{
-				console.error("Unknown missing parameter")
-				throw APIResponse.MissingRequiredParameters()
-			}
-		}
-
-		const user = await getUser(req["user"]["user_id"])
+		APIUtility.validateRequest(req)
+		
+		const user = await APIUtility.getUser(req)
 		verifyUserHasCorrectPermission(user,[UserPermissionLevel.PROFESSIONAL_STAFF])
-		const lastName = ParameterParser.parseInputForString(req.query.term)
+		const lastName = APIUtility.parseInputForString(req.query, 'term')
 		if("previousName" in req.query){
-			const users = await searchForUsers(lastName, ParameterParser.parseInputForString(req.query.previousName))
-			res.status(APIResponse.SUCCESS_CODE).send({users: users})
+			const previousName = APIUtility.parseInputForString(req.query, 'previousName')
+			const users = await searchForUsers(lastName, previousName)
+			res.status(APIResponse.SUCCESS_CODE).json({users: users})
 		}
 		else{
 			const users = await searchForUsers(lastName)
-			res.status(APIResponse.SUCCESS_CODE).send({users: users})
+			res.status(APIResponse.SUCCESS_CODE).json({users: users})
 		}
 	}
-	catch(error) {
-		if (error instanceof APIResponse) {
-			res.status(error.code).send(error.toJson())
-		}
-		else {
-			console.log("FAILED WITH DB FROM user ERROR: " + error)
-			const apiResponse = APIResponse.ServerError()
-			res.status(apiResponse.code).send(apiResponse.toJson())
-		}
+	catch (error) {
+		console.error("GET user/search failed with: " + error.toString())
+		APIUtility.handleError(res, error)
 	}
 })
 
@@ -398,20 +346,17 @@ users_app.get('/search', async (req,res) => {
  */
 users_app.put('/', async (req,res) => {
 	try{
-		if(req.body === undefined || req.body === null ){
-			console.error("Missing body")
-			throw APIResponse.MissingRequiredParameters()
-		}
+		APIUtility.validateRequest(req)
 
 		if(!("id" in req.body)){
 			//ID not in body means only first and last name can be updated
 			if(("firstName" in req.body || "lastName" in req.body)){
-				const user = await getUser(req["user"]["user_id"])
+				const user = await APIUtility.getUser(req)
 				if("firstName" in req.body){
-					user.firstName = ParameterParser.parseInputForString(req.body.firstName)
+					user.firstName = APIUtility.parseInputForString(req.body,'firstName')
 				}
 				if("lastName" in req.body){
-					user.lastName = ParameterParser.parseInputForString(req.body.lastName)
+					user.lastName = APIUtility.parseInputForString(req.body,'lastName')
 				}
 				await updateUser(user)
 				throw APIResponse.Success()
@@ -421,24 +366,24 @@ users_app.put('/', async (req,res) => {
 			}
 		}
 		else{
-			const user = await getUser(req["user"]["user_id"])
+			const user = await APIUtility.getUser(req)
 			verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF, UserPermissionLevel.RHP])
 			if(user.permissionLevel === UserPermissionLevel.RHP){
 				if(("firstName" in req.body || "lastName" in req.body || "house" in req.body || "floorId" in req.body)){
 					const modifiedUser = await getUser(req.body.id)
 					if("firstName" in req.body){
-						modifiedUser.firstName = ParameterParser.parseInputForString(req.body.firstName)
+						modifiedUser.firstName = APIUtility.parseInputForString(req.body,'firstName')
 					}
 					if("lastName" in req.body){
-						modifiedUser.lastName = ParameterParser.parseInputForString(req.body.lastName)
+						modifiedUser.lastName = APIUtility.parseInputForString(req.body,'lastName')
 					}
 					if("house" in req.body ){
-						if(req.body.house !== modifiedUser.house){
+						const houseId = APIUtility.parseInputForString(req.body, 'house')
+						if(houseId !== modifiedUser.house){
 							if("floorId" in req.body){
 								//TODO remove the user from the current house
-								const houseId = ParameterParser.parseInputForString(req.body.house)
 								const house = await getHouseByName(houseId)
-								const floorId = ParameterParser.parseInputForString(req.body.floorId)
+								const floorId = APIUtility.parseInputForString(req.body, 'floorId')
 								if( house.floorIds.indexOf(floorId) === -1){
 									throw APIResponse.InvalidFloorId()
 								}
@@ -459,7 +404,7 @@ users_app.put('/', async (req,res) => {
 					else if("floorId" in req.body){
 						//TODO remove the user from the current house
 						const house = await getHouseByName(modifiedUser.house)
-						const floorId = ParameterParser.parseInputForString(req.body.floorId)
+						const floorId = APIUtility.parseInputForString(req.body, 'floorId')
 						if( house.floorIds.indexOf(floorId) === -1){
 							throw APIResponse.InvalidFloorId()
 						}
@@ -478,25 +423,25 @@ users_app.put('/', async (req,res) => {
 				if(("firstName" in req.body || "lastName" in req.body || "house" in req.body || "floorId" in req.body || "permissionLevel" in req.body || "enabled" in req.body)){
 					const modifiedUser = await getUser(req.body.id)
 					if("firstName" in req.body){
-						modifiedUser.firstName = ParameterParser.parseInputForString(req.body.firstName)
+						modifiedUser.firstName = APIUtility.parseInputForString(req.body,'firstName')
 					}
 					if("lastName" in req.body){
-						modifiedUser.lastName = ParameterParser.parseInputForString(req.body.lastName)
+						modifiedUser.lastName = APIUtility.parseInputForString(req.body,'lastName')
 					}
 					if("permissionLevel" in req.body){
-						modifiedUser.permissionLevel = ParameterParser.parseInputForNumber(req.body.permissionLevel, 0,5)
+						modifiedUser.permissionLevel = APIUtility.parseInputForNumber(req.body,'permissionLevel',0,5)
 					}
 					if("enabled" in req.body){
-						modifiedUser.enabled = ParameterParser.parseInputForBoolean(req.body.enabled)
+						modifiedUser.enabled = APIUtility.parseInputForBoolean(req.body, 'enabled')
 					}
 
 					if("house" in req.body ){
-						if(req.body.house !== modifiedUser.house){
+						const houseId = APIUtility.parseInputForString(req.body, 'house')
+						if(houseId !== modifiedUser.house){
 							if("floorId" in req.body){
 								//TODO remove the user from the current house
-								const houseId = ParameterParser.parseInputForString(req.body.house)
 								const house = await getHouseByName(houseId)
-								const floorId = ParameterParser.parseInputForString(req.body.floorId)
+								const floorId = APIUtility.parseInputForString(req.body, 'floorId')
 								if( house.floorIds.indexOf(floorId) === -1){
 									throw APIResponse.InvalidFloorId()
 								}
@@ -517,7 +462,7 @@ users_app.put('/', async (req,res) => {
 					else if("floorId" in req.body){
 						//TODO remove the user from the current house
 						const house = await getHouseByName(modifiedUser.house)
-						const floorId = ParameterParser.parseInputForString(req.body.floorId)
+						const floorId = APIUtility.parseInputForString(req.body, 'floorId')
 						if( house.floorIds.indexOf(floorId) === -1){
 							throw APIResponse.InvalidFloorId()
 						}
@@ -535,15 +480,9 @@ users_app.put('/', async (req,res) => {
 		}
 		
 	}
-	catch(error) {
-		if (error instanceof APIResponse) {
-			res.status(error.code).send(error.toJson())
-		}
-		else {
-			console.log("FAILED WITH DB FROM user ERROR: " + error)
-			const apiResponse = APIResponse.ServerError()
-			res.status(apiResponse.code).send(apiResponse.toJson())
-		}
+	catch (error) {
+		console.error("PUT user/ failed with: " + error.toString())
+		APIUtility.handleError(res, error)
 	}
 })
 

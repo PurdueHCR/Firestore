@@ -19,7 +19,7 @@ import { createSaveSemesterPointsEmail } from '../email_functions/SaveSemesterPo
 import { saveAndResetSemester } from '../src/SaveAndResetSemester'
 import { createResetHouseCompetitionEmail } from '../email_functions/ResetHouseCompetitionEmail'
 import { resetHouseCompetition } from '../src/ResetHouseCompetition'
-import * as ParameterParser from '../src/ParameterParser'
+import APIUtility from './APIUtility'
 
 //Make sure that the app is only initialized one time 
 if(admin.apps.length === 0){
@@ -56,8 +56,8 @@ admin_app.get('/json_backup', async (req, res) => {
 
     const houseCompetition = new HouseCompetition()
     try{
-
-        const user = await getUser(req["user"]["user_id"])
+		APIUtility.validateRequest(req)
+        const user = await APIUtility.getUser(req)
         verifyUserHasCorrectPermission(user, [UserPermissionLevel.PROFESSIONAL_STAFF])
 
         houseCompetition.houses = HouseWithPointLog.fromQuerySnapshot(await db.collection(HouseCompetition.HOUSE_KEY).get())
@@ -90,14 +90,7 @@ admin_app.get('/json_backup', async (req, res) => {
         throw APIResponse.Success()
     }
     catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Unknown Error on endSemester: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        APIUtility.handleError(res,error)
 	}
     
     
@@ -113,7 +106,8 @@ admin_app.get('/json_backup', async (req, res) => {
  */
 admin_app.post('/endSemester', async (req, res) => {
 	try{
-		const user = await getUser(req["user"]["user_id"])
+		APIUtility.validateRequest(req)
+        const user = await APIUtility.getUser(req)
 		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
 
 			const systemPreferences = await getSystemPreferences()
@@ -146,14 +140,7 @@ admin_app.post('/endSemester', async (req, res) => {
 		}
 	}
 	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Unknown Error on endSemester: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        APIUtility.handleError(res,error)
 	}
 })
 
@@ -163,10 +150,11 @@ admin_app.post('/endSemester', async (req, res) => {
 admin_app.get('/confirmEndSemester', async (req, res) => {
 
 	try{
+		APIUtility.validateRequest(req)
 		if(req.query.code === undefined || typeof req.query.code !== 'string' || req.query.code === ""){
 			throw APIResponse.MissingRequiredParameters()
 		}
-		const code = ParameterParser.parseInputForString(req.query.code)
+		const code = APIUtility.parseInputForString(req.query,'code')
 		verifyOneTimeCode(code)
 		const systemPreferences = await getSystemPreferences()
 		if(systemPreferences.isCompetitionEnabled){
@@ -178,14 +166,7 @@ admin_app.get('/confirmEndSemester', async (req, res) => {
 		throw APIResponse.Success()
 	}
 	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Unknown Error: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        APIUtility.handleError(res,error)
 	}
 
 	
@@ -201,7 +182,8 @@ admin_app.get('/confirmEndSemester', async (req, res) => {
  */
 admin_app.post('/resetCompetition', async (req, res) => {
 	try{
-		const user = await getUser(req["user"]["user_id"])
+		APIUtility.validateRequest(req)
+		const user = await APIUtility.getUser(req)
 		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
 
 			const systemPreferences = await getSystemPreferences()
@@ -233,14 +215,7 @@ admin_app.post('/resetCompetition', async (req, res) => {
 		}
 	}
 	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Unknown Error on endSemester: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        APIUtility.handleError(res, error)
 	}
 })
 
@@ -249,15 +224,11 @@ admin_app.post('/resetCompetition', async (req, res) => {
  */
 admin_app.get('/confirmResetCompetition', async (req,res) => {
 	try{
-		if(req.query.code === undefined || typeof req.query.code !== 'string' || req.query.code === ""){
-			throw APIResponse.MissingRequiredParameters()
-		}
-		else if(req.query.user === undefined || typeof req.query.user !== 'string' || req.query.user === ""){
-			throw APIResponse.MissingRequiredParameters()
-		}
-		const user = await getUser(req.query.user)
+		APIUtility.validateRequest(req)
+		const userId = APIUtility.parseInputForString(req.query, 'user')
+		const user = await getUser(userId)
 		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
-			const code = ParameterParser.parseInputForString(req.query.code)
+			const code = APIUtility.parseInputForString(req.query, 'code')
 			verifyOneTimeCode(code)
 			const systemPreferences = await getSystemPreferences()
 			if(systemPreferences.isCompetitionEnabled){
@@ -274,45 +245,10 @@ admin_app.get('/confirmResetCompetition', async (req,res) => {
 		
 	}
 	catch (error){
-        if( error instanceof APIResponse){
-            res.status(error.code).send(error.toJson())
-        }
-        else {
-            console.error("Unknown Error: "+error.toString())
-            const apiResponse = APIResponse.ServerError()
-            res.status(apiResponse.code).send(apiResponse.toJson())
-        }
+        APIUtility.handleError(res, error)
 	}
 })
 
-// admin_app.post('/testData', async (req, res) => {
-// 	try{
-// 		const users: any[] = req.body.users
-// 		for(const user of users){
-// 			await createUser(user.id, user.code, user.first, user.last)
-// 		}
-// 		const points: any[] = req.body.points
-// 		for(const point of points){
-// 			const user = await getUser(point.user_id)
-// 			const log = new UnsubmittedPointLog(new Date(Date.now()), point.description, point.pointTypeId)
-// 			await submitPoint(user, log)
-// 			if(point.approver_id !== undefined){
-// 				await updatePointLogStatus(point.approved, point.approver_id, log.id, "Not enough details")
-// 			}
-// 		}
-// 		res.status(200).send("Success")
-// 	}
-// 	catch (error){
-//         if( error instanceof APIResponse){
-//             res.status(error.code).send(error.toJson())
-//         }
-//         else {
-//             console.error("Unknown Error on endSemester: "+error.toString())
-//             const apiResponse = APIResponse.ServerError()
-//             res.status(apiResponse.code).send(apiResponse.toJson())
-//         }
-// 	}
-// })
 
 
 function createMailTransporter(): any {

@@ -240,6 +240,7 @@ export declare type SystemPreferenceOptions = {
     is_house_enabled?: boolean
     suggested_point_ids?: string
     houseIds?: string[]
+    floorIds?: string[]
 };
 
 export const SYSTEM_PREFERENCES_DEFAULTS:SystemPreferenceOptions = {
@@ -251,7 +252,8 @@ export const SYSTEM_PREFERENCES_DEFAULTS:SystemPreferenceOptions = {
     is_competition_visible: true,
     is_house_enabled: true,
     suggested_point_ids: "1,2,3,4",
-    houseIds: ["Copper","Palladium","Platinum","Silver","Titanium"]
+    houseIds: ["Copper","Palladium","Platinum","Silver","Titanium"],
+    floorIds: ["2N", "2S", "3N", "3S", "4N", "4S", "5N", "5S", "6N", "6S"]
 }
 
 ///----------------------------------------------------------------
@@ -285,25 +287,39 @@ export const USER_DEFAULTS:UserOptions = {
 export declare type EventOptions = {
     name?: string,
     details?: string,
-    date?: Date,
+    startDate?: Date,
+    endDate?: Date,
     location?: string,
     points?: number,
-    point_type_id?: number,
-    point_type_name?: string,
-    point_type_description?: string,
-    house?: string
+    pointTypeId?: number,
+    pointTypeName?: string,
+    pointTypeDescription?: string,
+    floorIds?: string[],
+    floorColors?:string[],
+    creatorId?:string,
+    id?:string,
+    host?:string,
+    isPublicEvent?:boolean,
+    claimedCount?:number
 }
 
 export const EVENT_DEFAULTS:EventOptions = {
     name: "TEST_NAME",
     details: "TEST_DETAILS",
-    date: new Date(),
+    startDate: new Date('2100-02-18T19:00:00+05:00'),
+    endDate: new Date('2100-02-18T22:00:00+05:00'),
     location: "TEST_LOCATION",
     points: 1,
-    point_type_id: 1,
-    point_type_name: "TEST_TYPE_NAME",
-    point_type_description: "TEST_TYPE_DESCRIPTION",
-    house: "All Houses"
+    pointTypeId:1,
+    pointTypeName:'Point Type Name',
+    pointTypeDescription:'Description',
+    floorIds:['4N'],
+    floorColors:['COLOr'],
+    creatorId:'asdfasdfa',
+    id:'asdfasdfsad',
+    host:'HOST',
+    isPublicEvent:false,
+    claimedCount: 0
 }
 ///----------------------------------------------------------------
 
