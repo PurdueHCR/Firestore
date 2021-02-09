@@ -21,8 +21,9 @@ import { getSystemPreferences } from './GetSystemPreferences'
  * @param host Public host name for the event
  * @param isPublicEvent Boolean is the event public
  * @param isAllFloors Are all floors invited?
+ * @param virtualLink Link to a virtual meeting
  */
-export async function createEvent(user:User, name: string, details: string, startDate: Date, endDate: Date, location: string, pointType: PointType, floorIds: string[], host: string, isPublicEvent:boolean, isAllFloors:boolean) : Promise<Event>{
+export async function createEvent(user:User, name: string, details: string, startDate: Date, endDate: Date, location: string, pointType: PointType, floorIds: string[], host: string, isPublicEvent:boolean, isAllFloors:boolean, virtualLink:string) : Promise<Event>{
     const db = admin.firestore()
     if (!pointType.canUserGenerateLinks(user.permissionLevel)) {
         throw APIResponse.InsufficientPointTypePermissionForLink()
@@ -30,7 +31,7 @@ export async function createEvent(user:User, name: string, details: string, star
     if (!pointType.enabled) {
         throw APIResponse.PointTypeDisabled()
     }
-    const event = new Event(name, details, startDate, endDate, location, pointType.value, pointType.id, pointType.name, pointType.description, [], user.id, '', host, [], isPublicEvent, 0)
+    const event = new Event(name, details, startDate, endDate, location, pointType.value, pointType.id, pointType.name, pointType.description, [], user.id, '', host, [], isPublicEvent, 0, virtualLink)
 
     if(isPublicEvent){
         event.isPublicEvent = true

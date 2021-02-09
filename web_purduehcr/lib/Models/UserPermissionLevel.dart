@@ -62,7 +62,7 @@ class UserPermissionSet {
     ].toSet());
   }
 
-  static getAll() {
+  static UserPermissionSet getAll() {
     return UserPermissionSet([
       UserPermissionLevel.RESIDENT,
       UserPermissionLevel.RHP,
@@ -73,7 +73,7 @@ class UserPermissionSet {
     ].toSet());
   }
 
-  static getCompetitionParticipants() {
+  static UserPermissionSet getCompetitionParticipants() {
     return UserPermissionSet([
       UserPermissionLevel.RESIDENT,
       UserPermissionLevel.RHP,
@@ -81,7 +81,7 @@ class UserPermissionSet {
     ].toSet());
   }
 
-  static getResidentiallifeStaff() {
+  static UserPermissionSet getResidentiallifeStaff() {
     return UserPermissionSet([
       UserPermissionLevel.RHP,
       UserPermissionLevel.PROFESSIONAL_STAFF

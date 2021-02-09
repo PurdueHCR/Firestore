@@ -70,6 +70,7 @@ events_app.post('/', async (req, res) => {
         const minDate = new Date()
         minDate.setHours(0,0,0,0)
         
+        console.log(JSON.stringify(req.body))
 
         //Check for fields
         const name = APIUtility.parseInputForString(req.body, 'name')
@@ -79,11 +80,12 @@ events_app.post('/', async (req, res) => {
         const location = APIUtility.parseInputForString(req.body, 'location')
         const pointTypeId = APIUtility.parseInputForNumber(req.body, 'pointTypeId')
         const host = APIUtility.parseInputForString(req.body, 'host')
+        const virtualLink = APIUtility.parseInputForString(req.body, 'virtualLink', false)
         const isPublicEvent = APIUtility.parseInputForBoolean(req.body, 'isPublicEvent')
         const isAllFloors = APIUtility.parseInputForBoolean(req.body, 'isAllFloors')
         const floorIds = isAllFloors?(await getSystemPreferences()).floorIds : APIUtility.parseInputForArray(req.body, 'floorIds')
         const pointType = await getPointTypeById(pointTypeId)
-        const event = await createEvent(user, name, details, startDate, endDate, location, pointType, floorIds, host, isPublicEvent, isAllFloors)
+        const event = await createEvent(user, name, details, startDate, endDate, location, pointType, floorIds, host, isPublicEvent, isAllFloors, virtualLink)
         res.status(APIResponse.SUCCESS_CODE).json(event)
 
     } catch (error) {
@@ -149,6 +151,10 @@ events_app.put('/', async(req, res) => {
 
         if('host' in req.body){
             event.host = APIUtility.parseInputForString(req.body, 'host')
+        }
+
+        if('virtualLink' in req.body){
+            event.virtualLink = APIUtility.parseInputForString(req.body, 'virtualLink', false)
         }
         
         if('isPublicEvent' in req.body){

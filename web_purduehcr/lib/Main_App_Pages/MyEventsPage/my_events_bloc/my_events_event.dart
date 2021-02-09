@@ -11,3 +11,25 @@ class MyEventsInitialize extends MyEventsEvent {
   List<Object> get props => [];
 }
 
+class CreateEvent extends MyEventsEvent {
+  final String name;
+  final String details;
+  final DateTime startDate;
+  final DateTime endDate;
+  final String location;
+  final int pointTypeId;
+  final List<String> floorIds;
+  final bool isPublicEvent;
+  final bool isAllFloors;
+  final String host;
+  final String virtualLink;
+  const CreateEvent({this.name, this.details, this.startDate, this.endDate, this.location, this.pointTypeId, this.floorIds, this.isPublicEvent, this.isAllFloors, this.host, this.virtualLink});
+
+  @override
+  List<Object> get props => [];
+}
+class EventHandledMessage extends MyEventsEvent {
+  const EventHandledMessage();
+  @override
+  List<Object> get props => [UniqueKey()];
+}

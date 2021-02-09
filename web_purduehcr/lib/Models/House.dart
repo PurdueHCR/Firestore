@@ -16,6 +16,7 @@ class House{
   static const YEAR_RANK = "yearRank";
   static const SEMESTER_RANK = "semesterRank";
   static const SUBMISSIONS = "submissions";
+  static const FLOOR_IDS = "floorIds";
 
 
   String name;
@@ -28,11 +29,12 @@ class House{
   List<UserScore> overallScores;
   List<UserScore> semesterScores;
   List<HousePointTypeCount> submissions;
+  List<String> floorIds;
 
   House({@required this.name, @required this.pointsPerResident,
     @required this.color, @required this.numberOfResidents,
     @required this.totalPoints, @required this.downloadURL, @required this.description,
-    this.overallScores, this.semesterScores, this.submissions});
+    this.overallScores, this.semesterScores, this.submissions, this.floorIds});
 
 
   factory House.fromJson(Map<String, dynamic> json){
@@ -63,6 +65,12 @@ class House{
         semesterScores.add(UserScore.fromJson(element));
       });
     }
+    print('CRY: '+json.keys.toString());
+    Set<String> floorIds = Set.from(json[FLOOR_IDS]);
+    List<String> ids = new List();
+    floorIds.forEach((element) {
+      ids.add(element);
+    });
 
     return House(
       name: json[ID_KEY],
@@ -74,7 +82,8 @@ class House{
       description: json[DESCRIPTION],
       overallScores: yearScores,
       semesterScores: semesterScores,
-      submissions: submissions
+      submissions: submissions,
+      floorIds: ids
     );
   }
 

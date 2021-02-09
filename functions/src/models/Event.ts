@@ -5,6 +5,7 @@ export class Event {
     startDate: Date
     endDate: Date
     location: string
+    virtualLink: string
     points: number
     pointTypeId: string
     pointTypeName: string
@@ -20,7 +21,7 @@ export class Event {
     constructor(name: string, details: string, startDate: Date, endDate: Date, location: string, 
                 points: number, pointTypeId: string, pointTypeName:string,
                 pointTypeDescription: string, floorIds: string[], creatorId: string, id: string, host: string,
-                floorColors: string[], isPublicEvent:boolean, claimedCount:number) {
+                floorColors: string[], isPublicEvent:boolean, claimedCount:number, virtualLink: string) {
             this.name = name
             this.details = details
             this.startDate = startDate
@@ -37,6 +38,7 @@ export class Event {
             this.floorColors = floorColors
             this.isPublicEvent = isPublicEvent
             this.claimedCount = claimedCount
+            this.virtualLink = virtualLink
     }
 
     /**
@@ -90,10 +92,11 @@ export class Event {
         const floorColors: string[] = documentData.floorColors
         const isPublicEvent: boolean = documentData.isPublicEvent
         const claimedCount: number = documentData.claimedCount
+        const virtualLink: string = documentData.virtualLink
 
         return new Event(name, details, startDate, endDate, location,
                         points, pointTypeId, pointTypeName,
-                        pointTypeDescription, floorIds, creatorId, id, host, floorColors, isPublicEvent, claimedCount)
+                        pointTypeDescription, floorIds, creatorId, id, host, floorColors, isPublicEvent, claimedCount, virtualLink)
     }
 
     /**

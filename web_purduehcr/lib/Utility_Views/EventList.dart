@@ -26,7 +26,8 @@ class _EventListState extends State<EventList>{
   @override
   void initState() {
     super.initState();
-    visibleEvents = widget.events;
+
+    visibleEvents = widget.events != null ? widget.events : [];
   }
   @override
   Widget build(BuildContext context) {

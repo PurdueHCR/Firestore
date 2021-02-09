@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/Configuration/Config.dart';
 import 'package:purduehcr_web/Configuration/ConfigWrapper.dart';
+import 'package:purduehcr_web/Main_App_Pages/MyEventsPage/EventCreationForm.dart';
 import 'package:purduehcr_web/Main_App_Pages/MyEventsPage/my_events_bloc/my_events.dart';
 import 'package:purduehcr_web/Models/Event.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
@@ -57,11 +58,12 @@ class _MyEventsPageState
           Flexible(
               child: SingleChildScrollView(
                 child: BlocProvider(
-                  builder: (BuildContext context) => _myEventsBloc,
-                  child: EditEventForm(
-                    key: ObjectKey(_selectedEvent),
-                    reward: _selectedEvent,
-                  ),
+                    builder: (BuildContext context) => _myEventsBloc,
+                    child: Text('Uncomment edit event form')
+                  // EditEventForm(
+                  //   key: ObjectKey(_selectedEvent),
+                  //   reward: _selectedEvent,
+                  // ),
                 ),
               )
           )
@@ -69,7 +71,6 @@ class _MyEventsPageState
       );
     }
   }
-
   @override
   Widget buildSmallDesktopBody({BuildContext context, MyEventsState state}) {
     return _buildSmallBody(context, state);
@@ -98,10 +99,11 @@ class _MyEventsPageState
         return SingleChildScrollView(
           child: BlocProvider(
             builder: (BuildContext context) => _myEventsBloc,
-            child: EditEventForm(
-              key: ObjectKey(_selectedEvent),
-              reward: _selectedEvent,
-            ),
+            child: Text('Uncomment edit event form')
+            // EditEventForm(
+            //   key: ObjectKey(_selectedEvent),
+            //   reward: _selectedEvent,
+            // ),
           ),
         );
       }
@@ -129,7 +131,9 @@ class _MyEventsPageState
                   width: getOptimalDialogWidth(context),
                   child: BlocProvider(
                       builder: (BuildContext context) => _myEventsBloc,
-                      child: EventCreationForm()))
+                      child: EventCreationForm()
+                  )
+              )
             ],
           );
         });
@@ -147,28 +151,28 @@ class _MyEventsPageState
 
   @override
   UserPermissionSet getAcceptedPermissionLevels() {
-    return UserPermissionSet([UserPermissionLevel.PROFESSIONAL_STAFF].toSet());
+    return UserPermissionSet.getActivityPlanners();
   }
 
   _handleSnackChatState(BuildContext context, MyEventsState state) {
-    if (state is CreateEventSuccess) {
-      FunctionUtilities.showSnackBar(context, Colors.green, 'The event has been created!', _myEventsBloc, EventHandleMessage(), popContext: true);
+    if (state is EventCreationSuccess) {
+      FunctionUtilities.showSnackBar(context, Colors.green, 'The event has been created!', _myEventsBloc, EventHandledMessage(), popContext: true);
     }
-    else if (state is CreateEventError) {
-      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error creating the event. Please try again.', _myEventsBloc, EventHandleMessage());
+    else if (state is MyEventsPageCreateEventError) {
+      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error creating the event. Please try again.', _myEventsBloc, EventHandledMessage(), popContext: true);
     }
-    else if (state is UpdateEventError) {
-      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error updating the event. Please try again.', _myEventsBloc, EventHandleMessage());
-    }
-    else if (state is DeleteEventSuccess) {
-      FunctionUtilities.showSnackBar(context, Colors.green, 'The event was successfully deleted', _myEventsBloc, EventHandleMessage(), popContext: true);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _selectedEvent = null;
-      });
-    }
-    else if (state is DeleteEventError) {
-      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error deleting the event. Please try again.', _myEventsBloc, EventHandleMessage(), popContext: true);
-    }
+    // else if (state is UpdateEventError) {
+    //   FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error updating the event. Please try again.', _myEventsBloc, EventHandleMessage());
+    // }
+    // else if (state is DeleteEventSuccess) {
+    //   FunctionUtilities.showSnackBar(context, Colors.green, 'The event was successfully deleted', _myEventsBloc, EventHandleMessage(), popContext: true);
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     _selectedEvent = null;
+    //   });
+    // }
+    // else if (state is DeleteEventError) {
+    //   FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error deleting the event. Please try again.', _myEventsBloc, EventHandleMessage(), popContext: true);
+    // }
   }
 
   @override
