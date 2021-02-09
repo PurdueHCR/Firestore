@@ -33,6 +33,16 @@ class MyEventsRepository {
   }
 */
 
+  Future<List<Event>> getMyEvents() async {
+    Map<String,dynamic> eventList = await callCloudFunction(config, Method.GET, "event/");
+    Set<Map<String, dynamic>> events = Set.from(eventList["events"]);
+    List<Event> evs = new List();
+    events.forEach((element) {
+      evs.add(Event.fromJson(element));
+    });
+    return evs;
+  }
+
   Future<Event> createEvent(CreateEvent event) async {
     Map<String, dynamic> body = {"name":event.name, "details":event.details, "startDate":event.startDate.toIso8601String(),
       "endDate":event.endDate.toIso8601String(), "location":event.location, "floorIds":event.floorIds, "isPublicEvent":event.isPublicEvent,

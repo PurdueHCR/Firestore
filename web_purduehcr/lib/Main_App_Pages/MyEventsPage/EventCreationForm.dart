@@ -73,7 +73,7 @@ class _EventCreationFormState extends State<EventCreationForm> {
       config = ConfigWrapper.of(context);
       _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
       floorIds = (_authenticationBloc.state as Authenticated).house.floorIds;
-      print(displayIds(this.floorIds));
+      this.floorIds.sort((a,b)=> a.compareTo(b));
     }
     if(_myEventsBloc != null && this.getPointTypes == null){
       this.getPointTypes = _myEventsBloc.getPointTypes();
@@ -346,6 +346,7 @@ class _EventCreationFormState extends State<EventCreationForm> {
                         Visibility(
                           visible: !(this.isPublicEvent || this.isAllFloors),
                           child: FormField(
+                            initialValue: this.floorIds,
                             builder: (FormFieldState<List<String>> state ){
                               return Container(
                                   child: Column(

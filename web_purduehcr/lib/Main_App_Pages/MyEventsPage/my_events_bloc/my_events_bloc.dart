@@ -23,8 +23,9 @@ class MyEventsBloc extends Bloc<MyEventsEvent, MyEventsState>{
   @override
   Stream<MyEventsState> mapEventToState( MyEventsEvent event) async* {
     if(event is MyEventsInitialize){
+      yield MyEventsPageLoading();
       try{
-          yield MyEventsPageLoaded([]);
+          yield MyEventsPageLoaded(await _myEventsRepository.getMyEvents());
       }
       catch (error){
           print("Got error in initializing MyEventsPage: "+error);
