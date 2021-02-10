@@ -8,9 +8,10 @@ import 'LoadingWidget.dart';
 class RewardList extends StatefulWidget{
   final List<Reward> rewards;
   final Function(BuildContext, Reward) onPressed;
+  final Function(BuildContext, Reward) onDelete;
   final bool searchable;
 
-  const RewardList({Key key, @required this.rewards, @required this.onPressed, this.searchable = true}):
+  const RewardList({Key key, @required this.rewards, @required this.onPressed, this.searchable = true, this.onDelete}):
         assert(rewards != null), assert(onPressed != null), super(key: key);
 
   @override
@@ -40,7 +41,17 @@ class _RewardListState extends State<RewardList>{
       mainContent = ListView.builder(
         itemCount: visibleRewards.length,
         itemBuilder: (BuildContext context, int index){
-          return Card(child: RewardListTile(reward: visibleRewards[index], onTap: widget.onPressed));
+          if(this.widget.onDelete != null){
+            return Dismissible(
+                background: Container(color: Colors.red),
+                onDismissed: (_) => this.widget.onDelete(context, visibleRewards[index]),
+                key: ObjectKey(visibleRewards[index]),
+                child: Card(child: RewardListTile(reward: visibleRewards[index], onTap: widget.onPressed))
+            );
+          }
+          else {
+            return Card(child: RewardListTile(reward: visibleRewards[index], onTap: widget.onPressed));
+          }
         },
       );
     }

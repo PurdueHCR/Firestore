@@ -34,14 +34,7 @@ class PointTypeControlBloc extends Bloc<PointTypeControlEvent, PointTypeControlS
     }
     else if(event is UpdatePointType){
       try{
-        await _pointTypeControlRepository.updatePointType(event.pointType,
-          isEnabled: event.isEnabled,
-          residentsCanSubmit: event.residentsCanSubmit,
-          value: event.value,
-          permissionLevel: event.permissionLevel,
-          description: event.description,
-          name: event.name
-        );
+        await _pointTypeControlRepository.updatePointType(event);
       }
       on ApiError catch(apiError){
         if(apiError.errorCode == 200){

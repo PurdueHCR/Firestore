@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:purduehcr_web/Configuration/Config.dart';
 import 'package:purduehcr_web/Models/Event.dart';
 import 'package:purduehcr_web/Models/PointType.dart';
+import 'package:purduehcr_web/Utilities/APIUtility.dart';
 import 'package:purduehcr_web/Utilities/CloudFunctionUtility.dart';
 import 'package:purduehcr_web/Utilities/FirebaseUtility.dart';
 
@@ -49,25 +50,20 @@ class MyEventsRepository {
   Future updateEvent( UpdateEvent updateEvent) async {
     Map<String, dynamic> body = Map();
     body["id"] = updateEvent.event.id;
-    setBodyField(body, Event.NAME, updateEvent.name);
-    setBodyField(body, Event.DETAILS, updateEvent.details);
-    setBodyField(body, Event.START_DATE, updateEvent.startDate == null ? null: updateEvent.startDate.toIso8601String());
-    setBodyField(body, Event.END_DATE, updateEvent.endDate == null ? null: updateEvent.endDate.toIso8601String());
-    setBodyField(body, Event.LOCATION, updateEvent.location);
-    setBodyField(body, Event.POINT_TYPE_ID, updateEvent.pointTypeId);
-    setBodyField(body, Event.FLOOR_IDS, updateEvent.floorIds);
-    setBodyField(body, Event.HOST, updateEvent.host);
-    setBodyField(body, Event.IS_PUBLIC_EVENT, updateEvent.isPublicEvent);
-    setBodyField(body, "isAllFloors", updateEvent.isAllFloors);
-    setBodyField(body, Event.VIRTUAL_LINK, updateEvent.virtualLink);
+    APIUtility.setBodyField(body, Event.NAME, updateEvent.name);
+    APIUtility.setBodyField(body, Event.DETAILS, updateEvent.details);
+    APIUtility.setBodyField(body, Event.START_DATE, updateEvent.startDate == null ? null: updateEvent.startDate.toIso8601String());
+    APIUtility.setBodyField(body, Event.END_DATE, updateEvent.endDate == null ? null: updateEvent.endDate.toIso8601String());
+    APIUtility.setBodyField(body, Event.LOCATION, updateEvent.location);
+    APIUtility.setBodyField(body, Event.POINT_TYPE_ID, updateEvent.pointTypeId);
+    APIUtility.setBodyField(body, Event.FLOOR_IDS, updateEvent.floorIds);
+    APIUtility.setBodyField(body, Event.HOST, updateEvent.host);
+    APIUtility.setBodyField(body, Event.IS_PUBLIC_EVENT, updateEvent.isPublicEvent);
+    APIUtility.setBodyField(body, "isAllFloors", updateEvent.isAllFloors);
+    APIUtility.setBodyField(body, Event.VIRTUAL_LINK, updateEvent.virtualLink);
     Map<String,dynamic> element = await callCloudFunction(config, Method.PUT, "event/", body: body);
 
     return Event.fromJson(element);
   }
 
-  void setBodyField(Map<String, dynamic> body, String key, dynamic value){
-    if(value != null){
-      body[key] = value;
-    }
-  }
 }
