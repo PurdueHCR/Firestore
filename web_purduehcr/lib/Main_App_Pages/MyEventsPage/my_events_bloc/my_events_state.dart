@@ -40,3 +40,27 @@ class EventCreationSuccess extends MyEventsState {
   @override
   List<Object> get props => [UniqueKey()];
 }
+
+class EventUpdateSuccess extends MyEventsState {
+  const EventUpdateSuccess(List<Event> myEvents): super(myEvents:myEvents);
+  @override
+  List<Object> get props => [UniqueKey()];
+}
+
+class EventUpdateError extends MyEventsState {
+  const EventUpdateError(List<Event> myEvents): super(myEvents:myEvents);
+  @override
+  List<Object> get props => [UniqueKey()];
+}
+
+class EventDeleteSuccess extends MyEventsState {
+  const EventDeleteSuccess(List<Event> myEvents): super(myEvents:myEvents);
+  @override
+  List<Object> get props => [UniqueKey()];
+}
+
+class EventDeleteError extends MyEventsState {
+  const EventDeleteError(List<Event> myEvents): super(myEvents:myEvents);
+  @override
+  List<Object> get props => [UniqueKey()];
+}

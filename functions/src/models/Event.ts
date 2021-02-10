@@ -92,7 +92,7 @@ export class Event {
         const floorColors: string[] = documentData.floorColors
         const isPublicEvent: boolean = documentData.isPublicEvent
         const claimedCount: number = documentData.claimedCount
-        const virtualLink: string = documentData.virtualLink
+        const virtualLink: string = documentData.virtualLink ? documentData.virtualLink : ""
 
         return new Event(name, details, startDate, endDate, location,
                         points, pointTypeId, pointTypeName,

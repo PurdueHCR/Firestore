@@ -1,6 +1,8 @@
 import 'dart:core';
 
 import 'package:meta/meta.dart';
+import 'package:purduehcr_web/Models/PointType.dart';
+import 'package:purduehcr_web/Models/PointTypePermissionLevel.dart';
 
 class Event {
 
@@ -20,6 +22,7 @@ class Event {
   static const String FLOOR_COLORS = "floorColors";
   static const String IS_PUBLIC_EVENT = "isPublicEvent";
   static const String CLAIMED_COUNT = "claimedCount";
+  static const String VIRTUAL_LINK = "virtualLink";
 
   String name;
   String details;
@@ -37,18 +40,20 @@ class Event {
   List<String> floorColors;
   bool isPublicEvent;
   int claimedCount;
+  String virtualLink;
   Event({@required this.name, @required this.details, @required this.startDate,
     @required this.endDate, @required this.location, @required this.points, @required this.pointTypeId, @required this.pointTypeName,
     @required this.pointTypeDescription, @required this.floorIds, @required this.id,
-    @required this.creatorId, @required this.host, @required this.floorColors, @required this.isPublicEvent, @required this.claimedCount
+    @required this.creatorId, @required this.host, @required this.floorColors, @required this.isPublicEvent, @required this.claimedCount, @required this.virtualLink
   });
 
   factory Event.fromJson(Map<String, dynamic> json){
+    print('EVENT: '+json.toString());
     return Event(
         name: json[NAME],
         details: json[DETAILS],
-        startDate: json[START_DATE],
-        endDate: json[END_DATE],
+        startDate: DateTime.parse(json[START_DATE]),
+        endDate: DateTime.parse(json[END_DATE]),
         location: json[LOCATION],
         points: json[POINTS],
         pointTypeId: json[POINT_TYPE_ID],
@@ -60,8 +65,32 @@ class Event {
         host: json[HOST],
         floorColors: json[FLOOR_COLORS],
         isPublicEvent: json[IS_PUBLIC_EVENT],
-        claimedCount: json[CLAIMED_COUNT]
+        claimedCount: json[CLAIMED_COUNT],
+        virtualLink: json[VIRTUAL_LINK]
     );
   }
 
+  void copyValues(Event event){
+    this.name = event.name;
+    this.details = event.details;
+    this.startDate = event.startDate;
+    this.endDate = event.endDate;
+    this.location = event.location;
+    this.points = event.points;
+    this.pointTypeId = event.pointTypeId;
+    this.pointTypeName = event.pointTypeName;
+    this.pointTypeDescription = event.pointTypeDescription;
+    this.points = event.points;
+    this.floorIds = event.floorIds;
+    this.creatorId = event.creatorId;
+    this.host = event.host;
+    this.floorColors = event.floorColors;
+    this.isPublicEvent = event.isPublicEvent;
+    this.claimedCount = event.claimedCount;
+    this.virtualLink = event.virtualLink;
+  }
+
+  PointType getPointType(){
+    return new PointType(int.parse(pointTypeId), pointTypeDescription, true, pointTypeName, PointTypePermissionLevel.ALL, true, points);
+  }
 }

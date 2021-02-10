@@ -14,24 +14,9 @@ class MyEventsRepository {
 
   MyEventsRepository(this.config);
 
-/*
-  Examples for retrieving data and submitting an update
-
-  Future<List<PointType>> getPointTypes() async {
-    Map<String,dynamic> pointTypeList = await callCloudFunction(config, Method.GET, "point_type/submittable");
-    Set<Map<String, dynamic>> pointTypes = Set.from(pointTypeList["point_types"]);
-    List<PointType> pts = new List();
-    pointTypes.forEach((element) {
-      pts.add(PointType.fromJson(element));
-    });
-    return pts;
+  Future deleteEvent(Event event) async {
+    await callCloudFunction(config, Method.DELETE, "event/"+event.id);
   }
-
-  Future submitPoint(String description, DateTime dateOccurred, int pointTypeId) async {
-    Map<String, dynamic> body = {"description": description, "date_occurred":dateOccurred.toString(), "point_type_id":pointTypeId};
-    await callCloudFunction(config, Method.POST, "user/submitPoint", body: body);
-  }
-*/
 
   Future<List<Event>> getMyEvents() async {
     Map<String,dynamic> eventList = await callCloudFunction(config, Method.GET, "event/");
@@ -59,5 +44,30 @@ class MyEventsRepository {
       pts.add(PointType.fromJson(element));
     });
     return pts;
+  }
+
+  Future updateEvent( UpdateEvent updateEvent) async {
+    Map<String, dynamic> body = Map();
+    body["id"] = updateEvent.event.id;
+    setBodyField(body, Event.NAME, updateEvent.name);
+    setBodyField(body, Event.DETAILS, updateEvent.details);
+    setBodyField(body, Event.START_DATE, updateEvent.startDate == null ? null: updateEvent.startDate.toIso8601String());
+    setBodyField(body, Event.END_DATE, updateEvent.endDate == null ? null: updateEvent.endDate.toIso8601String());
+    setBodyField(body, Event.LOCATION, updateEvent.location);
+    setBodyField(body, Event.POINT_TYPE_ID, updateEvent.pointTypeId);
+    setBodyField(body, Event.FLOOR_IDS, updateEvent.floorIds);
+    setBodyField(body, Event.HOST, updateEvent.host);
+    setBodyField(body, Event.IS_PUBLIC_EVENT, updateEvent.isPublicEvent);
+    setBodyField(body, "isAllFloors", updateEvent.isAllFloors);
+    setBodyField(body, Event.VIRTUAL_LINK, updateEvent.virtualLink);
+    Map<String,dynamic> element = await callCloudFunction(config, Method.PUT, "event/", body: body);
+
+    return Event.fromJson(element);
+  }
+
+  void setBodyField(Map<String, dynamic> body, String key, dynamic value){
+    if(value != null){
+      body[key] = value;
+    }
   }
 }

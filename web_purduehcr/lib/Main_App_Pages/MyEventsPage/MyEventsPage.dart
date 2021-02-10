@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/Configuration/Config.dart';
 import 'package:purduehcr_web/Configuration/ConfigWrapper.dart';
+import 'package:purduehcr_web/Main_App_Pages/MyEventsPage/EditEventForm.dart';
 import 'package:purduehcr_web/Main_App_Pages/MyEventsPage/EventCreationForm.dart';
 import 'package:purduehcr_web/Main_App_Pages/MyEventsPage/my_events_bloc/my_events.dart';
 import 'package:purduehcr_web/Models/Event.dart';
@@ -53,17 +54,19 @@ class _MyEventsPageState
                   _selectedEvent = event;
                 });
               },
+              onDelete: (Event event){
+                _myEventsBloc.add(DeleteEvent(event:event));
+              },
             ),
           ),
           Flexible(
               child: SingleChildScrollView(
                 child: BlocProvider(
                     builder: (BuildContext context) => _myEventsBloc,
-                    child: Text('Uncomment edit event form')
-                  // EditEventForm(
-                  //   key: ObjectKey(_selectedEvent),
-                  //   reward: _selectedEvent,
-                  // ),
+                    child: EditEventForm(
+                      event: _selectedEvent,
+                      key: ObjectKey(_selectedEvent)
+                    )
                 ),
               )
           )
@@ -93,6 +96,9 @@ class _MyEventsPageState
             setState(() {
               _selectedEvent = event;
             });
+          },
+          onDelete: (Event event){
+            _myEventsBloc.add(DeleteEvent(event:event));
           },
         );
       } else {
@@ -161,9 +167,9 @@ class _MyEventsPageState
     else if (state is MyEventsPageCreateEventError) {
       FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error creating the event. Please try again.', _myEventsBloc, EventHandledMessage(), popContext: true);
     }
-    // else if (state is UpdateEventError) {
-    //   FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error updating the event. Please try again.', _myEventsBloc, EventHandleMessage());
-    // }
+    else if (state is EventUpdateError) {
+      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error updating the event. Please try again.', _myEventsBloc, EventHandledMessage());
+    }
     // else if (state is DeleteEventSuccess) {
     //   FunctionUtilities.showSnackBar(context, Colors.green, 'The event was successfully deleted', _myEventsBloc, EventHandleMessage(), popContext: true);
     //   WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -187,6 +187,9 @@ events_app.put('/', async(req, res) => {
                 await setFloors(event,floorIds)
             }
         }
+        if(event.startDate >= event.endDate){
+            throw APIResponse.IncorrectFormat('Start date has to come before the end date')
+        }
         console.log(event)
         await EventFunctions.updateEvent(event)
         res.status(APIResponse.SUCCESS_CODE).json(event)

@@ -8,9 +8,10 @@ import 'LoadingWidget.dart';
 class EventList extends StatefulWidget{
   final List<Event> events;
   final Function(BuildContext, Event) onPressed;
+  final Function(Event) onDelete;
   final bool searchable;
 
-  const EventList({Key key, @required this.events, @required this.onPressed, this.searchable = true}):
+  const EventList({Key key, @required this.events, @required this.onPressed, this.searchable = true, this.onDelete}):
         assert(events != null), assert(onPressed != null), super(key: key);
 
   @override
@@ -41,7 +42,17 @@ class _EventListState extends State<EventList>{
       mainContent = ListView.builder(
         itemCount: visibleEvents.length,
         itemBuilder: (BuildContext context, int index){
-          return Card(child: EventListTile(event: visibleEvents[index], onTap: widget.onPressed));
+          if(this.widget.onDelete != null){
+            return Dismissible(
+                background: Container(color: Colors.red),
+                onDismissed: (_) => this.widget.onDelete(visibleEvents[index]),
+                key: ObjectKey(visibleEvents[index]),
+                child: Card(child: EventListTile(event: visibleEvents[index], onTap: widget.onPressed))
+            );
+          }
+          else {
+            return Card(child: EventListTile(event: visibleEvents[index], onTap: widget.onPressed));
+          }
         },
       );
     }
