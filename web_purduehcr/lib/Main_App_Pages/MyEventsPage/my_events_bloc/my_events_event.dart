@@ -27,7 +27,7 @@ class CreateEvent extends MyEventsEvent {
   const CreateEvent({this.name, this.details, this.startDate, this.endDate, this.location, this.pointTypeId, this.floorIds, this.isPublicEvent, this.isAllFloors, this.host, this.virtualLink});
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [UniqueKey()];
 }
 class EventHandledMessage extends MyEventsEvent {
   const EventHandledMessage();
@@ -51,7 +51,7 @@ class UpdateEvent extends MyEventsEvent {
   const UpdateEvent(this.event, {this.name, this.details, this.startDate, this.endDate, this.location, this.pointTypeId, this.floorIds, this.isPublicEvent, this.isAllFloors, this.host, this.virtualLink});
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [UniqueKey()];
 }
 
 class DeleteEvent extends MyEventsEvent {
@@ -59,5 +59,5 @@ class DeleteEvent extends MyEventsEvent {
   const DeleteEvent({this.event});
 
   @override
-  List<Object> get props => [this.event];
+  List<Object> get props => [UniqueKey()];
 }

@@ -66,8 +66,14 @@ class MyEventsBloc extends Bloc<MyEventsEvent, MyEventsState>{
         yield EventDeleteSuccess(state.myEvents);
       }
       on ApiError catch(apiError){
-        print("Failed. There was an error... "+apiError.message);
-        yield EventDeleteError(state.myEvents);
+        if(apiError.errorCode == 200){
+          state.myEvents.remove(event.event);
+          yield EventDeleteSuccess(state.myEvents);
+        }
+        else{
+          print("Failed. There was an error... "+apiError.message);
+          yield EventDeleteError(state.myEvents);
+        }
       }
       catch(error){
         print("There was an error deleting the event: "+error.toString());

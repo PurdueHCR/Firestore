@@ -2,10 +2,9 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:purduehcr_web/Models/Event.dart';
 
-abstract class MyEventsState extends Equatable{
+abstract class MyEventsState {
   final List<Event> myEvents;
   const MyEventsState({this.myEvents});
-  @override
   List<Object> get props => [this.myEvents];
 }
 
@@ -13,19 +12,19 @@ abstract class MyEventsState extends Equatable{
 class MyEventsPageLoading extends MyEventsState {
   const MyEventsPageLoading();
   @override
-  List<Object> get props => [];
+  List<Object> get props => [UniqueKey()];
 }
 
 class MyEventsPageLoaded extends MyEventsState {
   const MyEventsPageLoaded(List<Event> myEvents): super(myEvents:myEvents);
   @override
-  List<Object> get props => [];
+  List<Object> get props => [UniqueKey()];
 }
 
 class MyEventsPageInitializeError extends MyEventsState {
   const MyEventsPageInitializeError();
   @override
-  List<Object> get props => [];
+  List<Object> get props => [UniqueKey()];
 }
 
 class MyEventsPageCreateEventError extends MyEventsState {

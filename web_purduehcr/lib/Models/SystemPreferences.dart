@@ -34,6 +34,8 @@ class SystemPreference {
     houseList.forEach((element) {
       houses.add(element);
     });
+
+    List<String> floorIds = json[FLOOR_IDS] ? List.from(json[FLOOR_IDS]) : [];
     
     return SystemPreference(
         isCompetitionEnabled: json[IS_COMPETITION_ENABLED],
@@ -44,7 +46,7 @@ class SystemPreference {
         defaultImageURL: json[DEFAULT_IMAGE_URL],
         houseIds: houses,
         showRewards: json[SHOW_REWARDS],
-        floorIds: List.from(json[FLOOR_IDS])
+        floorIds: floorIds
     );
   }
 

@@ -48,7 +48,6 @@ class Event {
   });
 
   factory Event.fromJson(Map<String, dynamic> json){
-    print('EVENT: '+json.toString());
     return Event(
         name: json[NAME],
         details: json[DETAILS],
