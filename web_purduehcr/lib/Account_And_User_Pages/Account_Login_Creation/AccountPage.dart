@@ -53,39 +53,43 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          alignment: Alignment.center,
-          child: BlocBuilder<AccountBloc, AccountState>(
-            bloc: _loginBloc,
-            builder: (BuildContext context, AccountState state) {
-              checkStateForSnackMessage(context, state);
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: SizedBox(
-                      width: 200,
-                      height: 200,
-                      child: Image.asset('assets/main_icon.png'),
-                    ),
+      body: buildAccountFlow(context)
+    );
+  }
+  
+  Widget buildAccountFlow(BuildContext context){
+    return SingleChildScrollView(
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        alignment: Alignment.center,
+        child: BlocBuilder<AccountBloc, AccountState>(
+          bloc: _loginBloc,
+          builder: (BuildContext context, AccountState state) {
+            checkStateForSnackMessage(context, state);
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: Image.asset('assets/main_icon.png'),
                   ),
-                  Center(
-                      child: buildBody(state)
-                  ),
-                ],
-              );
-            },
-          ),
+                ),
+                Center(
+                    child: buildAccountFlowBody(state)
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
 
-  Widget buildBody(AccountState state){
+  Widget buildAccountFlowBody(AccountState state){
     Widget child;
     if(state is AccountError){
       child = BlocProvider(
@@ -164,5 +168,9 @@ class _AccountPageState extends State<AccountPage> {
     super.dispose();
     print("close bloc");
     _loginBloc.close();
+  }
+
+  Authenticated getAuthenticatedState(){
+    return _authenticationBloc.state as Authenticated;
   }
 }

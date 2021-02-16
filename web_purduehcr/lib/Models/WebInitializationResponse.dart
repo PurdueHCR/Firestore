@@ -11,18 +11,30 @@ class WebInitializationResponse {
   User user;
   SystemPreference settings;
   House house;
+  List<House> houses;
 
-  WebInitializationResponse({this.user, this.settings, this.house});
+  WebInitializationResponse({this.user, this.settings, this.house, this.houses});
 
   factory WebInitializationResponse.fromJson(Map<String, dynamic> json){
     House house;
     if(json.containsKey(HOUSE_KEY)){
       house = House.fromJson(json[HOUSE_KEY]);
     }
+
+    List<House> houses = new List();
+    if(json["houses"] != null){
+      Set<Map<String, dynamic>> houseList = Set.from(json["houses"]);
+      houseList.forEach((element) {
+        houses.add(House.fromJson(element));
+      });
+    }
+
+
     return WebInitializationResponse(
       user: User.fromJson(json[USER_KEY]),
       settings: SystemPreference.fromJson(json[SETTINGS_KEY]),
-      house: house
+      house: house,
+      houses: houses
     );
   }
 }
