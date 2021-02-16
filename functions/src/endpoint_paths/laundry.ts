@@ -26,6 +26,12 @@ laundry_app.use(firestoreTools.validateFirebaseIdToken)
 
 export const laundry_main = functions.https.onRequest(laundry_controls_main)
 
+/**
+ * Returns all machines and their statuses
+ * 
+ * @returns Machine[]
+ * @throws  500 - Server Error
+ */
 laundry_app.get("/", async (req, res) => {
 	try {
 		const machines = await getMachines()

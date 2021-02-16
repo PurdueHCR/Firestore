@@ -7,26 +7,30 @@ import * as admin from 'firebase-admin'
 // when decoded successfully, the ID Token content will be added as `req.user`.
 const validateFirebaseIdToken = async (req, res , next) => {
 	
-	if(req.path === '/confirmEndSemester'){
+	if(req.originalUrl.includes('/administration/confirmEndSemester/')){
     	next()
   		return
 	}
 
-	if(req.path === '/confirmResetCompetition'){
+	if(req.originalUrl.includes('/administration/confirmResetCompetition/')){
     	next()
   		return
 	}
 
-	if(req.path === '/preview' && !req.headers.authorization){
+	if(req.originalUrl.includes('house_codes/preview/') && !req.headers.authorization){
 		next()
 		return
 	}
 
-	if(req.path === '/settings' && !req.headers.authorization){
+	if(req.originalUrl.includes('competition/settings/') && !req.headers.authorization){
 		next()
 		return
 	}
 	if(req.path === '/testDataSetup' && !req.headers.authorization){
+		next()
+		return
+	}
+	if(req.originalUrl.includes("/laundry/") && !req.headers.authorization){
 		next()
 		return
 	}
