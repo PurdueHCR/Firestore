@@ -83,6 +83,9 @@ class MyEventsBloc extends Bloc<MyEventsEvent, MyEventsState>{
     else if(event is EventHandledMessage){
       yield MyEventsPageLoaded(state.myEvents);
     }
+    else if(event is DisplayCreateEventState){
+      yield CreateEventState(state.myEvents);
+    }
   }
 
   @override

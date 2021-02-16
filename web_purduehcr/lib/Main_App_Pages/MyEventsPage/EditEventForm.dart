@@ -56,7 +56,7 @@ class _EditEventFormState extends State<EditEventForm> {
     if(_authenticationBloc == null){
       config = ConfigWrapper.of(context);
       _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
-      floorIds = (_authenticationBloc.state as Authenticated).house.floorIds;
+      floorIds = (_authenticationBloc.state as Authenticated).house != null ? (_authenticationBloc.state as Authenticated).house.floorIds : [];
       this.floorIds.sort((a,b)=> a.compareTo(b));
     }
     if(_myEventsBloc != null && this.getPointTypes == null){

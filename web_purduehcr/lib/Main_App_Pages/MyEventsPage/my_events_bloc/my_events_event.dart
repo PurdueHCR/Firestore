@@ -61,3 +61,9 @@ class DeleteEvent extends MyEventsEvent {
   @override
   List<Object> get props => [UniqueKey()];
 }
+
+class DisplayCreateEventState extends MyEventsEvent {
+  const DisplayCreateEventState();
+  @override
+  List<Object> get props => [UniqueKey()];
+}

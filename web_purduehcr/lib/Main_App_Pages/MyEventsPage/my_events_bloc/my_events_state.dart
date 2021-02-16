@@ -63,3 +63,9 @@ class EventDeleteError extends MyEventsState {
   @override
   List<Object> get props => [UniqueKey()];
 }
+
+class CreateEventState extends MyEventsState {
+  const CreateEventState(List<Event> myEvents): super(myEvents:myEvents);
+  @override
+  List<Object> get props => [UniqueKey()];
+}

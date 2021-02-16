@@ -43,7 +43,44 @@ class _MyEventsPageState
     _handleSnackChatState(context, state);
     if (state is MyEventsPageInitializeError) {
       return Center(child: Text("There was an error loading the rewards."));
-    } else {
+    }
+    else if (state is CreateEventState){
+      return Stack(
+        children: [
+          Row(
+            children: [
+              Flexible(
+                child: EventList(
+                  events: state.myEvents,
+                  onPressed: (context, event) {
+                    setState(() {
+                      _selectedEvent = event;
+                    });
+                  },
+                  onDelete: (Event event){
+                    _myEventsBloc.add(DeleteEvent(event:event));
+                  },
+                ),
+              ),
+              Flexible(
+                  child: SingleChildScrollView(
+                    child: BlocProvider(
+                        builder: (BuildContext context) => _myEventsBloc,
+                        child: EditEventForm(
+                            event: _selectedEvent,
+                            key: ObjectKey(_selectedEvent)
+                        )
+                    ),
+                  )
+              )
+            ],
+          ),
+          ModalBarrier(color: Theme.of(context).backgroundColor,),
+          _createEvent(context)
+        ],
+      );
+    }
+    else {
       return Row(
         children: [
           Flexible(
@@ -105,11 +142,10 @@ class _MyEventsPageState
         return SingleChildScrollView(
           child: BlocProvider(
             builder: (BuildContext context) => _myEventsBloc,
-            child: Text('Uncomment edit event form')
-            // EditEventForm(
-            //   key: ObjectKey(_selectedEvent),
-            //   reward: _selectedEvent,
-            // ),
+            child: EditEventForm(
+              key: ObjectKey(_selectedEvent),
+              event: _selectedEvent,
+            ),
           ),
         );
       }
@@ -120,29 +156,25 @@ class _MyEventsPageState
   FloatingActionButton buildFloatingActionButton(BuildContext context) {
     return FloatingActionButton(
       child: Icon(Icons.add),
-      onPressed: () => _createEventButton(context),
+      onPressed: () => _myEventsBloc.add(DisplayCreateEventState()),
     );
   }
 
-  _createEventButton(BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            title: Text("Create New Event"),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10.0))),
-            children: [
-              SizedBox(
-                  width: getOptimalDialogWidth(context),
-                  child: BlocProvider(
-                      builder: (BuildContext context) => _myEventsBloc,
-                      child: EventCreationForm()
-                  )
-              )
-            ],
-          );
-        });
+  _createEvent(BuildContext context) {
+    return SimpleDialog(
+      title: Text("Create New Event"),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10.0))),
+      children: [
+        SizedBox(
+            width: getOptimalDialogWidth(context),
+            child: BlocProvider(
+                builder: (BuildContext context) => _myEventsBloc,
+                child: EventCreationForm()
+            )
+        )
+      ],
+    );
   }
 
   @override
@@ -162,23 +194,24 @@ class _MyEventsPageState
 
   _handleSnackChatState(BuildContext context, MyEventsState state) {
     if (state is EventCreationSuccess) {
-      FunctionUtilities.showSnackBar(context, Colors.green, 'The event has been created!', _myEventsBloc, EventHandledMessage(), popContext: true);
+      FunctionUtilities.showSnackBar(context, Colors.green, 'The event has been created!', _myEventsBloc, EventHandledMessage());
+
     }
     else if (state is MyEventsPageCreateEventError) {
-      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error creating the event. Please try again.', _myEventsBloc, EventHandledMessage(), popContext: true);
+      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error creating the event. Please try again.', _myEventsBloc, EventHandledMessage());
     }
     else if (state is EventUpdateError) {
       FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error updating the event. Please try again.', _myEventsBloc, EventHandledMessage());
     }
-    // else if (state is DeleteEventSuccess) {
-    //   FunctionUtilities.showSnackBar(context, Colors.green, 'The event was successfully deleted', _myEventsBloc, EventHandleMessage(), popContext: true);
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     _selectedEvent = null;
-    //   });
-    // }
-    // else if (state is DeleteEventError) {
-    //   FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error deleting the event. Please try again.', _myEventsBloc, EventHandleMessage(), popContext: true);
-    // }
+    else if (state is EventDeleteSuccess) {
+      FunctionUtilities.showSnackBar(context, Colors.green, 'The event was successfully deleted', _myEventsBloc, EventHandledMessage());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _selectedEvent = null;
+      });
+    }
+    else if (state is EventDeleteError) {
+      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error deleting the event. Please try again.', _myEventsBloc, EventHandledMessage());
+    }
   }
 
   @override
