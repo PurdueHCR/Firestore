@@ -12,7 +12,7 @@ import { User } from '../models/User'
 import { SystemPreference } from '../models/SystemPreference'
 import { House } from '../models/House'
 import { getSystemPreferences } from '../src/GetSystemPreferences'
-import { getHouseByName } from '../src/GetHouses'
+import { getAllHouses, getHouseByName } from '../src/GetHouses'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { getResidentProfile, getRHPProfile, getProfessionalStaffProfile, getExternalAdvisorProfile, getFacultyProfile } from '../src/GetUserProfiles'
 import APIUtility from './APIUtility'
@@ -45,7 +45,8 @@ web_controls_app.use(firestoreTools.validateFirebaseIdToken)
 declare type InitializationData = {
     user?: User,
     settings?: SystemPreference,
-    house?: House
+    house?: House,
+	houses?: House[]
 }
 
 /**
@@ -64,6 +65,7 @@ web_controls_app.get('/initialization',  async (req, res) => {
 
         initializationData.user = await APIUtility.getUser(req)
         initializationData.settings = await getSystemPreferences()
+		initializationData.houses = await getAllHouses()
 
         //If the user belongs to a house, get the house as well
         if(initializationData.user.house !== undefined && initializationData.user.house !== ""){
