@@ -35,6 +35,7 @@ export async function createEvent(user:User, name: string, details: string, star
 
     if(isPublicEvent){
         event.isPublicEvent = true
+        await setAllFloors(event)
     }
     else if(!isAllFloors){
         await setFloors(event, floorIds)
@@ -58,6 +59,7 @@ export async function setAllFloors(event:Event){
 export async function setFloors(event:Event, floorIds: string[]){
     const db = admin.firestore()
     const houses = await getHousesFromFloorIds(db, floorIds)
+    event.floorColors = []
     for(const house of houses){
         event.floorColors.push(house.color)
     }

@@ -12,6 +12,8 @@ import 'package:purduehcr_web/Utility_Views/BasePage.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/Utility_Views/EventList.dart';
 
+import 'dart:html' as html;
+
 class MyEventsPage extends BasePage {
   MyEventsPage({Key key}) : super(key: key);
 
@@ -45,38 +47,32 @@ class _MyEventsPageState
       return Center(child: Text("There was an error loading the rewards."));
     }
     else if (state is CreateEventState){
-      return Stack(
+      return Row(
         children: [
-          Row(
-            children: [
-              Flexible(
-                child: EventList(
-                  events: state.myEvents,
-                  onPressed: (context, event) {
-                    setState(() {
-                      _selectedEvent = event;
-                    });
-                  },
-                  onDelete: (Event event){
-                    _myEventsBloc.add(DeleteEvent(event:event));
-                  },
-                ),
-              ),
-              Flexible(
-                  child: SingleChildScrollView(
-                    child: BlocProvider(
-                        builder: (BuildContext context) => _myEventsBloc,
-                        child: EditEventForm(
-                            event: _selectedEvent,
-                            key: ObjectKey(_selectedEvent)
-                        )
-                    ),
-                  )
-              )
-            ],
+          Flexible(
+            child: EventList(
+              events: state.myEvents,
+              onPressed: (context, event) {
+                setState(() {
+                  _selectedEvent = event;
+                });
+              },
+              onDelete: (Event event){
+                _myEventsBloc.add(DeleteEvent(event:event));
+              },
+            ),
           ),
-          ModalBarrier(color: Theme.of(context).backgroundColor,),
-          _createEvent(context)
+          Flexible(
+              child: SingleChildScrollView(
+                child: BlocProvider(
+                    builder: (BuildContext context) => _myEventsBloc,
+                    child: EditEventForm(
+                        event: _selectedEvent,
+                        key: ObjectKey(_selectedEvent)
+                    )
+                ),
+              )
+          )
         ],
       );
     }
@@ -156,25 +152,30 @@ class _MyEventsPageState
   FloatingActionButton buildFloatingActionButton(BuildContext context) {
     return FloatingActionButton(
       child: Icon(Icons.add),
-      onPressed: () => _myEventsBloc.add(DisplayCreateEventState()),
+      onPressed: () => _createEventButton(context),
     );
   }
 
-  _createEvent(BuildContext context) {
-    return SimpleDialog(
-      title: Text("Create New Event"),
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10.0))),
-      children: [
-        SizedBox(
-            width: getOptimalDialogWidth(context),
-            child: BlocProvider(
-                builder: (BuildContext context) => _myEventsBloc,
-                child: EventCreationForm()
-            )
-        )
-      ],
-    );
+  _createEventButton(BuildContext context) {
+    showDialog(
+      barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            title: Text("Create New Event"),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10.0))),
+            children: [
+              SizedBox(
+                  width: getOptimalDialogWidth(context),
+                  child: BlocProvider(
+                      builder: (BuildContext context) => _myEventsBloc,
+                      child: EventCreationForm()
+                  )
+              )
+            ],
+          );
+        });
   }
 
   @override
@@ -194,11 +195,12 @@ class _MyEventsPageState
 
   _handleSnackChatState(BuildContext context, MyEventsState state) {
     if (state is EventCreationSuccess) {
-      FunctionUtilities.showSnackBar(context, Colors.green, 'The event has been created!', _myEventsBloc, EventHandledMessage());
-
+      FunctionUtilities.showSnackBar(context, Colors.green, 'The event has been created!', _myEventsBloc, EventHandledMessage(), popContext: true);
+      displayRefreshDialog(context, "Your event was created! Please refresh the page.");
     }
     else if (state is MyEventsPageCreateEventError) {
-      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error creating the event. Please try again.', _myEventsBloc, EventHandledMessage());
+      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error creating the event. Please try again.', _myEventsBloc, EventHandledMessage(), popContext: true);
+      displayRefreshDialog(context, "There was a problem creating your event. Please refresh the page.");
     }
     else if (state is EventUpdateError) {
       FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error updating the event. Please try again.', _myEventsBloc, EventHandledMessage());
@@ -234,5 +236,35 @@ class _MyEventsPageState
   void dispose() {
     super.dispose();
     _myEventsBloc.close();
+  }
+
+  displayRefreshDialog(BuildContext context, String message){
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await showDialog(
+          context: context,
+          barrierDismissible: false,
+          child: SimpleDialog(
+            title: Text('Refresh the Page'),
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(message),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: OutlineButton(
+                  child: Text('Ok'),
+                  onPressed: (){
+                    Navigator.of(context).pop();
+                    WidgetsBinding.instance.addPostFrameCallback((_) async {
+                      html.window.location.reload();
+                    });
+                  },
+                ),
+              )
+            ],
+          )
+      );
+    });
   }
 }

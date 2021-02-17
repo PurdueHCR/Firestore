@@ -1,5 +1,5 @@
 // ignore: avoid_web_libraries_in_flutter
-import 'dart:html';
+import 'dart:html' as html;
 
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
@@ -451,22 +451,39 @@ class _EventCreationFormState extends State<EventCreationForm> {
                             ),
                           ],
                         ),
-                        Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 16.0),
-                            child: RaisedButton(
-                                onPressed: () {
-                                  final form = _formKey.currentState;
-                                  if (form.validate()) {
-
-                                    _myEventsBloc.add(new CreateEvent(name: nameController.text, details: descriptionController.text, startDate: startDateTime, endDate: endDateTime, location: locationController.text, pointTypeId: pointType.id, floorIds: floorIds, isPublicEvent: isPublicEvent, isAllFloors: isAllFloors, host: hostController.text, virtualLink: virtualLinkController.text));
-                                    setState(() {
-                                      isLoading = true;
-                                    });
-                                  }
-                                },
-                                child: Text('Create')
-                            )
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 16.0, horizontal: 16.0),
+                                child: RaisedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      WidgetsBinding.instance.addPostFrameCallback((_) async {
+                                        html.window.location.reload();
+                                      });
+                                    },
+                                    child: Text('Close')
+                                )
+                            ),
+                            Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 16.0, horizontal: 16.0),
+                                child: RaisedButton(
+                                    onPressed: () {
+                                      final form = _formKey.currentState;
+                                      if (form.validate()) {
+                                        _myEventsBloc.add(new CreateEvent(name: nameController.text, details: descriptionController.text, startDate: startDateTime, endDate: endDateTime, location: locationController.text, pointTypeId: pointType.id, floorIds: floorIds, isPublicEvent: isPublicEvent, isAllFloors: isAllFloors, host: hostController.text, virtualLink: virtualLinkController.text));
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                      }
+                                    },
+                                    child: Text('Create')
+                                )
+                            ),
+                          ],
                         ),
                       ]
                   )

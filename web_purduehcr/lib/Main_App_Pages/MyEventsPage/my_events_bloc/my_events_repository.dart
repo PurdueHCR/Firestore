@@ -4,6 +4,7 @@ import 'package:purduehcr_web/Models/Event.dart';
 import 'package:purduehcr_web/Models/PointType.dart';
 import 'package:purduehcr_web/Utilities/APIUtility.dart';
 import 'package:purduehcr_web/Utilities/CloudFunctionUtility.dart';
+import 'package:purduehcr_web/Utilities/DateUtil.dart';
 import 'package:purduehcr_web/Utilities/FirebaseUtility.dart';
 
 import 'my_events_event.dart';
@@ -30,8 +31,8 @@ class MyEventsRepository {
   }
 
   Future<Event> createEvent(CreateEvent event) async {
-    Map<String, dynamic> body = {"name":event.name, "details":event.details, "startDate":event.startDate.toIso8601String(),
-      "endDate":event.endDate.toIso8601String(), "location":event.location, "floorIds":event.floorIds, "isPublicEvent":event.isPublicEvent,
+    Map<String, dynamic> body = {"name":event.name, "details":event.details, "startDate":DateUtils.formatISOTime(event.startDate),
+      "endDate":DateUtils.formatISOTime(event.endDate), "location":event.location, "floorIds":event.floorIds, "isPublicEvent":event.isPublicEvent,
       "isAllFloors":event.isAllFloors, "host":event.host, "virtualLink":event.virtualLink, "pointTypeId":event.pointTypeId};
     Map<String, dynamic> eventDocument = await callCloudFunction(config, Method.POST, "event/", body: body);
     return Event.fromJson(eventDocument);
@@ -52,8 +53,8 @@ class MyEventsRepository {
     body["id"] = updateEvent.event.id;
     APIUtility.setBodyField(body, Event.NAME, updateEvent.name);
     APIUtility.setBodyField(body, Event.DETAILS, updateEvent.details);
-    APIUtility.setBodyField(body, Event.START_DATE, updateEvent.startDate == null ? null: updateEvent.startDate.toIso8601String());
-    APIUtility.setBodyField(body, Event.END_DATE, updateEvent.endDate == null ? null: updateEvent.endDate.toIso8601String());
+    APIUtility.setBodyField(body, Event.START_DATE, updateEvent.startDate == null ? null: DateUtils.formatISOTime(updateEvent.startDate));
+    APIUtility.setBodyField(body, Event.END_DATE, updateEvent.endDate == null ? null: DateUtils.formatISOTime(updateEvent.endDate));
     APIUtility.setBodyField(body, Event.LOCATION, updateEvent.location);
     APIUtility.setBodyField(body, Event.POINT_TYPE_ID, updateEvent.pointTypeId);
     APIUtility.setBodyField(body, Event.FLOOR_IDS, updateEvent.floorIds);
