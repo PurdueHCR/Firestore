@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:purduehcr_web/Models/PointType.dart';
 import 'package:purduehcr_web/Models/PointTypePermissionLevel.dart';
@@ -88,6 +89,30 @@ class Event {
     this.isPublicEvent = event.isPublicEvent;
     this.claimedCount = event.claimedCount;
     this.virtualLink = event.virtualLink;
+  }
+
+  String getDetailedDateString(){
+    if(this.startDate.isBefore(DateTime.now()) && this.endDate.isAfter(DateTime.now())){
+      return "Happening Right Now!";
+    }
+    else if(this.startDate.day == this.endDate.day && this.startDate.month == this.endDate.month && this.startDate.year == this.endDate.year){
+      if((this.startDate.millisecondsSinceEpoch - DateTime.now().millisecondsSinceEpoch).abs() < 7 * 24 * 60*60*1000){
+        //Within a week
+        return new DateFormat("E 'at' K:mm a 'until' ").format(this.startDate) + new DateFormat("K:mm a").format(this.endDate);
+      }
+      else{
+        return new DateFormat("EEEE, MMM d 'at' K:mm a 'until' ").format(this.startDate) + new DateFormat("K:mm a").format(this.endDate);
+      }
+    }
+    else{
+      if((this.startDate.millisecondsSinceEpoch - DateTime.now().millisecondsSinceEpoch).abs() < 7 * 24 * 60*60*1000){
+        //Within a week
+        return new DateFormat("E 'at' K:mm a 'until' ").format(this.startDate) + new DateFormat("E 'at' K:mm a").format(this.endDate);
+      }
+      else{
+        return new DateFormat("EEEE, MMM d 'at' K:mm a 'until' ").format(this.startDate) + new DateFormat("EEEE, MMM d 'at' K:mm a").format(this.endDate);
+      }
+    }
   }
 
   PointType getPointType(){

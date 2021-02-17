@@ -99,7 +99,7 @@ class EventListTile extends StatelessWidget{
     return ListTile(
       onTap: () => onTap(context, event),
       title: Text(event.name),
-      trailing: Text(event.details)
+      subtitle: Text(event.getDetailedDateString()),
     );
   }
 }

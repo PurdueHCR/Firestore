@@ -44,7 +44,7 @@ class SystemPreference {
         defaultImageURL: json[DEFAULT_IMAGE_URL],
         houseIds: houses,
         showRewards: json[SHOW_REWARDS],
-        floorIds: List.from(json[FLOOR_IDS])
+        floorIds: json[FLOOR_IDS] != null ? List.from(json[FLOOR_IDS]) : []
     );
   }
 

@@ -12,6 +12,8 @@ import 'package:purduehcr_web/Utility_Views/BasePage.dart';
 import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
 import 'package:purduehcr_web/Utility_Views/EventList.dart';
 
+import 'dart:html' as html;
+
 class MyEventsPage extends BasePage {
   MyEventsPage({Key key}) : super(key: key);
 
@@ -126,6 +128,7 @@ class _MyEventsPageState
 
   _createEventButton(BuildContext context) {
     showDialog(
+      barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           return SimpleDialog(
@@ -163,22 +166,24 @@ class _MyEventsPageState
   _handleSnackChatState(BuildContext context, MyEventsState state) {
     if (state is EventCreationSuccess) {
       FunctionUtilities.showSnackBar(context, Colors.green, 'The event has been created!', _myEventsBloc, EventHandledMessage(), popContext: true);
+      displayRefreshDialog(context, "Your event was created! Please refresh the page.");
     }
     else if (state is MyEventsPageCreateEventError) {
       FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error creating the event. Please try again.', _myEventsBloc, EventHandledMessage(), popContext: true);
+      displayRefreshDialog(context, "There was a problem creating your event. Please refresh the page.");
     }
     else if (state is EventUpdateError) {
       FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error updating the event. Please try again.', _myEventsBloc, EventHandledMessage());
     }
-    // else if (state is DeleteEventSuccess) {
-    //   FunctionUtilities.showSnackBar(context, Colors.green, 'The event was successfully deleted', _myEventsBloc, EventHandleMessage(), popContext: true);
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     _selectedEvent = null;
-    //   });
-    // }
-    // else if (state is DeleteEventError) {
-    //   FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error deleting the event. Please try again.', _myEventsBloc, EventHandleMessage(), popContext: true);
-    // }
+    else if (state is EventDeleteSuccess) {
+      FunctionUtilities.showSnackBar(context, Colors.green, 'The event was successfully deleted', _myEventsBloc, EventHandledMessage());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _selectedEvent = null;
+      });
+    }
+    else if (state is EventDeleteError) {
+      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error deleting the event. Please try again.', _myEventsBloc, EventHandledMessage());
+    }
   }
 
   @override
@@ -201,5 +206,35 @@ class _MyEventsPageState
   void dispose() {
     super.dispose();
     _myEventsBloc.close();
+  }
+
+  displayRefreshDialog(BuildContext context, String message){
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await showDialog(
+          context: context,
+          barrierDismissible: false,
+          child: SimpleDialog(
+            title: Text('Refresh the Page'),
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(message),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: OutlineButton(
+                  child: Text('Ok'),
+                  onPressed: (){
+                    Navigator.of(context).pop();
+                    WidgetsBinding.instance.addPostFrameCallback((_) async {
+                      html.window.location.reload();
+                    });
+                  },
+                ),
+              )
+            ],
+          )
+      );
+    });
   }
 }
