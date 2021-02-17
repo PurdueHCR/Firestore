@@ -1,3 +1,6 @@
+import { MachineStatus } from "./MachineStatus"
+import { MachineType } from "./MachineType"
+
 export class Machine {
     
     static BUILDING = "building"
@@ -8,11 +11,11 @@ export class Machine {
 
     building: string
     machineId: string
-    status: string
+    status: MachineStatus
     time: number
-    type: string
+    type: MachineType
 
-    constructor(building: string, machineId: string, status: string, time: number, type: string) {
+    constructor(building: string, machineId: string, status: MachineStatus, time: number, type: MachineType) {
         this.building = building
         this.machineId = machineId
         this.status = status
