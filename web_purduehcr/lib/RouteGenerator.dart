@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purduehcr_web/Main_App_Pages/MyEventsPage/MyEventsPage.dart';
 import 'package:purduehcr_web/Utility_Views/InitializationPage.dart';
 import 'package:purduehcr_web/Main_App_Pages/OverviewPage/OverviewPage.dart';
 import 'package:purduehcr_web/Account_And_User_Pages/Account_Login_Creation/AccountPage.dart';
@@ -37,6 +38,8 @@ class RouteGenerator {
                   return SubmitPointsPage();
                 case 'handle_points':
                   return HandlePointsPage();
+                case 'my_events':
+                  return MyEventsPage();
                 case 'my_points':
                   return MyPointsPage();
                 case 'links':

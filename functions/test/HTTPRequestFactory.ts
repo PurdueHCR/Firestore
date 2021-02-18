@@ -11,7 +11,7 @@ import * as functions from 'firebase-functions'
 export function post(func: functions.HttpsFunction, path: string, body:any, token: string): request.Test{
   const httpRequest = request(func).post(path).send(body).type('form')
   httpRequest.set("Authorization", "Bearer "+token)
-  httpRequest.set('Content-Type', 'application/x-www-form-urlencoded')
+  httpRequest.set('Content-Type', 'application/json')
   return httpRequest;
 }
 
@@ -25,7 +25,7 @@ export function post(func: functions.HttpsFunction, path: string, body:any, toke
 export function put(func: functions.HttpsFunction, path: string, body:any, token: string): request.Test{
   const httpRequest = request(func).put(path).send(body).type('form')
   httpRequest.set("Authorization", "Bearer "+token)
-  httpRequest.set('Content-Type', 'application/x-www-form-urlencoded')
+  httpRequest.set('Content-Type', 'application/json')
   return httpRequest;
 }
 
@@ -39,7 +39,7 @@ export function get(func: functions.HttpsFunction, path: string, token: string, 
   console.log("Checking "+path+convertQueryParams(params))
   const httpRequest = request(func).get(path+convertQueryParams(params));
   httpRequest.set("Authorization", "Bearer "+token)
-  httpRequest.set('Content-Type', 'application/x-www-form-urlencoded')
+  httpRequest.set('Content-Type', 'application/json')
   return httpRequest;
 }
 
@@ -52,7 +52,7 @@ export function get(func: functions.HttpsFunction, path: string, token: string, 
 export function deleteCommand(func: functions.HttpsFunction, path: string, token: string, body: any = {}): request.Test{
   const httpRequest = request(func).delete(path).send(body).type('form')
   httpRequest.set("Authorization", "Bearer "+token)
-  httpRequest.set('Content-Type', 'application/x-www-form-urlencoded')
+  httpRequest.set('Content-Type', 'application/json')
   return httpRequest;
 }
 

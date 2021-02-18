@@ -27,7 +27,8 @@ export class FirestoreDataFactory{
             "isCompetitionVisible":(spOpts.is_competition_visible !== undefined)?spOpts.is_competition_visible:Options.SYSTEM_PREFERENCES_DEFAULTS.is_competition_visible,
             "isHouseEnabled": (spOpts.is_house_enabled !== undefined)?spOpts.is_house_enabled:Options.SYSTEM_PREFERENCES_DEFAULTS.is_house_enabled,
             "suggestedPointIDs": (spOpts.suggested_point_ids !== undefined)?spOpts.suggested_point_ids:Options.SYSTEM_PREFERENCES_DEFAULTS.suggested_point_ids,
-            "houseIDs":(spOpts.houseIds !== undefined)?spOpts.houseIds:Options.SYSTEM_PREFERENCES_DEFAULTS.houseIds
+            "houseIDs":(spOpts.houseIds !== undefined)?spOpts.houseIds:Options.SYSTEM_PREFERENCES_DEFAULTS.houseIds,
+            "floorIds": (spOpts.floorIds !== undefined)?spOpts.floorIds:Options.SYSTEM_PREFERENCES_DEFAULTS.floorIds
         })
     }
 
@@ -97,7 +98,7 @@ export class FirestoreDataFactory{
             await db.collection("House").doc(houseId).collection("Details").doc("Rank").update(updateData)
         }
         else{
-            throw Error("You havent created the house details docs yet when preparing the test")
+            throw Error("You need to create the houses before you create a user Add the line 'await FirestoreDataFactory.setAllHouses(db)' after you define 'db'")
         }
     }
 
@@ -120,7 +121,7 @@ export class FirestoreDataFactory{
             await db.collection("House").doc(houseId).collection("Details").doc("PointTypes").update(map)
         }
         else{
-            throw Error("You havent created the detail docs yet when preparing the test")
+            throw Error("You need to create the houses before you create a point type. Add the line 'await FirestoreDataFactory.setAllHouses(db)' after you define 'db'")
         }
     }
 
@@ -341,16 +342,22 @@ export class FirestoreDataFactory{
      */
     static setEvent(db: firebase.firestore.Firestore, id: string, creator_id: string, eOpts:Options.EventOptions = Options.EVENT_DEFAULTS): Promise<void> {
         const data = {
-            "Name": (eOpts.name !== undefined)?eOpts.name:Options.EVENT_DEFAULTS.name,
-            "Details": (eOpts.details !== undefined)?eOpts.details:Options.EVENT_DEFAULTS.details,
-            "Date": (eOpts.date !== undefined)?eOpts.date:Options.EVENT_DEFAULTS.date,
-            "Location": (eOpts.location !== undefined)?eOpts.location:Options.EVENT_DEFAULTS.location,
-            "Points": (eOpts.points !== undefined)?eOpts.points:Options.EVENT_DEFAULTS.points,
-            "PointTypeID": (eOpts.point_type_id !== undefined)?eOpts.point_type_id:Options.EVENT_DEFAULTS.point_type_id,
-            "PointTypeName": (eOpts.point_type_name !== undefined)?eOpts.point_type_name:Options.EVENT_DEFAULTS.point_type_name,
-            "PointTypeDescription": (eOpts.point_type_description !== undefined)?eOpts.point_type_description:Options.EVENT_DEFAULTS.point_type_description,
-            "House": (eOpts.house !== undefined)?eOpts.house:Options.EVENT_DEFAULTS.house,
-            "CreatorID":creator_id
+            name: (eOpts.name !== undefined)?eOpts.name:Options.EVENT_DEFAULTS.name,
+            details: (eOpts.details !== undefined)?eOpts.details:Options.EVENT_DEFAULTS.details,
+            startDate: (eOpts.startDate !== undefined)?eOpts.startDate:Options.EVENT_DEFAULTS.startDate,
+            endDate: (eOpts.endDate !== undefined)?eOpts.endDate:Options.EVENT_DEFAULTS.endDate,
+            location: (eOpts.location !== undefined)?eOpts.location:Options.EVENT_DEFAULTS.location,
+            points: (eOpts.points !== undefined)?eOpts.points:Options.EVENT_DEFAULTS.points,
+            pointTypeId: (eOpts.pointTypeId !== undefined)?eOpts.pointTypeId:Options.EVENT_DEFAULTS.pointTypeId,
+            pointTypeName: (eOpts.pointTypeName !== undefined)?eOpts.pointTypeName:Options.EVENT_DEFAULTS.pointTypeName,
+            pointTypeDescription: (eOpts.pointTypeDescription !== undefined)?eOpts.pointTypeDescription:Options.EVENT_DEFAULTS.pointTypeDescription,
+            floorIds: (eOpts.floorIds !== undefined)?eOpts.floorIds:Options.EVENT_DEFAULTS.floorIds,
+            floorColors: (eOpts.floorColors !== undefined)?eOpts.floorColors:Options.EVENT_DEFAULTS.floorColors,
+            creatorId:creator_id,
+            id:id,
+            host:(eOpts.host !== undefined)?eOpts.host:Options.EVENT_DEFAULTS.host,
+            isPublicEvent:(eOpts.isPublicEvent !== undefined)?eOpts.isPublicEvent:Options.EVENT_DEFAULTS.isPublicEvent,
+            claimedCount:(eOpts.claimedCount !== undefined)?eOpts.claimedCount:Options.EVENT_DEFAULTS.claimedCount
         }
         return db.collection("Events").doc(id).set(data)
     }

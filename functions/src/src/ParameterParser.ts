@@ -1,7 +1,7 @@
 import {APIResponse} from '../models/APIResponse'
 
 /**
- * Makes sure that a field is a valid string
+ * @deprecated Use the APIUtility instead
  * @param arg Value of field to parse (req.body.field or req.query.field)
  * @throws 422 - Missing Required Parameters
  * @throws 426 - Incorrect Format
@@ -19,13 +19,14 @@ export function parseInputForString(arg:any): string {
 }
 
 /**
- * Makes sure that a field is a valid boolean
+ * @deprecated Use the APIUtility instead
  * @param arg Value of field to parse (req.body.field or req.query.field)
  * @throws 422 - Missing Required Parameters
  * @throws 426 - Incorrect Format
  */
 export function parseInputForBoolean(arg:any): boolean {
     if(arg === undefined || arg === null){
+        console.error("Could not parse boolean")
         throw APIResponse.MissingRequiredParameters()
     }
     else if(arg === 'false' || arg === 'true'){
@@ -40,7 +41,7 @@ export function parseInputForBoolean(arg:any): boolean {
 }
 
 /**
- * Makes sure that a field is a valid number
+ * @deprecated Use the APIUtility instead
  * @param arg Value of field to parse (req.body.field or req.query.field)
  * @param min Optional exclusive minimum
  * @param max Optional exclusive maximum
@@ -70,5 +71,81 @@ export function parseInputForNumber(arg:any, min:number = Number.MIN_SAFE_INTEGE
     }
     else{
         throw APIResponse.IncorrectFormat()
+    }
+}
+
+/**
+ * @deprecated Use the APIUtility instead
+ * @param arg Value of the field to parse for the date
+ * @param minDate Optional Date minimum
+ * @param maxDate Optional Date maximum
+ * @throws 422 - Missing Required Parameters
+ * @throws 423 - InvalidDateFormat
+ * @throws 424 - DateNotInRange
+ * @throws 500 - Server Error
+ */
+export function parseInputForDate(arg:any, minDate?:Date, maxDate?:Date): Date{
+    if(arg === undefined || arg === null){
+        console.error("Could not find date")
+        throw APIResponse.MissingRequiredParameters()
+    }
+    else {
+        let date:Date
+        try{
+            date = new Date(arg)
+            console.log(date.toISOString())
+        }
+        catch(error){
+			console.error("FAILED To Parse Date because of an error: "+ error.toString())
+			if(error instanceof TypeError){
+				throw APIResponse.InvalidDateFormat()
+            }
+            else if(error instanceof RangeError){
+				throw APIResponse.InvalidDateFormat()
+            }
+            else{
+                throw APIResponse.ServerError()
+            }
+        }
+        if(maxDate && date > maxDate){
+            throw APIResponse.DateNotInRange()
+        }
+        else if(minDate && date < minDate){
+            throw APIResponse.DateNotInRange()
+        }
+        else{
+            return date
+        }
+    }
+}
+
+/**
+ * @deprecated Use the APIUtility instead
+ * @param arg Value of the field to parse for an array
+ * @throws 422 - Missing Required Parameters
+ * @throws 426 - Incorrect Format
+ * @throws 500 - Server Error
+ */
+export function parseInputForArray(arg:any): any[] {
+    if(arg === undefined || arg === null){
+        //If you are sure that the array is defined, make sure that express.urlencoded({extended:true})
+        console.error("The array was undefined")
+        throw APIResponse.MissingRequiredParameters()
+    }
+    else {
+        let array:any[]
+        try{
+            array = arg as any[]
+            return array
+        }
+        catch(error){
+			console.error("FAILED To Parse array because of an error: "+ error.toString())
+			if(error instanceof TypeError){
+				throw APIResponse.IncorrectFormat()
+            }
+            else{
+                throw APIResponse.ServerError()
+            }
+        }
     }
 }

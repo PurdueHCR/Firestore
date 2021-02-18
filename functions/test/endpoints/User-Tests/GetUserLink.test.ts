@@ -18,6 +18,8 @@ describe('GET user/links', () =>{
 
         user_func = require('../../../src/endpoint_paths/index.ts').user
 
+        await FirestoreDataFactory.setAllHouses(db)
+
         await FirestoreDataFactory.setUser(db, RESIDENT_ID, 0)
         await FirestoreDataFactory.setUser(db, RHP_ID, 1)
         await FirestoreDataFactory.setUser(db, PROF_ID, 2)
