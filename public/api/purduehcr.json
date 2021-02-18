@@ -3495,6 +3495,10 @@
             "type" : "string",
             "example" : "akjhwb3vo9iaukjw3fv"
           },
+          "virtualLink" : {
+            "type" : "string",
+            "example" : "www.googlehangouts.com"
+          },
           "host" : {
             "type" : "string",
             "example" : "The Society"
@@ -3555,6 +3559,10 @@
           "host" : {
             "type" : "string",
             "example" : "The Society"
+          },
+          "virtualLink" : {
+            "type" : "string",
+            "example" : "www.googlehangouts.com"
           }
         }
       },
@@ -3607,6 +3615,10 @@
           "isAllFloors" : {
             "type" : "boolean",
             "example" : false
+          },
+          "virtualLink" : {
+            "type" : "string",
+            "example" : "www.googlehangouts.com"
           }
         }
       },

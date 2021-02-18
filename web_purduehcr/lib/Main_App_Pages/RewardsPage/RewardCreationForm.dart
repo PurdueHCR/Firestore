@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/Main_App_Pages/RewardsPage/rewards_bloc/rewards.dart';
 import 'package:purduehcr_web/Utilities/UploadNotifier.dart';
+import 'package:purduehcr_web/Utility_Views/FormSection.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:firebase/firebase.dart' as fb;
 
@@ -121,10 +122,6 @@ class _RewardCreationFormState extends State<RewardCreationForm> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Container(
-                    child: Text('Reward Image'),
-                  ),
-
                   FormField(
                     initialValue: null,
                     builder: (FormFieldState<Image> state){
@@ -168,47 +165,47 @@ class _RewardCreationFormState extends State<RewardCreationForm> {
                       }
                     },
                   ),
-
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
-                    child: Text('Details', style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  TextFormField(
-                    decoration:
-                    InputDecoration(labelText: 'Enter a name for this reward.'),
-                    maxLines: null,
-                    maxLength: 100,
-                    controller: nameController,
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please enter a name for this reward.';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    decoration:
-                    InputDecoration(labelText: 'How many points per resident is required?'),
-                    maxLines: null,
-                    maxLength: 4,
-                    keyboardType: TextInputType.numberWithOptions(),
-                    controller: pprController,
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please enter how many points this is worth.';
-                      }
-                      var points = int.tryParse(value);
-                      if(points == null){
-                        return "Points Per resident must be an integer.";
-                      }
-                      if(points == 0){
-                        return 'Please enter how many points per resident are required.';
-                      }
-                      if(points < 0){
-                        return 'Please enter a positive value.';
-                      }
-                      return null;
-                    },
+                  FormSection(
+                    label: "Reward Details",
+                    children: [
+                      TextFormField(
+                        decoration:
+                        InputDecoration(labelText: 'Enter a name for this reward.'),
+                        maxLines: null,
+                        maxLength: 100,
+                        controller: nameController,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter a name for this reward.';
+                          }
+                          return null;
+                        },
+                      ),
+                      TextFormField(
+                        decoration:
+                        InputDecoration(labelText: 'How many points per resident is required?'),
+                        maxLines: null,
+                        maxLength: 4,
+                        keyboardType: TextInputType.numberWithOptions(),
+                        controller: pprController,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter how many points this is worth.';
+                          }
+                          var points = int.tryParse(value);
+                          if(points == null){
+                            return "Points Per resident must be an integer.";
+                          }
+                          if(points == 0){
+                            return 'Please enter how many points per resident are required.';
+                          }
+                          if(points < 0){
+                            return 'Please enter a positive value.';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
                   ),
                   Container(
                       padding: const EdgeInsets.symmetric(

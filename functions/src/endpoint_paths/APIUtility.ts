@@ -48,13 +48,24 @@ export default class APIUtility {
      * @throws 422 - Missing Required Parameters
      * @throws 426 - Incorrect Format
      */
-    static parseInputForString(location:any, name:string): string {
+    static parseInputForString(location:any, name:string, required: boolean = true): string {
         const arg = location[name]
         if(arg === undefined || arg === null ){
-            throw APIResponse.MissingRequiredParameters(`[${name}]: string`)
+            if(required){
+                throw APIResponse.MissingRequiredParameters(`[${name}]: string`)
+            }
+            else{
+                return "";
+            }
+            
         }
         else if(typeof arg !== 'string' || arg === ""){
-            throw APIResponse.IncorrectFormat(`Correct format is [${name}]: string`)
+            if(required){
+                throw APIResponse.IncorrectFormat(`Correct format is [${name}]: string`)
+            }
+            else{
+                return "";
+            }
         }
         else{
             return arg

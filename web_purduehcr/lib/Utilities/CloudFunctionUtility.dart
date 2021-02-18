@@ -27,7 +27,8 @@ callCloudFunction(Config config, Method method, String path, {Map<String, dynami
     String errorString = responseMap["message"];
     int errorCode = int.parse(errorString.split(": ")[0]);
     String errorMessage = errorString.substring(errorString.indexOf(':') +1);
-    throw new ApiError(errorCode, errorMessage);
+    print('ERROR: '+errorCode.toString());
+    throw ApiError(errorCode, errorMessage);
   }
   return responseMap;
 }

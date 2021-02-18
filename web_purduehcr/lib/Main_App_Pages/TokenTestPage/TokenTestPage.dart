@@ -125,7 +125,7 @@ class TokenTestPageState extends BasePageState<AuthenticationBloc, Authenticatio
 
   @override
   UserPermissionSet getAcceptedPermissionLevels() {
-    return AllPermissionsSet();
+    return UserPermissionSet.getAll();
   }
 
 

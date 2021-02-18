@@ -4,6 +4,8 @@ import 'package:purduehcr_web/Configuration/Config.dart';
 import 'package:purduehcr_web/Configuration/ConfigWrapper.dart';
 import 'package:purduehcr_web/Models/Reward.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
+import 'package:purduehcr_web/Utilities/FirebaseUtility.dart';
+import 'package:purduehcr_web/Utilities/FunctionUtilities.dart';
 import 'package:purduehcr_web/Utility_Views/BasePage.dart';
 import 'package:purduehcr_web/Main_App_Pages/RewardsPage/EditRewardForm.dart';
 import 'package:purduehcr_web/Main_App_Pages/RewardsPage/RewardCreationForm.dart';
@@ -53,6 +55,34 @@ class _RewardsPageState
                   _selectedReward = reward;
                 });
               },
+              onDelete: (context, reward) async{
+                await showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Delete Reward"),
+                        content: Text(
+                            "Are you sure you want to delete the reward? This can not be undone."),
+                        actions: [
+                          RaisedButton(
+                            child: Text("Cancel"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          RaisedButton(
+                            color: Colors.red,
+                            child: Text("Delete"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              deleteReward(reward);
+                            },
+                          )
+                        ],
+                      );
+                    }
+                );
+              }
             ),
           ),
           Flexible(
@@ -153,69 +183,22 @@ class _RewardsPageState
 
   _handleSnackChatState(BuildContext context, RewardsState state) {
     if (state is CreateRewardsSuccess) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pop();
-      });
-      final snackBar = SnackBar(
-        backgroundColor: Colors.green,
-        content: Text('The reward has been created!'),
-      );
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Scaffold.of(context).showSnackBar(snackBar);
-        _rewardsBloc.add(RewardHandleMessage());
-      });
+      FunctionUtilities.showSnackBar(context, Colors.green, 'The reward has been created!', _rewardsBloc, RewardHandleMessage(), popContext: true);
     }
     else if (state is CreateRewardsError) {
-      final snackBar = SnackBar(
-        backgroundColor: Colors.red,
-        content:
-            Text('There was an error creating the reward. Please try again.'),
-      );
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-
-        Scaffold.of(context).showSnackBar(snackBar);
-        _rewardsBloc.add(RewardHandleMessage());
-      });
+      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error creating the reward. Please try again.', _rewardsBloc, RewardHandleMessage());
     }
     else if (state is UpdateRewardsError) {
-      final snackBar = SnackBar(
-        backgroundColor: Colors.red,
-        content:
-            Text('There was an error updating the reward. Please try again.'),
-      );
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Scaffold.of(context).showSnackBar(snackBar);
-        _rewardsBloc.add(RewardHandleMessage());
-      });
+      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error updating the reward. Please try again.', _rewardsBloc, RewardHandleMessage());
     }
     else if (state is DeleteRewardSuccess) {
+      FunctionUtilities.showSnackBar(context, Colors.green, 'The reward was successfully deleted', _rewardsBloc, RewardHandleMessage(), popContext: true);
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pop();
-      });
-      final snackBar = SnackBar(
-        backgroundColor: Colors.green,
-        content:
-        Text('The reward was successfully deleted'),
-      );
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Scaffold.of(context).showSnackBar(snackBar);
         _selectedReward = null;
-        _rewardsBloc.add(RewardHandleMessage());
       });
     }
     else if (state is DeleteRewardsError) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pop();
-      });
-      final snackBar = SnackBar(
-        backgroundColor: Colors.red,
-        content:
-            Text('There was an error deleting the reward. Please try again.'),
-      );
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Scaffold.of(context).showSnackBar(snackBar);
-        _rewardsBloc.add(RewardHandleMessage());
-      });
+      FunctionUtilities.showSnackBar(context, Colors.red, 'There was an error deleting the reward. Please try again.', _rewardsBloc, RewardHandleMessage(), popContext: true);
     }
   }
 
@@ -239,5 +222,54 @@ class _RewardsPageState
   void dispose() {
     super.dispose();
     _rewardsBloc.close();
+  }
+
+  deleteReward(Reward reward) async {
+    await showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context){
+          return SimpleDialog(
+            title: Text("Deleting Reward"),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10.0))),
+            children: [
+              FutureBuilder(
+                future: FirebaseUtility.deleteImageFromStorage(reward.fileName),
+                builder: (BuildContext context, snapshot){
+                  if(snapshot.connectionState != ConnectionState.done){
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(),
+                          Text("Deleting Image")
+                        ],
+                      ),
+                    );
+                  }
+                  else{
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _rewardsBloc.add(DeleteReward(reward));
+                    });
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(),
+                          Text("Deleting Reward")
+                        ],
+                      ),
+                    );
+                  }
+                },
+              )
+            ],
+          );
+        }
+
+    );
   }
 }

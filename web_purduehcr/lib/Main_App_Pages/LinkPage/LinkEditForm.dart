@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/Main_App_Pages/LinkPage/link_bloc/link.dart';
 import 'package:purduehcr_web/Models/Link.dart';
+import 'package:purduehcr_web/Utility_Views/EditTextField.dart';
+import 'package:purduehcr_web/Utility_Views/FormSection.dart';
 import 'package:purduehcr_web/Utility_Views/PointTypeList.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -66,110 +68,95 @@ class _LinkEditFormState extends State<LinkEditForm>{
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+              FormSection(
+                label: 'Link Details',
                 children: [
-                  QrImage(
-                    data: widget.link.dynamicLink,
-                    version: QrVersions.auto,
-                    size: 200.0,
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      QrImage(
+                        data: widget.link.dynamicLink,
+                        version: QrVersions.auto,
+                        size: 200.0,
+                      ),
+                    ],
+                  ),
+                  EditTextField(
+                    label: "Description",
+                    maxLength: 250,
+                    initialText: description,
+                    onSubmit: (String description){
+                      _linkBloc.add(UpdateLink(link: widget.link, description:description));
+                    },
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Point Type",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.start,
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 4, 0, 0),
+                          child: PointTypeComponentsListTile(name: widget.link.pointTypeName, description: widget.link.pointTypeDescription, points: widget.link.pointTypeValue)
+                      ),
+                    ],
+                  )
+                ],
+              ),
+              FormSection(
+                label: "Link Status",
+                children: [
+                  SwitchListTile(
+                      title: const Text('Single Use'),
+                      value: isSingleUse,
+                      onChanged: (bool val) =>
+                          setState(() {
+                            isSingleUse = val;
+                            _linkBloc.add(UpdateLink(link: widget.link, singleUse: isSingleUse));
+                          }
+                          )
+                  ),
+                  SwitchListTile(
+                      title: const Text('Enabled'),
+                      value: isEnabled,
+                      onChanged: (bool val) =>
+                          setState(() {
+                            isEnabled = val;
+                            _linkBloc.add(UpdateLink(link: widget.link, enabled: isEnabled));
+                          })
+                  ),
+                  SwitchListTile(
+                      title: const Text('Archived'),
+                      value: isArchived,
+                      onChanged: (bool val) =>
+                          setState((){
+                            isArchived = val;
+                            _linkBloc.add(UpdateLink(link: widget.link, archived: isArchived));
+                          })
                   ),
                 ],
               ),
-              Text(
-                "Description",
-                style: TextStyle(fontWeight: FontWeight.bold)
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                child: this.isChangingText ?
-                TextField(
-                  controller: descriptionController,
-                  maxLength: 250,
-                  onEditingComplete: (){
-                    FocusScope.of(context).unfocus();
-                    setState(() {
-                      isChangingText = false;
-                      print("This should update to: "+descriptionController.text);
-                      description = descriptionController.text;
-                      _linkBloc.add(UpdateLink(link: widget.link, description:descriptionController.text));
-                    });
-                  },
-                ) :
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Text(description),
-                    IconButton(
-                      icon: Icon(Icons.edit),
-                      onPressed: (){
-                        setState(() {
-                          descriptionController = TextEditingController(text: widget.link.description);
-                          isChangingText = true;
-                        });
+              FormSection(
+                label: "Actions",
+                children: [
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: OutlineButton(
+                      child: Text("Copy Link"),
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: widget.link.dynamicLink));
+                        final snackBar = SnackBar(
+                          content: Text('Copied link to clipboard'),
+                        );
+                        Scaffold.of(context).showSnackBar(snackBar);
                       },
-                    )
-                  ],
-                )
-              ),
-              Text("Point Type",
-                style: TextStyle(fontWeight: FontWeight.bold)
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 4, 0, 0),
-                child: PointTypeComponentsListTile(name: widget.link.pointTypeName, description: widget.link.pointTypeDescription, points: widget.link.pointTypeValue)
-              ),
-              Container(
-                padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
-                child: Text('Options', style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-              SwitchListTile(
-                  title: const Text('Single Use'),
-                  value: isSingleUse,
-                  onChanged: (bool val) =>
-                      setState(() {
-                        isSingleUse = val;
-                        _linkBloc.add(UpdateLink(link: widget.link, singleUse: isSingleUse));
-                      }
-                    )
-              ),
-              SwitchListTile(
-                  title: const Text('Enabled'),
-                  value: isEnabled,
-                  onChanged: (bool val) =>
-                      setState(() {
-                        isEnabled = val;
-                        _linkBloc.add(UpdateLink(link: widget.link, enabled: isEnabled));
-                      })
-              ),
-              SwitchListTile(
-                  title: const Text('Archived'),
-                  value: isArchived,
-                  onChanged: (bool val) =>
-                      setState((){
-                        isArchived = val;
-                        _linkBloc.add(UpdateLink(link: widget.link, archived: isArchived));
-                      })
-              ),
-              Container(
-                padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
-                child: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-              Container(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: OutlineButton(
-                  child: Text("Copy Link"),
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: widget.link.dynamicLink));
-                    final snackBar = SnackBar(
-                      content: Text('Copied link to clipboard'),
-                    );
-                    Scaffold.of(context).showSnackBar(snackBar);
-                  },
-                ),
-              ),
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ),

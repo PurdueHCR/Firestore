@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/Models/PointType.dart';
 import 'package:purduehcr_web/Models/PointTypePermissionLevel.dart';
 import 'package:purduehcr_web/Main_App_Pages/PointTypesPage/point_type_control_bloc/point_type_control.dart';
+import 'package:purduehcr_web/Utility_Views/EditTextField.dart';
+import 'package:purduehcr_web/Utility_Views/FormSection.dart';
 
 class PointTypeEditForm extends StatefulWidget{
 
@@ -24,13 +26,6 @@ class _PointTypeEditFormState extends State<PointTypeEditForm>{
   // ignore: close_sinks
   PointTypeControlBloc _pointTypeControlBloc;
 
-  bool isEditingDescription = false;
-  bool isEditingName = false;
-  bool isEditingValue = false;
-
-  TextEditingController descriptionController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
-  TextEditingController valueController = TextEditingController();
 
   bool isEnabled = false;
   bool residentsCanSubmit = false;
@@ -76,204 +71,130 @@ class _PointTypeEditFormState extends State<PointTypeEditForm>{
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text("Name",
-                  style: TextStyle(fontWeight: FontWeight.bold)
-              ),
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                  child: this.isEditingName ?
-                  TextField(
-                    controller: nameController,
-                    maxLength: 100,
-                    onEditingComplete: (){
-                      FocusScope.of(context).unfocus();
-                      setState(() {
-                        isEditingName = false;
-                        name = nameController.text;
-                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, name: nameController.text));
-                      });
-                    },
-                  ) :
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Flexible(child: Text(name, maxLines: null,),),
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: (){
-                          setState(() {
-                            nameController = TextEditingController(text: widget.pointType.name);
-                            isEditingName = true;
-                          });
-                        },
-                      )
-                    ],
-                  )
-              ),
-              Text(
-                  "Description",
-                  style: TextStyle(fontWeight: FontWeight.bold)
-              ),
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                  child: this.isEditingDescription ?
-                  TextField(
-                    controller: descriptionController,
-                    maxLength: 400,
-                    onEditingComplete: (){
-                      FocusScope.of(context).unfocus();
-                      setState(() {
-                        isEditingDescription = false;
-                        description = descriptionController.text;
-                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, description: descriptionController.text));
-                      });
-                    },
-                  ) :
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Flexible(child: Text(description, maxLines: null,)),
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: (){
-                          setState(() {
-                            descriptionController = TextEditingController(text: widget.pointType.description);
-                            isEditingDescription = true;
-                          });
-                        },
-                      )
-                    ],
-                  )
-              ),
-              Text("How Many Points is This Worth",
-                  style: TextStyle(fontWeight: FontWeight.bold)
-              ),
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                  child: this.isEditingValue ?
-                  TextField(
-                    controller: valueController,
-                    maxLength: 4,
-                    keyboardType: TextInputType.numberWithOptions(),
-                    onEditingComplete: (){
-                      FocusScope.of(context).unfocus();
-                      setState(() {
-                        isEditingValue = false;
-                        value = int.parse(valueController.text);
-                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, value: value));
-                      });
-                    },
-                  ) :
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Flexible(child: Text("$value", maxLines: null,)),
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: (){
-                          setState(() {
-                            valueController = TextEditingController(text: widget.pointType.value.toString());
-                            isEditingValue = true;
-                          });
-                        },
-                      )
-                    ],
-                  )
-              ),
-              Container(
-                padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
-                child: Text('Who is allowed to make this into a Link, QR code, or Event?', style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-              Column(
+              FormSection(
+                label: "Point Category Details",
                 children: [
-                  (permissionLevel == PointTypePermissionLevel.PROFESSIONAL_STAFF_ONLY)?
-                  RaisedButton(
-                    child: Text("Professional Staff Only"),
-                    onPressed: (){
-                      setState(() {
-                        permissionLevel = PointTypePermissionLevel.PROFESSIONAL_STAFF_ONLY;
-                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, permissionLevel: permissionLevel));
-                      });
-                    },
-                  )
-                      :
-                  OutlineButton(
-                    child: Text("Professional Staff Only"),
-                    onPressed: (){
-                      setState(() {
-                        permissionLevel = PointTypePermissionLevel.PROFESSIONAL_STAFF_ONLY;
-                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, permissionLevel: permissionLevel));
-                      });
+                  EditTextField(
+                    label: "Name",
+                    maxLength: 250,
+                    initialText: name,
+                    onSubmit: (String name){
+                      _pointTypeControlBloc.add(UpdatePointType(widget.pointType, name: name));
                     },
                   ),
-                  (permissionLevel == PointTypePermissionLevel.PROFESSIONAL_AND_RHPS)?
-                  RaisedButton(
-                    child: Text("Residential Life Staff Only"),
-                    onPressed: (){
-                      setState(() {
-                        permissionLevel = PointTypePermissionLevel.PROFESSIONAL_AND_RHPS;
-                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, permissionLevel: permissionLevel));
-                      });
-                    },
-                  )
-                      :
-                  OutlineButton(
-                    child: Text("Residential Life Staff Only"),
-                    onPressed: (){
-                      setState(() {
-                        permissionLevel = PointTypePermissionLevel.PROFESSIONAL_AND_RHPS;
-                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, permissionLevel: permissionLevel));
-                      });
+                  EditTextField(
+                    label: "Description",
+                    maxLength: 250,
+                    initialText: description,
+                    onSubmit: (String description){
+                      _pointTypeControlBloc.add(UpdatePointType(widget.pointType, description: description));
                     },
                   ),
-                  (permissionLevel == PointTypePermissionLevel.ALL)?
-                  RaisedButton(
-                    child: Text("All Non Residents"),
-                    onPressed: (){
-                      setState(() {
-                        permissionLevel = PointTypePermissionLevel.ALL;
-                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, permissionLevel: permissionLevel));
-                      });
-                    },
-                  )
-                      :
-                  OutlineButton(
-                    child: Text("All Non Residents"),
-                    onPressed: (){
-                      setState(() {
-                        permissionLevel = PointTypePermissionLevel.ALL;
-                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, permissionLevel: permissionLevel));
-                      });
+                  EditTextField(
+                    label: "Point Value",
+                    maxLength: 250,
+                    initialText: value.toString(),
+                    onSubmit: (String value){
+                      _pointTypeControlBloc.add(UpdatePointType(widget.pointType, value: int.parse(value)));
                     },
                   ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
-                child: Text('Controls', style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-              SwitchListTile(
-                  title: const Text('Residents have to scan this through a QR Code, Link, or Event'),
-                  value: !residentsCanSubmit,
-                  onChanged: (bool val) =>
-                      setState(() {
-                        residentsCanSubmit = !val;
-                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, residentsCanSubmit: residentsCanSubmit));
-                      }
+              FormSection(
+                label: "Permissions and Controls",
+                children: [
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
+                    child: Text('Who is allowed to make this into a Link, QR code, or Event?', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Column(
+                    children: [
+                      (permissionLevel == PointTypePermissionLevel.PROFESSIONAL_STAFF_ONLY)?
+                      RaisedButton(
+                        child: Text("Professional Staff Only"),
+                        onPressed: (){
+                          setState(() {
+                            permissionLevel = PointTypePermissionLevel.PROFESSIONAL_STAFF_ONLY;
+                            _pointTypeControlBloc.add(UpdatePointType(widget.pointType, permissionLevel: permissionLevel));
+                          });
+                        },
                       )
-              ),
-              SwitchListTile(
-                  title: const Text('Enabled'),
-                  value: isEnabled,
-                  onChanged: (bool val) =>
-                      setState(() {
-                        isEnabled = val;
-                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, isEnabled: isEnabled));
-                      })
-              ),
+                          :
+                      OutlineButton(
+                        child: Text("Professional Staff Only"),
+                        onPressed: (){
+                          setState(() {
+                            permissionLevel = PointTypePermissionLevel.PROFESSIONAL_STAFF_ONLY;
+                            _pointTypeControlBloc.add(UpdatePointType(widget.pointType, permissionLevel: permissionLevel));
+                          });
+                        },
+                      ),
+                      (permissionLevel == PointTypePermissionLevel.PROFESSIONAL_AND_RHPS)?
+                      RaisedButton(
+                        child: Text("Residential Life Staff Only"),
+                        onPressed: (){
+                          setState(() {
+                            permissionLevel = PointTypePermissionLevel.PROFESSIONAL_AND_RHPS;
+                            _pointTypeControlBloc.add(UpdatePointType(widget.pointType, permissionLevel: permissionLevel));
+                          });
+                        },
+                      )
+                          :
+                      OutlineButton(
+                        child: Text("Residential Life Staff Only"),
+                        onPressed: (){
+                          setState(() {
+                            permissionLevel = PointTypePermissionLevel.PROFESSIONAL_AND_RHPS;
+                            _pointTypeControlBloc.add(UpdatePointType(widget.pointType, permissionLevel: permissionLevel));
+                          });
+                        },
+                      ),
+                      (permissionLevel == PointTypePermissionLevel.ALL)?
+                      RaisedButton(
+                        child: Text("All Non Residents"),
+                        onPressed: (){
+                          setState(() {
+                            permissionLevel = PointTypePermissionLevel.ALL;
+                            _pointTypeControlBloc.add(UpdatePointType(widget.pointType, permissionLevel: permissionLevel));
+                          });
+                        },
+                      )
+                          :
+                      OutlineButton(
+                        child: Text("All Non Residents"),
+                        onPressed: (){
+                          setState(() {
+                            permissionLevel = PointTypePermissionLevel.ALL;
+                            _pointTypeControlBloc.add(UpdatePointType(widget.pointType, permissionLevel: permissionLevel));
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  SwitchListTile(
+                      title: Text('Residents have to scan this through a QR Code, Link, or Event'),
+                      value: !residentsCanSubmit,
+                      onChanged: (bool val){
+                        setState(() {
+                          residentsCanSubmit = !val;
+                        });
+                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, residentsCanSubmit: !val));
+                      }
+
+                  ),
+                  SwitchListTile(
+                      title: Text('Enabled'),
+                      value: isEnabled,
+                      onChanged: (bool val) {
+                        setState(() {
+                          isEnabled = val;
+                        });
+                        _pointTypeControlBloc.add(UpdatePointType(widget.pointType, isEnabled: val));
+                      }
+
+                  ),
+                ],
+              )
             ],
           ),
         ),
