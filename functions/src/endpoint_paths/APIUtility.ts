@@ -1,6 +1,7 @@
 import {APIResponse} from '../models/APIResponse'
 import { User } from '../models/User'
 import { getUser } from '../src/GetUser'
+import * as functions from 'firebase-functions'
 export default class APIUtility {
 
 
@@ -11,6 +12,30 @@ export default class APIUtility {
      */
     static async getUser(req:any): Promise<User> {
         return getUser(req["user"]["user_id"])
+    }
+
+    static authenticateRaspberryPi(req:any){
+        let raspberryPiKey
+        if(functions.config().raspberry_pi === undefined || functions.config().raspberry_pi.key === ""){
+            raspberryPiKey = require('../../development_keys/keys.json').raspberry_pi.key
+        }
+        else{
+            raspberryPiKey = functions.config().raspberry_pi.key
+        }
+        console.log('TESTING: '+raspberryPiKey)
+        const header = this.parseRequestHeaderForKey(req,'authorization')
+        if(header.startsWith('Bearer ')){
+            const token = header.split('Bearer ')[1]
+            console.log('token: '+token)
+            if(raspberryPiKey !== token){
+                console.error('Authorization Token did not match.')
+                throw APIResponse.Unauthorized();
+            }
+        }
+        else{
+            console.error('Authorization Header must start with \'Bearer \'')
+            throw APIResponse.Unauthorized();
+        }
     }
 
     /**
@@ -38,6 +63,19 @@ export default class APIUtility {
                 console.error(`The ${req.method} request came without an ID to delete`)
                 throw APIResponse.MissingRequiredParameters(`The ${req.method} request came without query fields, but a query field is required`)
             }
+        }
+    }
+
+    static parseRequestHeaderForKey(req:any, key:string): string {
+        const arg = req.headers[key]
+        if(arg === undefined || arg === null ){
+            throw APIResponse.MissingRequiredParameters(`The header value for \'${key}\' is missing.`)
+        }
+        else if(typeof arg !== 'string' || arg === ""){
+            throw APIResponse.IncorrectFormat(`Failed to parse the header: \'${key}\'. All header values must be a string.`)
+        }
+        else{
+            return arg
         }
     }
 

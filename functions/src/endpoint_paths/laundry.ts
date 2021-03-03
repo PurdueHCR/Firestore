@@ -49,8 +49,9 @@ laundry_app.get("/", async (req, res) => {
  * @returns Success
  * @throws  500 - Server Error
  */
-laundry_app.put("/", async (req, res) => {
+laundry_app.post("/", async (req, res) => {
 	try {
+		APIUtility.authenticateRaspberryPi(req)
 		APIUtility.validateRequest(req)
 		await updateMachines(req.body)
 		throw APIResponse.Success()

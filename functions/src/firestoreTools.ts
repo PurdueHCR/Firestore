@@ -31,8 +31,8 @@ const validateFirebaseIdToken = async (req, res , next) => {
 		next()
 		return
 	}
-	
-	if(req.originalUrl.includes("/laundry") && !req.headers.authorization){
+	console.log('CHECKING: '+req.originalUrl)
+	if(req.originalUrl.includes("/laundry")){
 		next()
 		return
 	}
