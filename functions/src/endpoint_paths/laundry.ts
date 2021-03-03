@@ -3,6 +3,7 @@ import * as admin from 'firebase-admin'
 import * as express from 'express'
 import { APIResponse } from '../models/APIResponse'
 import { getMachines } from '../src/GetMachines'
+import { updateMachines } from '../src/UpdateMachines'
 import APIUtility from './APIUtility'
 
 if(admin.apps.length === 0){
@@ -18,7 +19,6 @@ laundry_app.use(express.urlencoded({ extended: false }))
 
 const firestoreTools = require('../firestoreTools')
 
-export const link_main = functions.https.onRequest(laundry_controls_main)
 
 laundry_app.use(cors({origin:true}))
 laundry_app.use(firestoreTools.flutterReformat)
@@ -36,6 +36,24 @@ laundry_app.get("/", async (req, res) => {
 	try {
 		const machines = await getMachines()
 		res.status(APIResponse.SUCCESS_CODE).json({"machines": machines})
+	}
+	catch (error) {
+		console.error("GET laundry/ failed with: " + error.toString())
+		APIUtility.handleError(res, error)
+	}
+})
+
+/**
+ * Update Machines
+ * 
+ * @returns Success
+ * @throws  500 - Server Error
+ */
+laundry_app.put("/", async (req, res) => {
+	try {
+		APIUtility.validateRequest(req)
+		await updateMachines(req.body)
+		throw APIResponse.Success()
 	}
 	catch (error) {
 		console.error("GET laundry/ failed with: " + error.toString())
