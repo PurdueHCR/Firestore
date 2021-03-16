@@ -22,7 +22,7 @@ const firestoreTools = require('../firestoreTools')
 
 laundry_app.use(cors({origin:true}))
 laundry_app.use(firestoreTools.flutterReformat)
-laundry_app.use(firestoreTools.validateFirebaseIdToken)
+// laundry_app.use(firestoreTools.validateFirebaseIdToken)
 
 export const laundry_main = functions.https.onRequest(laundry_controls_main)
 
@@ -49,7 +49,7 @@ laundry_app.get("/", async (req, res) => {
  * @returns Success
  * @throws  500 - Server Error
  */
-laundry_app.post("/", async (req, res) => {
+laundry_app.put("/", async (req, res) => {
 	try {
 		APIUtility.authenticateRaspberryPi(req)
 		APIUtility.validateRequest(req)
