@@ -93,22 +93,22 @@ class _HouseDescription extends State<HouseDescription> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Give Award"),
                       onPressed: () {
                         showDialog(
                           barrierDismissible: false,
                             context: context,
-                            child: SimpleDialog(
-                              title: Text(
-                                  "Give Award to ${widget.house.name} House"),
-                              children: [
-                                BlocProvider(
-                                  builder: (BuildContext context) => _overviewBloc,
-                                  child: GiveAwardDialogContent(house: widget.house, key: UniqueKey(),),
-                                )
-                              ],
-                            ));
+                            builder: (BuildContext context) {  return SimpleDialog(
+                          title: Text(
+                              "Give Award to ${widget.house.name} House"),
+                          children: [
+                            BlocProvider(
+                              builder: (BuildContext context) => _overviewBloc,
+                              child: GiveAwardDialogContent(house: widget.house, key: UniqueKey(),),
+                            )
+                          ],
+                        ); });
                       },
                     ),
                   ],
