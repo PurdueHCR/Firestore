@@ -93,22 +93,28 @@ class _HouseDescription extends State<HouseDescription> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Give Award"),
                       onPressed: () {
                         showDialog(
-                          barrierDismissible: false,
+                            barrierDismissible: false,
                             context: context,
-                            child: SimpleDialog(
-                              title: Text(
-                                  "Give Award to ${widget.house.name} House"),
-                              children: [
-                                BlocProvider(
-                                  builder: (BuildContext context) => _overviewBloc,
-                                  child: GiveAwardDialogContent(house: widget.house, key: UniqueKey(),),
-                                )
-                              ],
-                            ));
+                            builder: (BuildContext context) {
+                              return SimpleDialog(
+                                title: Text(
+                                    "Give Award to ${widget.house.name} House"),
+                                children: [
+                                  BlocProvider(
+                                    builder: (BuildContext context) =>
+                                        _overviewBloc,
+                                    child: GiveAwardDialogContent(
+                                      house: widget.house,
+                                      key: UniqueKey(),
+                                    ),
+                                  )
+                                ],
+                              );
+                            });
                       },
                     ),
                   ],
@@ -122,24 +128,25 @@ class _HouseDescription extends State<HouseDescription> {
   }
 
   Widget buildDetails() {
-    if(widget.permissionLevel != UserPermissionLevel.PROFESSIONAL_STAFF){
+    if (widget.permissionLevel != UserPermissionLevel.PROFESSIONAL_STAFF) {
       return Text(widget.house.description);
-    }
-    else if(isEditingNumberOfResidents){
+    } else if (isEditingNumberOfResidents) {
       return Form(
         key: _residentsKey,
         child: TextFormField(
-          decoration:InputDecoration(labelText: 'How many residents are in this house?'),
+          decoration: InputDecoration(
+              labelText: 'How many residents are in this house?'),
           maxLength: 3,
           keyboardType: TextInputType.numberWithOptions(),
           controller: numResController,
-          onEditingComplete: (){
+          onEditingComplete: () {
             final form = _residentsKey.currentState;
             if (form.validate()) {
               setState(() {
                 isEditingNumberOfResidents = false;
                 numberOfResidents = int.parse(numResController.text);
-                _overviewBloc.add(UpdateHouse(widget.house, numberOfResidents: numberOfResidents));
+                _overviewBloc.add(UpdateHouse(widget.house,
+                    numberOfResidents: numberOfResidents));
               });
             }
           },
@@ -148,21 +155,20 @@ class _HouseDescription extends State<HouseDescription> {
               return 'Please enter how many residents there are.';
             }
             var points = int.tryParse(value);
-            if(points == null){
+            if (points == null) {
               return "Number of residents must be an integer.";
             }
-            if(points == 0){
+            if (points == 0) {
               return 'Please enter how many residents there are.';
             }
-            if(points < 0){
+            if (points < 0) {
               return 'Please enter a positive value.';
             }
             return null;
           },
         ),
       );
-    }
-    else{
+    } else {
       return Row(
         children: [
           Flexible(
@@ -200,7 +206,7 @@ class _HouseDescription extends State<HouseDescription> {
             flex: 1,
             child: IconButton(
               icon: Icon(Icons.edit),
-              onPressed: (){
+              onPressed: () {
                 setState(() {
                   isEditingNumberOfResidents = true;
                   numResController.text = numberOfResidents.toString();
@@ -211,28 +217,27 @@ class _HouseDescription extends State<HouseDescription> {
         ],
       );
     }
-
-
   }
 
   Widget buildDescriptionEditable() {
-    if(widget.permissionLevel != UserPermissionLevel.PROFESSIONAL_STAFF){
+    if (widget.permissionLevel != UserPermissionLevel.PROFESSIONAL_STAFF) {
       return Text(widget.house.description);
-    }
-    else if(isEditingHouseDescription) {
+    } else if (isEditingHouseDescription) {
       return Form(
         key: _descriptionFormKey,
         child: TextFormField(
-          decoration:InputDecoration(labelText: 'Enter a description for this house.'),
+          decoration:
+              InputDecoration(labelText: 'Enter a description for this house.'),
           maxLength: 250,
           controller: descriptionController,
-          onEditingComplete: (){
+          onEditingComplete: () {
             final form = _descriptionFormKey.currentState;
             if (form.validate()) {
               setState(() {
                 isEditingHouseDescription = false;
                 description = descriptionController.text;
-                _overviewBloc.add(UpdateHouse(widget.house, description: description));
+                _overviewBloc
+                    .add(UpdateHouse(widget.house, description: description));
               });
             }
           },
@@ -244,21 +249,17 @@ class _HouseDescription extends State<HouseDescription> {
           },
         ),
       );
-    }
-    else{
+    } else {
       return Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Flexible(
-            flex: 8,
-              child: Text(description)
-          ),
+          Flexible(flex: 8, child: Text(description)),
           Flexible(
             flex: 1,
             child: IconButton(
               icon: Icon(Icons.edit),
-              onPressed: (){
+              onPressed: () {
                 setState(() {
                   isEditingHouseDescription = true;
                   descriptionController.text = description;
@@ -269,10 +270,7 @@ class _HouseDescription extends State<HouseDescription> {
         ],
       );
     }
-
   }
-
-
 }
 
 class GiveAwardDialogContent extends StatefulWidget {
@@ -284,11 +282,9 @@ class GiveAwardDialogContent extends StatefulWidget {
   State<StatefulWidget> createState() {
     return _GiveAwardDialogContentState();
   }
-
 }
 
-class _GiveAwardDialogContentState extends State<GiveAwardDialogContent>{
-
+class _GiveAwardDialogContentState extends State<GiveAwardDialogContent> {
   bool isLoading = false;
   final _formKey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
@@ -305,91 +301,85 @@ class _GiveAwardDialogContentState extends State<GiveAwardDialogContent>{
 
   @override
   Widget build(BuildContext context) {
-    if(isLoading){
+    if (isLoading) {
       return Center(
-        child: SizedBox(
-            width: 100,
-            height: 100,
-            child: LoadingWidget()
-        ),
+        child: SizedBox(width: 100, height: 100, child: LoadingWidget()),
       );
-    }
-    else{
+    } else {
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: Builder(
             builder: (context) => Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    decoration: InputDecoration(
-                        labelText: 'Enter a description for the award.'),
-                    maxLines: null,
-                    maxLength: 100,
-                    controller: nameController,
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please enter a description for the award.';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    decoration: InputDecoration(
-                        labelText: 'How many points per resident?'),
-                    maxLines: null,
-                    maxLength: 4,
-                    keyboardType: TextInputType.numberWithOptions(),
-                    controller: pprController,
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please enter how many points this is worth.';
-                      }
-                      var points = int.tryParse(value);
-                      if (points == null) {
-                        return "Points per resident must be an integer.";
-                      }
-                      if (points == 0) {
-                        return 'Please enter how many points per resident are required.';
-                      }
-                      if (points < 0) {
-                        return 'Please enter a positive value.';
-                      }
-                      return null;
-                    },
-                  ),
-                  Row(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      RaisedButton(
-                        child: Text("Cancel"),
-                        onPressed: () {
-                          Navigator.of(context).pop();
+                      TextFormField(
+                        decoration: InputDecoration(
+                            labelText: 'Enter a description for the award.'),
+                        maxLines: null,
+                        maxLength: 100,
+                        controller: nameController,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter a description for the award.';
+                          }
+                          return null;
                         },
                       ),
-                      RaisedButton(
-                        child: Text("Submit"),
-                        onPressed: () {
-                          final form = _formKey.currentState;
-                          if (form.validate()) {
-                            setState(() {
-                              isLoading = true;
-                            });
-                            _overviewBloc.add(GrantAward(
-                                nameController.text,
-                                widget.house,
-                                double.parse(pprController.text)));
+                      TextFormField(
+                        decoration: InputDecoration(
+                            labelText: 'How many points per resident?'),
+                        maxLines: null,
+                        maxLength: 4,
+                        keyboardType: TextInputType.numberWithOptions(),
+                        controller: pprController,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter how many points this is worth.';
                           }
+                          var points = int.tryParse(value);
+                          if (points == null) {
+                            return "Points per resident must be an integer.";
+                          }
+                          if (points == 0) {
+                            return 'Please enter how many points per resident are required.';
+                          }
+                          if (points < 0) {
+                            return 'Please enter a positive value.';
+                          }
+                          return null;
                         },
+                      ),
+                      Row(
+                        children: [
+                          RaisedButton(
+                            child: Text("Cancel"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          RaisedButton(
+                            child: Text("Submit"),
+                            onPressed: () {
+                              final form = _formKey.currentState;
+                              if (form.validate()) {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                _overviewBloc.add(GrantAward(
+                                    nameController.text,
+                                    widget.house,
+                                    double.parse(pprController.text)));
+                              }
+                            },
+                          )
+                        ],
                       )
                     ],
-                  )
-                ],
-              ),
-            )),
+                  ),
+                )),
       );
     }
   }
-
 }
