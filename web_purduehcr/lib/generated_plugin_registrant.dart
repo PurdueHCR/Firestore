@@ -2,8 +2,7 @@
 // Generated file. Do not edit.
 //
 
-// ignore: unused_import
-import 'dart:ui';
+// ignore_for_file: lines_longer_than_80_chars
 
 import 'package:cloud_functions_web/cloud_functions_web.dart';
 import 'package:firebase_auth_web/firebase_auth_web.dart';
@@ -13,10 +12,10 @@ import 'package:url_launcher_web/url_launcher_web.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 // ignore: public_member_api_docs
-void registerPlugins(PluginRegistry registry) {
-  CloudFunctionsWeb.registerWith(registry.registrarFor(CloudFunctionsWeb));
-  FirebaseAuthWeb.registerWith(registry.registrarFor(FirebaseAuthWeb));
-  FirebaseCoreWeb.registerWith(registry.registrarFor(FirebaseCoreWeb));
-  UrlLauncherPlugin.registerWith(registry.registrarFor(UrlLauncherPlugin));
-  registry.registerMessageHandler();
+void registerPlugins(Registrar registrar) {
+  CloudFunctionsWeb.registerWith(registrar);
+  FirebaseAuthWeb.registerWith(registrar);
+  FirebaseCoreWeb.registerWith(registrar);
+  UrlLauncherPlugin.registerWith(registrar);
+  registrar.registerMessageHandler();
 }
