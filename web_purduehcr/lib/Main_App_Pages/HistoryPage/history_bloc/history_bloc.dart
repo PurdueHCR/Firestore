@@ -33,7 +33,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState>{
     }
     else if(event is SearchRecent){
       try{
-        yield HistoryPageLoading(searchType:"recent", house: state.house);
+        yield HistoryPageContentLoading(searchType:"recent", house: state.house);
         List<PointLog> logs = await _historyRepository.getRecentHistory(date:event.date, house: state.house);
         yield HistoryPageLoaded(searchType: "recent", logs:logs, lastEvent: event, currentIndex: 0, house: state.house);
       }
@@ -43,7 +43,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState>{
     }
     else if(event is SearchUser){
       try {
-        yield HistoryPageLoading(searchType: "user", house: state.house);
+        yield HistoryPageContentLoading(searchType: "user", house: state.house);
         List<PointLog> logs = await _historyRepository.getUserHistory(
             event.userLastName, house: state.house);
         yield HistoryPageLoaded(
@@ -55,7 +55,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState>{
     }
     else if(event is SearchPointType){
       try{
-        yield HistoryPageLoading(searchType:"point_type", house: state.house);
+        yield HistoryPageContentLoading(searchType:"point_type", house: state.house);
         List<PointLog> logs = await _historyRepository.getPointTypeHistory(event.pointType, house: state.house);
         yield HistoryPageLoaded(searchType: "point_type", logs:logs, lastEvent: event, currentIndex: 0, house: state.house);
       }
@@ -65,7 +65,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState>{
     }
     else if(event is SearchNext){
       try{
-        yield HistoryPageLoading(searchType:state.searchType, logs:state.logs, lastEvent: state.lastEvent, house: state.house);
+        yield HistoryPageContentLoading(searchType:state.searchType, logs:state.logs, lastEvent: state.lastEvent, house: state.house);
         List<PointLog> logs;
         SearchEvent lastEvent = state.lastEvent;
         if(lastEvent is SearchRecent){

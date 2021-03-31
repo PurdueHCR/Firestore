@@ -34,6 +34,9 @@ class HouseCompetitionCardState extends State<HouseCompetitionCard>{
       child = new BarChart(
         _formatData(),
         animate: false,
+        barRendererDecorator: BarLabelDecorator<String>(
+
+        )
       );
     }
     return Card(
@@ -56,6 +59,7 @@ class HouseCompetitionCardState extends State<HouseCompetitionCard>{
         domainFn: (House house, _) => house.name,
         measureFn: (House house, _) => house.pointsPerResident,
         data: rankedHouses,
+        labelAccessorFn: (House house, _) => '${house.pointsPerResident.toStringAsFixed(2)}'
       )
     ];
   }

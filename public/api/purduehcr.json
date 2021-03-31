@@ -10,47 +10,102 @@
   "servers" : [ {
     "url" : "https://us-central1-purdue-hcr-test.cloudfunctions.net",
     "description" : "Sandbox server (uses test data)"
-  }, {
-    "url" : "https://us-central1-hcr-points.cloudfunctions.net",
-    "description" : "Production server (uses live data)"
   } ],
   "tags" : [ {
-    "name" : "user"
-  }, {
+    "name" : "administration",
+    "description" : "Endpoints to be used by the admins to perform mass updates."
+  },{
     "name" : "competition"
-  }, {
-    "name" : "link"
-  }, {
-    "name" : "rewards"
-  }, {
-    "name" : "point_type"
-  }, {
-    "name" : "point_log"
+  },{
+    "name" : "event"
   },{
     "name" : "house_codes"
   },{
-    "name" : "web",
-    "description": "Endpoints used by the Flutter Web app to minimize api calls."
+    "name" : "link"
+  },{
+    "name" : "point_log"
   }, {
-    "name" : "administration",
-    "description": "Endpoints to be used by the admins to perform mass updates."
-  }],
+    "name" : "point_type"
+  },{
+    "name" : "rewards"
+  }, {
+    "name" : "user"
+  },{
+    "name" : "web",
+    "description" : "Endpoints used by the Flutter Web app to minimize api calls."
+  } ],
   "paths" : {
-    "/house_codes/" : {
-      "get" : {
-        "tags" : [ "house_codes" ],
-        "summary" : "Returns all house codes that is visible to the user.",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
+    "/administration/endSemester" : {
+      "post" : {
+        "tags" : [ "administration" ],
+        "summary" : "Initiate the end semester process",
+        "description" : "Request a confirmation email sent to the user's account that contains information on how to save the current points total for all users. This can only be performed by an REA/REC.",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Confirmation sent"
           },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid."
+          },
+          "409" : {
+            "description" : "User does not have sufficient permissions to perform this action."
+          },
+          "410" : {
+            "description" : "Undefined User Role"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/administration/resetCompetition" : {
+      "post" : {
+        "tags" : [ "administration" ],
+        "summary" : "Initiate the reset competition process",
+        "description" : "Request a confirmation email sent to the user's account that contains information on how to reset the house competition. This will delete all submitted points, delete all QR codes, delete all users, and reset house scores. This can only be performed by an REA/REC.",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Confirmation sent"
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid."
+          },
+          "409" : {
+            "description" : "User does not have sufficient permissions to perform this action."
+          },
+          "410" : {
+            "description" : "Undefined User Role"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/competition/getUnhandledPoints" : {
+      "get" : {
+        "tags" : [ "competition" ],
+        "summary" : "Get unhandled points",
+        "description" : "Get a list of all points that have not yet been handled by RHPs in the house. This endpoint is just for RHPs.",
+        "security" : [ {
+          "bearerAuth" : [ ]
         } ],
         "responses" : {
           "200" : {
@@ -59,8 +114,819 @@
               "application/json" : {
                 "schema" : {
                   "type" : "object",
-                  "properties": {
-                    "house_codes": {
+                  "properties" : {
+                    "point_logs" : {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointLog"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "425" : {
+            "description" : "This error should never be returned, but it could. If you ever get this, please report it as a bug and the user that you tried to access it with.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownHouse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/competition/history" : {
+      "get" : {
+        "tags" : [ "competition" ],
+        "summary" : "Get Competition History",
+        "description" : "Endpoint for Professional Staff and RHPs to view the history of submissions in their house.",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "type",
+          "in" : "query",
+          "description" : "Type of search to perform.",
+          "required" : true,
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "enum": ["recent", "user", "point_type"]
+          },
+          "example" : "user"
+        }, {
+          "name" : "last_name",
+          "in" : "query",
+          "description" : "Search term used for finding point submissions for users with the given last name. Required if the search type is 'user'.",
+          "required" : false,
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Doe"
+        }, {
+          "name" : "point_type_id",
+          "in" : "query",
+          "description" : "Id for the point type to get submissions for. (Only applies when the type is 'point_type'. This will only find point submissions which were handled.",
+          "required" : false,
+          "explode" : true,
+          "schema" : {
+            "type" : "integer"
+          },
+          "example" : 2
+        }, {
+          "name" : "date",
+          "in" : "query",
+          "description" : "Defines the date to get point submissions that occurred on or before. (Only applies when the type is 'recent'.)",
+          "required" : false,
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "8/24/2020"
+        }, {
+          "name" : "startAt",
+          "in" : "query",
+          "description" : "Oldest date returned in the previous query. This is used for pagination.",
+          "required" : false,
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "4/19/2020"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "point_logs" : {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointLog"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing required parameters.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "423" : {
+            "description" : "Could not interpret the provided date",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDateFormat"
+                }
+              }
+            }
+          },
+          "425" : {
+            "description" : "The provided house name is incorrect.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownHouse"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "At least one of the parameters you provided was in an incorrect format.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/competition/houseAward" : {
+      "post" : {
+        "tags" : [ "competition" ],
+        "description" : "Give a points per resident award to the house specified. This is only for professional staff",
+        "summary" : "Post House Award",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "description" : "Fields to give award to a house",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties" : {
+                  "house" : {
+                    "type" : "string",
+                    "example" : "Platinum"
+                  },
+                  "ppr" : {
+                    "type" : "number",
+                    "example" : 10
+                  },
+                  "description" : {
+                    "type" : "string",
+                    "example" : "First Place in the Summer Competition"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Retrieved Point Logs",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level. Only Residents, RHPs, and Privileged Residents can get points",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing Required Parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "Invalid Format in Data",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/" : {
+      "get" : {
+        "tags" : [ "event" ],
+        "summary" : "Get user's created events",
+        "description" : "Retrieves all events that were created by the user.",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "rewards" : {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/Event"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Residents can not create events, so they have no events to retrieve.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "event" ],
+        "summary" : "Create an Event",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to create an event. ",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EventCreate"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Event"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Residents can't create events",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "A required parameter was missing.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "event" ],
+        "summary" : "Update an Event",
+        "description" : "Update an event. The provided user in the Authorization token must be the creator id. The only field which is required is the event Id and at least 1 other field.The updated point type id must be accessable by the user.",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to update an Event. Id is the only required parameters",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EventUpdate"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "417" : {
+            "description" : "Unknown Point Type Id",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDoesNotExist"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "An id must be provided as well as at least one of the other parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "423" : {
+            "description" : "Could not parse the date. Check the message body for more details",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDateFormat"
+                }
+              }
+            }
+          },
+          "424" : {
+            "description" : "Date is not in range. Start Date must be greater than or equal to the current date and the End Date must come after the Start Date",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DateNotInRage"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "430" : {
+            "description" : "You don't have the correct permission to use this point type for an event",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InsufficientPointTypePermissionForLink"
+                }
+              }
+            }
+          },
+          "432" : {
+            "description" : "You don't have the correct permission to edit this event.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CanNotAccessEvent"
+                }
+              }
+            }
+          },
+          "450" : {
+            "description" : "There is no Event with that Id",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantEvent"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/{eventId}" : {
+      "delete" : {
+        "tags" : [ "event" ],
+        "summary" : "Delete event",
+        "description" : "Delete the event with the provided id. An event can only be deleted by the creator",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "eventId",
+          "in" : "path",
+          "description" : "Id of the event to delete",
+          "required" : true,
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "420" : {
+            "description" : "The Id provided for the event was not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CanNotAccessEvent"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "An id must be provided as well as at least one of the other parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "450" : {
+            "description" : "There is no Event with that Id",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantEvent"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/feed" : {
+      "get" : {
+        "tags" : [ "event" ],
+        "summary" : "Get upcoming events",
+        "description" : "Retrieves upcoming events that the user could attend.",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "events" : {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/Event"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Residents can not create events, so they have no events to retrieve.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/house_codes/" : {
+      "get" : {
+        "tags" : [ "house_codes" ],
+        "summary" : "Get House Codes",
+        "description" : "Returns all house codes that is visible to the user.",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "house_codes" : {
                       "type" : "array",
                       "items" : {
                         "$ref" : "#/components/schemas/HouseCode"
@@ -114,13 +980,12 @@
         }
       }
     },
-
     "/house_codes/preview" : {
       "get" : {
         "tags" : [ "house_codes" ],
-        "summary" : "Return the house code for the provided id and the house model if present",
-        "parameters" : [ 
-          {
+        "summary" : "Preview House Details",
+        "description" : "Get the house and house code information for the provided id. Used to provide a preivew of the account the user is signing up for before they officially join the house.",
+        "parameters" : [ {
           "name" : "code",
           "in" : "query",
           "description" : "Code for the join house code",
@@ -131,8 +996,7 @@
             "type" : "string"
           },
           "example" : "ABC123"
-          } 
-        ],
+        } ],
         "responses" : {
           "200" : {
             "description" : "Success",
@@ -177,32 +1041,23 @@
         }
       }
     },
-
     "/house_codes/refresh" : {
       "post" : {
         "tags" : [ "house_codes" ],
-        "summary" : "Refresh the code field in the House Code models and generate a new dynamic link for it. If provided with an id in the body, this will only refresh the token on that House Code.",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        "summary" : "Refresh House Code",
+        "description" : "Refresh the code field in the House Code models and generate a new dynamic link for it. If provided with an id in the body, this will only refresh the token on that House Code.",
+        "security" : [ {
+          "bearerAuth" : [ ]
         } ],
         "requestBody" : {
           "description" : "Optional field to only refresh a single House Code",
           "content" : {
             "application/json" : {
               "schema" : {
-                "properties": {
+                "properties" : {
                   "id" : {
-                    "type": "string",
-                    "example": "329opc8dahl3fh"
+                    "type" : "string",
+                    "example" : "329opc8dahl3fh"
                   }
                 }
               }
@@ -217,8 +1072,8 @@
               "application/json" : {
                 "schema" : {
                   "type" : "object",
-                  "properties": {
-                    "house_codes": {
+                  "properties" : {
+                    "house_codes" : {
                       "type" : "array",
                       "items" : {
                         "$ref" : "#/components/schemas/HouseCode"
@@ -292,30 +1147,1109 @@
         }
       }
     },
-
-    "/user/auth-rank" : {
+    "/link/" : {
       "get" : {
-        "tags" : [ "user" ],
-        "summary" : "Returns the user's overall house rank and semester rank.",
+        "tags" : [ "link" ],
+        "summary" : "Get a link",
+        "description" : "Gets the link with the provided id",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
         "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
+          "name" : "id",
+          "in" : "query",
+          "description" : "Id  for the link",
           "required" : true,
-          "style" : "simple",
-          "explode" : false,
+          "style" : "form",
+          "explode" : true,
           "schema" : {
             "type" : "string"
           },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+          "example" : "ed3rodsaw34fnbjdla"
         } ],
         "responses" : {
           "200" : {
-            "description" : "A JSON object with the user's house rank and semester rank",
+            "description" : "Success",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/UserRank"
+                  "$ref" : "#/components/schemas/Link"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "408" : {
+            "description" : "Link Doesnt Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LinkDoesntExist"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/link/create" : {
+      "post" : {
+        "tags" : [ "link" ],
+        "summary" : "Create a Link",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "description" : "Required parameters to update the link",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LinkCreation"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Doesn't exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permissions. Residents can't create Links.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "417" : {
+            "description" : "Unknown Point Type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDoesNotExist"
+                }
+              }
+            }
+          },
+          "418" : {
+            "description" : "Point Type Disabled.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDisabled"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing Required Parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "430" : {
+            "description" : "User does not have high enough permissions to use this point type to create a link.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InsufficientPointTypePermissionForLink"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/link/update" : {
+      "put" : {
+        "tags" : [ "link" ],
+        "summary" : "Update a Link",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "description" : "Body sent to update the link. Only id is required. The other parameters are optional.",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LinkUpdate"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "407" : {
+            "description" : "Link Doesn't Belong to User",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LinkDoesntBelongToUser"
+                }
+              }
+            }
+          },
+          "408" : {
+            "description" : "Link Doesn't Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LinkDoesntExist"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing required parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "Description Can not be empty",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/point_log/messages" : {
+      "post" : {
+        "tags" : [ "point_log" ],
+        "summary" : "Post a message",
+        "description" : "Post a new message to a point log. User must be an RHP, professional staff, or own the point log",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "description" : "Required parameters to post a message",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties" : {
+                  "log_id" : {
+                    "type" : "string",
+                    "example" : "329opc8dahl3fh"
+                  },
+                  "message" : {
+                    "type" : "string",
+                    "example" : "Good Job on the submission"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Message Successfully Saved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "427" : {
+            "description" : "Can Not Post Message -  The user can not post a message to this point log",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CanNotPostMessage"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get" : {
+        "tags" : [ "point_log" ],
+        "summary" : "Get Messages for a Point Log",
+        "description" : "Get all the messages on a point log with the provided id. The user must have read access to this point log.",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "log_id",
+          "in" : "query",
+          "description" : "Id  for the point log",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "aljk3p890dchjvo2"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Message Successfully Saved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This user can not view or edit Point log messages.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "413" : {
+            "description" : "Could not find the point log",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownPointLog"
+                }
+              }
+            }
+          },
+          "431" : {
+            "description" : "The User does not have permission to modify or view this point log.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CanNotAccessPointLog"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/point_type/" : {
+      "get" : {
+        "tags" : [ "point_type" ],
+        "summary" : "Get all point types",
+        "description" : "Route for professional staff to get all point types.",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "point_types" : {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "point_type" ],
+        "summary" : "Update point type",
+        "description" : "Route for professional staff to update a point type",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to update a point type. Id is the only required parameters",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PointType"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "417" : {
+            "description" : "The Id provided for the point type was not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDoesNotExist"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "An id must be provided as well as at least one of the other parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "point_type" ],
+        "summary" : "Create point type",
+        "description" : "Route for professional staff to create a point type",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to update a point type. ",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PointTypeWithoutId"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointType"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "An id must be provided as well as at least one of the other parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/point_type/linkable" : {
+      "get" : {
+        "tags" : [ "point_type" ],
+        "summary" : "Get linkable point types",
+        "description" : "Returns all the point types which can be used to create a link or QR code.",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "point_types" : {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/point_type/submittable" : {
+      "get" : {
+        "tags" : [ "point_type" ],
+        "summary" : "Get submittable point type",
+        "description" : "Returns all the point types which can be used to create a submission for the given user",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "point_types" : {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rewards/" : {
+      "get" : {
+        "tags" : [ "rewards" ],
+        "summary" : "Retrieve an award",
+        "description" : "If given an Id,  get the reward with that Id, otherwise get all the rewards",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "query",
+          "description" : "Id  for the reward",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Ice Cream Party"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "rewards" : {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/Reward"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "420" : {
+            "description" : "Could not find the reward with the given Id",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownReward"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "rewards" ],
+        "summary" : "Create a reward",
+        "description" : "Route for professional staff to create a reward.",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to update a reward. ",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Reward"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Reward"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "An id must be provided as well as at least one of the other parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "rewards" ],
+        "summary" : "Update reward",
+        "description" : "Route for professional staff to update a reward",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "description" : "Parameters to update a reward. Id is the only required parameters",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Reward"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "420" : {
+            "description" : "The Id provided for the reward was not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnknownReward"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "An id must be provided as well as at least one of the other parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rewards/{rewardId}":{
+      "delete" : {
+        "tags" : [ "rewards" ],
+        "summary" : "Delete reward",
+        "description" : "Deletes the reward with the given id. This endpoint can only be used by professional staff",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "rewardId",
+          "in" : "path",
+          "description" : "Id of the reward to delete",
+          "required" : true,
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Message Successfully Saved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
                 }
               }
             }
@@ -341,7 +2275,7 @@
             }
           },
           "403" : {
-            "description" : "Invalid Permissions. Non competition participants can not get a rank.",
+            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -350,237 +2284,12 @@
               }
             }
           },
-          "500" : {
-            "description" : "Server Error",
+          "420" : {
+            "description" : "Could not find the reward with the given Id",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/user/create" : {
-      "post" : {
-        "tags" : [ "user" ],
-        "summary" : "After a FirebaseUser account has been created, this will create the user model in the database",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        }, {
-          "name" : "first",
-          "in" : "query",
-          "description" : "The users preferred first name",
-          "required" : true,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "John"
-        }, {
-          "name" : "last",
-          "in" : "query",
-          "description" : "The users preferred last name",
-          "required" : true,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Purdue"
-        }, {
-          "name" : "code",
-          "in" : "query",
-          "description" : "The user provided house code that will connect a user with a house",
-          "required" : true,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "4N1234"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "User was successfully created",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/User"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm The Token Is Valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "412" : {
-            "description" : "User Already Exists",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/UserAlreadyExists"
-                }
-              }
-            }
-          },
-          "422" : {
-            "description" : "Missing required parameters.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MissingRequiredParameters"
-                }
-              }
-            }
-          },
-          "425" : {
-            "description" : "House Code Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/HouseCodeDoesNotExist"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/user/search" : {
-      "get" : {
-        "tags" : [ "user" ],
-        "summary" : "Search for a user whose last name starts with the provided term. This is an endpoint for Professional staff only.",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        }, {
-          "name" : "term",
-          "in" : "query",
-          "description" : "The begining of the last name of the user to find.",
-          "required" : true,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "A"
-        },
-        {
-          "name" : "previousName",
-          "in" : "query",
-          "description" : "The last name of the last resident returned in the previous request to support pagination.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Aardvark"
-        }
-       ],
-        "responses" : {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object",
-                  "properties": {
-                    "users": {
-                      "type" : "array",
-                      "items" : {
-                        "$ref" : "#/components/schemas/User"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User who made the request does not exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm The Token Is Valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permission Level to access this endpoint.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "422" : {
-            "description" : "Missing Required Parameters",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MissingRequiredParameters"
-                }
-              }
-            }
-          },
-          "426" : {
-            "description" : "Invalid Data Format. Make sure Strings are not null or empty.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                  "$ref" : "#/components/schemas/UnknownReward"
                 }
               }
             }
@@ -599,20 +2308,11 @@
       }
     },
     "/user/" : {
-      "put": {
+      "put" : {
         "tags" : [ "user" ],
-        "summary" : "Update the user model.",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        "summary" : "Update the user.",
+        "security" : [ {
+          "bearerAuth" : [ ]
         } ],
         "requestBody" : {
           "description" : "Parameters to update the user. If an id is not provided, it will update the current user's information. Otherwise, it will use the provided id to update a user. A resident can only update the first and last name. RHP's can do that and update the house and floor id. Professional staff can update those and the permission level.",
@@ -720,18 +2420,9 @@
       },
       "get" : {
         "tags" : [ "user" ],
-        "summary" : "Get the user model for the provided Firebase Token.",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        "summary" : "Get the user.",
+        "security" : [ {
+          "bearerAuth" : [ ]
         } ],
         "responses" : {
           "200" : {
@@ -777,19 +2468,712 @@
         }
       }
     },
+    "/user/auth-rank" : {
+      "get" : {
+        "tags" : [ "user" ],
+        "summary" : "Get the User Rank",
+        "description" : "Returns the user's overall house rank and semester rank.",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "A JSON object with the user's house rank and semester rank",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserRank"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permissions. Non competition participants can not get a rank.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/create" : {
+      "post" : {
+        "tags" : [ "user" ],
+        "summary" : "Create a user",
+        "description" : "After a FirebaseUser account has been created, this will create the user model in the database",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "first",
+          "in" : "query",
+          "description" : "The users preferred first name",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "John"
+        }, {
+          "name" : "last",
+          "in" : "query",
+          "description" : "The users preferred last name",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Purdue"
+        }, {
+          "name" : "code",
+          "in" : "query",
+          "description" : "The user provided house code that will connect a user with a house",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "4N1234"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "User was successfully created",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "412" : {
+            "description" : "User Already Exists",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserAlreadyExists"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing required parameters.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "425" : {
+            "description" : "House Code Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HouseCodeDoesNotExist"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/links" : {
+      "get" : {
+        "tags" : [ "user" ],
+        "summary" : "Get user's links",
+        "description" : "Get all the links created by the provided user",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PointType"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm the token is valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level -  This user does not have the ability to create Links.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/points" : {
+      "get" : {
+        "tags" : [ "user" ],
+        "summary" : "Gets a user's points",
+        "description" : "Returns a list of all points that a user has submitted.",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : false,
+          "schema" : {
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Retrieved Point Logs",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "points" : {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/PointLog"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level. Only Residents, RHPs, and Privileged Residents can get points",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/user/search" : {
+      "get" : {
+        "tags" : [ "user" ],
+        "summary" : "Search for user",
+        "description" : "Search for a user whose last name starts with the provided term. This is an endpoint for Professional staff only.",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "term",
+          "in" : "query",
+          "description" : "The begining of the last name of the user to find.",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "A"
+        }, {
+          "name" : "previousName",
+          "in" : "query",
+          "description" : "The last name of the last resident returned in the previous request to support pagination.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Aardvark"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "users" : {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/User"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User who made the request does not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level to access this endpoint.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Missing Required Parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "426" : {
+            "description" : "Invalid Data Format. Make sure Strings are not null or empty.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidDataFormat"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/submitEvent" : {
+      "post" : {
+        "tags" : [ "user" ],
+        "summary" : "Submit an event for points",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "description" : "Id of the Event to register attendance for",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties" : {
+                  "eventId" : {
+                    "type" : "string",
+                    "example" : "kPW2Qq2Mvsjrb3Lk9ulL"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "The submission was successful and an approval request was sent to an RHP.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "The submission was successful and was automatically approved.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Points Already Claimed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointsAlreadyClaimed"
+                }
+              }
+            }
+          },
+          "412" : {
+            "description" : "House Competition is disabled.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CompetitionDisabled"
+                }
+              }
+            }
+          },
+          "418" : {
+            "description" : "Point Type is disabled.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDisabled"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Required parameters are missing.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "429" : {
+            "description" : "Event submission not open.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EventSubmissionsNotOpen"
+                }
+              }
+            }
+          },
+          "432" : {
+            "description" : "Can not access event",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CanNotAccessEvent"
+                }
+              }
+            }
+          },
+          "450" : {
+            "description" : "There is no Event with that Id",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantEvent"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/user/submitLink" : {
+      "post" : {
+        "tags" : [ "user" ],
+        "summary" : "Submit a link for points",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "description" : "Fields to submit a point log",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties" : {
+                  "link_id" : {
+                    "type" : "string",
+                    "example" : "kPW2Qq2Mvsjrb3Lk9ulL"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "The Point Log was successfully submitted for the resident and an approval request was sent to an RHP.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "The Point Log was successfully submitted and was automatically approved.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "User Does Not Exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NonExistantUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: Confirm The Token Is Valid.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Invalid Permission Level",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
+                }
+              }
+            }
+          },
+          "408" : {
+            "description" : "There is no link with that Id",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LinkDoesntExist"
+                }
+              }
+            }
+          },
+          "412" : {
+            "description" : "House Competition is disabled.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CompetitionDisabled"
+                }
+              }
+            }
+          },
+          "418" : {
+            "description" : "Point Type is disabled.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeDisabled"
+                }
+              }
+            }
+          },
+          "419" : {
+            "description" : "Users can not self submit this point type.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointTypeSelfSubmissionDisabled"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Required parameters are missing.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MissingRequiredParameters"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
     "/user/submitPoint" : {
       "post" : {
         "tags" : [ "user" ],
-        "summary" : "Submit a point log for a user",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
+        "summary" : "Submit a point",
+        "description" : "Submit a pointlog for the user defined in the Authentication header.",
+        "security" : [ {
+          "bearerAuth" : [ ]
         } ],
         "requestBody" : {
           "description" : "Fields to submit a point log",
@@ -909,763 +3293,18 @@
         }
       }
     },
-    "/user/submitLink" : {
-      "post" : {
-        "tags" : [ "user" ],
-        "summary" : "Submit a point through a link",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "description" : "Fields to submit a point log",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "properties": {
-                  "link_id": {
-                    "type" : "string",
-                    "example" : "kPW2Qq2Mvsjrb3Lk9ulL"
-                  }
-                }
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "201" : {
-            "description" : "The Point Log was successfully submitted for the resident and an approval request was sent to an RHP.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Success"
-                }
-              }
-            }
-          },
-          "202" : {
-            "description" : "The Point Log was successfully submitted and was automatically approved.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Success"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm The Token Is Valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permission Level",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "408" : {
-            "description" : "There is no link with that Id",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/LinkDoesntExist"
-                }
-              }
-            }
-          },
-          "412" : {
-            "description" : "House Competition is disabled.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/CompetitionDisabled"
-                }
-              }
-            }
-          },
-          "418" : {
-            "description" : "Point Type is disabled.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PointTypeDisabled"
-                }
-              }
-            }
-          },
-          "419" : {
-            "description" : "Users can not self submit this point type.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PointTypeSelfSubmissionDisabled"
-                }
-              }
-            }
-          },
-          "422" : {
-            "description" : "Required parameters are missing.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MissingRequiredParameters"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/user/links": {
-      "get" : {
-        "tags": [ "user"],
-        "summary": "Get all links created by the given user",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "responses": {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/PointType"
-                  }
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permission Level -  This user does not have the ability to create Links.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/user/points" : {
-      "get" : {
-        "tags" : [ "user" ],
-        "summary" : "Get submitted point logs for the user",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        },
-        {
-          "name" : "limit",
-          "in" : "query",
-          "required": false,
-          "style": "form",
-          "explode": false,
-          "schema" : {
-            "type": "integer"
-          }
-        }
-        ],
-      
-        "responses" : {
-          "200" : {
-            "description" : "Retrieved Point Logs",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object",
-                  "properties": {
-                    "points": {
-                      "type" : "array",
-                      "items" : {
-                        "$ref" : "#/components/schemas/PointLog"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm The Token Is Valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permission Level. Only Residents, RHPs, and Privileged Residents can get points",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/competition/houseAward" : {
-      "post" : {
-        "tags" : [ "competition" ],
-        "summary" : "Give a Points Per Resident award to the house specified. This is only for Professional staff",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "requestBody" : {
-          "description" : "Fields to give award to a house",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "properties": {
-                  "house": {
-                    "type" : "string",
-                    "example" : "Platinum"
-                  },
-                  "ppr": {
-                    "type" : "number",
-                    "example" : 10
-                  },
-                  "description": {
-                    "type" : "string",
-                    "example" : "First Place in the Summer Competition"
-                  }
-                }
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Retrieved Point Logs",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Success"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm The Token Is Valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permission Level. Only Residents, RHPs, and Privileged Residents can get points",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "422" : {
-            "description" : "Missing Required Parameters",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MissingRequiredParameters"
-                }
-              }
-            }
-          },
-          "426" : {
-            "description" : "Invalid Format in Data",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidDataFormat"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Internal Server Error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/administration/endSemester" : {
-      "post" : {
-        "tags" : [ "administration" ],
-        "summary" : "Request a confirmation email sent to the user's account that contains information on how to save the current points total for all users. This can only be performed by an REA/REC.",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Confirmation sent"
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid."
-          },
-          "409" : {
-            "description" : "User does not have sufficient permissions to perform this action."
-          },
-          "410" : {
-            "description" : "Undefined User Role"
-          },
-          "500" : {
-            "description" : "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/administration/resetCompetition" : {
-      "post" : {
-        "tags" : [ "administration" ],
-        "summary" : "Request a confirmation email sent to the user's account that contains information on how to reset the house competition. This will delete all submitted points, delete all QR codes, delete all users, and reset house scores. This can only be performed by an REA/REC.",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Confirmation sent"
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid."
-          },
-          "409" : {
-            "description" : "User does not have sufficient permissions to perform this action."
-          },
-          "410" : {
-            "description" : "Undefined User Role"
-          },
-          "500" : {
-            "description" : "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/competition/history" : {
-      "get" : {
-        "tags" : [ "competition" ],
-        "summary" : "Endpoint for Professional Staff and RHPs to view the history of submissions in their house.",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        },{
-          "name" : "type",
-          "in" : "query",
-          "description" : "Type of search to perform. {'recent','user','point_type'}.",
-          "required" : true,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "user"
-        },{
-          "name" : "last_name",
-          "in" : "query",
-          "description" : "Search term used for finding point submissions for users with the given last name. Required if the search type is 'user'.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Doe"
-        },{
-          "name" : "point_type_id",
-          "in" : "query",
-          "description" : "Id for the point type to get submissions for. (Only applies when the type is 'point_type'. This will only find point submissions which were handled.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "integer"
-          },
-          "example" : 2
-        },{
-          "name" : "date",
-          "in" : "query",
-          "description" : "Defines the date to get point submissions that occurred on or before. (Only applies when the type is 'recent'.)",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "8/24/2020"
-        },{
-          "name" : "startAt",
-          "in" : "query",
-          "description" : "Oldest date returned in the previous query. This is used for pagination.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "4/19/2020"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object",
-                  "properties": {
-                    "point_logs": {
-                      "type" : "array",
-                      "items" : {
-                        "$ref" : "#/components/schemas/PointLog"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permission Level",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "422" : {
-            "description" : "Missing required parameters.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MissingRequiredParameters"
-                }
-              }
-            }
-          },
-          "423" : {
-            "description" : "Could not interpret the provided date",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidDateFormat"
-                }
-              }
-            }
-          },
-          "425" : {
-            "description" : "The provided house name is incorrect.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/UnknownHouse"
-                }
-              }
-            }
-          },
-          "426" : {
-            "description" : "At least one of the parameters you provided was in an incorrect format.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidDataFormat"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/competition/getUnhandledPoints" : {
-      "get" : {
-        "tags" : [ "competition" ],
-        "summary" : "For an RA, get all unhandled points for your house",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object",
-                  "properties": {
-                    "point_logs": {
-                      "type" : "array",
-                      "items" : {
-                        "$ref" : "#/components/schemas/PointLog"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permission Level",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "425" : {
-            "description" : "This error should never be returned, but it could. If you ever get this, please report it as a bug and the user that you tried to access it with.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/UnknownHouse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/web/initialization" : {
-      "get": {
-        "tags": ["web"],
-        "summary": "Returns initial fields needed to setup the web app",
-        "parameters": [],
-        "responses": {
+      "get" : {
+        "tags" : [ "web" ],
+        "summary" : "Get web initialization data",
+        "description" : "Returns initial fields needed to setup the web app",
+        "parameters" : [ ],
+        "responses" : {
           "200" : {
-            "description": "Successfully retrieved information",
+            "description" : "Successfully retrieved information",
             "content" : {
               "application/json" : {
-                "schema": {
+                "schema" : {
                   "$ref" : "#/components/schemas/WebInitializationResponse"
                 }
               }
@@ -1707,18 +3346,10 @@
     "/web/userOverview" : {
       "get" : {
         "tags" : [ "web" ],
-        "summary" : "Get the data that is most pertinent to the given user.",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
+        "summary" : "Get user overview data",
+        "description" : "Get the user data that is required for the web app's user page",
+        "security" : [ {
+          "bearerAuth" : [ ]
         } ],
         "responses" : {
           "200" : {
@@ -1727,11 +3358,11 @@
               "application/json" : {
                 "schema" : {
                   "type" : "object",
-                  "properties": {
-                    "resident": {
+                  "properties" : {
+                    "resident" : {
                       "$ref" : "#/components/schemas/ResidentOverview"
                     },
-                    "rhp": {
+                    "rhp" : {
                       "$ref" : "#/components/schemas/RHPOverview"
                     }
                   }
@@ -1771,1297 +3402,30 @@
           }
         }
       }
-    },
-    "/link/" : {
-      "get" : {
-        "tags" : [ "link" ],
-        "summary" : "Get a specific Link",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        },{
-          "name" : "id",
-          "in" : "query",
-          "description" : "Id  for the link",
-          "required" : true,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "ed3rodsaw34fnbjdla"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Link"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "408" : {
-            "description" : "Link Doesnt Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/LinkDoesntExist"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/link/create" : {
-      "post" : {
-        "tags" : [ "link" ],
-        "summary" : "Create a Link",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "requestBody" : {
-          "description" : "Required parameters to update the link",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/LinkCreation"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Success"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Doesn't exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permissions. Residents can't create Links.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "417" : {
-            "description" : "Unknown Point Type.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PointTypeDoesNotExist"
-                }
-              }
-            }
-          },
-          "418" : {
-            "description" : "Point Type Disabled.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PointTypeDisabled"
-                }
-              }
-            }
-          },
-          "422" : {
-            "description" : "Missing Required Parameters",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MissingRequiredParameters"
-                }
-              }
-            }
-          },
-          "430" : {
-            "description" : "User does not have high enough permissions to use this point type to create a link.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InsufficientPointTypePermissionForLink"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/link/update" : {
-      "put" : {
-        "tags" : [ "link" ],
-        "summary" : "Update a Link",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "requestBody" : {
-          "description" : "Body sent to update the link. Only id is required. The other parameters are optional.",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/LinkUpdate"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Success"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "407" : {
-            "description" : "Link Doesn't Belong to User",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/LinkDoesntBelongToUser"
-                }
-              }
-            }
-          },
-          "408" : {
-            "description" : "Link Doesn't Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/LinkDoesntExist"
-                }
-              }
-            }
-          },
-          "422" : {
-            "description" : "Missing required parameters",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MissingRequiredParameters"
-                }
-              }
-            }
-          },
-          "426" : {
-            "description" : "Description Can not be empty",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidDataFormat"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/point_type/": {
-      "get" : {
-        "tags": [ "point_type"],
-        "summary": "Route for professional staff to get all point types",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "responses": {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object",
-                  "properties": {
-                    "point_types": {
-                      "type" : "array",
-                      "items" : {
-                        "$ref" : "#/components/schemas/PointType"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put" : {
-        "tags": [ "point_type"],
-        "summary": "Route for professional staff to update a point type",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "requestBody" : {
-          "description" : "Parameters to update a point type. Id is the only required parameters",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/PointType"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses": {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Success"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "417" : {
-            "description" : "The Id provided for the point type was not found.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PointTypeDoesNotExist"
-                }
-              }
-            }
-          },
-          "422" : {
-            "description" : "An id must be provided as well as at least one of the other parameters",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MissingRequiredParameters"
-                }
-              }
-            }
-          },
-          "426" : {
-            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidDataFormat"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post" : {
-        "tags": [ "point_type"],
-        "summary": "Route for professional staff to create a point type",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "requestBody" : {
-          "description" : "Parameters to update a point type. ",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/PointTypeWithoutId"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses": {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PointType"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "422" : {
-            "description" : "An id must be provided as well as at least one of the other parameters",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MissingRequiredParameters"
-                }
-              }
-            }
-          },
-          "426" : {
-            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidDataFormat"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/point_type/submittable": {
-      "get" : {
-        "tags": [ "point_type"],
-        "summary": "Returns all the point types which can be used to create a submission for the given user",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "responses": {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object",
-                  "properties": {
-                    "point_types": {
-                      "type" : "array",
-                      "items" : {
-                        "$ref" : "#/components/schemas/PointType"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/point_type/linkable": {
-      "get" : {
-        "tags": [ "point_type"],
-        "summary": "Returns all the point types which can be used to create a link or QR code.",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "responses": {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object",
-                  "properties": {
-                    "point_types": {
-                      "type" : "array",
-                      "items" : {
-                        "$ref" : "#/components/schemas/PointType"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/rewards/" : {
-      "delete": {
-        "tags" : [ "rewards" ],
-        "description":"Deletes the reward with the given id.",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        }, {
-          "name" : "id",
-          "in" : "query",
-          "description" : "Id  for the reward",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Ice Cream Party"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Message Successfully Saved",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Success"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm The Token Is Valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "420" : {
-            "description" : "Could not find the reward with the given Id",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/UnknownReward"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get" : {
-        "tags" : [ "rewards" ],
-        "summary" : "If given an Id,  get the reward with that Id, otherwise get all the rewards",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        }, {
-          "name" : "id",
-          "in" : "query",
-          "description" : "Id  for the reward",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Ice Cream Party"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object",
-                  "properties": {
-                    "rewards": {
-                      "type" : "array",
-                      "items" : {
-                        "$ref" : "#/components/schemas/Reward"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm The Token Is Valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "420" : {
-            "description" : "Could not find the reward with the given Id",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/UnknownReward"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post" : {
-        "tags": [ "rewards"],
-        "summary": "Route for professional staff to create a reward",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "requestBody" : {
-          "description" : "Parameters to update a reward. ",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/Reward"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses": {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Reward"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "422" : {
-            "description" : "An id must be provided as well as at least one of the other parameters",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MissingRequiredParameters"
-                }
-              }
-            }
-          },
-          "426" : {
-            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidDataFormat"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [ "rewards"],
-        "summary": "Route for professional staff to update a reward",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-        } ],
-        "requestBody" : {
-          "description" : "Parameters to update a reward. Id is the only required parameters",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/Reward"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses": {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Success"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "User Does Not Exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NonExistantUser"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Invalid Permission Level -  Only Professional Staf can access this endpoint.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "420" : {
-            "description" : "The Id provided for the reward was not found.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/UnknownReward"
-                }
-              }
-            }
-          },
-          "422" : {
-            "description" : "An id must be provided as well as at least one of the other parameters",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MissingRequiredParameters"
-                }
-              }
-            }
-          },
-          "426" : {
-            "description" : "One or more of your fields were either empty or in a format that couldn't be understood for the required data type.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidDataFormat"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-
-    },
-    "/point_log/messages" : {
-      "post" : {
-        "tags" : [ "point_log" ],
-        "summary" : "Post a new message to the point log",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-          }
-        ],
-        "requestBody" : {
-          "description" : "Required parameters to post a message",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "properties": {
-                  "log_id" : {
-                    "type": "string",
-                    "example": "329opc8dahl3fh"
-                  },
-                  "message" : {
-                    "type": "string",
-                    "example": "Good Job on the submission"
-                  }
-                }
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Message Successfully Saved",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Success"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "427" : {
-            "description" : "Can Not Post Message -  The user can not post a message to this point log",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/CanNotPostMessage"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get" : {
-        "tags" : [ "point_log" ],
-        "summary" : "Get all messages for a point log in chronological order",
-        "parameters" : [ {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Bearer Firebase_ID_Token",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          },
-          "example" : "Bearer XXXXXXXXXXXXXXXXXXX"
-          },{
-            "name" : "log_id",
-            "in" : "query",
-            "description" : "Id  for the point log",
-            "required" : true,
-            "style" : "form",
-            "explode" : true,
-            "schema" : {
-              "type" : "string"
-            },
-            "example" : "aljk3p890dchjvo2"
-          } 
-        ],
-        "responses" : {
-          "200" : {
-            "description" : "Message Successfully Saved",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Success"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized: Confirm the token is valid.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Unauthorized"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "This user can not view or edit Point log messages.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/InvalidPermissionLevel"
-                }
-              }
-            }
-          },
-          "413" : {
-            "description" : "Could not find the point log",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/UnknownPointLog"
-                }
-              }
-            }
-          },
-          "431" : {
-            "description" : "The User does not have permission to modify or view this point log.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/CanNotAccessPointLog"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server Error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerError"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components" : {
+    "securitySchemes" : {
+      "bearerAuth" : {
+        "type" : "http",
+        "scheme" : "bearer"
+      }
+    },
     "schemas" : {
-      "WebInitializationResponse": {
-        "type": "object",
-        "description": "User and settings will be returned every time if there is no error. House will only be returned if the user belongs to a house.",
-        "required": [ "user", "settings" ],
-        "properties": {
-            "user": {
-                "$ref": "#/components/schemas/User"
-            },
-            "settings": {
-              "$ref": "#/components/schemas/SystemPreference"
-            },
-            "house": {
-              "$ref": "#/components/schemas/House"
-            }
+      "WebInitializationResponse" : {
+        "type" : "object",
+        "description" : "User and settings will be returned every time if there is no error. House will only be returned if the user belongs to a house.",
+        "required" : [ "user", "settings" ],
+        "properties" : {
+          "user" : {
+            "$ref" : "#/components/schemas/User"
+          },
+          "settings" : {
+            "$ref" : "#/components/schemas/SystemPreference"
+          },
+          "house" : {
+            "$ref" : "#/components/schemas/House"
+          }
         }
       },
       "UserRank" : {
@@ -3074,6 +3438,196 @@
           "semesterRank" : {
             "type" : "integer",
             "example" : 22
+          }
+        }
+      },
+      "Event" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "example" : "A Very Fun Event"
+          },
+          "details" : {
+            "type" : "string",
+            "example" : "A very fun event by me!"
+          },
+          "startDate" : {
+            "$ref" : "#/components/schemas/DateTime"
+          },
+          "endDate" : {
+            "$ref" : "#/components/schemas/DateTime"
+          },
+          "location" : {
+            "type" : "string",
+            "example" : "HCRS 1066"
+          },
+          "points" : {
+            "type" : "integer",
+            "example" : 1
+          },
+          "pointTypeId" : {
+            "type" : "integer",
+            "example" : 22
+          },
+          "pointTypeName" : {
+            "type" : "string",
+            "example" : "Fun Point Type"
+          },
+          "pointTypeDescription" : {
+            "type" : "string",
+            "example" : "This is a fun point type."
+          },
+          "floorIds" : {
+            "type" : "array",
+            "items" : {
+              "oneOf" : [ {
+                "type" : "string",
+                "example" : "2N"
+              } ]
+            }
+          },
+          "id" : {
+            "type" : "string",
+            "example" : "akjhwb3vo9iaukjw3fv"
+          },
+          "creatorId" : {
+            "type" : "string",
+            "example" : "akjhwb3vo9iaukjw3fv"
+          },
+          "virtualLink" : {
+            "type" : "string",
+            "example" : "www.googlehangouts.com"
+          },
+          "host" : {
+            "type" : "string",
+            "example" : "The Society"
+          },
+          "floorColors" : {
+            "type" : "array",
+            "items" : {
+              "oneOf" : [ {
+                "type" : "string",
+                "example" : "#5AC0C7"
+              } ]
+            }
+          }
+        }
+      },
+      "EventCreate" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "example" : "A Very Fun Event"
+          },
+          "details" : {
+            "type" : "string",
+            "example" : "A very fun event by me!"
+          },
+          "startDate" : {
+            "$ref" : "#/components/schemas/DateTime"
+          },
+          "endDate" : {
+            "$ref" : "#/components/schemas/DateTime"
+          },
+          "location" : {
+            "type" : "string",
+            "example" : "HCRS 1066"
+          },
+          "pointTypeId" : {
+            "type" : "integer",
+            "example" : 22
+          },
+          "floorIds" : {
+            "type" : "array",
+            "items" : {
+              "oneOf" : [ {
+                "type" : "string",
+                "example" : "2N"
+              } ]
+            }
+          },
+          "isPublicEvent" : {
+            "type" : "boolean",
+            "example" : false
+          },
+          "isAllFloors" : {
+            "type" : "boolean",
+            "example" : false
+          },
+          "host" : {
+            "type" : "string",
+            "example" : "The Society"
+          },
+          "virtualLink" : {
+            "type" : "string",
+            "example" : "www.googlehangouts.com"
+          }
+        }
+      },
+      "EventUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "example" : "A Very Fun Event"
+          },
+          "details" : {
+            "type" : "string",
+            "example" : "A very fun event by me!"
+          },
+          "startDate" : {
+            "$ref" : "#/components/schemas/DateTime"
+          },
+          "id" : {
+            "type" : "string",
+            "example" : "akjhwb3vo9iaukjw3fv"
+          },
+          "endDate" : {
+            "$ref" : "#/components/schemas/DateTime"
+          },
+          "location" : {
+            "type" : "string",
+            "example" : "HCRS 1066"
+          },
+          "pointTypeId" : {
+            "type" : "integer",
+            "example" : 22
+          },
+          "floorIds" : {
+            "type" : "array",
+            "items" : {
+              "oneOf" : [ {
+                "type" : "string",
+                "example" : "2N"
+              } ]
+            }
+          },
+          "host" : {
+            "type" : "string",
+            "example" : "The Society"
+          },
+          "isPublicEvent" : {
+            "type" : "boolean",
+            "example" : false
+          },
+          "isAllFloors" : {
+            "type" : "boolean",
+            "example" : false
+          },
+          "virtualLink" : {
+            "type" : "string",
+            "example" : "www.googlehangouts.com"
+          }
+        }
+      },
+      "SystemPreference" : {
+        "type" : "object",
+        "properties" : {
+          "EXAMPLE" : {
+            "type" : "integer",
+            "example" : 2
           }
         }
       },
@@ -3504,17 +4058,8 @@
         }
       },
       "DateTime" : {
-        "type" : "object",
-        "properties" : {
-          "_seconds" : {
-            "type" : "number",
-            "example" : 156463200
-          },
-          "_nanoseconds" : {
-            "type" : "number",
-            "example" : 0
-          }
-        }
+        "type" : "string",
+        "example" : "2020-11-08T10:00:00+04:00"
       },
       "NonExistantUser" : {
         "type" : "object",
@@ -3561,12 +4106,12 @@
           }
         }
       },
-      "LinkAlreadySubmitted" : {
+      "PointsAlreadyClaimed" : {
         "type" : "object",
         "properties" : {
           "message" : {
             "type" : "string",
-            "example" : "The Link Has Already Been Submitted"
+            "example" : "You already claimed points for this."
           }
         }
       },
@@ -3705,6 +4250,15 @@
           }
         }
       },
+      "EventSubmissionsNotOpen" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "This event is not accepting submissions at this time."
+          }
+        }
+      },
       "CanNotPostMessage" : {
         "type" : "object",
         "properties" : {
@@ -3732,12 +4286,30 @@
           }
         }
       },
+      "CanNotAccessEvent" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "This user does not have the correct ownership, permission, or invitation to access this event."
+          }
+        }
+      },
       "RewardAlreadyExists" : {
         "type" : "object",
         "properties" : {
           "message" : {
             "type" : "string",
             "example" : "A reward with that id already exists."
+          }
+        }
+      },
+      "NonExistantEvent" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "example" : "There is no Event with that Id."
           }
         }
       },

@@ -35,6 +35,7 @@ class _HistoryPageState
   _HistoryPageState(String drawerLabel) : super(drawerLabel);
 
   bool searchError = false;
+  bool isDisplayingLoadingSymbol = false;
 
 
   @override
@@ -51,6 +52,7 @@ class _HistoryPageState
 
   @override
   Widget buildLargeDesktopBody({BuildContext context, HistoryState state}) {
+    _onChangeState(context,state);
     if(state is HistoryPageError){
       return Column(
         children: [
@@ -74,6 +76,7 @@ class _HistoryPageState
 
   @override
   Widget buildMobileBody({BuildContext context, HistoryState state}) {
+    _onChangeState(context,state);
     if(state is HistoryPageError){
       return Column(
         children: [
@@ -106,6 +109,7 @@ class _HistoryPageState
 
   @override
   Widget buildSmallDesktopBody({BuildContext context, HistoryState state}) {
+    _onChangeState(context,state);
     if(state is HistoryPageError){
       return Column(
         children: [
@@ -137,35 +141,53 @@ class _HistoryPageState
   }
 
   Widget buildBottomView(BuildContext context, HistoryState state) {
-    if (state is HistoryPageLoading) {
-      return Expanded(
-        child: LoadingWidget(),
-      );
-    }
-    else if (state.logs != null) {
+      if (state.logs != null) {
       return Expanded(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
           child: LogListAndChat(
-              key: UniqueKey(),
+              key: ObjectKey(state.logs),
               logs: state.logs,
               onPressed: _onPressed,
               selectedPointLog: _selectedPointLog,
               searchable: false,
               house: state.house,
-            showLoadMore: state.logs.length % 25 == 0, //Pages are 25, so if length is not divisible by 25, then there are no more to load
-            loadMore: loadMore,
+              showLoadMore: state.logs.length % 25 == 0, //Pages are 25, so if length is not divisible by 25, then there are no more to load
+              loadMore: loadMore,
           ),
         ),
       );
     }
     else {
-      return SizedBox.shrink();
+      return Expanded(
+        child: Center(
+          child: Text("Enter your search criteria and hit the search button!"),
+        ),
+      );
     }
   }
 
   loadMore(){
+    startLoadingSpinner();
     _historyBloc.add(SearchNext());
+  }
+
+  startLoadingSpinner(){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return SimpleDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10.0))
+            ),
+            children: [
+              LoadingWidget()
+            ],
+          );
+        }
+    );
+    //Don't call set state because we don't want it to reload the page
+    isDisplayingLoadingSymbol = true;
   }
 
   Widget buildSearchView(BuildContext context, HistoryState state) {
@@ -449,6 +471,7 @@ class _HistoryPageState
                   child: FlatButton(
                     child: Icon(Icons.search),
                     onPressed: () {
+                      startLoadingSpinner();
                       if (state.searchType == "recent") {
                         _historyBloc.add(SearchRecent(date: _selectedDate));
                       }
@@ -560,6 +583,13 @@ class _HistoryPageState
     }
     else{
       return SizedBox.shrink();
+    }
+  }
+
+  _onChangeState(BuildContext context, HistoryState state){
+    if(state is HistoryPageLoaded && isDisplayingLoadingSymbol){
+      isDisplayingLoadingSymbol = false;
+      Navigator.pop(context);
     }
   }
 }

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:linkable/linkable.dart';
 import 'package:purduehcr_web/Authentication_Bloc/authentication.dart';
+import 'package:purduehcr_web/Configuration/ConfigWrapper.dart';
 import 'package:purduehcr_web/Models/User.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 
 const _DrawerOptions OVERVIEW = _DrawerOptions(
     "Overview", "/", Icon(Icons.account_circle));
@@ -56,6 +58,7 @@ const List<_DrawerOptions> PRIVILEGED_USER_LIST = [
   LINKS
 ];
 const List<_DrawerOptions> EA_LIST = [OVERVIEW, LINKS];
+
 
 
 class PhcrDrawer extends Drawer {
@@ -259,8 +262,10 @@ class PhcrDrawer extends Drawer {
                                               ),
                                             ],
                                           ),
+
                                           Linkable(
                                             text: APP_CONTACT_INFO,
+
                                           ),
                                         ],
                                       ),

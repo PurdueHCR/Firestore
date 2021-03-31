@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purduehcr_web/Main_App_Pages/MyEventsPage/MyEventsPage.dart';
 import 'package:purduehcr_web/Utility_Views/InitializationPage.dart';
 import 'package:purduehcr_web/Main_App_Pages/OverviewPage/OverviewPage.dart';
 import 'package:purduehcr_web/Account_And_User_Pages/Account_Login_Creation/AccountPage.dart';
@@ -16,6 +17,8 @@ import 'package:purduehcr_web/Main_App_Pages/SubmitPointsPage/SubmitPointsPage.d
 import 'package:purduehcr_web/Account_And_User_Pages/UserCreation/UserCreationPage.dart';
 import 'package:purduehcr_web/Authentication_Bloc/authentication.dart';
 
+import 'Main_App_Pages/TokenTestPage/TokenTestPage.dart';
+
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final args = settings.arguments;
@@ -28,13 +31,15 @@ class RouteGenerator {
               switch (path[1]) {
                 case '':
                   return HomePage();
-//                case 'token':
-//                  //If the user is on dev or test they can access TokenTestPage
-//                  return TokenTestPage();
+                case 'token':
+                  //If the user is on dev or test they can access TokenTestPage
+                  return TokenTestPage();
                 case 'submit_points':
                   return SubmitPointsPage();
                 case 'handle_points':
                   return HandlePointsPage();
+                case 'my_events':
+                  return MyEventsPage();
                 case 'my_points':
                   return MyPointsPage();
                 case 'links':

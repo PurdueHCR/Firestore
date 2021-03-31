@@ -5,6 +5,10 @@ This is the repository for the PurdueHCR Flutter Web app. This app is hosted usi
 ## Installation and setup
 These setup instructions will guide you through the installation of Flutter and setting up your project in Android Studio. Some creative and futuristic person will have to create VS Code installation instructions.
 
+**You will need access to a bash terminal with Git enabled to install everything. If you are on Mac or Linux, you can ignore this. If you are on windows, you will need to install [Git Bash](https://git-scm.com/downloads)**
+
+If you are unfamiliar with bash, here is a helpful [Bash Cheat Sheet](https://www.educative.io/blog/bash-shell-command-cheat-sheet). In these instructions when the term **navigate** is used, you will need to use the command `cd [DIRECTORY]`.
+
 ### Installing Flutter
 Flutter is Google's cross platform development tool. This means that you can develop one code base and deploy it as a native app with almost no changes on iOS, Android, and Web. Downloading is easy, so lets get started! 
 
@@ -17,7 +21,9 @@ To use flutter in the terminal, we need to add the Flutter SDK to your PATH. If 
 - If you use zsh
     - ``touch ~/.zshrc; echo "export PATH=\"\$PATH:`pwd`/flutter/bin\"" >> ~/.zshrc``
 
-There you go! Flutter is all setup! Try closing your terminal window, reopen it and run `which flutter`. If it returns a path to the correct location, it is setup correctly. Now run `flutter doctor`. This will give you a list of steps to complete. Complete them all!
+There you go! Flutter is all setup! Try closing your terminal window, reopen it and run `which flutter`. If it prints a path to the correct location, it is setup correctly. If it does not print anything, run the command `echo $PATH` and look for the section on flutter. A common mistake is for the path to be /flutter/flutter/bin. If that is the path, you will need to modify the .\<rc file\> and fix the path. 
+
+Now run `flutter doctor`. This will give you a list of steps to complete. Don't worry about doing them now. We will complete the important steps in this tutorial. You can come back and complete the remaining steps later.
 
 Head over to [Flutter's Installation Page](https://flutter.dev/docs/get-started/install) if you have any problems with the installation.
 
@@ -36,20 +42,41 @@ If you see Chrome listed as an option in the list of flutter devices, Tada! Flut
 ### Setting up Android Studio
 Let's get you ready with Android Studio! VS Code is another good option, but no one knows how to setup Flutter with that. If only someone who was really cool would update this Readme with instructions on how to setup the PurdueHCR Flutter Web app in VS Code. ¯\\_(ツ)_/¯
 
-First, [download Android Studio](https://developer.android.com/studio). This will take a few decades, so budget your time accordingly. Once you get AS installed, open up the PurdueHCR-Firestore/web_purduehcr folder.
+First, [download Android Studio](https://developer.android.com/studio). This will take a few decades, so budget your time accordingly. Once AS is done installing, open it and go to 
+- Windows: File, then go to settings
+- Mac: Android Studio, Preferences
+
+Now, select **Plugins**. Search for and install the *Flutter* and *Dart* plug-ins. Once installed, go back to the settings and select the section labeled **Languages & Frameworks**. Click on the **Flutter** and set the Flutter SDK path to be the folder where you installed Flutter. 
+
+Restart Android Studio. If nothing crashes, do yourself a favor and install the plugin Nyan Progress bar. *You'll thank us later.*
+
+**Clone the Git Repository**
+
+Up next is installing our code! Open up your bash terminal, navigate to a safe folder where you want to download the code and run `git clone https://github.com/PurdueHCR/Firestore.git`. Now in Android Studio, go to the top bar, File, Open, and navigate to the directory where you cloned the git repository. You want to make sure that you select the web_purduehcr folder when you press open for Android Studio. Do not open the Android folder as that will break things. If Android studio opens up and in the Project Manager on the left you see a folder called lib, you are in the right place.
 
 **Connecting to the database**
+
 PurdueHCR has 3 databases that can be connected and deployed to. *Production* is our live database. This has all of the data for the current state of the House Competition. *Test* is our hosted development environment. It behaves exactly like *Production*, but you can play with it however you want and trust that you won't affect the real competition. Lastly, we have the *Dev* environment. This is the environment that you run locally on your computer. This is useful when you are working on the API and the web page at the same time because you can see in real time what the output of the API is.
 
 
-To connect to the database, you will need to talk to an exec member and get at least one of these files. Place these files in the folder web_purduehcr/lin/Configuration/env.
+To connect to the database, you will need to talk to an exec member and get at least one of these files. Place these files in the folder web_purduehcr/lib/Configuration/env.
 - prod.json
 - test.json
 - dev.json
 
 NOTE: For each of these files that you are not sent, you will have to create, but fill with `{}`
 
+Once you have the files downloaded, created, and saved into the env folder, go back to your bash/zsh terminal and navigate into the web_purduehcr/ directory. Run the commands
+```bash
+flutter pub get
+flutter packages pub run build_runner build --delete-conflicting-outputs
+```
+This will install all of the flutter packages and create some required files to connect to the database.
+
+*Note: If the command never stops, talk to an Exec board member about getting the compiled files. Those are test.g.dart, prod.g.dart, dev.g.dart, and config.g.dart. You can manually add test, prod, and dev to the /lib/Configuration/env folder and config to lib/Configuration/ folder.*
+
 **Run Configuration**
+
 We are almost done. Lastly, we need to setup the run configurations. This will let us easily switch between environments. Let's start by setting up the test environment.
 1. In Android Studio, click on the button on the top bar labeled "Add Configuration". It is to the left of the Device Dropdown.
 2. In the pop-up window, click on the plus button on the top left to create a new configuration. 

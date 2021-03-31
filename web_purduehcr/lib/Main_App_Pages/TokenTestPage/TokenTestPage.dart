@@ -10,10 +10,7 @@ import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 
 
 class TokenTestPage extends BasePage {
-  TokenTestPage({Key key}) : super(key: key){
-    print("TOKEN");
-
-  }
+  TokenTestPage({Key key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -28,20 +25,20 @@ class TokenTestPageState extends BasePageState<AuthenticationBloc, Authenticatio
 
   @override
   Widget buildLargeDesktopBody({BuildContext context, AuthenticationState state}) {
-    return _buildBody();
+    return _buildBody(context);
   }
 
   @override
   Widget buildSmallDesktopBody({BuildContext context, AuthenticationState state}) {
-    return _buildBody();
+    return _buildBody(context);
   }
 
   @override
   Widget buildMobileBody({BuildContext context, AuthenticationState state}) {
-    return _buildBody();
+    return _buildBody(context);
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: FutureBuilder(
@@ -51,7 +48,7 @@ class TokenTestPageState extends BasePageState<AuthenticationBloc, Authenticatio
             return _buildLoading();
           }
           else if(snapshot.hasData){
-            return _buildToken(snapshot.data);
+            return _buildToken(context, snapshot.data);
           }
           else{
             return Text("Could Not Get Token");
@@ -61,25 +58,50 @@ class TokenTestPageState extends BasePageState<AuthenticationBloc, Authenticatio
     );
   }
 
-  Widget _buildToken(String token){
+  Widget _buildToken(BuildContext context, String token){
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Text("Bearer " + token),
-        RaisedButton(
-          child: Text("Copy token"),
-          onPressed: () {
-            Clipboard.setData(ClipboardData(text: "Bearer " + token));
-            final snackBar = SnackBar(
-              content: Text('Copied to Clipboard'),
-              action: SnackBarAction(
-                label: 'Undo',
-                onPressed: () {},
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: RaisedButton(
+                child: Text("Copy token for HTTP Client"),
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: "Bearer " + token));
+                  final snackBar = SnackBar(
+                    content: Text('Copied to Clipboard'),
+                    action: SnackBarAction(
+                      label: 'Undo',
+                      onPressed: () {},
+                    ),
+                  );
+                  Scaffold.of(context).showSnackBar(snackBar);
+                },
               ),
-            );
-            Scaffold.of(context).showSnackBar(snackBar);
-          },
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: RaisedButton(
+                child: Text("Copy token for API Documentation"),
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: token));
+                  final snackBar = SnackBar(
+                    content: Text('Copied to Clipboard'),
+                    action: SnackBarAction(
+                      label: 'Undo',
+                      onPressed: () {},
+                    ),
+                  );
+                  Scaffold.of(context).showSnackBar(snackBar);
+                },
+              ),
+            )
+          ],
         )
       ],
     );
@@ -103,7 +125,7 @@ class TokenTestPageState extends BasePageState<AuthenticationBloc, Authenticatio
 
   @override
   UserPermissionSet getAcceptedPermissionLevels() {
-    return AllPermissionsSet();
+    return UserPermissionSet.getAll();
   }
 
 

@@ -82,7 +82,6 @@ class _PointSubmissionFormState extends State<PointSubmissionForm>{
                           _dateSubmissionError = false;
                         });
                       });
-
                     },
                     child: _selectedDate == null? null:
                     Text( DateFormat.yMd('en_US').format(_selectedDate),

@@ -1,6 +1,8 @@
 import 'package:purduehcr_web/Configuration/Config.dart';
+import 'package:purduehcr_web/Main_App_Pages/PointTypesPage/point_type_control_bloc/point_type_control_event.dart';
 import 'package:purduehcr_web/Models/PointType.dart';
 import 'package:purduehcr_web/Models/PointTypePermissionLevel.dart';
+import 'package:purduehcr_web/Utilities/APIUtility.dart';
 import 'package:purduehcr_web/Utilities/CloudFunctionUtility.dart';
 
 
@@ -20,21 +22,15 @@ class PointTypeControlRepository {
     return pts;
   }
 
-  updatePointType(PointType pointType, {bool isEnabled, bool residentsCanSubmit, int value, PointTypePermissionLevel permissionLevel, String description, String name}) async{
+  updatePointType(UpdatePointType event) async{
     Map<String, dynamic> body = Map();
-    body["id"] = pointType.id;
-    if(description != null)
-      body[PointType.DESCRIPTION] = description;
-    if((isEnabled != null))
-      body[PointType.ENABLED] = isEnabled;
-    if(residentsCanSubmit != null)
-      body[PointType.RESIDENTS_CAN_SUBMIT] = residentsCanSubmit;
-    if(value != null)
-      body[PointType.VALUE] = value;
-    if(permissionLevel != null)
-      body[PointType.PERMISSION_LEVEL] = permissionLevel.index + 1;
-    if(name != null)
-      body[PointType.NAME] = name;
+    body["id"] = event.pointType.id;
+    APIUtility.setBodyField(body, PointType.DESCRIPTION, event.description);
+    APIUtility.setBodyField(body, PointType.ENABLED, event.isEnabled);
+    APIUtility.setBodyField(body, PointType.RESIDENTS_CAN_SUBMIT, event.residentsCanSubmit);
+    APIUtility.setBodyField(body, PointType.VALUE, event.value);
+    APIUtility.setBodyField(body, PointType.PERMISSION_LEVEL, event.permissionLevel != null ? event.permissionLevel.index + 1 : null);
+    APIUtility.setBodyField(body, PointType.NAME, event.name);
     await callCloudFunction(config, Method.PUT, "point_type/", body: body);
   }
 

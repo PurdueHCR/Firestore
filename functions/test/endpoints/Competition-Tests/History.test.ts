@@ -60,19 +60,19 @@ describe('GET competition/history', () =>{
         for(let i = 0; i < 30; i++){
             await FirestoreDataFactory.setPointLog(db, "Copper", COPPER_RESIDENT_ID, (i % 4) == 0, {
                 approved: (i%2 == 0), 
-                date_submitted: new Date("1/"+(i+1).toString()+"/2020"),
+                date_occurred: new Date("1/"+(i+1).toString()+"/2020"),
                 resident_last_name: (i % 3 == 0)? "Last1":(i % 3 == 1)? "Last2":"Last3",
                 point_type_id: (i %10) + 1
             })
             await FirestoreDataFactory.setPointLog(db, "Silver", SILVER_RESIDENT_ID, true, {
                 approved: (i%2 == 0), 
-                date_submitted: new Date("1/"+(i+1).toString()+"/2020"),
+                date_occurred: new Date("1/"+(i+1).toString()+"/2020"),
                 resident_last_name: "Last1",
                 point_type_id: 1
             })
         }
 
-        await FirestoreDataFactory.setPointLog(db, "Platinum", PLATINUM_RESIDENT_ID, true,{date_submitted:new Date("Thu Jul 02 2020 04:00:00 GMT-0400")})
+        await FirestoreDataFactory.setPointLog(db, "Platinum", PLATINUM_RESIDENT_ID, true,{date_occurred:new Date("Thu Jul 02 2020 04:00:00 GMT-0400")})
 
     })
 
@@ -341,8 +341,8 @@ describe('GET competition/history', () =>{
             else{
                 expect(res.status).toBe(200)
                 expect(res.body.point_logs).toHaveLength(25)
-                expect(new Date(res.body.point_logs[0].dateSubmitted.seconds * 1000)).toEqual((new Date("1/30/2020")))
-                expect(new Date(res.body.point_logs[24].dateSubmitted.seconds * 1000)).toEqual(new Date("1/6/2020"))
+                expect(new Date(res.body.point_logs[0].dateOccurred.seconds * 1000)).toEqual((new Date("1/30/2020")))
+                expect(new Date(res.body.point_logs[24].dateOccurred.seconds * 1000)).toEqual(new Date("1/6/2020"))
                 done()
             }
         })
@@ -358,8 +358,8 @@ describe('GET competition/history', () =>{
             else{
                 expect(res.status).toBe(200)
                 expect(res.body.point_logs).toHaveLength(5)
-                expect(new Date(res.body.point_logs[0].dateSubmitted.seconds * 1000)).toEqual(new Date("1/5/2020"))
-                expect(new Date(res.body.point_logs[4].dateSubmitted.seconds * 1000)).toEqual(new Date("1/1/2020"))
+                expect(new Date(res.body.point_logs[0].dateOccurred.seconds * 1000)).toEqual(new Date("1/5/2020"))
+                expect(new Date(res.body.point_logs[4].dateOccurred.seconds * 1000)).toEqual(new Date("1/1/2020"))
                 done()
             }
         })
@@ -375,8 +375,8 @@ describe('GET competition/history', () =>{
             else{
                 expect(res.status).toBe(200)
                 expect(res.body.point_logs).toHaveLength(5)
-                expect(new Date(res.body.point_logs[0].dateSubmitted.seconds * 1000)).toEqual(new Date("1/5/2020"))
-                expect(new Date(res.body.point_logs[4].dateSubmitted.seconds * 1000)).toEqual(new Date("1/1/2020"))
+                expect(new Date(res.body.point_logs[0].dateOccurred.seconds * 1000)).toEqual(new Date("1/5/2020"))
+                expect(new Date(res.body.point_logs[4].dateOccurred.seconds * 1000)).toEqual(new Date("1/1/2020"))
                 done()
             }
         })
@@ -392,8 +392,8 @@ describe('GET competition/history', () =>{
             else{
                 expect(res.status).toBe(200)
                 expect(res.body.point_logs).toHaveLength(5)
-                expect(new Date(res.body.point_logs[0].dateSubmitted.seconds * 1000)).toEqual(new Date("1/5/2020"))
-                expect(new Date(res.body.point_logs[4].dateSubmitted.seconds * 1000)).toEqual(new Date("1/1/2020"))
+                expect(new Date(res.body.point_logs[0].dateOccurred.seconds * 1000)).toEqual(new Date("1/5/2020"))
+                expect(new Date(res.body.point_logs[4].dateOccurred.seconds * 1000)).toEqual(new Date("1/1/2020"))
                 done()
             }
         })
@@ -409,25 +409,25 @@ describe('GET competition/history', () =>{
             else{
                 expect(res.status).toBe(200)
                 expect(res.body.point_logs).toHaveLength(10)
-                expect(new Date(res.body.point_logs[9].dateSubmitted.seconds * 1000)).toEqual(new Date("1/1/2020"))
+                expect(new Date(res.body.point_logs[9].dateOccurred.seconds * 1000)).toEqual(new Date("1/1/2020"))
                 expect(res.body.point_logs[9].residentLastName).toEqual("Last1")
-                expect(new Date(res.body.point_logs[8].dateSubmitted.seconds * 1000)).toEqual(new Date("1/4/2020"))
+                expect(new Date(res.body.point_logs[8].dateOccurred.seconds * 1000)).toEqual(new Date("1/4/2020"))
                 expect(res.body.point_logs[8].residentLastName).toEqual("Last1")
-                expect(new Date(res.body.point_logs[7].dateSubmitted.seconds * 1000)).toEqual(new Date("1/7/2020"))
+                expect(new Date(res.body.point_logs[7].dateOccurred.seconds * 1000)).toEqual(new Date("1/7/2020"))
                 expect(res.body.point_logs[7].residentLastName).toEqual("Last1")
-                expect(new Date(res.body.point_logs[6].dateSubmitted.seconds * 1000)).toEqual(new Date("1/10/2020"))
+                expect(new Date(res.body.point_logs[6].dateOccurred.seconds * 1000)).toEqual(new Date("1/10/2020"))
                 expect(res.body.point_logs[6].residentLastName).toEqual("Last1")
-                expect(new Date(res.body.point_logs[5].dateSubmitted.seconds * 1000)).toEqual(new Date("1/13/2020"))
+                expect(new Date(res.body.point_logs[5].dateOccurred.seconds * 1000)).toEqual(new Date("1/13/2020"))
                 expect(res.body.point_logs[5].residentLastName).toEqual("Last1")
-                expect(new Date(res.body.point_logs[4].dateSubmitted.seconds * 1000)).toEqual(new Date("1/16/2020"))
+                expect(new Date(res.body.point_logs[4].dateOccurred.seconds * 1000)).toEqual(new Date("1/16/2020"))
                 expect(res.body.point_logs[4].residentLastName).toEqual("Last1")
-                expect(new Date(res.body.point_logs[3].dateSubmitted.seconds * 1000)).toEqual(new Date("1/19/2020"))
+                expect(new Date(res.body.point_logs[3].dateOccurred.seconds * 1000)).toEqual(new Date("1/19/2020"))
                 expect(res.body.point_logs[3].residentLastName).toEqual("Last1")
-                expect(new Date(res.body.point_logs[2].dateSubmitted.seconds * 1000)).toEqual(new Date("1/22/2020"))
+                expect(new Date(res.body.point_logs[2].dateOccurred.seconds * 1000)).toEqual(new Date("1/22/2020"))
                 expect(res.body.point_logs[2].residentLastName).toEqual("Last1")
-                expect(new Date(res.body.point_logs[1].dateSubmitted.seconds * 1000)).toEqual(new Date("1/25/2020"))
+                expect(new Date(res.body.point_logs[1].dateOccurred.seconds * 1000)).toEqual(new Date("1/25/2020"))
                 expect(res.body.point_logs[1].residentLastName).toEqual("Last1")
-                expect(new Date(res.body.point_logs[0].dateSubmitted.seconds * 1000)).toEqual(new Date("1/28/2020"))
+                expect(new Date(res.body.point_logs[0].dateOccurred.seconds * 1000)).toEqual(new Date("1/28/2020"))
                 expect(res.body.point_logs[0].residentLastName).toEqual("Last1")
                 done()
             }
@@ -445,9 +445,9 @@ describe('GET competition/history', () =>{
             else{
                 expect(res.status).toBe(200)
                 expect(res.body.point_logs).toHaveLength(2)
-                expect(new Date(res.body.point_logs[1].dateSubmitted.seconds * 1000)).toEqual(new Date("1/1/2020"))
+                expect(new Date(res.body.point_logs[1].dateOccurred.seconds * 1000)).toEqual(new Date("1/1/2020"))
                 expect(res.body.point_logs[1].pointTypeId).toEqual(1)
-                expect(new Date(res.body.point_logs[0].dateSubmitted.seconds * 1000)).toEqual(new Date("1/21/2020"))
+                expect(new Date(res.body.point_logs[0].dateOccurred.seconds * 1000)).toEqual(new Date("1/21/2020"))
                 expect(res.body.point_logs[0].pointTypeId).toEqual(1)
                 done()
             }
@@ -464,8 +464,8 @@ describe('GET competition/history', () =>{
             else{
                 expect(res.status).toBe(200)
                 expect(res.body.point_logs).toHaveLength(25)
-                expect(new Date(res.body.point_logs[0].dateSubmitted.seconds * 1000)).toEqual(new Date("1/30/2020"))
-                expect(new Date(res.body.point_logs[24].dateSubmitted.seconds * 1000)).toEqual(new Date("1/6/2020"))
+                expect(new Date(res.body.point_logs[0].dateOccurred.seconds * 1000)).toEqual(new Date("1/30/2020"))
+                expect(new Date(res.body.point_logs[24].dateOccurred.seconds * 1000)).toEqual(new Date("1/6/2020"))
                 done()
             }
         })

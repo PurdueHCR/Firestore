@@ -1,4 +1,4 @@
-class ApiError extends Error{
+class ApiError implements Exception{
   int errorCode;
   String message;
 

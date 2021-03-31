@@ -1,6 +1,5 @@
 import * as admin from 'firebase-admin'
 import { UnsubmittedPointLog } from "../models/UnsubmittedPointLog"
-import { UserPermissionLevel } from "../models/UserPermissionLevel"
 import { HouseCompetition } from "../models/HouseCompetition"
 import { APIResponse } from "../models/APIResponse"
 import { getSystemPreferences } from "./GetSystemPreferences"
@@ -15,6 +14,7 @@ import { User } from '../models/User'
  * 
  * @param user		The user for whom this point is being submit
  * @param log 		Contains information about the point log
+ * @param preapprove Is the log preapproved
  * @param documentId (optional) does this point log have an id already - ex. single use QR codes
  * @param overrideResidentsCanSubmit (optional) overrides the point type's canResidentsSubmitField
  * @returns True if the points were added, false if needs approval
@@ -27,7 +27,7 @@ import { User } from '../models/User'
  * @throws 419 - Users Can Not Self Submit This Point Type
  * @throws 500 - Server Error
  */
-export async function submitPoint(user: User, log: UnsubmittedPointLog, documentId?: string | null, overrideResidentsCanSubmit:boolean = false): Promise<Boolean>{
+export async function submitPoint(user: User, log: UnsubmittedPointLog, preapproved: boolean, documentId?: string | null, overrideResidentsCanSubmit:boolean = false): Promise<Boolean>{
 	const db = admin.firestore()
 	const systemPreferences = await getSystemPreferences()
 	if (systemPreferences.isCompetitionEnabled) {
@@ -37,29 +37,25 @@ export async function submitPoint(user: User, log: UnsubmittedPointLog, document
 				log.updateFieldsWithUser(user)
 				log.updateFieldsWithPointType(pointType)
 
-				let was_approved = false
-				if(user.permissionLevel === UserPermissionLevel.RHP){
+				if(preapproved){
 					//If the log is approved
 					log.approveLog()
-					was_approved = true
 				}
 				else {
 					//If the point log is not immediately approved, set the pointtypeID to negative
 					log.pointTypeId *= -1
+					log.rhpNotifications = 1
 				}
 				try {
 					if (documentId && documentId !== "") {
 						// If the PointLog has a pre-determined documentId then it means it is a single-use code and should be approved
-						log.approveLog()
 						log.id = documentId
-						was_approved = true
-						console.log("HAS ID")
 						
 						//If a document ID is provided, check if the id exists, and if not, set in database
 						const doc = await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house)
 													.collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).doc(documentId).get()
 						if (doc.exists) {
-							return Promise.reject(APIResponse.LinkAlreadySubmitted())
+							return Promise.reject(APIResponse.PointsAlreadyClaimed())
 						}
 						else {
 							await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house)
@@ -71,9 +67,6 @@ export async function submitPoint(user: User, log: UnsubmittedPointLog, document
 
 						console.log("NO ID")
 						//No document id, so create new document in database
-						if (was_approved === false) {
-							log.rhpNotifications++
-						}
 						const document = await db.collection(HouseCompetition.HOUSE_KEY).doc(user.house)
 													.collection(HouseCompetition.HOUSE_COLLECTION_POINTS_KEY).add(log.toFirebaseJSON())
 						log.id = document.id
@@ -133,7 +126,7 @@ export async function submitPoint(user: User, log: UnsubmittedPointLog, document
 				// throw APIResponse.Unauthorized()
 
 				//If the log is automatically approved, add points to the user and the house
-				if(was_approved){
+				if(preapproved){
 					await submitPointLogMessage(user.house, log, PointLogMessage.getPreaprovedMessage(), true)
 					await addPoints(pointType, user.house, user.id)
 					return Promise.resolve(true)
