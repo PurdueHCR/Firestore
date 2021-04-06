@@ -18,13 +18,14 @@ const _DrawerOptions POINT_TYPE_CONTROLS = _DrawerOptions("Point Categories", "/
 const _DrawerOptions HOUSE_CODES = _DrawerOptions("House Codes", "/house_codes", Icon(Icons.home));
 const _DrawerOptions FIND_USERS = _DrawerOptions("Find Users", "/find_users", Icon(Icons.search));
 const _DrawerOptions REWARDS = _DrawerOptions("Rewards", "/rewards", Icon(Icons.cake));
+const _DrawerOptions MY_EVENTS = _DrawerOptions("My Events", "/my_events", Icon(Icons.group_add));
 
 const List<_DrawerOptions> RESIDENT_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS];
-const List<_DrawerOptions> RHP_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, HANDLE_POINTS, LINKS, HISTORY];
-const List<_DrawerOptions> PROFESSIONAL_STAFF_LIST = [OVERVIEW, LINKS, HISTORY, HOUSE_CODES, POINT_TYPE_CONTROLS, REWARDS, FIND_USERS, CONTROLS];
-const List<_DrawerOptions> FHP_LIST = [OVERVIEW, LINKS];
-const List<_DrawerOptions> PRIVILEGED_USER_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, LINKS];
-const List<_DrawerOptions> EA_LIST = [OVERVIEW, LINKS];
+const List<_DrawerOptions> RHP_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, MY_EVENTS, HANDLE_POINTS, LINKS, HISTORY];
+const List<_DrawerOptions> PROFESSIONAL_STAFF_LIST = [OVERVIEW, LINKS, HISTORY, MY_EVENTS, HOUSE_CODES, POINT_TYPE_CONTROLS, REWARDS, FIND_USERS, CONTROLS];
+const List<_DrawerOptions> FHP_LIST = [OVERVIEW, LINKS, MY_EVENTS];
+const List<_DrawerOptions> PRIVILEGED_USER_LIST = [OVERVIEW, SUBMIT_POINTS, MY_POINTS, MY_EVENTS, LINKS];
+const List<_DrawerOptions> EA_LIST = [OVERVIEW, LINKS, MY_EVENTS];
 
 
 class PhcrDrawer extends Drawer {
