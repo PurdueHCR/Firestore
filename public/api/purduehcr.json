@@ -1147,6 +1147,44 @@
         }
       }
     },
+    "/laundry/" : {
+      "get" : {
+        "tags" : [ "laundry" ],
+        "summary" : "Get Laundry Data",
+        "description" : "Returns all laundry data.",
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "machines" : {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/Machine"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/link/" : {
       "get" : {
         "tags" : [ "link" ],
@@ -4310,6 +4348,31 @@
           "message" : {
             "type" : "string",
             "example" : "There is no Event with that Id."
+          }
+        }
+      },
+      "Machine" : {
+        "type" : "object",
+        "properties" : {
+          "building" : {
+            "type" : "string",
+            "example" : "north"
+          },
+          "machineId" : {
+            "type" : "string",
+            "example" : "Dryer 001S"
+          },
+          "status" : {
+            "type" : "string",
+            "example" : "Ready to start"
+          },
+          "time" : {
+            "type" : "number",
+            "example" : 100
+          },
+          "type" : {
+            "type" : "string",
+            "example" : "Dryer"
           }
         }
       },
