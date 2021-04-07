@@ -16,6 +16,7 @@ export class HouseCompetition {
     static HOUSE_COLLECTION_POINTS_KEY = "Points"
     static HOUSE_COLLECTION_POINTS_COLLECTION_MESSAGES_KEY = "Messages"
     static HOUSE_CODES_KEY = "HouseCodes"
+    static MACHINES_DOCUMENT_KEY = "LaundryMachines"
     static LINKS_KEY = "Links"
     static POINT_TYPES_KEY = "PointTypes"
     static REWARDS_KEY = "Rewards"

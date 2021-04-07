@@ -1,6 +1,7 @@
 import {APIResponse} from '../models/APIResponse'
 import { User } from '../models/User'
 import { getUser } from '../src/GetUser'
+import * as functions from 'firebase-functions'
 export default class APIUtility {
 
 
@@ -11,6 +12,30 @@ export default class APIUtility {
      */
     static async getUser(req:any): Promise<User> {
         return getUser(req["user"]["user_id"])
+    }
+
+    static authenticateRaspberryPi(req:any){
+        let raspberryPiKey
+        if(functions.config().raspberry_pi === undefined || functions.config().raspberry_pi.key === ""){
+            raspberryPiKey = require('../../development_keys/keys.json').raspberry_pi.key
+        }
+        else{
+            raspberryPiKey = functions.config().raspberry_pi.key
+        }
+        console.log('TESTING: '+raspberryPiKey)
+        const header = this.parseRequestHeaderForKey(req,'authorization')
+        if(header.startsWith('Bearer ')){
+            const token = header.split('Bearer ')[1]
+            console.log('token: '+token)
+            if(raspberryPiKey !== token){
+                console.error('Authorization Token did not match.')
+                throw APIResponse.Unauthorized();
+            }
+        }
+        else{
+            console.error('Authorization Header must start with \'Bearer \'')
+            throw APIResponse.Unauthorized();
+        }
     }
 
     /**
@@ -41,6 +66,19 @@ export default class APIUtility {
         }
     }
 
+    static parseRequestHeaderForKey(req:any, key:string): string {
+        const arg = req.headers[key]
+        if(arg === undefined || arg === null ){
+            throw APIResponse.MissingRequiredParameters(`The header value for \'${key}\' is missing.`)
+        }
+        else if(typeof arg !== 'string' || arg === ""){
+            throw APIResponse.IncorrectFormat(`Failed to parse the header: \'${key}\'. All header values must be a string.`)
+        }
+        else{
+            return arg
+        }
+    }
+
     /**
      * Retrieves the field called 'name' from the 'location' as a string.
      * @param location Location of value to parse (req.body or req.query)
@@ -48,13 +86,24 @@ export default class APIUtility {
      * @throws 422 - Missing Required Parameters
      * @throws 426 - Incorrect Format
      */
-    static parseInputForString(location:any, name:string): string {
+    static parseInputForString(location:any, name:string, required: boolean = true): string {
         const arg = location[name]
         if(arg === undefined || arg === null ){
-            throw APIResponse.MissingRequiredParameters(`[${name}]: string`)
+            if(required){
+                throw APIResponse.MissingRequiredParameters(`[${name}]: string`)
+            }
+            else{
+                return "";
+            }
+            
         }
         else if(typeof arg !== 'string' || arg === ""){
-            throw APIResponse.IncorrectFormat(`Correct format is [${name}]: string`)
+            if(required){
+                throw APIResponse.IncorrectFormat(`Correct format is [${name}]: string`)
+            }
+            else{
+                return "";
+            }
         }
         else{
             return arg

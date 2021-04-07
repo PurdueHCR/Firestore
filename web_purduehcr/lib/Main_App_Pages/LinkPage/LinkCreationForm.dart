@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/Main_App_Pages/LinkPage/link_bloc/link.dart';
 import 'package:purduehcr_web/Models/PointType.dart';
+import 'package:purduehcr_web/Utility_Views/FormSection.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
 import 'package:purduehcr_web/Utility_Views/PointTypeList.dart';
 
@@ -53,97 +54,103 @@ class _LinkCreationFormState extends State<LinkCreationForm>{
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        FormField(
-                          builder: (FormFieldState<PointType> state ){
-                            return Container(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    OutlineButton(
-                                        onPressed: () async {
-                                          PointType pt = await showDialog<PointType>(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return AlertDialog(
-                                                  title: Text("Choose Point Type"),
-                                                  shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(10.0))
-                                                  ),
-                                                  content: SingleChildScrollView(
-                                                    child: SizedBox(
-                                                      width: 500,
-                                                      height: 400,
-                                                      child: FutureBuilder(
-                                                          future: this.getPointTypes,
-                                                          builder: ( context, snapshot) {
-                                                            if(snapshot.connectionState == ConnectionState.done) {
-                                                              return PointTypeList(pointTypes: snapshot.data as List<PointType>, onPressed: (BuildContext context, PointType pt){
-                                                                Navigator.pop(context, pt);
-                                                              });
-                                                            }
-                                                            else {
-                                                              return LoadingWidget();
-                                                            }
-                                                          }
+                        FormSection(
+                          label: "Link Details",
+                          children: [
+                            FormField(
+                              builder: (FormFieldState<PointType> state ){
+                                return Container(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [
+                                        OutlineButton(
+                                            onPressed: () async {
+                                              PointType pt = await showDialog<PointType>(
+                                                  context: context,
+                                                  builder: (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: Text("Choose Point Type"),
+                                                      shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.all(Radius.circular(10.0))
                                                       ),
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-                                          );
-                                          setState(() {
-                                            state.didChange(pt);
-                                            this.pointType = pt;
-                                          });
+                                                      content: SingleChildScrollView(
+                                                        child: SizedBox(
+                                                          width: 500,
+                                                          height: 400,
+                                                          child: FutureBuilder(
+                                                              future: this.getPointTypes,
+                                                              builder: ( context, snapshot) {
+                                                                if(snapshot.connectionState == ConnectionState.done) {
+                                                                  return PointTypeList(pointTypes: snapshot.data as List<PointType>, onPressed: (BuildContext context, PointType pt){
+                                                                    Navigator.pop(context, pt);
+                                                                  });
+                                                                }
+                                                                else {
+                                                                  return LoadingWidget();
+                                                                }
+                                                              }
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }
+                                              );
+                                              setState(() {
+                                                state.didChange(pt);
+                                                this.pointType = pt;
+                                              });
 
-                                        },
-                                        child: Text(this.pointType != null ? this.pointType.name : 'Select a Point Type')
-                                    ),
-                                    Visibility(
-                                      visible: state.errorText != null && state.errorText.isNotEmpty,
-                                      child: Text(state.errorText != null? state.errorText: "", style: TextStyle(color: Color.fromARGB(255, 211, 47, 47), fontSize: 13),),
+                                            },
+                                            child: Text(this.pointType != null ? this.pointType.name : 'Select a Point Type')
+                                        ),
+                                        Visibility(
+                                          visible: state.errorText != null && state.errorText.isNotEmpty,
+                                          child: Text(state.errorText != null? state.errorText: "", style: TextStyle(color: Color.fromARGB(255, 211, 47, 47), fontSize: 13),),
+                                        )
+                                      ],
                                     )
-                                  ],
-                                )
-                            );
-                          },
-                          validator: (value){
-                            if(value == null){
-                              return 'Please select a point type';
-                            }
-                            else{
-                              return null;
-                            }
-                          },
+                                );
+                              },
+                              validator: (value){
+                                if(value == null){
+                                  return 'Please select a point type';
+                                }
+                                else{
+                                  return null;
+                                }
+                              },
+                            ),
+                            TextFormField(
+                              decoration:
+                              InputDecoration(labelText: 'Enter a description for this Link.'),
+                              maxLines: null,
+                              maxLength: 250,
+                              controller: _descriptionController,
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  return 'Please enter a description';
+                                }
+                                return null;
+                              },
+                            ),
+                          ],
                         ),
-                        TextFormField(
-                          decoration:
-                          InputDecoration(labelText: 'Enter a description for this Link.'),
-                          maxLines: null,
-                          maxLength: 250,
-                          controller: _descriptionController,
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'Please enter a description';
-                            }
-                            return null;
-                          },
-                        ),
-                        Container(
-                          padding: const EdgeInsets.fromLTRB(0, 50, 0, 20),
-                          child: Text('Options'),
-                        ),
-                        SwitchListTile(
-                            title: const Text('Single Use'),
-                            value: this.singleUse,
-                            onChanged: (bool val) =>
-                                setState(() => this.singleUse = val)
-                        ),
-                        SwitchListTile(
-                            title: const Text('Enabled'),
-                            value: this.enabled,
-                            onChanged: (bool val) =>
-                                setState(() => this.enabled = val)
+                        FormSection(
+                          label: "Link Status",
+                          children: [
+                            SwitchListTile(
+                                title: const Text('Single Use'),
+                                value: this.singleUse,
+                                onChanged: (bool val) =>
+                                    setState(() => this.singleUse = val)
+                            ),
+                            SwitchListTile(
+                                title: const Text('Enabled'),
+                                value: this.enabled,
+                                onChanged: (bool val) =>
+                                    setState(() => this.enabled = val)
+                            ),
+                          ],
                         ),
                         Container(
                             padding: const EdgeInsets.symmetric(

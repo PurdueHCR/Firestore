@@ -1,0 +1,162 @@
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purduehcr_web/Utility_Views/BasePage.dart';
+import 'package:purduehcr_web/Configuration/Config.dart';
+import 'package:purduehcr_web/Configuration/ConfigWrapper.dart';
+import 'package:purduehcr_web/Main_App_Pages/$Page/#_bloc/#.dart';
+import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
+import 'package:purduehcr_web/Utilities/DisplayTypeUtil.dart';
+
+
+class $Page extends BasePage{
+  @override
+  State<StatefulWidget> createState() {
+    return _$PageState( "ß");
+  }
+
+}
+
+class _$PageState extends BasePageState<$Bloc, $Event, $State>{
+
+  $Bloc _#Bloc;
+
+  _$PageState(String drawerLabel) : super(drawerLabel);
+
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if(_#Bloc == null) {
+      Config config = ConfigWrapper.of(context);
+      _#Bloc = new $Bloc(config: config);
+      _#Bloc.add($Initialize());
+    }
+}
+
+  @override
+  Widget buildMobileBody({BuildContext context, $State state}) {
+    _onChangeState(context, state);
+  }
+
+  @override
+  Widget buildLargeDesktopBody({BuildContext context, $State state}) {
+    _onChangeState(context, state);
+    
+  }
+
+  @override
+  Widget buildSmallDesktopBody({BuildContext context, $State state}) {
+    _onChangeState(context, state);
+    
+  }
+
+  Widget buildDefaultBody(BuildContext context, State state){
+      return Center(
+          child:Text("Hello World!")
+      );
+  }
+
+  @override
+  $Bloc getBloc() {
+    return _#Bloc;
+  }
+
+  @override
+  bool isLoadingState(currentState) {
+    return currentState is $Loading;
+  }
+
+  /// Returns the leading button (Back Button) to display.
+  @override
+  Widget buildLeadingButton(DisplayType displayType){
+    /*
+    Typically in PurdueHCR, there is no leading button if the display
+    is desktop large because the UI design should be 2 elements side by side.
+    However on small desktop or mobile, the leading button will be a back 
+    button if the page follows the Master-Detail layout.
+
+    if(_selected$ == null || displayType == DisplayType.desktop_large){
+      return null;
+    }
+    else{
+      return IconButton(icon: Icon(Icons.arrow_back),
+        onPressed: (){
+          setState(() {
+            _selected$ = null;
+          });
+        },);
+    }
+    */
+    return null;
+  }
+
+  ///Whenever the state changes, check if the state comes with a message to display
+  _onChangeState(BuildContext context, LinkState state){
+    if(state is Create$Success){
+      Navigator.pop(context);
+      final snackBar = SnackBar(
+        backgroundColor: Colors.green,
+        content: Text("Your # has been created!"),
+      );
+      Future.delayed(Duration(seconds: 1), (){
+        Scaffold.of(context).showSnackBar(snackBar);
+        _#Bloc.add($DisplayedMessage());
+      });
+    }
+    else if(state is Create$Error){
+      Navigator.pop(context);
+      final snackBar = SnackBar(
+        backgroundColor: Colors.red,
+        content: Text("Sorry. There was a problem creating your #. Please try again."),
+      );
+      Future.delayed(Duration(seconds: 1), (){
+        Scaffold.of(context).showSnackBar(snackBar);
+        _#Bloc.add($DisplayedMessage());
+      });
+    }
+  }
+
+  /// Gets the list of all permission levels who are allowed to view this page
+  @override
+  UserPermissionSet getAcceptedPermissionLevels() {
+    return UserPermissionSet.getAll();
+  }
+
+  /// Creates the floating button on the bottom left used for creating items
+  @override
+  FloatingActionButton buildFloatingActionButton(BuildContext context){
+    //return FloatingActionButton(
+    //  child: Icon(Icons.add),
+    //  onPressed: () => _create$Button(context),
+    //);
+    return null;
+  }
+
+/*
+  _create$Button(BuildContext context){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return SimpleDialog(
+            title: Text("Create New $"),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10.0))
+            ),
+            children: [
+              SizedBox(
+                width: getOptimalDialogWidth(context),
+                child: BlocProvider(
+                    builder: (BuildContext context) => _#Bloc,
+                    child: $CreationForm()
+                )
+              )
+            ],
+          );
+        }
+    );
+  }
+
+*/
+
+}
