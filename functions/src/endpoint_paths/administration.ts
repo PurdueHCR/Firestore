@@ -106,7 +106,6 @@ admin_app.get('/json_backup', async (req, res) => {
  */
 admin_app.post('/endSemester', async (req, res) => {
 	try{
-		APIUtility.validateRequest(req)
         const user = await APIUtility.getUser(req)
 		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
 
@@ -150,7 +149,6 @@ admin_app.post('/endSemester', async (req, res) => {
 admin_app.get('/confirmEndSemester', async (req, res) => {
 
 	try{
-		APIUtility.validateRequest(req)
 		if(req.query.code === undefined || typeof req.query.code !== 'string' || req.query.code === ""){
 			throw APIResponse.MissingRequiredParameters()
 		}
@@ -182,7 +180,6 @@ admin_app.get('/confirmEndSemester', async (req, res) => {
  */
 admin_app.post('/resetCompetition', async (req, res) => {
 	try{
-		APIUtility.validateRequest(req)
 		const user = await APIUtility.getUser(req)
 		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
 
@@ -224,7 +221,6 @@ admin_app.post('/resetCompetition', async (req, res) => {
  */
 admin_app.get('/confirmResetCompetition', async (req,res) => {
 	try{
-		APIUtility.validateRequest(req)
 		const userId = APIUtility.parseInputForString(req.query, 'user')
 		const user = await getUser(userId)
 		if(user.permissionLevel === UserPermissionLevel.PROFESSIONAL_STAFF){
