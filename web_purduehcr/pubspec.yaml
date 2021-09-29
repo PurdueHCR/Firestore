@@ -48,6 +48,13 @@ dependencies:
       url: https://github.com/derohimat/flutter_datetime_picker.git
   intl: ^0.17.0
 
+# TODO: Change when new version of charts is released
+dependency_overrides:
+  charts_flutter:
+    git:
+      url: https://github.com/google/charts
+      path: charts_flutter
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -95,3 +102,4 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+

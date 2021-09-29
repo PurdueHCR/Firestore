@@ -9,7 +9,7 @@ import 'Configuration/Config.dart';
 import 'Configuration/env/dev.dart';
 
 
-class SimpleBlocDelegate extends BlocDelegate {
+class SimpleBlocObserver extends BlocObserver {
   @override
   void onTransition(Bloc bloc, Transition transition) {
 //    print("Trainsition to: "+transition.toString());
@@ -18,7 +18,7 @@ class SimpleBlocDelegate extends BlocDelegate {
 
 }
 void main(){
-  BlocSupervisor.delegate = SimpleBlocDelegate();
+  Bloc.observer = SimpleBlocObserver();
   runApp(
       ChangeNotifierProvider<ThemeNotifier>(
         create: (_) => ThemeNotifier(ThemeData.light(), ThemeData.dark()),

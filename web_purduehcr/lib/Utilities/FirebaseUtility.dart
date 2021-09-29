@@ -107,7 +107,7 @@ class FirebaseUtility{
 
   static Future<String> getToken(){
     return fb_auth.FirebaseAuth.instance.currentUser.getIdToken().then((value) {
-        return Future.value(value.token);
+        return Future.value(value);
       });
   }
 
