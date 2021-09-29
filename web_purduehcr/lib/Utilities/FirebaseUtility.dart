@@ -2,7 +2,7 @@
 import 'dart:convert';
 
 import 'package:firebase/firebase.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/Configuration/Config.dart';
 import 'package:firebase/firebase.dart' as fb;
@@ -38,7 +38,7 @@ class FirebaseUtility{
   static Future<void> signIn(Config config, String email, String password){
     return initializeFirebase(config).then((_) async {
       try{
-        await FirebaseAuth.instance.signInWithEmailAndPassword(email:email, password: password);
+        await fb_auth.FirebaseAuth.instance.signInWithEmailAndPassword(email:email, password: password);
       }
       catch(error){
         String errorMessage;
@@ -79,7 +79,7 @@ class FirebaseUtility{
   static Future<void> createAccount(Config config, String email, String password){
     return initializeFirebase(config).then((value) async {
       try{
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+        await fb_auth.FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
       }
       catch(error){
         String errorMessage;
@@ -106,16 +106,14 @@ class FirebaseUtility{
 
 
   static Future<String> getToken(){
-    return FirebaseAuth.instance.currentUser().then((user) {
-      return user.getIdToken(refresh: false).then((value) {
+    return fb_auth.FirebaseAuth.instance.currentUser.getIdToken().then((value) {
         return Future.value(value.token);
       });
-    });
   }
 
   static sendPasswordResetEmail(String email) async{
     try{
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      await fb_auth.FirebaseAuth.instance.sendPasswordResetEmail(email: email);
     }
     catch(error){
       if(error.code != "auth/user-not-found"){
@@ -126,7 +124,7 @@ class FirebaseUtility{
 
 
   static Future<void> logout(){
-    return FirebaseAuth.instance.signOut();
+    return fb_auth.FirebaseAuth.instance.signOut();
   }
 
   static Future deleteImageFromStorage(String filePath){

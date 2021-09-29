@@ -15,7 +15,7 @@ class Network {
   static Future<dynamic> get(String path, String token, {Map<String, dynamic> params}) async {
     path = path + _serializeParams(params);
     Map<String,String> headers = {"Authorization": "Bearer "+token};
-    final response = await http.get(domain + path,headers: headers);
+    final response = await http.get(Uri.parse(domain + path),headers: headers);
     if(response.statusCode == 200 ){
       return Future.value(json.decode(response.body));
     }else{
@@ -26,7 +26,7 @@ class Network {
   static Future<Map<String,dynamic>> post(String path, String token, {Map<String,dynamic> body, Map<String, dynamic> params}) async {
     path = path + _serializeParams(params);
     Map<String,String> headers = {"Authorization": "Bearer "+token};
-    final response = await http.post(domain + path,headers: headers, body: body);
+    final response = await http.post(Uri.parse(domain + path),headers: headers, body: body);
     if(isSuccessCode(response.statusCode)){
       print("GOT JSON: "+response.body.toString() );
       return Future.value(json.decode(response.body));
@@ -38,7 +38,7 @@ class Network {
 
   static Future<Map<String,dynamic>> delete(String path, String token) async {
     Map<String,String> headers = {"Authorization": "Bearer "+token};
-    final response = await http.delete(domain + path,headers: headers);
+    final response = await http.delete(Uri.parse(domain + path),headers: headers);
     if(isSuccessCode(response.statusCode)){
       return Future.value( json.decode(response.body) );
     }else{
@@ -48,7 +48,7 @@ class Network {
 
   static Future<Map<String,dynamic>> put(String path, String token, Map<String,String> headers) async {
     Map<String,String> headers = {"Authorization": "Bearer "+token};
-    final response = await http.put(domain + path,headers: headers);
+    final response = await http.put(Uri.parse(domain + path),headers: headers);
     if(isSuccessCode(response.statusCode)){
       return Future.value(json.decode(response.body));
     }else{
