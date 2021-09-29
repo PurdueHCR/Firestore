@@ -116,7 +116,7 @@ class PhcrDrawer extends Drawer {
                       onPressed: (){
                         showDialog(
                             context: context,
-                            child: AlertDialog(
+                            builder: (BuildContext context) => AlertDialog(
                               title: Text("Log Out"),
                               content: Text("Are you sure you want to log out?"),
                               actions: [
@@ -148,7 +148,7 @@ class PhcrDrawer extends Drawer {
                       onPressed: (){
                         showDialog(
                             context: context,
-                            child: AlertDialog(
+                            builder: (BuildContext context) => AlertDialog(
                               title: Text("Report a Bug"),
                               content: Linkable(
                                 text: "To report a bug, please fill out the survey here: https://forms.gle/joentx244RnKy5Fe9",
@@ -167,7 +167,7 @@ class PhcrDrawer extends Drawer {
                       onPressed: (){
                         showDialog(
                             context: context,
-                            child: AlertDialog(
+                            builder: (BuildContext context) => AlertDialog(
                               title: Text("App Information"),
                               content: SizedBox(
                                 width: 400,

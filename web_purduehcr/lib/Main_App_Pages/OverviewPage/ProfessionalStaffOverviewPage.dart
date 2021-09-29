@@ -101,7 +101,7 @@ class _ProfessionalStaffOverviewPageState extends BasePageState<OverviewBloc, Ov
                   child: ConstrainedBox(
                     constraints: BoxConstraints(minHeight: 350, maxHeight: 350),
                     child: BlocProvider(
-                      builder: (BuildContext context) => _overviewBloc,
+                      create: (BuildContext context) => _overviewBloc,
                       child: HouseDescription(
                         key: ObjectKey(_selectedHouse),
                         house: _selectedHouse,
@@ -196,7 +196,7 @@ class _ProfessionalStaffOverviewPageState extends BasePageState<OverviewBloc, Ov
             ConstrainedBox(
               constraints: BoxConstraints( maxHeight: 300),
               child: BlocProvider(
-                builder: (BuildContext context) => _overviewBloc,
+                create: (BuildContext context) => _overviewBloc,
                 child: HouseDescription(
                   key: ObjectKey(_selectedHouse),
                   house: _selectedHouse,

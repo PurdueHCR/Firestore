@@ -36,7 +36,7 @@ class PurdueHCRState extends State<PurdueHCR>{
   Widget build(BuildContext context) {
 
     return BlocProvider<AuthenticationBloc>(
-      builder: (context) => _authenticationBloc,
+      create: (context) => _authenticationBloc,
       child: MaterialApp(
         title: 'Purdue HCR',
         theme: _themeNotifier.getTheme(),

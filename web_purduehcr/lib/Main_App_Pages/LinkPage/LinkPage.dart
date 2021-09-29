@@ -50,7 +50,7 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
     }
     else {
       return BlocProvider(
-        builder: (BuildContext context) => _linkBloc,
+        create: (BuildContext context) => _linkBloc,
         child: LinkEditForm(
             key: ObjectKey(_selectedLink),
             link: _selectedLink,
@@ -78,7 +78,7 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
         VerticalDivider(),
         Flexible(
           child: BlocProvider(
-            builder: (BuildContext context) => _linkBloc,
+            create: (BuildContext context) => _linkBloc,
             child: LinkEditForm(
                 key: ObjectKey(_selectedLink),
                 link: _selectedLink,
@@ -101,7 +101,7 @@ class _LinkPageState extends BasePageState<LinkBloc, LinkEvent, LinkState>{
     }
     else {
       return BlocProvider(
-        builder: (BuildContext context) => _linkBloc,
+        create: (BuildContext context) => _linkBloc,
         child: LinkEditForm(
             key: ObjectKey(_selectedLink),
             link: _selectedLink,

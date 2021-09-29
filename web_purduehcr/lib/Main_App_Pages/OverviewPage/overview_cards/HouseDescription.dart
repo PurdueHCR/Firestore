@@ -99,12 +99,12 @@ class _HouseDescription extends State<HouseDescription> {
                         showDialog(
                           barrierDismissible: false,
                             context: context,
-                            child: SimpleDialog(
+                            builder: (BuildContext context) => SimpleDialog(
                               title: Text(
                                   "Give Award to ${widget.house.name} House"),
                               children: [
                                 BlocProvider(
-                                  builder: (BuildContext context) => _overviewBloc,
+                                  create: (BuildContext context) => _overviewBloc,
                                   child: GiveAwardDialogContent(house: widget.house, key: UniqueKey(),),
                                 )
                               ],

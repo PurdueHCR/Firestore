@@ -54,7 +54,7 @@ class _PointTypesControlPageState extends BasePageState<PointTypeControlBloc, Po
         Flexible(
             child: SingleChildScrollView(
               child: BlocProvider(
-                builder: (BuildContext context) => _pointTypeControlBloc,
+                create: (BuildContext context) => _pointTypeControlBloc,
                 child: PointTypeEditForm(
                     key: ObjectKey(_selectedPointType),
                     pointType: _selectedPointType
@@ -82,7 +82,7 @@ class _PointTypesControlPageState extends BasePageState<PointTypeControlBloc, Po
     else {
       return SingleChildScrollView(
         child: BlocProvider(
-          builder: (BuildContext context) => _pointTypeControlBloc,
+          create: (BuildContext context) => _pointTypeControlBloc,
           child: PointTypeEditForm(
               key: ObjectKey(_selectedPointType),
               pointType: _selectedPointType
@@ -108,7 +108,7 @@ class _PointTypesControlPageState extends BasePageState<PointTypeControlBloc, Po
     else {
       return SingleChildScrollView(
         child: BlocProvider(
-          builder: (BuildContext context) => _pointTypeControlBloc,
+          create: (BuildContext context) => _pointTypeControlBloc,
           child: PointTypeEditForm(
               key: ObjectKey(_selectedPointType),
               pointType: _selectedPointType
@@ -154,7 +154,7 @@ class _PointTypesControlPageState extends BasePageState<PointTypeControlBloc, Po
               SizedBox(
                   width: getOptimalDialogWidth(context),
                   child: BlocProvider(
-                    builder: (BuildContext context) => _pointTypeControlBloc,
+                    create: (BuildContext context) => _pointTypeControlBloc,
                     child: PointTypeCreationForm()
                   )
               )

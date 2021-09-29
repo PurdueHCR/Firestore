@@ -89,7 +89,7 @@ class _AccountPageState extends State<AccountPage> {
     Widget child;
     if(state is AccountError){
       child = BlocProvider(
-        builder: (BuildContext context) => _loginBloc,
+        create: (BuildContext context) => _loginBloc,
         child: LoginCard(
             error: state.message
         )
@@ -97,25 +97,25 @@ class _AccountPageState extends State<AccountPage> {
     }
     else if(state is CreateAccountError){
       child = BlocProvider(
-          builder: (BuildContext context) => _loginBloc,
+          create: (BuildContext context) => _loginBloc,
           child: CreateAccountCard(error: state.message)
       );
     }
     else if(state is CreateAccountInitial){
       child = BlocProvider(
-        builder: (BuildContext context) => _loginBloc,
+        create: (BuildContext context) => _loginBloc,
           child: CreateAccountCard()
       );
     }
     else if(state is AccountInitial){
       child = BlocProvider(
-          builder: (BuildContext context) => _loginBloc,
+          create: (BuildContext context) => _loginBloc,
           child: LoginCard()
       );
     }
     else if(state is AccountPageLoading){
       child = BlocProvider(
-          builder: (BuildContext context) => _loginBloc,
+          create: (BuildContext context) => _loginBloc,
           child: LoginCard()
       );
     }
