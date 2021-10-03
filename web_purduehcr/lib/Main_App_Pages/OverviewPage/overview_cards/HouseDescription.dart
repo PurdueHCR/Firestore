@@ -105,7 +105,7 @@ class _HouseDescription extends State<HouseDescription> {
                                     "Give Award to ${widget.house.name} House"),
                                 children: [
                                   BlocProvider(
-                                    builder: (BuildContext context) =>
+                                    create: (BuildContext context) =>
                                         _overviewBloc,
                                     child: GiveAwardDialogContent(
                                       house: widget.house,

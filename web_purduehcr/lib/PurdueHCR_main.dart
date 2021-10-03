@@ -26,7 +26,7 @@ class PurdueHCRState extends State<PurdueHCR>{
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if(_authenticationBloc == null){
+    if(_authenticationBloc == null) {
       _themeNotifier = Provider.of<ThemeNotifier>(context);
       _authenticationBloc = AuthenticationBloc(config: ConfigWrapper.of(context), themeNotifier: _themeNotifier);
       _authenticationBloc.add(AppStarted());
@@ -36,7 +36,7 @@ class PurdueHCRState extends State<PurdueHCR>{
   Widget build(BuildContext context) {
 
     return BlocProvider<AuthenticationBloc>(
-      builder: (context) => _authenticationBloc,
+      create: (context) => _authenticationBloc,
       child: MaterialApp(
         title: 'Purdue HCR',
         theme: _themeNotifier.getTheme(),

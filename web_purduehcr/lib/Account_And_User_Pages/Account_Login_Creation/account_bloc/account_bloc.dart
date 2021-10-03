@@ -17,7 +17,7 @@ class AccountBloc extends Bloc<AccountEvent, AccountState>{
   final String houseCode;
 
   AccountBloc({ @required this.config,@required this.authenticationBloc, this.houseCode})  :
-        assert(authenticationBloc != null){
+        assert(authenticationBloc != null), super(null){
     this._accountRepository = new AccountRepository(config);
   }
 

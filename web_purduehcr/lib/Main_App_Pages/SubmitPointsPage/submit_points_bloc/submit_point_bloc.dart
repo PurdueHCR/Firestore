@@ -11,7 +11,7 @@ class SubmitPointBloc extends Bloc<SubmitPointEvent, SubmitPointState>{
   final Config config;
   SubmitPointRepository _submitPointRepository;
   final AuthenticationBloc authenticationBloc;
-  SubmitPointBloc(this.config, this.authenticationBloc){
+  SubmitPointBloc(this.config, this.authenticationBloc) : super(null){
     this._submitPointRepository = SubmitPointRepository(this.config);
   }
 

@@ -14,7 +14,7 @@ class FindUsersBloc extends Bloc<FindUsersEvent, FindUsersState>{
   Future<List<HouseCode>> houseCodes;
 
   FindUsersBloc({ @required this.config})  :
-        assert(config != null){
+        assert(config != null), super(null){
     this._findUsersRepository = new FindUsersRepository(config);
   }
 

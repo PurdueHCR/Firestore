@@ -61,7 +61,7 @@ class _FindUsersPageState extends BasePageState<FindUsersBloc, FindUsersEvent, F
     }
     else{
       return BlocProvider(
-        builder: (BuildContext context) => _findUsersBloc,
+        create: (BuildContext context) => _findUsersBloc,
         child: EditUserForm(key: ObjectKey(_selectedUser),user: _selectedUser,),
       );
     }
@@ -80,7 +80,7 @@ class _FindUsersPageState extends BasePageState<FindUsersBloc, FindUsersEvent, F
     }
     else{
       return BlocProvider(
-        builder: (BuildContext context) => _findUsersBloc,
+        create: (BuildContext context) => _findUsersBloc,
         child: EditUserForm(key: ObjectKey(_selectedUser),user: _selectedUser,),
       );
     }
@@ -244,7 +244,7 @@ class _FindUsersPageState extends BasePageState<FindUsersBloc, FindUsersEvent, F
               ),
               Expanded(
                 child: BlocProvider(
-                  builder: (BuildContext context) => _findUsersBloc,
+                  create: (BuildContext context) => _findUsersBloc,
                   child: EditUserForm(key: ObjectKey(_selectedUser),user: _selectedUser,),
                 ),
               )

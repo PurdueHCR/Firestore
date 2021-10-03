@@ -13,7 +13,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState>{
   Future<List<PointType>> getPointTypes;
 
   HistoryBloc({ @required this.config})  :
-        assert(config != null){
+        assert(config != null), super(null){
     this._historyRepository = new HistoryRepository(config);
   }
 

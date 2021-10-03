@@ -88,7 +88,7 @@ class _RewardsPageState
           Flexible(
             child: SingleChildScrollView(
               child: BlocProvider(
-                builder: (BuildContext context) => _rewardsBloc,
+                create: (BuildContext context) => _rewardsBloc,
                 child: EditRewardForm(
                   key: ObjectKey(_selectedReward),
                   reward: _selectedReward,
@@ -128,7 +128,7 @@ class _RewardsPageState
       } else {
         return SingleChildScrollView(
           child: BlocProvider(
-            builder: (BuildContext context) => _rewardsBloc,
+            create: (BuildContext context) => _rewardsBloc,
             child: EditRewardForm(
               key: ObjectKey(_selectedReward),
               reward: _selectedReward,
@@ -159,7 +159,7 @@ class _RewardsPageState
               SizedBox(
                   width: getOptimalDialogWidth(context),
                   child: BlocProvider(
-                      builder: (BuildContext context) => _rewardsBloc,
+                      create: (BuildContext context) => _rewardsBloc,
                       child: RewardCreationForm()))
             ],
           );

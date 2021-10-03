@@ -56,7 +56,7 @@ class _MyPointsPageState extends BasePageState<MyPointsBloc, MyPointsEvent, MyPo
         VerticalDivider(),
         Flexible(
           child: BlocProvider<MyPointsBloc>(
-            builder: (BuildContext context) => _myPointsBloc,
+            create: (BuildContext context) => _myPointsBloc,
             child: PointLogChat(
               key: ObjectKey(_selectedPointLog),
                 pointLog: _selectedPointLog

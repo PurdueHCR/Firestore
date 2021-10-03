@@ -6,13 +6,11 @@ part of 'Config.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Config _$ConfigFromJson(Map<String, dynamic> json) {
-return Config(
-env: json['env'] as String,
-apiKey: json['apiKey'] as String,
-authDomain: json['authDomain'] as String,
-databaseURL: json['databaseURL'] as String,
-projectId: json['projectId'] as String,
-storageBucket: json['storageBucket'] as String,
-);
-}
+Config _$ConfigFromJson(Map<String, dynamic> json) => Config(
+      env: json['env'] as String,
+      apiKey: json['apiKey'] as String,
+      authDomain: json['authDomain'] as String,
+      databaseURL: json['databaseURL'] as String,
+      projectId: json['projectId'] as String,
+      storageBucket: json['storageBucket'] as String,
+    );

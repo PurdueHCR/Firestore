@@ -11,7 +11,7 @@ class HouseCodeBloc extends Bloc<HouseCodeEvent, HouseCodeState>{
   final Config config;
 
   HouseCodeBloc({ @required this.config})  :
-        assert(config != null){
+        assert(config != null), super(null){
     this._houseCodeRepository = new HouseCodeRepository(config);
   }
 

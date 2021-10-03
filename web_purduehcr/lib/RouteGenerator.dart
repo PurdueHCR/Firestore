@@ -67,14 +67,14 @@ class RouteGenerator {
                   }
                   break;
                 default:
-                  return _errorRoute();
+                  return HomePage();//_errorRoute();
               }
             }
             else if (state is AuthLoading) {
-              return CircularProgressIndicator();
+              return HomePage();// CircularProgressIndicator();
             }
             else if (state is AuthUninitialized) {
-              return InitializationPage();
+              return HomePage();//InitializationPage();
             }
             else if (state is AuthenticatedButNoUser) {
               if(path.length == 3){
@@ -99,7 +99,7 @@ class RouteGenerator {
               }
             }
             else {
-              return InitializationPage(
+              return HomePage(); InitializationPage(
                   message: "There was an error with authentication. Please refresh the page.",
                   key: UniqueKey(),
               );

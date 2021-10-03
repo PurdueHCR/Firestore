@@ -12,7 +12,7 @@ class HandleLinkBloc extends Bloc<HandleLinkEvent, HandleLinkState>{
   AuthenticationBloc authenticationBloc;
   final Config config;
 
-  HandleLinkBloc(this.config, this.authenticationBloc){
+  HandleLinkBloc(this.config, this.authenticationBloc) : super(null){
     this._handleLinkRepository = new HandleLinkRepository(config);
   }
 

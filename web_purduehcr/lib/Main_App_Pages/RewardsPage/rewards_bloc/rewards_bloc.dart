@@ -12,7 +12,7 @@ class RewardsBloc extends Bloc<RewardsEvent, RewardsState>{
   final Config config;
 
   RewardsBloc({ @required this.config})  :
-        assert(config != null){
+        assert(config != null), super(null){
     this._rewardsRepository = new RewardsRepository(config);
   }
 

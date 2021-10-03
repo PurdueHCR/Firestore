@@ -14,7 +14,7 @@ class MyEventsBloc extends Bloc<MyEventsEvent, MyEventsState>{
   final Config config;
 
   MyEventsBloc({ @required this.config})  :
-        assert(config != null){
+        assert(config != null), super(null){
     this._myEventsRepository = new MyEventsRepository(config);
   }
 

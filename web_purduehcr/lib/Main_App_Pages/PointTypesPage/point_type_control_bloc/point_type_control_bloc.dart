@@ -12,7 +12,7 @@ class PointTypeControlBloc extends Bloc<PointTypeControlEvent, PointTypeControlS
   final Config config;
 
   PointTypeControlBloc({ @required this.config})  :
-        assert(config != null){
+        assert(config != null), super(null){
     this._pointTypeControlRepository = new PointTypeControlRepository(config);
   }
 

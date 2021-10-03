@@ -65,7 +65,7 @@ class _MyEventsPageState
           Flexible(
               child: SingleChildScrollView(
                 child: BlocProvider(
-                    builder: (BuildContext context) => _myEventsBloc,
+                    create: (BuildContext context) => _myEventsBloc,
                     child: EditEventForm(
                         event: _selectedEvent,
                         key: ObjectKey(_selectedEvent)
@@ -95,7 +95,7 @@ class _MyEventsPageState
           Flexible(
               child: SingleChildScrollView(
                 child: BlocProvider(
-                    builder: (BuildContext context) => _myEventsBloc,
+                    create: (BuildContext context) => _myEventsBloc,
                     child: EditEventForm(
                       event: _selectedEvent,
                       key: ObjectKey(_selectedEvent)
@@ -137,7 +137,7 @@ class _MyEventsPageState
       } else {
         return SingleChildScrollView(
           child: BlocProvider(
-            builder: (BuildContext context) => _myEventsBloc,
+            create: (BuildContext context) => _myEventsBloc,
             child: EditEventForm(
               key: ObjectKey(_selectedEvent),
               event: _selectedEvent,
@@ -169,7 +169,7 @@ class _MyEventsPageState
               SizedBox(
                   width: getOptimalDialogWidth(context),
                   child: BlocProvider(
-                      builder: (BuildContext context) => _myEventsBloc,
+                      create: (BuildContext context) => _myEventsBloc,
                       child: EventCreationForm()
                   )
               )
@@ -243,27 +243,29 @@ class _MyEventsPageState
       await showDialog(
           context: context,
           barrierDismissible: false,
-          child: SimpleDialog(
-            title: Text('Refresh the Page'),
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(message),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: OutlineButton(
-                  child: Text('Ok'),
-                  onPressed: (){
-                    Navigator.of(context).pop();
-                    WidgetsBinding.instance.addPostFrameCallback((_) async {
-                      html.window.location.reload();
-                    });
-                  },
+          builder: (BuildContext cx) {
+            return SimpleDialog(
+              title: Text('Refresh the Page'),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(message),
                 ),
-              )
-            ],
-          )
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: OutlineButton(
+                    child: Text('Ok'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      WidgetsBinding.instance.addPostFrameCallback((_) async {
+                        html.window.location.reload();
+                      });
+                    },
+                  ),
+                )
+              ],
+            );
+          },
       );
     });
   }

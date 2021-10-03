@@ -7,7 +7,7 @@ import 'package:purduehcr_web/Models/PointLog.dart';
 class HandlePointsBloc extends Bloc<HandlePointEvent, HandlePointsState>{
   final Config config;
   HandlePointRepository _handlePointRepository;
-  HandlePointsBloc(this.config){
+  HandlePointsBloc(this.config) : super(null){
     this._handlePointRepository = HandlePointRepository(this.config);
   }
 

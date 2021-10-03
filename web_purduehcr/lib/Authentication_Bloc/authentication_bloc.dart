@@ -19,7 +19,7 @@ class AuthenticationBloc
   AuthenticationRepository _authenticationRepository;
 
   AuthenticationBloc({@required this.config, @required this.themeNotifier})
-      : assert(config != null), assert(themeNotifier != null){
+      : assert(config != null), assert(themeNotifier != null), super(null) {
     _authenticationRepository = AuthenticationRepository(config);
   }
 

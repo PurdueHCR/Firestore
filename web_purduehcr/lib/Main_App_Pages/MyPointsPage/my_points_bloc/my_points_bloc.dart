@@ -7,7 +7,7 @@ import 'package:purduehcr_web/Main_App_Pages/MyPointsPage/my_points_bloc/my_poin
 class MyPointsBloc extends Bloc<MyPointsEvent, MyPointsState>{
   final Config config;
   MyPointsRepository _myPointsRepository;
-  MyPointsBloc(this.config){
+  MyPointsBloc(this.config) : super(null){
     this._myPointsRepository = MyPointsRepository(this.config);
   }
 

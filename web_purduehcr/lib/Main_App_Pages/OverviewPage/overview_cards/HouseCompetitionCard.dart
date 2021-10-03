@@ -31,12 +31,15 @@ class HouseCompetitionCardState extends State<HouseCompetitionCard>{
       );
     }
     else{
-      child = new BarChart(
+      child = Padding(
+        padding: const EdgeInsets.all(16.0),
+      child: new BarChart(
         _formatData(),
         animate: false,
         barRendererDecorator: BarLabelDecorator<String>(
 
         )
+      )
       );
     }
     return Card(

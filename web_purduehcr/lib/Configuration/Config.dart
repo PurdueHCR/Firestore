@@ -10,7 +10,7 @@ class Config {
   final String databaseURL;
   final String projectId;
   final String storageBucket;
-  final String version = "1.1.0";
+  final String version = "2.0.0";
 
   Config({this.env, this.apiKey, this.authDomain, this.databaseURL, this.projectId, this.storageBucket});
   factory Config.fromJson(Map<String, dynamic> json) => _$ConfigFromJson(json);

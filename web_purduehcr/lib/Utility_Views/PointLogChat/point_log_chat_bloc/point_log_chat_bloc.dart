@@ -14,7 +14,7 @@ class PointLogChatBloc extends Bloc<PointLogChatEvent, PointLogChatState>{
   final Config config;
 
   PointLogChatBloc({ @required this.config , this.house})  :
-        assert(config != null){
+        assert(config != null), super(null){
     this._pointLogChatRepository = new PointLogChatRepository(config);
   }
 

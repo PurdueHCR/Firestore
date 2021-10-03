@@ -7,7 +7,7 @@ import 'overview.dart';
 class OverviewBloc extends Bloc<OverviewEvent, OverviewState>{
   final Config config;
   OverviewRepository overviewRepository;
-  OverviewBloc(this.config){
+  OverviewBloc(this.config) : super(null){
     this.overviewRepository = OverviewRepository(this.config);
   }
 

@@ -12,7 +12,7 @@ class ControlBloc extends Bloc<ControlEvent, ControlState>{
   final Config config;
 
   ControlBloc({ @required this.config})  :
-        assert(config != null){
+        assert(config != null), super(null){
     this._controlRepository = new ControlRepository(config);
   }
 

@@ -16,7 +16,7 @@ class UserCreationBloc extends Bloc<UserCreationEvent, UserCreationState>{
   final AuthenticationBloc authenticationBloc;
 
   UserCreationBloc({ @required this.config,@required this.authenticationBloc})  :
-        assert(authenticationBloc != null){
+        assert(authenticationBloc != null), super(null){
     _userCreationRepository = UserCreationRepository(config);
   }
 

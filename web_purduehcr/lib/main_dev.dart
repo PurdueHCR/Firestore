@@ -9,16 +9,18 @@ import 'Configuration/Config.dart';
 import 'Configuration/env/dev.dart';
 
 
-class SimpleBlocDelegate extends BlocDelegate {
+class SimpleBlocDelegate extends BlocObserver {
   @override
   void onTransition(Bloc bloc, Transition transition) {
 //    print("Trainsition to: "+transition.toString());
     super.onTransition(bloc, transition);
   }
 
+
 }
 void main(){
-  BlocSupervisor.delegate = SimpleBlocDelegate();
+  //BlocSupervisor.delegate = SimpleBlocDelegate();
+  //Bloc observer = SimpleBlocDelegate();
   runApp(
       ChangeNotifierProvider<ThemeNotifier>(
         create: (_) => ThemeNotifier(ThemeData.light(), ThemeData.dark()),
@@ -27,4 +29,5 @@ void main(){
             child: new PurdueHCR()),
       )
   );
+
 }

@@ -24,10 +24,10 @@ class FirebaseUtility{
             projectId: config.projectId,
             storageBucket: config.storageBucket);
       }
-      catch (err){
+      catch (err) {
         print("We are ignoring this error: $err");
       }
-      return auth().setPersistence(Persistence.SESSION);
+      return auth().setPersistence(fb.Persistence.SESSION);
     }
     else{
       return Future.value();
@@ -106,11 +106,15 @@ class FirebaseUtility{
 
 
   static Future<String> getToken(){
-    return FirebaseAuth.instance.currentUser().then((user) {
-      return user.getIdToken(refresh: false).then((value) {
-        return Future.value(value.token);
-      });
-    });
+    if (FirebaseAuth.instance.currentUser != null) {
+      return FirebaseAuth.instance.currentUser.getIdToken(true).then((value) => value);
+    }
+
+
+    // print(FirebaseAuth.instance.currentUser.displayName);
+    // return FirebaseAuth.instance.currentUser.getIdToken(false).then((value) {
+    //     return value;
+    // });
   }
 
   static sendPasswordResetEmail(String email) async{
