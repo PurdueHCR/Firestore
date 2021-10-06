@@ -5,9 +5,9 @@ import '../Configuration/Config.dart';
 
 
 callCloudFunction(Config config, Method method, String path, {Map<String, dynamic> params, Map<String, dynamic> body}) async {
-  FirebaseFunctions target = FirebaseFunctions.instance;
+  FirebaseFunctions target = FirebaseFunctions.instanceFor(region: "us-central1");
   if(config.env == "DEV"){
-    target.useFunctionsEmulator("http://localhost", 5001);
+    target.useFunctionsEmulator("localhost", 5001);
   }
   String completePath = path + _serializeParams(params);
   HttpsCallableResult result = await target.httpsCallable(completePath).call({

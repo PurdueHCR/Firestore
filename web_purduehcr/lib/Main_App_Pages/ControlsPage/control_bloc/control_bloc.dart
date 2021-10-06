@@ -12,12 +12,13 @@ class ControlBloc extends Bloc<ControlEvent, ControlState>{
   final Config config;
 
   ControlBloc({ @required this.config})  :
-        assert(config != null){
+        assert(config != null), super(ControlPageLoading()) {
     this._controlRepository = new ControlRepository(config);
   }
 
-  @override
-  ControlState get initialState => ControlPageLoading();
+  // TODO: Remove?
+  // @override
+  // ControlState get initialState => ControlPageLoading();
 
   @override
   Stream<ControlState> mapEventToState( ControlEvent event) async* {

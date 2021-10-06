@@ -11,12 +11,13 @@ class HouseCodeBloc extends Bloc<HouseCodeEvent, HouseCodeState>{
   final Config config;
 
   HouseCodeBloc({ @required this.config})  :
-        assert(config != null){
+        assert(config != null), super(HouseCodePageLoading()) {
     this._houseCodeRepository = new HouseCodeRepository(config);
   }
 
-  @override
-  HouseCodeState get initialState => HouseCodePageLoading();
+  // TODO: Remove?
+  // @override
+  // HouseCodeState get initialState => HouseCodePageLoading();
 
   @override
   Stream<HouseCodeState> mapEventToState( HouseCodeEvent event) async* {

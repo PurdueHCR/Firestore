@@ -12,12 +12,13 @@ class PointTypeControlBloc extends Bloc<PointTypeControlEvent, PointTypeControlS
   final Config config;
 
   PointTypeControlBloc({ @required this.config})  :
-        assert(config != null) {
+        assert(config != null), super(PointTypeControlPageLoading()) {
     this._pointTypeControlRepository = new PointTypeControlRepository(config);
   }
 
-  @override
-  PointTypeControlState get initialState => PointTypeControlPageLoading();
+  // TODO: Remove?
+  // @override
+  // PointTypeControlState get initialState => PointTypeControlPageLoading();
 
   @override
   Stream<PointTypeControlState> mapEventToState( PointTypeControlEvent event) async* {

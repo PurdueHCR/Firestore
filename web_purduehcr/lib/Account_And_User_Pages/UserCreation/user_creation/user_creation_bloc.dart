@@ -16,12 +16,13 @@ class UserCreationBloc extends Bloc<UserCreationEvent, UserCreationState>{
   final AuthenticationBloc authenticationBloc;
 
   UserCreationBloc({ @required this.config,@required this.authenticationBloc})  :
-        assert(authenticationBloc != null){
+        assert(authenticationBloc != null), super(EnterHouseCodeState()) {
     _userCreationRepository = UserCreationRepository(config);
   }
 
-  @override
-  UserCreationState get initialState => EnterHouseCodeState();
+  // TODO: Remove?
+  // @override
+  // UserCreationState get initialState => EnterHouseCodeState();
 
   @override
   Stream<UserCreationState> mapEventToState( UserCreationEvent event) async* {

@@ -7,12 +7,13 @@ import 'package:purduehcr_web/Main_App_Pages/MyPointsPage/my_points_bloc/my_poin
 class MyPointsBloc extends Bloc<MyPointsEvent, MyPointsState>{
   final Config config;
   MyPointsRepository _myPointsRepository;
-  MyPointsBloc(this.config){
+  MyPointsBloc(this.config) : super(MyPointsPageLoading()) {
     this._myPointsRepository = MyPointsRepository(this.config);
   }
 
-  @override
-  MyPointsState get initialState => MyPointsPageLoading();
+  // TODO: Remove?
+  // @override
+  // MyPointsState get initialState => MyPointsPageLoading();
 
   @override
   Stream<MyPointsState> mapEventToState( MyPointsEvent event) async* {

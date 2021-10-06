@@ -19,12 +19,13 @@ class AuthenticationBloc
   AuthenticationRepository _authenticationRepository;
 
   AuthenticationBloc({@required this.config, @required this.themeNotifier})
-      : assert(config != null), assert(themeNotifier != null){
+      : assert(config != null), assert(themeNotifier != null), super(AuthUninitialized()) {
     _authenticationRepository = AuthenticationRepository(config);
   }
 
-  @override
-  AuthenticationState get initialState => AuthUninitialized();
+  // TODO: Remove?
+  // @override
+  // AuthenticationState get initialState => AuthUninitialized();
 
   @override
   Stream<AuthenticationState> mapEventToState(AuthenticationEvent event) async* {
@@ -62,9 +63,9 @@ class AuthenticationBloc
       on ApiError catch(apiError){
         yield AuthenticatedButNoUser(preferences: state.preferences, houseCode: event.houseCode);
       }
-      catch(error){
-        yield ConnectionErrorState(preferences: state.preferences);
-      }
+      // catch(error){
+        // yield ConnectionErrorState(preferences: state.preferences);
+      // }
     }
     else if (event is LoggedOut) {
       yield AuthLoading(preferences: state.preferences);

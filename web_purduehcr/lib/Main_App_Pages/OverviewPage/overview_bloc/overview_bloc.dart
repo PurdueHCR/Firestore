@@ -7,12 +7,13 @@ import 'overview.dart';
 class OverviewBloc extends Bloc<OverviewEvent, OverviewState>{
   final Config config;
   OverviewRepository overviewRepository;
-  OverviewBloc(this.config){
+  OverviewBloc(this.config) : super(OverviewLoading()) {
     this.overviewRepository = OverviewRepository(this.config);
   }
 
-  @override
-  OverviewState get initialState => OverviewLoading();
+  // TODO: Remove?
+  // @override
+  // OverviewState get initialState => OverviewLoading();
 
   @override
   Stream<OverviewState> mapEventToState( OverviewEvent event) async* {

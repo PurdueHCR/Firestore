@@ -13,12 +13,13 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState>{
   Future<List<PointType>> getPointTypes;
 
   HistoryBloc({ @required this.config})  :
-        assert(config != null){
+        assert(config != null), super(HistoryPageLoaded()) {
     this._historyRepository = new HistoryRepository(config);
   }
 
-  @override
-  HistoryState get initialState => HistoryPageLoaded(searchType: "recent");
+  // TODO: Remove?
+  // @override
+  // HistoryState get initialState => HistoryPageLoaded(searchType: "recent");
 
   @override
   Stream<HistoryState> mapEventToState( HistoryEvent event) async* {

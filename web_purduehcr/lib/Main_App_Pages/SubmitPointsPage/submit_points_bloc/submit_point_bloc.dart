@@ -11,12 +11,13 @@ class SubmitPointBloc extends Bloc<SubmitPointEvent, SubmitPointState>{
   final Config config;
   SubmitPointRepository _submitPointRepository;
   final AuthenticationBloc authenticationBloc;
-  SubmitPointBloc(this.config, this.authenticationBloc){
+  SubmitPointBloc(this.config, this.authenticationBloc) : super(SubmitPointPageLoading()) {
     this._submitPointRepository = SubmitPointRepository(this.config);
   }
 
-  @override
-  SubmitPointState get initialState => SubmitPointPageLoading();
+  // TODO: Remove?
+  // @override
+  // SubmitPointState get initialState => SubmitPointPageLoading();
 
   @override
   Stream<SubmitPointState> mapEventToState( SubmitPointEvent event) async* {

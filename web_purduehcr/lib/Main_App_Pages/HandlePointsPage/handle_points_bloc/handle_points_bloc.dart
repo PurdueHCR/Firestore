@@ -7,12 +7,13 @@ import 'package:purduehcr_web/Models/PointLog.dart';
 class HandlePointsBloc extends Bloc<HandlePointEvent, HandlePointsState>{
   final Config config;
   HandlePointRepository _handlePointRepository;
-  HandlePointsBloc(this.config){
+  HandlePointsBloc(this.config) : super(HandlePointsPageLoading()) {
     this._handlePointRepository = HandlePointRepository(this.config);
   }
 
-  @override
-  HandlePointsState get initialState => HandlePointsPageLoading();
+  // TODO: Remove?
+  // @override
+  // HandlePointsState get initialState => HandlePointsPageLoading();
 
   @override
   Stream<HandlePointsState> mapEventToState( HandlePointEvent event) async* {

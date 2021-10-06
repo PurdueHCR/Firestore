@@ -14,12 +14,13 @@ class FindUsersBloc extends Bloc<FindUsersEvent, FindUsersState>{
   Future<List<HouseCode>> houseCodes;
 
   FindUsersBloc({ @required this.config})  :
-        assert(config != null){
+        assert(config != null), super(FindUsersPageLoaded()) {
     this._findUsersRepository = new FindUsersRepository(config);
   }
 
-  @override
-  FindUsersState get initialState => FindUsersPageLoaded();
+  // TODO: Remove?
+  // @override
+  // FindUsersState get initialState => FindUsersPageLoaded();
 
   @override
   Stream<FindUsersState> mapEventToState( FindUsersEvent event) async* {

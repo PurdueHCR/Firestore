@@ -14,12 +14,13 @@ class PointLogChatBloc extends Bloc<PointLogChatEvent, PointLogChatState>{
   final Config config;
 
   PointLogChatBloc({ @required this.config , this.house})  :
-        assert(config != null){
+        assert(config != null), super(PointLogChatLoading()) {
     this._pointLogChatRepository = new PointLogChatRepository(config);
   }
 
-  @override
-  PointLogChatState get initialState => PointLogChatLoading();
+  // TODO: Remove?
+  // @override
+  // PointLogChatState get initialState => PointLogChatLoading();
 
   @override
   Stream<PointLogChatState> mapEventToState( PointLogChatEvent event) async* {

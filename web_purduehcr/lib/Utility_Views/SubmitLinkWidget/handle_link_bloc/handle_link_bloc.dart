@@ -12,12 +12,13 @@ class HandleLinkBloc extends Bloc<HandleLinkEvent, HandleLinkState>{
   AuthenticationBloc authenticationBloc;
   final Config config;
 
-  HandleLinkBloc(this.config, this.authenticationBloc){
+  HandleLinkBloc(this.config, this.authenticationBloc) : super(HandleLinkLoading()) {
     this._handleLinkRepository = new HandleLinkRepository(config);
   }
 
-  @override
-  HandleLinkState get initialState => HandleLinkLoading();
+  // TODO: Remove?
+  // @override
+  // HandleLinkState get initialState => HandleLinkLoading();
 
   @override
   Stream<HandleLinkState> mapEventToState( HandleLinkEvent event) async* {

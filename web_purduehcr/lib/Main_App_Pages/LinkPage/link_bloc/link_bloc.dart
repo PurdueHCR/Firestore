@@ -14,12 +14,13 @@ class LinkBloc extends Bloc<LinkEvent, LinkState>{
   Future<List<PointType>> pointTypes;
 
   LinkBloc({ @required this.config})  :
-        assert(config != null){
+        assert(config != null), super(LinkLoading()) {
     this._linkRepository = new LinkRepository(config);
   }
 
-  @override
-  LinkState get initialState => LinkLoading();
+  // TODO: Remove?
+  // @override
+  // LinkState get initialState => LinkLoading();
 
   @override
   Stream<LinkState> mapEventToState( LinkEvent event) async* {

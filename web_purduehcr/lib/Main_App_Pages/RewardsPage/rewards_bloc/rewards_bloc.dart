@@ -12,12 +12,13 @@ class RewardsBloc extends Bloc<RewardsEvent, RewardsState>{
   final Config config;
 
   RewardsBloc({ @required this.config})  :
-        assert(config != null){
+        assert(config != null), super(RewardsPageLoading()) {
     this._rewardsRepository = new RewardsRepository(config);
   }
 
-  @override
-  RewardsState get initialState => RewardsPageLoading();
+  // TODO: Remove?
+  // @override
+  // RewardsState get initialState => RewardsPageLoading();
 
   @override
   Stream<RewardsState> mapEventToState( RewardsEvent event) async* {
