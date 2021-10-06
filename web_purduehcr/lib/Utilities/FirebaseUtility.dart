@@ -27,6 +27,10 @@ class FirebaseUtility{
       catch (err){
         print("We are ignoring this error: $err");
       }
+
+      // TODO: This might be necessary when using dev and hosting locally
+      // fb_auth.FirebaseAuth.instance.useAuthEmulator("localhost", 5001);
+
       return auth().setPersistence(Persistence.SESSION);
     }
     else{
