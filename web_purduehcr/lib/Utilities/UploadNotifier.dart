@@ -1,15 +1,18 @@
 
-import 'dart:html';
-import 'package:firebase/firebase.dart' as fb;
+//import 'dart:html';
 
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class UploadNotifier extends ChangeNotifier{
   Image image;
+  //using dart.io instead of dart.html
   File imageFile;
   String fileName;
   String errorText;
-
+/*
   startFilePickerWeb() async {
     InputElement uploadInput = FileUploadInputElement();
     uploadInput.click();
@@ -39,9 +42,11 @@ class UploadNotifier extends ChangeNotifier{
     });
   }
 
+  //changed
   fb.UploadTask uploadToFirebase() {
-    fileName = '${DateTime.now()}.'+imageFile.type.split('/')[1];
-    return fb.storage().ref('/').child(fileName).put(imageFile);
+    fileName = '${DateTime.now()}.'+imageFile.toString();
+    return FirebaseStorage.instance.ref('/').child(fileName).putFile(imageFile);
   }
+*/
 
 }

@@ -1,5 +1,5 @@
 // ignore: avoid_web_libraries_in_flutter
-import 'dart:html';
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/Main_App_Pages/RewardsPage/rewards_bloc/rewards.dart';
 import 'package:purduehcr_web/Utilities/UploadNotifier.dart';
 import 'package:purduehcr_web/Utility_Views/LoadingWidget.dart';
-import 'package:firebase/firebase.dart' as fb;
+
 
 import 'package:purduehcr_web/Configuration/Config.dart';
 import 'package:purduehcr_web/Configuration/ConfigWrapper.dart';
@@ -35,7 +35,7 @@ class _RewardCreationFormState extends State<RewardCreationForm> {
   String ppr = "0";
   bool isUploading = false;
   bool isLoading = false;
-  fb.UploadTask _uploadTask;
+  //fb.UploadTask _uploadTask;
   Image image;
 
   final _formKey = GlobalKey<FormState>();
@@ -54,6 +54,7 @@ class _RewardCreationFormState extends State<RewardCreationForm> {
 
   @override
   Widget build(BuildContext context) {
+    /*
     if( isUploading){
       return StreamBuilder<fb.UploadTaskSnapshot>(
         stream: _uploadTask?.onStateChanged,
@@ -143,12 +144,16 @@ class _RewardCreationFormState extends State<RewardCreationForm> {
                             child: RaisedButton(
                               child: Text("Select Image"),
                               onPressed: (){
+                                //@TODO replace
+                                /*
                                 uploadNotifier.startFilePickerWeb();
                                 uploadNotifier.addListener(() {
                                   setState(() {
                                     image = uploadNotifier.image;
                                   });
-                                });
+
+
+                                });*/
                               },
                             ),
                           ),
@@ -232,6 +237,6 @@ class _RewardCreationFormState extends State<RewardCreationForm> {
             )
         ),
       );
-    }
+    }*/
   }
 }

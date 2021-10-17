@@ -32,7 +32,7 @@ class AuthenticationBloc
     if (event is AppStarted && state.preferences == null) {
       SystemPreference preferences;
       try{
-        await FirebaseUtility.initializeFirebase(config);
+        //await FirebaseUtility.initializeFirebase(config);
         preferences = await _authenticationRepository.getSystemPreferences();
         final initializationData = await _authenticationRepository.getInitializationData();
         if(initializationData.house != null && themeNotifier.getMainColor() != initializationData.house.getHouseColor()){

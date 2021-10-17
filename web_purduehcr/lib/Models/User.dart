@@ -1,4 +1,5 @@
-import 'package:firebase/firebase.dart' as fb;
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:purduehcr_web/Models/UserPermissionLevel.dart';
 
 class User {
@@ -28,7 +29,7 @@ class User {
       this.house,this.semesterPoints, this.totalPoints,this.permissionLevel, this.enabled,
       this.id){
     if(this.house != null && this.house.isNotEmpty){
-      fb.storage().ref(this.house.toLowerCase()+".png").getDownloadURL().then((value) => houseDownloadURL = value);
+      FirebaseStorage.instance.ref(this.house.toLowerCase()+".png").getDownloadURL().then((value) => houseDownloadURL = value as Uri);
     }
   }
 

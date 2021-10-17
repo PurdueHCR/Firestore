@@ -1,19 +1,17 @@
 
 import 'dart:convert';
 
-import 'package:firebase/firebase.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:flutter/material.dart';
 import 'package:purduehcr_web/Configuration/Config.dart';
-import 'package:firebase/firebase.dart' as fb;
 import 'package:purduehcr_web/Models/ApiError.dart';
 
 
 class FirebaseUtility{
-  static App app;
+//  static App app;
   static bool connectedToDatabase = false;
 
-
+/*
   static Future<void> initializeFirebase(Config config){
     if(apps.isEmpty ){
       try {
@@ -36,9 +34,12 @@ class FirebaseUtility{
     else{
       return Future.value();
     }
-  }
+  }*/
 
   ///Signs in the user and returns the token in the future
+  ///
+  //
+  /*
   static Future<void> signIn(Config config, String email, String password){
     return initializeFirebase(config).then((_) async {
       try{
@@ -107,7 +108,7 @@ class FirebaseUtility{
       }
     });
   }
-
+*/
 
   static Future<String> getToken(){
     return fb_auth.FirebaseAuth.instance.currentUser.getIdToken().then((value) {
@@ -130,9 +131,9 @@ class FirebaseUtility{
   static Future<void> logout(){
     return fb_auth.FirebaseAuth.instance.signOut();
   }
-
+/*
   static Future deleteImageFromStorage(String filePath){
     return fb.storage().ref('/').child(filePath).delete();
   }
-
+*/
 }

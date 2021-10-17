@@ -9,13 +9,13 @@ class AccountRepository {
   AccountRepository(this.config);
 
 
-  Future createAccount(String email, String password) {
+/*  Future createAccount(String email, String password) {
     return FirebaseUtility.createAccount(config, email, password);
   }
 
   Future loginUser(String email, String password) {
     return FirebaseUtility.signIn(config, email, password);
-  }
+  }*/
 
   sendPasswordResetEmail(String email) async{
     await FirebaseUtility.sendPasswordResetEmail(email);

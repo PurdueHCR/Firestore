@@ -125,12 +125,12 @@ class _RewardsPageState
             title: Text("Create New Reward"),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10.0))),
-            children: [
+            children: [/*
               SizedBox(
                   width: getOptimalDialogWidth(context),
                   child: BlocProvider(
                       create: (BuildContext context) => _rewardsBloc,
-                      child: RewardCreationForm()))
+                      child: RewardCreationForm()))*/
             ],
           );
         });

@@ -1,4 +1,4 @@
-import 'package:firebase/firebase.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purduehcr_web/Models/Reward.dart';
@@ -167,6 +167,7 @@ class _EditRewardFormState extends State<EditRewardForm> {
                               RaisedButton(
                                 child: Text("Pick New Icon"),
                                 onPressed: () {
+                                  /*
                                   Navigator.of(context).pop();
                                   uploadNotifier.startFilePickerWeb();
                                   uploadNotifier.addListener(() {
@@ -174,7 +175,7 @@ class _EditRewardFormState extends State<EditRewardForm> {
                                       image = uploadNotifier.image;
                                       updateRewardIcon();
                                     });
-                                  });
+                                  });*/
                                 },
                               )
                             ],
@@ -206,7 +207,7 @@ class _EditRewardFormState extends State<EditRewardForm> {
                               child: Text("Delete"),
                               onPressed: () {
                                 Navigator.of(context).pop();
-                                deleteReward();
+                               // deleteReward();
                               },
                             )
                           ],
@@ -221,7 +222,7 @@ class _EditRewardFormState extends State<EditRewardForm> {
       );
     }
   }
-
+/*
   deleteReward() async {
     showDialog(
         barrierDismissible: false,
@@ -339,5 +340,5 @@ class _EditRewardFormState extends State<EditRewardForm> {
         }
 
     );
-  }
+  }*/
 }

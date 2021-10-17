@@ -38,15 +38,18 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.3
-  firebase: ^9.0.2
+  #web only firebase: ^9.0.2
+
   firebase_auth: ^3.1.2
-  firebase_auth_web: ^3.1.1
+  #firebase_auth_web: ^3.1.1
   http: ^0.13.3
-  clipboard_manager: ^0.0.1
+ # old library clipboard_manager: ^0.0.1
   flutter_datetime_picker:
     git:
       url: https://github.com/derohimat/flutter_datetime_picker.git
   intl: ^0.17.0
+  clipboard: ^0.1.3
+  firebase_storage: ^10.0.5
 
 # TODO: Change when new version of charts is released
 dependency_overrides:
