@@ -45,8 +45,8 @@ class _PointLogListState extends State<PointLogList>{
         itemCount: (this.widget.showLoadMoreButton)? visibleLogs.length + 1 : visibleLogs.length,
         itemBuilder: (BuildContext context, int index){
           if(index == visibleLogs.length){
-            return OutlineButton(
-              child: Text("Load More"),
+            return TextButton(
+              child: Text("Load More", style: TextStyle(color: Colors.black87)),
               onPressed: this.widget.loadMore,
             );
           }

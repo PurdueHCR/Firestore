@@ -111,23 +111,23 @@ class PhcrDrawer extends Drawer {
               else if(index == selectedList.length + 1 ){
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                  child: OutlineButton(
-                      child: Text("Log out"),
+                  child: TextButton(
+                      child: Text("Log out", style: TextStyle(color: Colors.black87)),
                       onPressed: (){
                         showDialog(
                             context: context,
                             builder: (BuildContext context) => AlertDialog(
-                              title: Text("Log Out"),
+                              title: Text("Log Out", style: TextStyle(color: Colors.black87)),
                               content: Text("Are you sure you want to log out?"),
                               actions: [
-                                FlatButton(
-                                  child: Text("Cancel"),
+                                TextButton(
+                                  child: Text("Cancel", style: TextStyle(color: Colors.black87)),
                                   onPressed: (){
                                     Navigator.of(context).pop();
                                   },
                                 ),
-                                FlatButton(
-                                  child: Text("Log out"),
+                                TextButton(
+                                  child: Text("Log out", style: TextStyle(color: Colors.black87)),
                                   onPressed: (){
                                     Navigator.of(context).pop();
                                     BlocProvider.of<AuthenticationBloc>(context).add(LoggedOut());
@@ -143,8 +143,8 @@ class PhcrDrawer extends Drawer {
               else if(index == selectedList.length + 2){
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                  child: OutlineButton(
-                      child: Text("Report Bug"),
+                  child: TextButton(
+                      child: Text("Report Bug", style: TextStyle(color: Colors.black87)),
                       onPressed: (){
                         showDialog(
                             context: context,
@@ -179,13 +179,13 @@ class PhcrDrawer extends Drawer {
                                         mainAxisSize: MainAxisSize.max,
                                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                         children: [
-                                          OutlineButton(
+                                          TextButton(
                                             child: Text("Privacy Policy"),
                                             onPressed: () async {
                                               await launch('/privacy/');
                                             },
                                           ),
-                                          OutlineButton(
+                                          TextButton(
                                             child: Text("Terms and Conditions"),
                                             onPressed: () async {
                                               await launch('/terms-and-conditions/');
@@ -197,7 +197,7 @@ class PhcrDrawer extends Drawer {
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          OutlineButton(
+                                          TextButton(
                                             child: Text("Join Slack"),
                                             onPressed: () async {
                                               await launch('https://join.slack.com/t/purduehcr/shared_invite/zt-96fxky0h-dp6ceejRxF_CkPjmLROVhA');
@@ -206,7 +206,7 @@ class PhcrDrawer extends Drawer {
                                         ],
                                       ),
                                       Linkable(
-                                        text: APP_CONTACT_INFO,
+                                        text: APP_CONTACT_INFO
                                       ),
                                     ],
                                   ),
@@ -246,4 +246,4 @@ class _DrawerOptions {
 }
 
 const String APP_INFO_DESCRIPTION = "This app is maintained by the PurdueHCR Development Committee. The PurdueHCR Development Committee is a group of students interested in application development and is open for everyone to join.\nIf you are interested in joining, you can join our slack channel.\n";
-const String APP_CONTACT_INFO = "Contact Information:\n\tPurdueHCR: purduehcr@gmail.com\n\nCommittee President\n\tBen Hardin: hardin30@purdue.edu\nResidential Life Adviser\n\tAsa Cutler: cutler4@purdue.edu\nFlutter Developer\n\tBrian Johncox: brianjohncox232@gmail.com";
+const String APP_CONTACT_INFO = "Contact Information:\nPurdueHCR: purduehcr@gmail.com\n\nCommittee President\nBen Hardin: hardin30@purdue.edu\nResidential Life Adviser\nAsa Cutler: cutler4@purdue.edu\nFlutter Developer\nBrian Johncox: brianjohncox232@gmail.com";
