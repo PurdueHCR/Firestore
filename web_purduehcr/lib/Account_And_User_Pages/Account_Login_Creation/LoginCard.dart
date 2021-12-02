@@ -60,6 +60,15 @@ class _LoginCardState extends State<LoginCard> {
                 Padding(
                   padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
                   child: TextField(
+                    textInputAction: TextInputAction.go,
+                    onSubmitted: (value) {
+                      _accountBloc.add(SetAccountPageLoading());
+                      _accountBloc.add(Login(
+                        email: emailController.text,
+                        password: passwordController.text,
+                      ));
+                    },
+
                     obscureText: true,
                     controller: passwordController,
                     decoration: InputDecoration(
@@ -103,6 +112,7 @@ class _LoginCardState extends State<LoginCard> {
                           },
                           child: Text("Log In"),
                         ),
+
                       ),
                     )
                   ],
