@@ -9,6 +9,7 @@ import { getPointLog } from '../src/GetPointLog'
 import { UserPermissionLevel } from '../models/UserPermissionLevel'
 import { PointLogMessage } from '../models/PointLogMessage'
 import { MessageType } from '../models/MessageType'
+import { updatePointLogType } from '../src/UpdatePointLogType'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 import APIUtility from './APIUtility'
 
@@ -137,4 +138,48 @@ logs_app.get('/messages', async (req, res) => {
 		console.error("GET point_log/messages failed with: " + error.toString())
 		APIUtility.handleError(res, error)
 	}
+})
+
+/**
+ * Update the point type associated with a point submission
+ * @param log_id the id for the log to update the PointType of
+ * @param old_point_type the old PointType of the log
+ * @param new_point_type the new PointType for the log
+ * @param already_approved specifies if the point log has already been approved
+ * 
+ * @throws 400 – Unknown Error
+ * @throws 401 – Unauthorized
+ * @throws 403 – Invalid Permission Level
+ * @throws 413 - Unknown Point Log
+ * @throws 422 - Missing required parameters
+ * @throws 500 - Server Error
+ * 
+ */
+
+logs_app.put('/updateSubmissionPointType' , async (req, res) => {
+
+	try {
+		APIUtility.validateRequest(req)
+		
+		const user = await APIUtility.getUser(req)
+		verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP])
+		let house = user.house
+
+		const logId = APIUtility.parseInputForString(req.query, 'log_id')
+
+		const pointLog = await getPointLog(user, house, logId)
+
+		const newPointType = APIUtility.parseInputForNumber(req.query, 'new_point_type')
+		await updatePointLogType(newPointType, logId, house)
+
+		// Add message to log saying that it has been updated
+		let msg = "Point submission changed from type '" + "' to type '" + "'"
+		const message = new PointLogMessage(new Date(Date.now()), msg, MessageType.COMMENT, user.firstName, user.lastName, user.permissionLevel)
+		await submitPointLogMessage(house, pointLog, message, true)
+
+	} catch (error) {
+		console.error("PUT point_log/updateSubmissionPointType failed with: " + error.toString())
+		APIUtility.handleError(res, error)
+	}
+
 })

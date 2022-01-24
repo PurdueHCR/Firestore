@@ -91,6 +91,15 @@ export class PointLog {
         this.residentNotifications = 1
     }
 
+    /**
+     * Set the PointTypeID field in the point log
+     * 
+     * @param newPointType the new point type for the log
+     */
+    updatePointTypeId(newPointType: number) {
+        this.pointTypeId = newPointType
+    }
+
     static fromDocumentSnapshot( document: admin.firestore.DocumentSnapshot): PointLog {
         return this.fromData(document.data()!, document.id);
     }
