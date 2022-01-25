@@ -14,9 +14,14 @@ const REJECTED_STRING = "DENIED: "
  * @param newPointType the new point type for the point log
  * @param documentId the id of the point log to update
  * @param house the user's house
+ * 
+ * @throws 412 - House Competition Disabled
+ * @throws 413 - UnknownPointLog
+ * @throws 500 - Server Error
+ * 
  */
 
-export async function updatePointLogType(newPointTypeId: number, documentId: string, house: string) {
+export async function updatePointLogType(oldPointType: PointType, newPointType: PointType, documentId: string, house: string) {
 
     // Update value in point log
     const db = admin.firestore()
@@ -30,11 +35,6 @@ export async function updatePointLogType(newPointTypeId: number, documentId: str
 
             const log = PointLog.fromDocumentSnapshot(doc)
             let residentId = log.residentId
-
-            const oldPointTypeDoc = await db.collection(HouseCompetition.POINT_TYPES_KEY).doc(log.pointTypeId.toString()).get()
-            const oldPointType = PointType.fromDocumentSnapshot(oldPointTypeDoc)
-            const newPointTypeDoc = await db.collection(HouseCompetition.POINT_TYPES_KEY).doc(newPointTypeId.toString()).get()
-            const newPointType = PointType.fromDocumentSnapshot(newPointTypeDoc)
 
             // If was already approved, then update house and user points
             let already_handled = true
@@ -52,7 +52,13 @@ export async function updatePointLogType(newPointTypeId: number, documentId: str
             }
 
             // Update the point type id on the log
-            log.updatePointTypeId(newPointTypeId)
+            log.updateFieldsWithPointType(newPointType)
+            if (already_handled) {
+                log.updatePointTypeId(Number(newPointType.id))
+            } else {
+                log.updatePointTypeId(-1*Number(newPointType.id))
+            }
+            
 
             await doc_ref.set(log.toFirebaseJSON())
         }

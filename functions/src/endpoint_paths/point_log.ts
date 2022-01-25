@@ -12,6 +12,7 @@ import { MessageType } from '../models/MessageType'
 import { updatePointLogType } from '../src/UpdatePointLogType'
 import { verifyUserHasCorrectPermission } from '../src/VerifyUserHasCorrectPermission'
 import APIUtility from './APIUtility'
+import { getPointTypeById } from '../src/GetPointTypeById'
 
 if(admin.apps.length === 0){
 	admin.initializeApp(functions.config().firebase)
@@ -143,20 +144,19 @@ logs_app.get('/messages', async (req, res) => {
 /**
  * Update the point type associated with a point submission
  * @param log_id the id for the log to update the PointType of
- * @param old_point_type the old PointType of the log
- * @param new_point_type the new PointType for the log
- * @param already_approved specifies if the point log has already been approved
+ * @param new_point_type_id the new PointType for the log
  * 
  * @throws 400 – Unknown Error
  * @throws 401 – Unauthorized
  * @throws 403 – Invalid Permission Level
+ * @throws 412 - House Competition Disabled
  * @throws 413 - Unknown Point Log
+ * @throws 417 - Unknown Point Type
  * @throws 422 - Missing required parameters
  * @throws 500 - Server Error
  * 
  */
-
-logs_app.put('/updateSubmissionPointType' , async (req, res) => {
+logs_app.post('/updateSubmissionPointType' , async (req, res) => {
 
 	try {
 		APIUtility.validateRequest(req)
@@ -165,21 +165,56 @@ logs_app.put('/updateSubmissionPointType' , async (req, res) => {
 		verifyUserHasCorrectPermission(user, [UserPermissionLevel.RHP])
 		let house = user.house
 
-		const logId = APIUtility.parseInputForString(req.query, 'log_id')
+		const logId = APIUtility.parseInputForString(req.body, 'log_id')
 
 		const pointLog = await getPointLog(user, house, logId)
 
-		const newPointType = APIUtility.parseInputForNumber(req.query, 'new_point_type')
-		await updatePointLogType(newPointType, logId, house)
+		const newPointTypeId = APIUtility.parseInputForNumber(req.body, 'new_point_type_id')
+
+		const oldPointType = await getPointTypeById(Math.abs(pointLog.pointTypeId))
+        const newPointType = await getPointTypeById(newPointTypeId)
+		await updatePointLogType(oldPointType, newPointType, logId, house)
 
 		// Add message to log saying that it has been updated
-		let msg = "Point submission changed from type '" + "' to type '" + "'"
+		
+		let msg = "Point submission changed from type '" + oldPointType.name + "' to type '" + newPointType.name + "'"
 		const message = new PointLogMessage(new Date(Date.now()), msg, MessageType.COMMENT, user.firstName, user.lastName, user.permissionLevel)
 		await submitPointLogMessage(house, pointLog, message, true)
+
+		throw APIResponse.Success()
 
 	} catch (error) {
 		console.error("PUT point_log/updateSubmissionPointType failed with: " + error.toString())
 		APIUtility.handleError(res, error)
 	}
 
+})
+
+
+
+/**
+ * Get a point log by it's ID. Can be useful when need to check for updates on a log
+ * @param log_id the id of the log to retrieve
+ * 
+ * @throws 400 – Unknown Error
+ * @throws 413 - Unknown Point Log
+ * @throws 422 - Missing required parameters
+ * @throws 500 - Server Error
+ * 
+ */
+logs_app.get('/getPointLogById', async (req, res) => {
+	try {
+		APIUtility.validateRequest(req)
+
+		const user = await APIUtility.getUser(req)
+		let house = user.house
+		const logId = APIUtility.parseInputForString(req.query, 'log_id')
+
+		const pointLog = await getPointLog(user, house, logId)
+
+		res.status(APIResponse.SUCCESS_CODE).json({pointLog: pointLog.toFirebaseJSON()})
+	} catch (error) {
+		console.error("GET point_log/getPointLogById failed with: " + error.toString())
+		APIUtility.handleError(res, error)
+	}
 })
