@@ -29,7 +29,7 @@
     "firebase-tools": "^8.6.0",
     "glob": "^7.1.6",
     "googleapis": "^58.0.0",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "nodemailer": "^6.4.2",
     "otplib": "^12.0.1",
     "raw-body": "^2.4.1",
