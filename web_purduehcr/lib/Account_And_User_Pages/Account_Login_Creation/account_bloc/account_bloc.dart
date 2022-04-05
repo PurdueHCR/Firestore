@@ -43,7 +43,7 @@ class AccountBloc extends Bloc<AccountEvent, AccountState>{
           yield CreateAccountError(message: "Invalid email. Please use your @purdue.edu email address");
         }
         else if(event.verifyPassword == event.password){
-        //  await _accountRepository.createAccount(event.email, event.password);
+          await _accountRepository.createAccount(event.email, event.password);
           authenticationBloc.add(LoggedIn(houseCode: houseCode));
         }
         else{
@@ -65,7 +65,7 @@ class AccountBloc extends Bloc<AccountEvent, AccountState>{
     }
     else if(event is Login) {
       try {
-       // await _accountRepository.loginUser(event.email, event.password);
+        await _accountRepository.loginUser(event.email, event.password);
         authenticationBloc.add(LoggedIn(houseCode: houseCode));
       }
       on ApiError catch(apiError){

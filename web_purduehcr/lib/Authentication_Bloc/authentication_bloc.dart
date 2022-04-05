@@ -25,7 +25,7 @@ class AuthenticationBloc
 
   // TODO: Remove?
   // @override
-  // AuthenticationState get initialState => AuthUninitialized();
+  AuthenticationState get initialState => AuthUninitialized();
 
   @override
   Stream<AuthenticationState> mapEventToState(AuthenticationEvent event) async* {
