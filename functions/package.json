@@ -45,7 +45,7 @@
     "@types/supertest": "^2.0.9",
     "firebase": "^7.14.3",
     "firebase-functions-test": "^0.2.1",
-    "grpc": "^1.24.2",
+    "grpc": "^1.24.9",
     "jest": "^25.4.0",
     "nyc": "^15.0.1",
     "supertest": "^4.0.2",
